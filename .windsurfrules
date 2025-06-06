@@ -1,0 +1,15 @@
+This project will re-implement the OpenRefine project (https://github.com/OpenRefine/OpenRefine) (https://openrefine.org/).
+
+# TypeScript
+- Never use functions, always use arrow functions.
+- Always use Bun APIs.
+
+# Frontend
+- Based on Vue, PrimeVue, Vite, TypeScript.
+- Test with `bun tsc` command from package.json and report any errors.
+
+# Backend
+- Based on Bun, TypeScript.
+
+# Database
+- Based on DuckDB
