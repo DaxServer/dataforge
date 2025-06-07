@@ -20,11 +20,8 @@ export const initializeDb = async (dbPath: string = 'openrefine.db'): Promise<Du
 
     await connection.run(sql)
 
-    console.log('🦆 DuckDB connected successfully')
-
     return connection
   } catch (error) {
-    console.error('Failed to initialize DuckDB:', error)
     throw error
   }
 }

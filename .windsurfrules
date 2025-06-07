@@ -9,7 +9,13 @@ This project will re-implement the OpenRefine project (https://github.com/OpenRe
 - Test with `bun tsc` command from package.json and report any errors.
 
 # Backend
-- Based on Bun, TypeScript.
+- Based on Elysia, Bun, TypeScript.
+- Do not use try...catch, let the handler handle it.
 
 # Database
 - Based on DuckDB
+
+# Testing
+- Use `bun test` to run tests.
+- Never throw errors in tests.
+- Never use try...catch in tests.
