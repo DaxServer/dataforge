@@ -29,7 +29,6 @@ describe('Database', () => {
     test('should close the database connection', async () => {
       // Initialize and get the database connection
       await initializeDb(':memory:')
-      const db = getDb()
 
       // Close the connection
       await closeDb()

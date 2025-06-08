@@ -1,6 +1,6 @@
-import { Elysia, t } from 'elysia'
+import { Elysia } from 'elysia'
 import { createProject, getAllProjects } from './handlers'
-import { CreateProjectSchema } from './schemas'
+import { CreateProjectSchema, GetAllProjectsSchema } from './schemas'
 
 export const projectRoutes = new Elysia({ prefix: '/project' })
   // Add global error handler
@@ -39,5 +39,5 @@ export const projectRoutes = new Elysia({ prefix: '/project' })
       ],
     }
   })
-  .get('/', getAllProjects)
+  .get('/', getAllProjects, GetAllProjectsSchema)
   .post('/', createProject, CreateProjectSchema)

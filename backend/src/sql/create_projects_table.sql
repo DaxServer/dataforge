@@ -2,8 +2,6 @@
 CREATE TABLE IF NOT EXISTS _meta_projects (
   id UUID PRIMARY KEY DEFAULT uuid(),
   name TEXT NOT NULL,
-  description TEXT,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
-  updated_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
-  config JSON
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT now()
 );

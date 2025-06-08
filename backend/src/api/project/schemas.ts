@@ -11,23 +11,23 @@ export const errorResponseSchema = t.Object({
   ),
 })
 
-// Project schemas
-// Base project properties
+// Shared project schema
+const projectResponseSchema = t.Object({
+  id: t.String(),
+  name: t.String(),
+  created_at: t.String(),
+  updated_at: t.String(),
+})
+
+// Project types
+export type Project = typeof projectResponseSchema.static
+
+// Base project properties for creation/update
 const projectBase = {
   name: t.String({
     minLength: 1,
     error: 'Project name is required and must be at least 1 character long',
   }),
-  description: t.Optional(
-    t.String({
-      error: 'Project description must be a string',
-    })
-  ),
-  config: t.Optional(
-    t.Record(t.String(), t.Any(), {
-      error: 'Project config must be a valid JSON object',
-    })
-  ),
 }
 
 const projectSchema = {
@@ -35,16 +35,17 @@ const projectSchema = {
     body: t.Object(projectBase),
     response: {
       201: t.Object({
-        data: t.Object({
-          id: t.String(),
-          name: t.String(),
-          description: t.Union([t.String(), t.Null()]),
-          config: t.Union([t.Record(t.String(), t.Any()), t.Null()]),
-          created_at: t.String(),
-          updated_at: t.String(),
-        }),
+        data: projectResponseSchema,
       }),
       422: errorResponseSchema,
+      500: errorResponseSchema,
+    },
+  },
+  getAll: {
+    response: {
+      200: t.Object({
+        data: t.Array(projectResponseSchema),
+      }),
       500: errorResponseSchema,
     },
   },
@@ -52,4 +53,6 @@ const projectSchema = {
 
 // Export types for use in handlers
 export type CreateProjectInput = typeof projectSchema.create.body.static
+
 export const CreateProjectSchema = projectSchema.create
+export const GetAllProjectsSchema = projectSchema.getAll
