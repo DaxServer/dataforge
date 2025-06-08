@@ -41,6 +41,20 @@ const projectSchema = {
       500: errorResponseSchema,
     },
   },
+  delete: {
+    params: t.Object({
+      id: t.String({
+        pattern: '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$',
+        error: 'ID must be a valid UUID',
+      }),
+    }),
+    response: {
+      204: t.Void(),
+      404: errorResponseSchema,
+      422: errorResponseSchema,
+      500: errorResponseSchema,
+    },
+  },
   getAll: {
     response: {
       200: t.Object({
@@ -56,3 +70,4 @@ export type CreateProjectInput = typeof projectSchema.create.body.static
 
 export const CreateProjectSchema = projectSchema.create
 export const GetAllProjectsSchema = projectSchema.getAll
+export const DeleteProjectSchema = projectSchema.delete

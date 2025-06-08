@@ -44,3 +44,21 @@ export const createProject = async ({
     data: project as Project,
   }
 }
+
+export const deleteProject = async ({ params, set }: Context<{ params: { id: string } }>) => {
+  const db = getDb()
+
+  // Delete the project and return the deleted row if it exists
+  const reader = await db.runAndReadAll('DELETE FROM _meta_projects WHERE id = ? RETURNING id', [
+    params.id,
+  ])
+
+  const deleted = reader.getRowObjectsJson()
+
+  if (deleted.length === 0) {
+    set.status = 404
+    return new Response(null)
+  }
+
+  set.status = 204
+}

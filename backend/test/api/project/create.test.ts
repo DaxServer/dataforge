@@ -69,16 +69,16 @@ describe('createProject', () => {
 
       expect(response.status).toBe(422)
       const body = await response.json()
-      expect(body).toMatchObject({
+      expect(body).toEqual({
         errors: [
           {
             code: 'VALIDATION',
             message: 'Validation failed',
             details: [
-              expect.objectContaining({
-                message: 'Expected string',
+              {
                 path: '/name',
-              }),
+                message: 'Expected string',
+              },
             ],
           },
         ],
@@ -98,17 +98,17 @@ describe('createProject', () => {
 
       expect(response.status).toBe(422)
       const body = await response.json()
-      expect(body).toMatchObject({
+      expect(body).toEqual({
         errors: [
           {
             code: 'VALIDATION',
             message: 'Validation failed',
             details: [
-              expect.objectContaining({
-                message: 'Expected string length greater or equal to 1',
+              {
                 path: '/name',
+                message: 'Expected string length greater or equal to 1',
                 received: '',
-              }),
+              },
             ],
           },
         ],
