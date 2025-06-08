@@ -1,9 +1,8 @@
 import { Elysia } from 'elysia'
-import { createProject, getAllProjects } from './handlers'
-import { CreateProjectSchema, GetAllProjectsSchema } from './schemas'
+import { createProject, deleteProject, getAllProjects } from './handlers'
+import { CreateProjectSchema, DeleteProjectSchema, GetAllProjectsSchema } from './schemas'
 
 export const projectRoutes = new Elysia({ prefix: '/project' })
-  // Add global error handler
   .onError(({ code, error, set }) => {
     // Handle validation errors
     if (code === 'VALIDATION') {
@@ -41,3 +40,4 @@ export const projectRoutes = new Elysia({ prefix: '/project' })
   })
   .get('/', getAllProjects, GetAllProjectsSchema)
   .post('/', createProject, CreateProjectSchema)
+  .delete('/:id', deleteProject, DeleteProjectSchema)

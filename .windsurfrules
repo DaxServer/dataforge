@@ -26,3 +26,4 @@ This project will re-implement the OpenRefine project (https://github.com/OpenRe
 - Always refer to Bun docs to understand how to write tests.
 - Never throw errors in tests.
 - Never use try...catch in tests.
+- Test the response directly without destructuring.
