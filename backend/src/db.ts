@@ -7,23 +7,19 @@ let instance: DuckDBInstance | null = null
 export const initializeDb = async (dbPath: string = 'openrefine.db'): Promise<DuckDBConnection> => {
   if (connection) return connection
 
-  try {
-    // Create a new database instance
-    instance = await DuckDBInstance.create(dbPath)
+  // Create a new database instance
+  instance = await DuckDBInstance.create(dbPath)
 
-    // Connect to the database
-    connection = await instance.connect()
+  // Connect to the database
+  connection = await instance.connect()
 
-    // Read and execute the SQL file using Bun's file API
-    const sqlPath = path.join(import.meta.dir, 'sql', 'create_projects_table.sql')
-    const sql = await Bun.file(sqlPath).text()
+  // Read and execute the SQL file using Bun's file API
+  const sqlPath = path.join(import.meta.dir, 'sql', 'create_projects_table.sql')
+  const sql = await Bun.file(sqlPath).text()
 
-    await connection.run(sql)
+  await connection.run(sql)
 
-    return connection
-  } catch (error) {
-    throw error
-  }
+  return connection
 }
 
 export const getDb = (): DuckDBConnection => {
