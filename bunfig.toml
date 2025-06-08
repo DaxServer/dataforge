@@ -1,0 +1,8 @@
+[install]
+# Install devDependencies by default
+dev = true
+prefer = "online"
+
+[workspaces]
+# List of workspace package paths
+workspace = ["frontend", "backend"]
