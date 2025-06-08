@@ -1,14 +1,30 @@
 import { t } from 'elysia'
 
+export const ErrorSchema = t.Union([
+  t.Object({
+    code: t.Literal('VALIDATION'),
+    message: t.Literal('Invalid file content'),
+  }),
+  t.Object({
+    code: t.Literal('MISSING_FILE_PATH'),
+    message: t.Literal('File path is required'),
+  }),
+  t.Object({
+    code: t.Literal('FILE_NOT_FOUND'),
+    message: t.Literal('File not found'),
+    details: t.Object({
+      filePath: t.String(),
+    }),
+  }),
+  t.Object({
+    code: t.Literal('TABLE_ALREADY_EXISTS'),
+    message: t.String(),
+  }),
+])
+
 // Convert ErrorResponse interface to a schema
 export const errorResponseSchema = t.Object({
-  errors: t.Array(
-    t.Object({
-      code: t.String(),
-      message: t.String(),
-      details: t.Record(t.String(), t.Unknown()),
-    })
-  ),
+  errors: t.Array(ErrorSchema),
 })
 
 // Shared project schema
@@ -18,6 +34,36 @@ const projectResponseSchema = t.Object({
   created_at: t.String(),
   updated_at: t.String(),
 })
+
+export const importSchema = {
+  import: {
+    body: t.Object({
+      filePath: t.String(),
+    }),
+    response: {
+      201: t.Void(),
+      400: errorResponseSchema,
+      500: errorResponseSchema,
+    },
+  },
+}
+
+export const importSchema = {
+  import: {
+    params: t.Object({
+      id: t.String(),
+    }),
+    body: t.Object({
+      filePath: t.String(),
+    }),
+    response: {
+      201: t.Void(),
+      400: errorResponseSchema,
+      500: errorResponseSchema,
+      409: errorResponseSchema,
+    },
+  },
+}
 
 // Project types
 export type Project = typeof projectResponseSchema.static
@@ -71,3 +117,6 @@ export type CreateProjectInput = typeof projectSchema.create.body.static
 export const CreateProjectSchema = projectSchema.create
 export const GetAllProjectsSchema = projectSchema.getAll
 export const DeleteProjectSchema = projectSchema.delete
+
+export const ImportProjectSchema = importSchema.import
+export type ImportProjectInput = typeof importSchema.import.body.static

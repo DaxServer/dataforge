@@ -3,6 +3,9 @@
   "workspaces": {
     "": {
       "name": "openrefine",
+      "devDependencies": {
+        "@types/node": "^22.15.30",
+      },
     },
     "backend": {
       "name": "backend",
