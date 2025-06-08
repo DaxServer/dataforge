@@ -1,5 +1,14 @@
 /// <reference types="bun-types" />
-import { afterEach, beforeEach, describe, expect, test } from 'bun:test'
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  test,
+  beforeAll,
+  afterAll,
+  setSystemTime,
+} from 'bun:test'
 import { Elysia } from 'elysia'
 import { projectRoutes } from '../../../src/api/project'
 import { closeDb, initializeDb } from '../../../src/db'
@@ -18,14 +27,14 @@ describe('getAllProjects', () => {
     {
       id: '550e8400-e29b-41d4-a716-446655440000',
       name: 'Test Project 1',
-      created_at: '2023-01-01T00:00:00.000Z',
-      updated_at: '2023-01-01T00:00:00.000Z',
+      created_at: '2023-01-01 00:00:00',
+      updated_at: '2023-01-01 00:00:00',
     },
     {
       id: '550e8400-e29b-41d4-a716-446655440001',
       name: 'Test Project 2',
-      created_at: '2023-01-02T00:00:00.000Z',
-      updated_at: '2023-01-02T00:00:00.000Z',
+      created_at: '2023-01-02 00:00:00',
+      updated_at: '2023-01-02 00:00:00',
     },
   ]
 
@@ -47,10 +56,21 @@ describe('getAllProjects', () => {
     }
   })
 
+  // Mock system time for consistent testing
+  beforeAll(() => {
+    // Set a fixed date for all tests
+    setSystemTime(new Date('2023-01-03T00:00:00.000Z'))
+  })
+
   // Clean up after each test
   afterEach(async () => {
     // Close the database connection
     await closeDb()
+  })
+
+  // Restore real timers after all tests
+  afterAll(() => {
+    setSystemTime() // Reset to real time
   })
 
   test('should return an empty array when no projects exist', async () => {
@@ -71,7 +91,7 @@ describe('getAllProjects', () => {
     })
   })
 
-  test('should return all projects', async () => {
+  test('should return all projects with consistent timestamps', async () => {
     const response = await app.handle(
       new Request('http://localhost/project', {
         method: 'GET',
@@ -81,14 +101,17 @@ describe('getAllProjects', () => {
     expect(response.status).toBe(200)
     const body = await response.json()
 
+    // Sort projects by created_at in descending order
     const expectedProjects = [...sampleProjects]
       .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
       .map((project) => ({
         ...project,
-        created_at: expect.stringMatching(/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\+\d{2}$/),
-        updated_at: expect.stringMatching(/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\+\d{2}$/),
+        // DuckDB returns timestamps in format: 'YYYY-MM-DD HH:MM:SS' (naive timestamp without timezone)
+        created_at: project.created_at,
+        updated_at: project.updated_at,
       }))
 
+    // Verify the structure and exact values
     expect(body).toEqual({
       data: expectedProjects,
     })
