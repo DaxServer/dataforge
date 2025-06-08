@@ -6,7 +6,9 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "lint": "eslint . --ext .ts --ext .vue",
+    "typecheck": "vue-tsc --noEmit"
   },
   "dependencies": {
     "@primeuix/themes": "^1.1.1",
@@ -27,25 +29,25 @@
     "@tailwindcss/vite": "^4.1.8",
     "@tsconfig/node22": "^22.0.2",
     "@types/node": "^22.15.30",
-    "@typescript-eslint/eslint-plugin": "^8.33.1",
+    "@typescript-eslint/eslint-plugin": "catalog:",
     "@vitejs/plugin-vue": "^5.2.4",
-    "@vue/eslint-config-prettier": "^10.2.0",
-    "@vue/eslint-config-typescript": "^14.5.0",
+    "@vue/eslint-config-prettier": "catalog:",
+    "@vue/eslint-config-typescript": "catalog:",
     "@vue/tsconfig": "^0.7.0",
     "autoprefixer": "^10.4.21",
+    "bun-types": "catalog:",
     "cssnano": "^7.0.7",
-    "eslint": "^9.28.0",
-    "eslint-plugin-security": "^3.0.1",
+    "eslint": "catalog:",
+    "eslint-plugin-prettier": "catalog:",
     "eslint-plugin-vue": "^10.1.0",
     "postcss": "^8.5.4",
-    "prettier": "^3.5.3",
+    "prettier": "catalog:",
     "tailwindcss": "^4.1.8",
-    "typescript": "5.8.3",
+    "typescript": "catalog:",
     "unplugin-auto-import": "^19.3.0",
     "unplugin-vue-components": "^28.7.0",
     "vite": "^6.3.5",
     "vite-plugin-vue-devtools": "^7.7.6",
-    "vue-tsc": "^2.2.10",
-    "wait-on": "^8.0.3"
+    "vue-tsc": "^2.2.10"
   }
 }
