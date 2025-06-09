@@ -14,6 +14,10 @@ export const ErrorSchema = t.Union([
     message: t.Literal('File is required'),
   }),
   t.Object({
+    code: t.Literal('INVALID_FILE_TYPE'),
+    message: t.Literal('Only JSON files are supported'),
+  }),
+  t.Object({
     code: t.Literal('FILE_NOT_FOUND'),
     message: t.Literal('File not found'),
     details: t.Object({

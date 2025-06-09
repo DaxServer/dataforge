@@ -112,3 +112,19 @@ export const importProject = async ({
     }
   }
 }
+
+export const importProjectFile = async ({ set }: Context) => {
+  // File type validation is handled by Elysia schema validation
+  // which returns 422 for invalid file types
+
+  // For now, just return a 500 as we're still implementing the handler
+  set.status = 500
+  return {
+    errors: [
+      {
+        code: 'INTERNAL_SERVER_ERROR',
+        message: 'Handler not fully implemented yet',
+      },
+    ],
+  }
+}
