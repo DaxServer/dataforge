@@ -3,8 +3,12 @@
   "workspaces": {
     "": {
       "name": "openrefine",
+      "dependencies": {
+        "@elysiajs/eden": "^1.3.2",
+      },
       "devDependencies": {
         "@types/node": "^22.15.30",
+        "elysia": "^1.3.4",
       },
     },
     "backend": {
@@ -167,6 +171,8 @@
     "@duckdb/node-bindings-win32-x64": ["@duckdb/node-bindings-win32-x64@1.3.0-alpha.21", "", { "os": "win32", "cpu": "x64" }, "sha512-naZKqsDj85hs1ZvHod3ead8ZhTaN8nNGesMJckiC08yUOf3gKBzwlmR1ViSv0DhUmorX6xlUhYDzEt2vnIRDbA=="],
 
     "@egoist/tailwindcss-icons": ["@egoist/tailwindcss-icons@1.9.0", "", { "dependencies": { "@iconify/utils": "^2.2.1" }, "peerDependencies": { "tailwindcss": "*" } }, "sha512-xWA9cUy6hzlK7Y6TaoRIcwmilSXiTJ8rbXcEdf9uht7yzDgw/yIgF4rThIQMrpD2Y2v4od51+r2y6Z7GStanDQ=="],
+
+    "@elysiajs/eden": ["@elysiajs/eden@1.3.2", "", { "peerDependencies": { "elysia": ">= 1.3.0" } }, "sha512-0bCU5DO7J7hQfS2y3O3399GtoxMWRDMgQNMTHOnf70/F2nF8SwGHvzwh3+wO62Ko5FMF7EYqTN9Csw/g/Q7qwg=="],
 
     "@elysiajs/swagger": ["@elysiajs/swagger@1.3.0", "", { "dependencies": { "@scalar/themes": "^0.9.52", "@scalar/types": "^0.0.12", "openapi-types": "^12.1.3", "pathe": "^1.1.2" }, "peerDependencies": { "elysia": ">= 1.3.0" } }, "sha512-0fo3FWkDRPNYpowJvLz3jBHe9bFe6gruZUyf+feKvUEEMG9ZHptO1jolSoPE0ffFw1BgN1/wMsP19p4GRXKdfg=="],
 
