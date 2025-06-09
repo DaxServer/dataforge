@@ -80,4 +80,40 @@ describe('POST /project/:projectId/import-file', () => {
       ],
     })
   })
+
+  test('should return 422 for empty file', async () => {
+    const projectId = 'test-project-id'
+
+    // Create an empty file
+    const file = new File([], 'empty-file.json', { type: 'application/json' })
+
+    // Create a FormData object and append the file
+    const formData = new FormData()
+    formData.append('file', file)
+
+    const res = await app.handle(
+      new Request(`http://localhost/project/${projectId}/import/file`, {
+        method: 'POST',
+        body: formData,
+      })
+    )
+
+    expect(res.status).toBe(422)
+    const responseBody = await res.json()
+    expect(responseBody).toEqual({
+      errors: [
+        {
+          code: 'VALIDATION',
+          details: [
+            {
+              message: "Expected kind 'File'",
+              path: '/file',
+              received: {},
+            },
+          ],
+          message: 'Validation failed',
+        },
+      ],
+    })
+  })
 })

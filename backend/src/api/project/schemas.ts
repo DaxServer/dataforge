@@ -18,6 +18,10 @@ export const ErrorSchema = t.Union([
     message: t.Literal('Only JSON files are supported'),
   }),
   t.Object({
+    code: t.Literal('EMPTY_FILE'),
+    message: t.Literal('File cannot be empty'),
+  }),
+  t.Object({
     code: t.Literal('FILE_NOT_FOUND'),
     message: t.Literal('File not found'),
     details: t.Object({
@@ -65,12 +69,14 @@ export const importSchema = {
     body: t.Object({
       file: t.File({
         type: 'application/json',
+        minSize: 1, // Reject empty files
       }),
     }),
     response: {
       201: t.Void(),
       400: errorResponseSchema,
       409: errorResponseSchema,
+      422: errorResponseSchema,
       500: errorResponseSchema,
     },
   },
