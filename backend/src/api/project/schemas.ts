@@ -37,19 +37,6 @@ const projectResponseSchema = t.Object({
 
 export const importSchema = {
   import: {
-    body: t.Object({
-      filePath: t.String(),
-    }),
-    response: {
-      201: t.Void(),
-      400: errorResponseSchema,
-      500: errorResponseSchema,
-    },
-  },
-}
-
-export const importSchema = {
-  import: {
     params: t.Object({
       id: t.String(),
     }),
