@@ -10,6 +10,18 @@ export const ErrorSchema = t.Union([
     message: t.Literal('File path is required'),
   }),
   t.Object({
+    code: t.Literal('MISSING_FILE'),
+    message: t.Literal('File is required'),
+  }),
+  t.Object({
+    code: t.Literal('INVALID_FILE_TYPE'),
+    message: t.Literal('Only JSON files are supported'),
+  }),
+  t.Object({
+    code: t.Literal('EMPTY_FILE'),
+    message: t.Literal('File cannot be empty'),
+  }),
+  t.Object({
     code: t.Literal('FILE_NOT_FOUND'),
     message: t.Literal('File not found'),
     details: t.Object({
@@ -46,8 +58,26 @@ export const importSchema = {
     response: {
       201: t.Void(),
       400: errorResponseSchema,
-      500: errorResponseSchema,
       409: errorResponseSchema,
+      500: errorResponseSchema,
+    },
+  },
+  importFile: {
+    params: t.Object({
+      id: t.String(),
+    }),
+    body: t.Object({
+      file: t.File({
+        type: 'application/json',
+        minSize: 1, // Reject empty files
+      }),
+    }),
+    response: {
+      201: t.Void(),
+      400: errorResponseSchema,
+      409: errorResponseSchema,
+      422: errorResponseSchema,
+      500: errorResponseSchema,
     },
   },
 }
@@ -107,3 +137,6 @@ export const DeleteProjectSchema = projectSchema.delete
 
 export const ImportProjectSchema = importSchema.import
 export type ImportProjectInput = typeof importSchema.import.body.static
+
+export const ImportFileProjectSchema = importSchema.importFile
+export type ImportFileProjectInput = typeof importSchema.importFile.body.static

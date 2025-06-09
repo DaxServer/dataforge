@@ -47,8 +47,8 @@ export const importProject = async ({
   let tableExistsReader
   try {
     tableExistsReader = await db.runAndReadAll(
-      `SELECT 1 FROM duckdb_tables() WHERE table_name = 'project_${id}'`,
-    );
+      `SELECT 1 FROM duckdb_tables() WHERE table_name = 'project_${id}'`
+    )
   } catch (error) {
     set.status = 500
     return {
@@ -83,8 +83,12 @@ export const importProject = async ({
   } catch (error) {
     // Check if the error is related to JSON parsing
     const errorMessage = String(error)
-    if (errorMessage.includes('JSON') || errorMessage.includes('json') ||
-        errorMessage.includes('parse') || errorMessage.includes('Parse')) {
+    if (
+      errorMessage.includes('JSON') ||
+      errorMessage.includes('json') ||
+      errorMessage.includes('parse') ||
+      errorMessage.includes('Parse')
+    ) {
       set.status = 400
       return {
         errors: [
@@ -106,5 +110,21 @@ export const importProject = async ({
         },
       ],
     }
+  }
+}
+
+export const importProjectFile = async ({ set }: Context) => {
+  // File type validation is handled by Elysia schema validation
+  // which returns 422 for invalid file types
+
+  // For now, just return a 500 as we're still implementing the handler
+  set.status = 500
+  return {
+    errors: [
+      {
+        code: 'INTERNAL_SERVER_ERROR',
+        message: 'Handler not fully implemented yet',
+      },
+    ],
   }
 }
