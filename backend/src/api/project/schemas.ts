@@ -68,12 +68,16 @@ export const importSchema = {
     }),
     body: t.Object({
       file: t.File({
-        type: 'application/json',
+        // Note: File type validation has known issues in Elysia 1.3.x
+        // See: https://github.com/elysiajs/elysia/issues/1073
+        // type: ['application/json'], // Temporarily disabled due to validation issues
         minSize: 1, // Reject empty files
       }),
     }),
     response: {
-      201: t.Void(),
+      201: t.Object({
+        tempFilePath: t.String(),
+      }),
       400: errorResponseSchema,
       409: errorResponseSchema,
       422: errorResponseSchema,

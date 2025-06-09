@@ -113,18 +113,42 @@ export const importProject = async ({
   }
 }
 
-export const importProjectFile = async ({ set }: Context) => {
-  // File type validation is handled by Elysia schema validation
-  // which returns 422 for invalid file types
+export const importProjectFile = async ({ set, body }: Context) => {
+  try {
+    // File type validation is handled by Elysia schema validation
+    // which returns 422 for invalid file types
 
-  // For now, just return a 500 as we're still implementing the handler
-  set.status = 500
-  return {
-    errors: [
-      {
-        code: 'INTERNAL_SERVER_ERROR',
-        message: 'Handler not fully implemented yet',
-      },
-    ],
+    const { file } = body as { file: File }
+
+    // Generate a unique temporary file name
+    const timestamp = Date.now()
+    const randomSuffix = Math.random().toString(36).substring(2, 8)
+    const tempFileName = `temp_${timestamp}_${randomSuffix}.json`
+    const tempFilePath = `./temp/${tempFileName}`
+
+    // Convert file to buffer and save to temporary location
+    const fileBuffer = await file.arrayBuffer()
+    const uint8Array = new Uint8Array(fileBuffer)
+    const buffer = Buffer.from(uint8Array)
+
+    // Write the file to temporary location using Bun.write <mcreference link="https://bun.sh/docs/api/file-io" index="1">1</mcreference>
+    await Bun.write(tempFilePath, buffer)
+
+    set.status = 201
+    return {
+      tempFilePath,
+      message: 'File uploaded successfully',
+    }
+  } catch (error) {
+    console.error('Error saving uploaded file:', error)
+    set.status = 500
+    return {
+      errors: [
+        {
+          code: 'INTERNAL_SERVER_ERROR',
+          message: 'Failed to save uploaded file',
+        },
+      ],
+    }
   }
 }
