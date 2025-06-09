@@ -3,15 +3,16 @@ import { afterEach, beforeEach, describe, expect, test } from 'bun:test'
 import { Elysia } from 'elysia'
 import { projectRoutes } from '../../../src/api/project'
 import { closeDb, initializeDb } from '../../../src/db'
+import { treaty } from '@elysiajs/eden'
 
 // Create a test app with the project routes
-const createTestApp = () => {
-  return new Elysia().use(projectRoutes)
+const createTestApi = () => {
+  return treaty(new Elysia().use(projectRoutes))
 }
 
 describe('createProject', () => {
   // Create a test app instance for each test
-  let app: ReturnType<typeof createTestApp>
+  let api: ReturnType<typeof createTestApi>
 
   // Set up and clean up database for each test
   beforeEach(async () => {
@@ -19,7 +20,7 @@ describe('createProject', () => {
     await initializeDb(':memory:')
 
     // Create a fresh app instance for each test
-    app = createTestApp()
+    api = createTestApi()
   })
 
   // Clean up after each test
@@ -34,18 +35,11 @@ describe('createProject', () => {
         name: 'Test Project',
       }
 
-      const response = await app.handle(
-        new Request('http://localhost/project', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(projectData),
-        })
-      )
+      const { data, status, error } = await api.project.post(projectData)
 
       // Verify the response status and structure
-      expect(response.status).toBe(201)
-      const body = await response.json()
-      expect(body).toMatchObject({
+      expect(status).toBe(201)
+      expect(data).toMatchObject({
         data: {
           name: projectData.name,
           id: expect.stringMatching(
@@ -56,20 +50,20 @@ describe('createProject', () => {
           updated_at: expect.stringMatching(/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}(\.\d{1,3})?$/),
         },
       })
+      expect(error).toBeNull()
     })
 
     test('should return 422 when name is missing', async () => {
-      const response = await app.handle(
-        new Request('http://localhost/project', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({}),
-        })
-      )
+      // @ts-ignore
+      const { data, status, error } = await api.project.post({})
 
-      expect(response.status).toBe(422)
-      const body = await response.json()
-      expect(body).toEqual({
+      expect(status).toBe(422)
+      expect(data).toBeNull()
+
+      // Check that the error object has the expected structure
+      expect(error).toBeDefined()
+      expect(error).toHaveProperty('status', 422)
+      expect(error).toHaveProperty('value', {
         errors: [
           {
             code: 'VALIDATION',
@@ -86,19 +80,17 @@ describe('createProject', () => {
     })
 
     test('should return 422 when name is empty', async () => {
-      const response = await app.handle(
-        new Request('http://localhost/project', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            name: '',
-          }),
-        })
-      )
+      const { data, status, error } = await api.project.post({
+        name: '',
+      })
 
-      expect(response.status).toBe(422)
-      const body = await response.json()
-      expect(body).toEqual({
+      expect(status).toBe(422)
+      expect(data).toBeNull()
+
+      // Check that the error object has the expected structure
+      expect(error).toBeDefined()
+      expect(error).toHaveProperty('status', 422)
+      expect(error).toHaveProperty('value', {
         errors: [
           {
             code: 'VALIDATION',

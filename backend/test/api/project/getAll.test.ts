@@ -12,15 +12,16 @@ import {
 import { Elysia } from 'elysia'
 import { projectRoutes } from '../../../src/api/project'
 import { closeDb, initializeDb } from '../../../src/db'
+import { treaty } from '@elysiajs/eden'
 
 // Create a test app with the project routes
-const createTestApp = () => {
-  return new Elysia().use(projectRoutes)
+const createTestApi = () => {
+  return treaty(new Elysia().use(projectRoutes))
 }
 
 describe('getAllProjects', () => {
   // Create a test app instance for each test
-  let app: ReturnType<typeof createTestApp>
+  let api: ReturnType<typeof createTestApi>
 
   // Sample project data for testing
   const sampleProjects = [
@@ -44,7 +45,7 @@ describe('getAllProjects', () => {
     await initializeDb(':memory:')
 
     // Create a fresh app instance for each test
-    app = createTestApp()
+    api = createTestApi()
 
     // Insert sample projects
     const db = (await import('../../../src/db')).getDb()
@@ -78,28 +79,17 @@ describe('getAllProjects', () => {
     const db = (await import('../../../src/db')).getDb()
     await db.run('DELETE FROM _meta_projects')
 
-    const response = await app.handle(
-      new Request('http://localhost/project', {
-        method: 'GET',
-      })
-    )
+    const { data, status, error } = await api.project.get()
 
-    expect(response.status).toBe(200)
-    const body = await response.json()
-    expect(body).toEqual({
+    expect(status).toBe(200)
+    expect(error).toBeNull()
+    expect(data).toStrictEqual({
       data: [],
     })
   })
 
   test('should return all projects with consistent timestamps', async () => {
-    const response = await app.handle(
-      new Request('http://localhost/project', {
-        method: 'GET',
-      })
-    )
-
-    expect(response.status).toBe(200)
-    const body = await response.json()
+    const { data, status, error } = await api.project.get()
 
     // Sort projects by created_at in descending order
     const expectedProjects = [...sampleProjects]
@@ -112,8 +102,10 @@ describe('getAllProjects', () => {
       }))
 
     // Verify the structure and exact values
-    expect(body).toEqual({
+    expect(status).toBe(200)
+    expect(data).toEqual({
       data: expectedProjects,
     })
+    expect(error).toBeNull()
   })
 })

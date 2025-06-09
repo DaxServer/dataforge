@@ -2,19 +2,19 @@ import { describe, expect, test, beforeEach, afterEach } from 'bun:test'
 import { Elysia } from 'elysia'
 import { projectRoutes } from '../../../src/api/project'
 import { initializeDb, getDb, closeDb } from '../../../src/db'
+import { treaty } from '@elysiajs/eden'
 
 // Create a test app with the project import routes
-const createTestApp = () => {
-  const app = new Elysia()
-  return app.use(projectRoutes)
+const createTestApi = () => {
+  return treaty(new Elysia().use(projectRoutes))
 }
 
 describe('POST /project/:projectId/import', () => {
-  let app: ReturnType<typeof createTestApp>
+  let api: ReturnType<typeof createTestApi>
 
   beforeEach(async () => {
     await initializeDb(':memory:')
-    app = createTestApp()
+    api = createTestApi()
   })
 
   afterEach(async () => {
@@ -26,19 +26,13 @@ describe('POST /project/:projectId/import', () => {
     const tempFilePath = './temp-test-file.json'
     await Bun.write(tempFilePath, JSON.stringify({ test: 'data' }))
 
-    const res = await app.handle(
-      new Request(`http://localhost/project/${projectId}/import`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ filePath: tempFilePath }),
-      })
-    )
+    const { data, status, error } = await api.project({ id: projectId }).import.post({
+      filePath: tempFilePath,
+    })
 
-    expect(res.status).toBe(201)
-    const text = await res.text()
-    expect(text).toBe('')
+    expect(status).toBe(201)
+    expect(data).toBe('')
+    expect(error).toBeNull()
 
     await Bun.file(tempFilePath).delete()
   })
@@ -46,19 +40,15 @@ describe('POST /project/:projectId/import', () => {
   test('should return 400 for a missing JSON file', async () => {
     const projectId = 'test-project-id'
     const nonExistentFilePath = '/path/to/non-existent-file.json'
-    const res = await app.handle(
-      new Request(`http://localhost/project/${projectId}/import`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ filePath: nonExistentFilePath }),
-      })
-    )
+    const { data, status, error } = await api.project({ id: projectId }).import.post({
+      filePath: nonExistentFilePath,
+    })
 
-    expect(res.status).toBe(400)
-    const body = await res.json()
-    expect(body).toEqual({
+    expect(status).toBe(400)
+    expect(data).toBeNull()
+    expect(error).toBeDefined()
+    expect(error).toHaveProperty('status', 400)
+    expect(error).toHaveProperty('value', {
       errors: [
         {
           code: 'FILE_NOT_FOUND',
@@ -76,19 +66,15 @@ describe('POST /project/:projectId/import', () => {
     const tempFilePath = './temp-invalid-json-file.json'
     await Bun.write(tempFilePath, 'this is not valid json')
 
-    const res = await app.handle(
-      new Request(`http://localhost/project/${projectId}/import`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ filePath: tempFilePath }),
-      })
-    )
+    const { data, status, error } = await api.project({ id: projectId }).import.post({
+      filePath: tempFilePath,
+    })
 
-    expect(res.status).toBe(400)
-    const body = await res.json()
-    expect(body).toEqual({
+    expect(status).toBe(400)
+    expect(data).toBeNull()
+    expect(error).toBeDefined()
+    expect(error).toHaveProperty('status', 400)
+    expect(error).toHaveProperty('value', {
       errors: [
         {
           code: 'VALIDATION',
@@ -106,17 +92,13 @@ describe('POST /project/:projectId/import', () => {
     const testData = [{ id: 1, name: 'test' }]
     await Bun.write(tempFilePath, JSON.stringify(testData))
 
-    const res = await app.handle(
-      new Request(`http://localhost/project/${projectId}/import`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ filePath: tempFilePath }),
-      })
-    )
+    const { data, status, error } = await api.project({ id: projectId }).import.post({
+      filePath: tempFilePath,
+    })
 
-    expect(res.status).toBe(201)
+    expect(status).toBe(201)
+    expect(data).toBe('')
+    expect(error).toBeNull()
 
     // Verify table creation in DuckDB
     const db = getDb()
@@ -135,31 +117,27 @@ describe('POST /project/:projectId/import', () => {
     await Bun.write(tempFilePath, JSON.stringify(testData))
 
     // First import - should succeed
-    const firstRes = await app.handle(
-      new Request(`http://localhost/project/${projectId}/import`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ filePath: tempFilePath }),
-      })
-    )
-    expect(firstRes.status).toBe(201)
+    const {
+      data: firstData,
+      status: firstStatus,
+      error: firstError,
+    } = await api.project({ id: projectId }).import.post({
+      filePath: tempFilePath,
+    })
+    expect(firstStatus).toBe(201)
+    expect(firstData).toBe('')
+    expect(firstError).toBeNull()
 
     // Second import with same project ID - should fail with 409
-    const secondRes = await app.handle(
-      new Request(`http://localhost/project/${projectId}/import`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ filePath: tempFilePath }),
-      })
-    )
+    const { data, status, error } = await api.project({ id: projectId }).import.post({
+      filePath: tempFilePath,
+    })
 
-    expect(secondRes.status).toBe(409)
-    const body = await secondRes.json()
-    expect(body).toEqual({
+    expect(status).toBe(409)
+    expect(data).toBeNull()
+    expect(error).toBeDefined()
+    expect(error).toHaveProperty('status', 409)
+    expect(error).toHaveProperty('value', {
       errors: [
         {
           code: 'TABLE_ALREADY_EXISTS',
