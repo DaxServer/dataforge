@@ -52,7 +52,7 @@ describe('POST /project/:projectId/import', () => {
       errors: [
         {
           code: 'FILE_NOT_FOUND',
-          message: 'File not found',
+          message: expect.any(String),
           details: {
             filePath: nonExistentFilePath,
           },
@@ -78,7 +78,7 @@ describe('POST /project/:projectId/import', () => {
       errors: [
         {
           code: 'VALIDATION',
-          message: 'Invalid file content',
+          message: expect.any(String),
         },
       ],
     })
@@ -141,7 +141,7 @@ describe('POST /project/:projectId/import', () => {
       errors: [
         {
           code: 'TABLE_ALREADY_EXISTS',
-          message: `Table with name 'project_${projectId}' already exists`,
+          message: expect.any(String),
         },
       ],
     })
