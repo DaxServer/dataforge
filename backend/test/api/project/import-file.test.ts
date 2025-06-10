@@ -1,7 +1,7 @@
 import { describe, expect, test, beforeEach, afterEach } from 'bun:test'
 import { Elysia } from 'elysia'
 import { projectRoutes } from '../../../src/api/project'
-import { initializeDb, closeDb } from '../../../src/db'
+import { initializeDb, getDb, closeDb } from '../../../src/db'
 import { treaty } from '@elysiajs/eden'
 
 // Create a test app with the project import routes
@@ -104,5 +104,56 @@ describe('POST /project/:projectId/import-file', () => {
 
     // Clean up the temporary file
     await tempFile.delete()
+  })
+
+  test('should successfully import uploaded file into DuckDB', async () => {
+    let projectId = 'test-duckdb-import'
+
+    // Create a test file with JSON data
+    const testData = JSON.stringify([{ id: 1, name: 'John', age: 30 }, { id: 2, name: 'Jane', age: 25 }])
+    const file = new File([testData], 'test-data.json', { type: 'application/json' })
+
+    // First, upload the file
+    const { data: uploadData, status: uploadStatus, error: uploadError } = await api.project({ id: projectId }).import.file.post({
+      file,
+    })
+
+    expect(uploadStatus).toBe(201)
+    expect(uploadData).toHaveProperty('tempFilePath')
+    expect(uploadError).toBeNull()
+
+    // Then, import the uploaded file into DuckDB using the existing import endpoint
+    const { data: importData, status: importStatus, error: importError } = await api.project({ id: projectId }).import.post({
+      filePath: uploadData.tempFilePath,
+    })
+
+    expect(importStatus).toBe(201)
+    expect(importData).toBe('')
+    expect(importError).toBeNull()
+
+    // Verify table creation in DuckDB
+    const db = getDb()
+    const reader = await db.runAndReadAll(`PRAGMA table_info("project_${projectId}")`)
+    const tableInfo = reader.getRowObjectsJson()
+
+    expect(tableInfo.length).toBeGreaterThan(0)
+
+    // Verify data was imported correctly
+    const dataReader = await db.runAndReadAll(`SELECT * FROM "project_${projectId}"`)
+    const importedData = dataReader.getRowObjectsJson()
+
+    expect(importedData).toHaveLength(2)
+    expect(importedData[0]).toHaveProperty('id', '1')
+    expect(importedData[0]).toHaveProperty('name', 'John')
+    expect(importedData[0]).toHaveProperty('age', '30')
+    expect(importedData[1]).toHaveProperty('id', '2')
+    expect(importedData[1]).toHaveProperty('name', 'Jane')
+    expect(importedData[1]).toHaveProperty('age', '25')
+
+    // Clean up the temporary file
+    const tempFile = Bun.file(uploadData.tempFilePath)
+    if (await tempFile.exists()) {
+      await tempFile.delete()
+    }
   })
 })

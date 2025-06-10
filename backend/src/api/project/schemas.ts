@@ -133,9 +133,9 @@ const projectSchema = {
 }
 
 // Export types for use in handlers
+export const CreateProjectSchema = projectSchema.create
 export type CreateProjectInput = typeof projectSchema.create.body.static
 
-export const CreateProjectSchema = projectSchema.create
 export const GetAllProjectsSchema = projectSchema.getAll
 export const DeleteProjectSchema = projectSchema.delete
 
