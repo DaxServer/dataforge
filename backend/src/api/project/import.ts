@@ -84,8 +84,8 @@ export const importProject = async ({
     // Check if the error is related to JSON parsing
     const errorMessage = String(error)
     if (
-      errorMessage.includes('JSON') ||
-      errorMessage.includes('json') ||
+      // errorMessage.includes('JSON') ||
+      // errorMessage.includes('json') ||
       errorMessage.includes('parse') ||
       errorMessage.includes('Parse')
     ) {
@@ -94,7 +94,10 @@ export const importProject = async ({
         errors: [
           {
             code: 'VALIDATION',
-            message: 'Invalid file content',
+            message: 'Error with JSON file',
+            details: {
+              error: (error as Error).message,
+            },
           },
         ],
       }
@@ -106,7 +109,10 @@ export const importProject = async ({
       errors: [
         {
           code: 'INTERNAL_SERVER_ERROR',
-          message: 'An error occurred while importing the project',
+          message: `An error occurred while importing the project`,
+          details: {
+            error: (error as Error).message,
+          },
         },
       ],
     }
@@ -137,16 +143,17 @@ export const importProjectFile = async ({ set, body }: Context) => {
     set.status = 201
     return {
       tempFilePath,
-      message: 'File uploaded successfully',
     }
   } catch (error) {
-    console.error('Error saving uploaded file:', error)
     set.status = 500
     return {
       errors: [
         {
           code: 'INTERNAL_SERVER_ERROR',
           message: 'Failed to save uploaded file',
+          details: {
+            error: (error as Error).message,
+          },
         },
       ],
     }

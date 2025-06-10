@@ -32,6 +32,10 @@ export const ErrorSchema = t.Union([
     code: t.Literal('TABLE_ALREADY_EXISTS'),
     message: t.String(),
   }),
+  t.Object({
+    code: t.Literal('INTERNAL_SERVER_ERROR'),
+    message: t.String(),
+  }),
 ])
 
 // Convert ErrorResponse interface to a schema
