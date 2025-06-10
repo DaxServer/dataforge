@@ -3,33 +3,37 @@ import { t } from 'elysia'
 export const ErrorSchema = t.Union([
   t.Object({
     code: t.Literal('VALIDATION'),
-    message: t.Literal('Invalid file content'),
+    message: t.String(),
   }),
   t.Object({
     code: t.Literal('MISSING_FILE_PATH'),
-    message: t.Literal('File path is required'),
+    message: t.String(),
   }),
   t.Object({
     code: t.Literal('MISSING_FILE'),
-    message: t.Literal('File is required'),
+    message: t.String(),
   }),
   t.Object({
     code: t.Literal('INVALID_FILE_TYPE'),
-    message: t.Literal('Only JSON files are supported'),
+    message: t.String(),
   }),
   t.Object({
     code: t.Literal('EMPTY_FILE'),
-    message: t.Literal('File cannot be empty'),
+    message: t.String(),
   }),
   t.Object({
     code: t.Literal('FILE_NOT_FOUND'),
-    message: t.Literal('File not found'),
+    message: t.String(),
     details: t.Object({
       filePath: t.String(),
     }),
   }),
   t.Object({
     code: t.Literal('TABLE_ALREADY_EXISTS'),
+    message: t.String(),
+  }),
+  t.Object({
+    code: t.Literal('INTERNAL_SERVER_ERROR'),
     message: t.String(),
   }),
 ])

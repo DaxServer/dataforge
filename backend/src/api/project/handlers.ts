@@ -32,16 +32,20 @@ export const createProject = async ({
   const projects = reader.getRowObjectsJson()
 
   if (projects.length === 0) {
-    throw Object.assign(new Error('Failed to create project: No project returned from database'), {
-      code: 'DATABASE_ERROR',
-    })
+    set.status = 500
+    return {
+      errors: [
+        {
+          code: 'DATABASE_ERROR',
+          message: 'Failed to create project: No project returned from database',
+        },
+      ],
+    }
   }
-
-  const project = projects[0]
 
   set.status = 201
   return {
-    data: project as Project,
+    data: projects[0] as Project,
   }
 }
 

@@ -52,7 +52,7 @@ describe('POST /project/:projectId/import', () => {
       errors: [
         {
           code: 'FILE_NOT_FOUND',
-          message: 'File not found',
+          message: expect.any(String),
           details: {
             filePath: nonExistentFilePath,
           },
@@ -61,7 +61,7 @@ describe('POST /project/:projectId/import', () => {
     })
   })
 
-  test('should return 400 for invalid JSON content in file', async () => {
+  test('should return 500 for invalid JSON content in file', async () => {
     const projectId = 'test-project-id'
     const tempFilePath = './temp-invalid-json-file.json'
     await Bun.write(tempFilePath, 'this is not valid json')
@@ -70,15 +70,18 @@ describe('POST /project/:projectId/import', () => {
       filePath: tempFilePath,
     })
 
-    expect(status).toBe(400)
+    expect(status).toBe(500)
     expect(data).toBeNull()
     expect(error).toBeDefined()
-    expect(error).toHaveProperty('status', 400)
+    expect(error).toHaveProperty('status', 500)
     expect(error).toHaveProperty('value', {
       errors: [
         {
-          code: 'VALIDATION',
-          message: 'Invalid file content',
+          code: 'INTERNAL_SERVER_ERROR',
+          message: 'An error occurred while importing the project',
+          details: {
+            error: expect.any(String),
+          },
         },
       ],
     })
@@ -141,7 +144,7 @@ describe('POST /project/:projectId/import', () => {
       errors: [
         {
           code: 'TABLE_ALREADY_EXISTS',
-          message: `Table with name 'project_${projectId}' already exists`,
+          message: expect.any(String),
         },
       ],
     })

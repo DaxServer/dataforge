@@ -110,11 +110,18 @@ describe('POST /project/:projectId/import-file', () => {
     let projectId = 'test-duckdb-import'
 
     // Create a test file with JSON data
-    const testData = JSON.stringify([{ id: 1, name: 'John', age: 30 }, { id: 2, name: 'Jane', age: 25 }])
+    const testData = JSON.stringify([
+      { id: 1, name: 'John', age: 30 },
+      { id: 2, name: 'Jane', age: 25 },
+    ])
     const file = new File([testData], 'test-data.json', { type: 'application/json' })
 
     // First, upload the file
-    const { data: uploadData, status: uploadStatus, error: uploadError } = await api.project({ id: projectId }).import.file.post({
+    const {
+      data: uploadData,
+      status: uploadStatus,
+      error: uploadError,
+    } = await api.project({ id: projectId }).import.file.post({
       file,
     })
 
@@ -123,7 +130,11 @@ describe('POST /project/:projectId/import-file', () => {
     expect(uploadError).toBeNull()
 
     // Then, import the uploaded file into DuckDB using the existing import endpoint
-    const { data: importData, status: importStatus, error: importError } = await api.project({ id: projectId }).import.post({
+    const {
+      data: importData,
+      status: importStatus,
+      error: importError,
+    } = await api.project({ id: projectId }).import.post({
       filePath: uploadData.tempFilePath,
     })
 

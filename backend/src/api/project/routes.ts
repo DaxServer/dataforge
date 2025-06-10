@@ -25,7 +25,6 @@ export const projectRoutes = new Elysia({ prefix: '/project' })
                 message: e.message || 'Invalid value',
                 expected: e.expected,
                 received: e.value,
-                keyword: e.keyword,
               })) || [],
           },
         ],
