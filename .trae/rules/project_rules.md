@@ -13,6 +13,7 @@ This project will re-implement the OpenRefine project (https://github.com/OpenRe
 
 - Based on Vue, PrimeVue, Vite, TypeScript.
 - Always use Elysia Eden for types and APIs.
+- Imports are autoloaded.
 
 # Database
 
