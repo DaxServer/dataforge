@@ -1,5 +1,97 @@
 <script setup lang="ts">
-// Create Project page logic will go here
+import { ref } from 'vue'
+import { api } from '@/api/client'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
+const projectName = ref('')
+const selectedFile = ref<File | null>(null)
+const isCreating = ref(false)
+const isUploading = ref(false)
+const message = ref('')
+const messageType = ref<'success' | 'error'>('success')
+
+const handleFileChange = (event: Event) => {
+  const target = event.target as HTMLInputElement
+  const file = target.files?.[0]
+  
+  if (file) {
+    selectedFile.value = file
+    // Auto-generate project name from filename if not set
+    if (!projectName.value) {
+      const nameWithoutExt = file.name.replace(/\.[^/.]+$/, '')
+      projectName.value = nameWithoutExt
+    }
+  }
+}
+
+const createProject = async () => {
+  if (!projectName.value.trim()) {
+    message.value = 'Please enter a project name'
+    messageType.value = 'error'
+    return
+  }
+
+  if (!selectedFile.value) {
+    message.value = 'Please select a file to upload'
+    messageType.value = 'error'
+    return
+  }
+
+  isCreating.value = true
+  message.value = ''
+
+  try {
+    // Step 1: Create the project
+    const createResponse = await api.project.post({
+      name: projectName.value.trim()
+    })
+
+    if (createResponse.error) {
+      throw new Error('Failed to create project')
+    }
+
+    const projectId = createResponse.data?.data.id
+    if (!projectId) {
+      throw new Error('No project ID returned')
+    }
+
+    // Step 2: Upload the file to the project
+    isUploading.value = true
+    const uploadResponse = await api.project[projectId].import.file.post({
+      file: selectedFile.value
+    })
+
+    if (uploadResponse.error) {
+      throw new Error('Failed to upload file')
+    }
+
+    // Step 3: Import the uploaded file
+    const importResponse = await api.project[projectId].import.post({
+      filePath: uploadResponse.data?.tempFilePath || ''
+    })
+
+    if (importResponse.error) {
+      throw new Error('Failed to import file')
+    }
+
+    message.value = 'Project created and file imported successfully!'
+    messageType.value = 'success'
+    
+    // Redirect to project view after a short delay
+    setTimeout(() => {
+      router.push(`/project/${projectId}`)
+    }, 2000)
+
+  } catch (error) {
+    console.error('Error creating project:', error)
+    message.value = error instanceof Error ? error.message : 'Failed to create project. Please try again.'
+    messageType.value = 'error'
+  } finally {
+    isCreating.value = false
+    isUploading.value = false
+  }
+}
 </script>
 
 <template>
@@ -11,44 +103,119 @@
 
     <div class="bg-white shadow sm:rounded-lg">
       <div class="px-4 py-5 sm:p-6">
-        <div class="text-center">
-          <svg
-            class="mx-auto h-12 w-12 text-gray-400"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            aria-hidden="true"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M12 6v6m0 0v6m0-6h6m-6 0H6"
-            />
-          </svg>
-          <h3 class="mt-2 text-sm font-medium text-gray-900">Create a new project</h3>
-          <p class="mt-1 text-sm text-gray-500">
-            Get started by creating a new project from your data.
-          </p>
-          <div class="mt-6">
-            <button
-              type="button"
-              class="inline-flex items-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-            >
-              <svg
-                class="-ml-0.5 mr-1.5 h-5 w-5"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-                aria-hidden="true"
-              >
-                <path
-                  d="M10.75 4.75a.75.75 0 00-1.5 0v4.5h-4.5a.75.75 0 000 1.5h4.5v4.5a.75.75 0 001.5 0v-4.5h4.5a.75.75 0 000-1.5h-4.5v-4.5z"
-                />
+        <form @submit.prevent="createProject" class="space-y-6">
+          <!-- Project Name Input -->
+          <div>
+            <label for="project-name" class="block text-sm font-medium text-gray-700">
+              Project Name
+            </label>
+            <div class="mt-1">
+              <input
+                id="project-name"
+                v-model="projectName"
+                type="text"
+                class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                placeholder="Enter project name"
+                :disabled="isCreating || isUploading"
+                required
+              />
+            </div>
+          </div>
+
+          <!-- File Upload Section -->
+          <div>
+            <label for="file-upload" class="block text-sm font-medium text-gray-700">
+              Data File
+            </label>
+            <div class="mt-1 flex justify-center rounded-md border-2 border-dashed border-gray-300 px-6 pt-5 pb-6">
+              <div class="space-y-1 text-center">
+                <svg
+                  class="mx-auto h-12 w-12 text-gray-400"
+                  stroke="currentColor"
+                  fill="none"
+                  viewBox="0 0 48 48"
+                  aria-hidden="true"
+                >
+                  <path
+                    d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                </svg>
+                <div class="flex text-sm text-gray-600">
+                  <label
+                    for="file-upload"
+                    class="relative cursor-pointer rounded-md bg-white font-medium text-indigo-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-indigo-500 focus-within:ring-offset-2 hover:text-indigo-500"
+                  >
+                    <span>Upload a file</span>
+                    <input
+                      id="file-upload"
+                      name="file-upload"
+                      type="file"
+                      class="sr-only"
+                      accept=".csv,.tsv,.xlsx,.xls,.json"
+                      @change="handleFileChange"
+                      :disabled="isCreating || isUploading"
+                      required
+                    />
+                  </label>
+                  <p class="pl-1">or drag and drop</p>
+                </div>
+                <p class="text-xs text-gray-500">
+                  CSV, TSV, Excel (.xlsx, .xls), JSON up to 10MB
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Selected File Display -->
+          <div v-if="selectedFile" class="rounded-md bg-gray-50 p-4">
+            <div class="flex items-center">
+              <svg class="h-5 w-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clip-rule="evenodd" />
               </svg>
-              Create Project
+              <div class="ml-3 flex-1">
+                <p class="text-sm font-medium text-gray-900">{{ selectedFile.name }}</p>
+                <p class="text-sm text-gray-500">{{ Math.round(selectedFile.size / 1024) }} KB</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Status Message -->
+          <div v-if="message" class="rounded-md p-4" :class="messageType === 'success' ? 'bg-green-50' : 'bg-red-50'">
+            <div class="flex">
+              <div class="flex-shrink-0">
+                <svg v-if="messageType === 'success'" class="h-5 w-5 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                </svg>
+                <svg v-else class="h-5 w-5 text-red-400" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                </svg>
+              </div>
+              <div class="ml-3">
+                <p class="text-sm font-medium" :class="messageType === 'success' ? 'text-green-800' : 'text-red-800'">
+                  {{ message }}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Submit Button -->
+          <div class="flex justify-end">
+            <button
+              type="submit"
+              class="inline-flex items-center rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:opacity-50 disabled:cursor-not-allowed"
+              :disabled="isCreating || isUploading || !projectName.trim() || !selectedFile"
+            >
+              <svg v-if="isCreating || isUploading" class="-ml-1 mr-2 h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              {{ isCreating ? 'Creating Project...' : isUploading ? 'Uploading File...' : 'Create Project' }}
             </button>
           </div>
-        </div>
+        </form>
       </div>
     </div>
   </div>

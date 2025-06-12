@@ -1,5 +1,4 @@
 const pluginVitest = require('@vitest/eslint-plugin')
-const pluginVue = require('eslint-plugin-vue')
 const js = require('@eslint/js')
 const ts = require('@typescript-eslint/eslint-plugin')
 const tsParser = require('@typescript-eslint/parser')
@@ -56,7 +55,7 @@ module.exports = [
       '@typescript-eslint/no-explicit-any': 'warn',
       '@typescript-eslint/no-unused-vars': [
         'warn',
-        { 
+        {
           argsIgnorePattern: '^_',
           varsIgnorePattern: '^_',
           caughtErrorsIgnorePattern: '^_',
