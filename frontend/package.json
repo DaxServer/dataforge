@@ -40,6 +40,7 @@
     "autoprefixer": "^10.4.21",
     "bun-types": "catalog:",
     "cssnano": "^7.0.7",
+    "elysia": "catalog:",
     "eslint": "catalog:",
     "eslint-plugin-prettier": "catalog:",
     "eslint-plugin-vue": "^10.1.0",

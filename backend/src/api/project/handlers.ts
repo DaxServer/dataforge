@@ -1,4 +1,4 @@
-import { getDb } from '../../db'
+import { getDb } from '@backend/plugins/database'
 import type { Context } from 'elysia'
 import type { CreateProjectInput, Project, ImportWithFileInput } from './schemas'
 
@@ -67,8 +67,11 @@ export const deleteProject = async ({ params, set }: Context<{ params: { id: str
   set.status = 204
 }
 
-const cleanupProject = async (db: any, projectId: string, tempFilePath?: string) => {
+const cleanupProject = async (projectId: string, tempFilePath?: string) => {
+  const db = getDb()
+
   await db.run('DELETE FROM _meta_projects WHERE id = ?', [projectId])
+
   if (tempFilePath) {
     await Bun.file(tempFilePath).delete()
   }
@@ -139,7 +142,7 @@ export const importWithFile = async ({
   try {
     await Bun.file(tempFilePath).json()
   } catch (parseError) {
-    await cleanupProject(db, project.id, tempFilePath)
+    await cleanupProject(project.id, tempFilePath)
 
     set.status = 400
     return {

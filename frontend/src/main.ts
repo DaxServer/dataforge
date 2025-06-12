@@ -5,11 +5,14 @@ import PrimeVue from 'primevue/config'
 import Aura from '@primeuix/themes/aura'
 
 // Import your router and app
-import router from '@/router'
-import App from './App.vue'
+import router from '@frontend/router'
+import App from '@frontend/App.vue'
 
 // Import global styles
-import '@/assets/base.css'
+import '@frontend/assets/base.css'
+
+// Import API plugin
+import { ApiPlugin } from '@frontend/plugins/api'
 
 const head = createHead()
 const app = createApp(App)
@@ -31,6 +34,7 @@ app.use(PrimeVue, {
 app.use(router)
 app.use(pinia)
 app.use(head)
+app.use(ApiPlugin)
 
 // Mount the app
 app.mount('#app')

@@ -1,37 +1,22 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
-import CreateProject from '../CreateProject.vue'
+import CreateProject from '@frontend/pages/CreateProject.vue'
+import { useApi } from '@frontend/plugins/api'
 
-// Mock the API client
-vi.mock('@/api/client', () => ({
-  api: {
-    project: {
-      post: vi.fn().mockResolvedValue({
-        data: { id: 'test-project-id', name: 'Test Project' },
-        error: null,
-      }),
-      index: vi.fn((id: string) => ({
-        import: {
-          file: {
-            post: vi.fn().mockResolvedValue({
-              data: { success: true },
-              error: null,
-            }),
-          },
-          post: vi.fn().mockResolvedValue({
-            data: { success: true },
-            error: null,
-          }),
-        },
-      })),
-    },
-  },
-}))
+// Mock the API client manually
+const mockApiPost = vi.fn().mockResolvedValue({
+  data: { data: { id: 'test-project-id' } },
+  error: null,
+})
 
-// Mock vue-router
+// Set up the mock on the imported api object
+vi.spyOn(useApi().project.import, 'post').mockImplementation(mockApiPost)
+
+// Mock router push function
+const mockRouterPush = vi.fn()
 vi.mock('vue-router', () => ({
   useRouter: () => ({
-    push: vi.fn(),
+    push: mockRouterPush,
   }),
 }))
 
@@ -42,11 +27,8 @@ describe('CreateProject', () => {
     wrapper = mount(CreateProject)
   })
 
-  it('should render project name input and file upload', () => {
-    const projectNameInput = wrapper.find('input[type="text"]')
+  it('should render file upload', () => {
     const fileInput = wrapper.find('input[type="file"]')
-
-    expect(projectNameInput.exists()).toBe(true)
     expect(fileInput.exists()).toBe(true)
   })
 
@@ -55,14 +37,10 @@ describe('CreateProject', () => {
     expect(submitButton.attributes('disabled')).toBeDefined()
   })
 
-  it('should enable submit button when form is complete', async () => {
-    // Set project name
-    const projectNameInput = wrapper.find('input[type="text"]')
-    await projectNameInput.setValue('Test Project')
-
+  it('should enable submit button when file is selected', async () => {
     // Set file
     const fileInput = wrapper.find('input[type="file"]')
-    const file = new File(['test content'], 'test.csv', { type: 'text/csv' })
+    const file = new File(['test content'], 'test.json', { type: 'application/json' })
 
     Object.defineProperty(fileInput.element, 'files', {
       value: [file],
@@ -78,7 +56,7 @@ describe('CreateProject', () => {
 
   it('should show selected file information', async () => {
     const fileInput = wrapper.find('input[type="file"]')
-    const file = new File(['test content'], 'test.csv', { type: 'text/csv' })
+    const file = new File(['test content'], 'test.json', { type: 'application/json' })
 
     Object.defineProperty(fileInput.element, 'files', {
       value: [file],
@@ -88,6 +66,6 @@ describe('CreateProject', () => {
     await fileInput.trigger('change')
     await wrapper.vm.$nextTick()
 
-    expect(wrapper.text()).toContain('test.csv')
+    expect(wrapper.text()).toContain('test.json')
   })
 })
