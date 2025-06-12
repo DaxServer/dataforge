@@ -10,7 +10,7 @@ import {
 } from './schemas'
 import { importProject, importProjectFile } from './import'
 
-export const projectRoutes = new Elysia({ prefix: '/project' })
+export const projectRoutes = new Elysia({ prefix: '/api/project' })
   .onError(({ code, error, set }) => {
     // Handle validation errors
     if (code === 'VALIDATION') {

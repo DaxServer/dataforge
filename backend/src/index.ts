@@ -4,8 +4,14 @@ import { projectRoutes } from './api/project'
 import swagger from '@elysiajs/swagger'
 import { logger } from '@bogeychan/elysia-logger'
 import { databasePlugin } from './plugins/database'
+import { cors } from '@elysiajs/cors'
 
-const app = new Elysia()
+const app = new Elysia({
+  serve: {
+    maxRequestBodySize: 1024 * 1024 * 1024, // 1GB
+  },
+})
+  .use(cors())
   .use(databasePlugin)
   .use(
     swagger({

@@ -6,7 +6,7 @@ import { treaty } from '@elysiajs/eden'
 
 // Create a test app with the project routes
 const createTestApi = () => {
-  return treaty(new Elysia().use(projectRoutes))
+  return treaty(new Elysia().use(projectRoutes)).api
 }
 
 describe('POST /api/project/import', () => {

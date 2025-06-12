@@ -8,12 +8,12 @@ type ApiClient = ReturnType<typeof treaty<ElysiaApp>>
 export const ApiKey: InjectionKey<ApiClient> = Symbol('api')
 
 // Composable to use the API client
-export const useApi = (): ApiClient => {
+export const useApi = (): ApiClient['api'] => {
   const api = inject(ApiKey)
   if (!api) {
     throw new Error('API client not provided. Make sure to install the API plugin.')
   }
-  return api
+  return api.api
 }
 
 // Vue plugin for the API client
@@ -26,12 +26,12 @@ export const ApiPlugin = {
     app.provide(ApiKey, apiClient)
 
     // Also make it available as a global property
-    app.config.globalProperties.$api = apiClient
+    app.config.globalProperties.$api = apiClient.api
   },
 }
 
 // Export the api constant for backward compatibility with auto-imports
 export const api = () => {
   // This will be used by auto-imports, but in components use useApi() instead
-  return treaty<ElysiaApp>('http://localhost:3000')
+  return treaty<ElysiaApp>('http://localhost:3000').api
 }
