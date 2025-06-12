@@ -8,36 +8,36 @@ vi.mock('@/api/client', () => ({
     project: {
       post: vi.fn().mockResolvedValue({
         data: { id: 'test-project-id', name: 'Test Project' },
-        error: null
+        error: null,
       }),
       index: vi.fn((id: string) => ({
         import: {
           file: {
             post: vi.fn().mockResolvedValue({
               data: { success: true },
-              error: null
-            })
+              error: null,
+            }),
           },
           post: vi.fn().mockResolvedValue({
             data: { success: true },
-            error: null
-          })
-        }
-      }))
-    }
-  }
+            error: null,
+          }),
+        },
+      })),
+    },
+  },
 }))
 
 // Mock vue-router
 vi.mock('vue-router', () => ({
   useRouter: () => ({
-    push: vi.fn()
-  })
+    push: vi.fn(),
+  }),
 }))
 
 describe('CreateProject', () => {
   let wrapper: any
-  
+
   beforeEach(() => {
     wrapper = mount(CreateProject)
   })
@@ -45,7 +45,7 @@ describe('CreateProject', () => {
   it('should render project name input and file upload', () => {
     const projectNameInput = wrapper.find('input[type="text"]')
     const fileInput = wrapper.find('input[type="file"]')
-    
+
     expect(projectNameInput.exists()).toBe(true)
     expect(fileInput.exists()).toBe(true)
   })
@@ -63,12 +63,12 @@ describe('CreateProject', () => {
     // Set file
     const fileInput = wrapper.find('input[type="file"]')
     const file = new File(['test content'], 'test.csv', { type: 'text/csv' })
-    
+
     Object.defineProperty(fileInput.element, 'files', {
       value: [file],
       writable: false,
     })
-    
+
     await fileInput.trigger('change')
     await wrapper.vm.$nextTick()
 
@@ -79,12 +79,12 @@ describe('CreateProject', () => {
   it('should show selected file information', async () => {
     const fileInput = wrapper.find('input[type="file"]')
     const file = new File(['test content'], 'test.csv', { type: 'text/csv' })
-    
+
     Object.defineProperty(fileInput.element, 'files', {
       value: [file],
       writable: false,
     })
-    
+
     await fileInput.trigger('change')
     await wrapper.vm.$nextTick()
 

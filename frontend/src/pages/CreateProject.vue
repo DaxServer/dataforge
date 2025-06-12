@@ -14,7 +14,7 @@ const messageType = ref<'success' | 'error'>('success')
 const handleFileChange = (event: Event) => {
   const target = event.target as HTMLInputElement
   const file = target.files?.[0]
-  
+
   if (file) {
     selectedFile.value = file
     // Auto-generate project name from filename if not set
@@ -44,7 +44,7 @@ const createProject = async () => {
   try {
     // Step 1: Create the project
     const createResponse = await api.project.post({
-      name: projectName.value.trim()
+      name: projectName.value.trim(),
     })
 
     if (createResponse.error) {
@@ -59,7 +59,7 @@ const createProject = async () => {
     // Step 2: Upload the file to the project
     isUploading.value = true
     const uploadResponse = await api.project[projectId].import.file.post({
-      file: selectedFile.value
+      file: selectedFile.value,
     })
 
     if (uploadResponse.error) {
@@ -68,7 +68,7 @@ const createProject = async () => {
 
     // Step 3: Import the uploaded file
     const importResponse = await api.project[projectId].import.post({
-      filePath: uploadResponse.data?.tempFilePath || ''
+      filePath: uploadResponse.data?.tempFilePath || '',
     })
 
     if (importResponse.error) {
@@ -77,15 +77,15 @@ const createProject = async () => {
 
     message.value = 'Project created and file imported successfully!'
     messageType.value = 'success'
-    
+
     // Redirect to project view after a short delay
     setTimeout(() => {
       router.push(`/project/${projectId}`)
     }, 2000)
-
   } catch (error) {
     console.error('Error creating project:', error)
-    message.value = error instanceof Error ? error.message : 'Failed to create project. Please try again.'
+    message.value =
+      error instanceof Error ? error.message : 'Failed to create project. Please try again.'
     messageType.value = 'error'
   } finally {
     isCreating.value = false
@@ -103,10 +103,16 @@ const createProject = async () => {
 
     <div class="bg-white shadow sm:rounded-lg">
       <div class="px-4 py-5 sm:p-6">
-        <form @submit.prevent="createProject" class="space-y-6">
+        <form
+          @submit.prevent="createProject"
+          class="space-y-6"
+        >
           <!-- Project Name Input -->
           <div>
-            <label for="project-name" class="block text-sm font-medium text-gray-700">
+            <label
+              for="project-name"
+              class="block text-sm font-medium text-gray-700"
+            >
               Project Name
             </label>
             <div class="mt-1">
@@ -124,10 +130,15 @@ const createProject = async () => {
 
           <!-- File Upload Section -->
           <div>
-            <label for="file-upload" class="block text-sm font-medium text-gray-700">
+            <label
+              for="file-upload"
+              class="block text-sm font-medium text-gray-700"
+            >
               Data File
             </label>
-            <div class="mt-1 flex justify-center rounded-md border-2 border-dashed border-gray-300 px-6 pt-5 pb-6">
+            <div
+              class="mt-1 flex justify-center rounded-md border-2 border-dashed border-gray-300 px-6 pt-5 pb-6"
+            >
               <div class="space-y-1 text-center">
                 <svg
                   class="mx-auto h-12 w-12 text-gray-400"
@@ -162,18 +173,27 @@ const createProject = async () => {
                   </label>
                   <p class="pl-1">or drag and drop</p>
                 </div>
-                <p class="text-xs text-gray-500">
-                  CSV, TSV, Excel (.xlsx, .xls), JSON up to 10MB
-                </p>
+                <p class="text-xs text-gray-500">CSV, TSV, Excel (.xlsx, .xls), JSON up to 10MB</p>
               </div>
             </div>
           </div>
 
           <!-- Selected File Display -->
-          <div v-if="selectedFile" class="rounded-md bg-gray-50 p-4">
+          <div
+            v-if="selectedFile"
+            class="rounded-md bg-gray-50 p-4"
+          >
             <div class="flex items-center">
-              <svg class="h-5 w-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clip-rule="evenodd" />
+              <svg
+                class="h-5 w-5 text-gray-400"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
+                <path
+                  fill-rule="evenodd"
+                  d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z"
+                  clip-rule="evenodd"
+                />
               </svg>
               <div class="ml-3 flex-1">
                 <p class="text-sm font-medium text-gray-900">{{ selectedFile.name }}</p>
@@ -183,18 +203,43 @@ const createProject = async () => {
           </div>
 
           <!-- Status Message -->
-          <div v-if="message" class="rounded-md p-4" :class="messageType === 'success' ? 'bg-green-50' : 'bg-red-50'">
+          <div
+            v-if="message"
+            class="rounded-md p-4"
+            :class="messageType === 'success' ? 'bg-green-50' : 'bg-red-50'"
+          >
             <div class="flex">
               <div class="flex-shrink-0">
-                <svg v-if="messageType === 'success'" class="h-5 w-5 text-green-400" fill="currentColor" viewBox="0 0 20 20">
-                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                <svg
+                  v-if="messageType === 'success'"
+                  class="h-5 w-5 text-green-400"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                    clip-rule="evenodd"
+                  />
                 </svg>
-                <svg v-else class="h-5 w-5 text-red-400" fill="currentColor" viewBox="0 0 20 20">
-                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                <svg
+                  v-else
+                  class="h-5 w-5 text-red-400"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                    clip-rule="evenodd"
+                  />
                 </svg>
               </div>
               <div class="ml-3">
-                <p class="text-sm font-medium" :class="messageType === 'success' ? 'text-green-800' : 'text-red-800'">
+                <p
+                  class="text-sm font-medium"
+                  :class="messageType === 'success' ? 'text-green-800' : 'text-red-800'"
+                >
                   {{ message }}
                 </p>
               </div>
@@ -208,11 +253,33 @@ const createProject = async () => {
               class="inline-flex items-center rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:opacity-50 disabled:cursor-not-allowed"
               :disabled="isCreating || isUploading || !projectName.trim() || !selectedFile"
             >
-              <svg v-if="isCreating || isUploading" class="-ml-1 mr-2 h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              <svg
+                v-if="isCreating || isUploading"
+                class="-ml-1 mr-2 h-4 w-4 animate-spin"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  class="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  stroke-width="4"
+                ></circle>
+                <path
+                  class="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                ></path>
               </svg>
-              {{ isCreating ? 'Creating Project...' : isUploading ? 'Uploading File...' : 'Create Project' }}
+              {{
+                isCreating
+                  ? 'Creating Project...'
+                  : isUploading
+                    ? 'Uploading File...'
+                    : 'Create Project'
+              }}
             </button>
           </div>
         </form>

@@ -24,4 +24,4 @@ dist
 .DS_Store
 
 openrefine.db*
-OpenRefine
+test.ts

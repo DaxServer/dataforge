@@ -36,6 +36,22 @@ export const ErrorSchema = t.Union([
     code: t.Literal('INTERNAL_SERVER_ERROR'),
     message: t.String(),
   }),
+  t.Object({
+    code: t.Literal('DATABASE_ERROR'),
+    message: t.String(),
+  }),
+  t.Object({
+    code: t.Literal('PROJECT_CREATION_FAILED'),
+    message: t.String(),
+  }),
+  t.Object({
+    code: t.Literal('DATA_IMPORT_FAILED'),
+    message: t.String(),
+  }),
+  t.Object({
+    code: t.Literal('INVALID_JSON'),
+    message: t.String(),
+  }),
 ])
 
 // Convert ErrorResponse interface to a schema
@@ -84,6 +100,33 @@ export const importSchema = {
       }),
       400: errorResponseSchema,
       409: errorResponseSchema,
+      422: errorResponseSchema,
+      500: errorResponseSchema,
+    },
+  },
+  importWithFile: {
+    body: t.Object({
+      file: t.File({
+        // Note: File type validation has known issues in Elysia 1.3.x
+        // See: https://github.com/elysiajs/elysia/issues/1073
+        // type: ['application/json'], // Temporarily disabled due to validation issues
+        minSize: 1, // Reject empty files
+      }),
+      name: t.Optional(
+        t.String({
+          minLength: 1,
+          maxLength: 255,
+          error: 'Project name must be between 1 and 255 characters long if provided',
+        })
+      ),
+    }),
+    response: {
+      201: t.Object({
+        data: t.Object({
+          id: t.String(),
+        }),
+      }),
+      400: errorResponseSchema,
       422: errorResponseSchema,
       500: errorResponseSchema,
     },
@@ -148,3 +191,6 @@ export type ImportProjectInput = typeof importSchema.import.body.static
 
 export const ImportFileProjectSchema = importSchema.importFile
 export type ImportFileProjectInput = typeof importSchema.importFile.body.static
+
+export const ImportWithFileSchema = importSchema.importWithFile
+export type ImportWithFileInput = typeof importSchema.importWithFile.body.static

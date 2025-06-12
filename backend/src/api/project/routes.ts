@@ -1,11 +1,12 @@
 import { Elysia } from 'elysia'
-import { createProject, deleteProject, getAllProjects } from './handlers'
+import { createProject, deleteProject, getAllProjects, importWithFile } from './handlers'
 import {
   CreateProjectSchema,
   DeleteProjectSchema,
   GetAllProjectsSchema,
   ImportProjectSchema,
   ImportFileProjectSchema,
+  ImportWithFileSchema,
 } from './schemas'
 import { importProject, importProjectFile } from './import'
 
@@ -49,3 +50,4 @@ export const projectRoutes = new Elysia({ prefix: '/project' })
   .delete('/:id', deleteProject, DeleteProjectSchema)
   .post('/:id/import', importProject, ImportProjectSchema)
   .post('/:id/import/file', importProjectFile, ImportFileProjectSchema)
+  .post('/import', importWithFile, ImportWithFileSchema)
