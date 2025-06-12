@@ -3,6 +3,7 @@ import { createPinia } from 'pinia'
 import { createHead } from '@unhead/vue/client'
 import PrimeVue from 'primevue/config'
 import Aura from '@primeuix/themes/aura'
+import 'primeicons/primeicons.css'
 
 // Import your router and app
 import router from '@frontend/router'
