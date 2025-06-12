@@ -1,77 +1,48 @@
 <script setup lang="ts">
-const router = useRouter()
-const api = useApi()
-const selectedFile = ref<File | null>(null)
-const isCreating = ref(false)
-const message = ref<{ text: string; type: 'success' | 'error' | 'info' } | null>(null)
+const store = useCreateProjectStore()
+const { selectedFile, isCreating, message } = storeToRefs(store)
 
-const handleFileSelect = (event: any) => {
-  if (event.files && event.files.length > 0) {
-    selectedFile.value = event.files[0]
-    message.value = null
-  }
-}
+// Cleanup store state when component is unmounted
+onUnmounted(() => {
+  store.resetState()
+})
 
-const createProject = async () => {
-  if (!selectedFile.value) {
-    message.value = { text: 'Please select a file first.', type: 'error' }
-    return
-  }
-
-  isCreating.value = true
-  message.value = { text: '', type: 'info' }
-
-  try {
-    const { data, error } = await api.project.import.post({
-      file: selectedFile.value,
-    })
-
-    if (data?.data?.id) {
-      message.value = { text: 'Project created successfully!', type: 'success' }
-      setTimeout(() => {
-        router.push(`/projects/${data.data.id}`)
-      }, 1000)
-    } else {
-      message.value = { text: 'Failed to create project. Please try again.', type: 'error' }
-    }
-  } catch (error) {
-    message.value = { text: 'An error occurred. Please try again.', type: 'error' }
-  } finally {
-    isCreating.value = false
-  }
+const handleAdvancedUpload = () => {
+  store.createProject()
 }
 </script>
 
 <template>
-  <div class="min-h-screen bg-gray-50 py-8">
-    <div class="max-w-2xl mx-auto px-4">
-      <Card class="shadow-md">
+  <div class="bg-gray-50 py-8">
+    <div class="max-w-2xl mx-auto">
+      <Card>
         <template #title>
           <h1 class="text-2xl font-bold text-gray-900">Create New Project</h1>
         </template>
 
         <template #content>
-          <form @submit.prevent="createProject" class="space-y-6">
+          <div class="space-y-6">
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-2">
                 Upload Data File
               </label>
               <FileUpload
-                mode="basic"
                 name="file"
-                :auto="false"
-                :choose-label="selectedFile ? 'Change File' : 'Choose File'"
-                accept=".csv,.xlsx,.xls,.json,.tsv"
-                @select="handleFileSelect"
-                @clear="selectedFile = null"
+                :customUpload="true"
+                @uploader="handleAdvancedUpload"
+                :multiple="false"
+                accept=".json"
+                @select="store.handleFileSelect"
+                @remove="store.clearFile"
+                @clear="store.clearFile"
                 class="w-full"
               >
                 <template #empty>
-                  <div class="text-center p-6">
-                    <i class="pi pi-cloud-upload text-4xl text-gray-400 mb-4"></i>
-                    <p class="text-gray-600">Drag and drop files here or click to browse</p>
+                  <div class="flex items-center justify-center flex-col p-6">
+                    <i class="pi pi-cloud-upload !border-2 !rounded-full !p-8 !text-4xl !text-muted-color" />
+                    <p class="mt-6 mb-0 text-gray-600">Drag and drop files to here to upload.</p>
                     <p class="text-xs text-gray-500 mt-2">
-                      CSV, Excel, JSON, TSV
+                      JSON files only
                     </p>
                   </div>
                 </template>
@@ -91,31 +62,14 @@ const createProject = async () => {
                 </Message>
               </div>
             </div>
-
-            <div class="flex justify-end gap-3">
-              <Button
-                label="Cancel"
-                severity="secondary"
-                variant="outlined"
-                @click="$router.push('/')"
-              />
-              <Button
-                type="submit"
-                label="Create Project"
-                :disabled="!selectedFile || isCreating"
-                :loading="isCreating"
-                :loading-label="'Creating...'"
-                icon="pi pi-plus"
-              />
-            </div>
-          </form>
+          </div>
 
           <!-- Status Messages -->
           <div v-if="message" class="mt-6">
             <Message
-              :severity="message.type === 'success' ? 'success' : 'error'"
+              :severity="message.type"
               :closable="true"
-              @close="message = null"
+              @close="store.clearMessage"
             >
               {{ message.text }}
             </Message>
