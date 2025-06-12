@@ -1,6 +1,7 @@
 {
   "name": "openrefine-ng",
   "version": "0.1.0",
+  "type": "module",
   "devDependencies": {
     "@primevue/auto-import-resolver": "^4.3.5",
     "@types/node": "^22.15.30",
