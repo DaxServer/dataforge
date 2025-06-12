@@ -7,6 +7,7 @@ import { PrimeVueResolver } from '@primevue/auto-import-resolver'
 import { defineConfig } from 'vite'
 import VueDevTools from 'vite-plugin-vue-devtools'
 import PackageJson from './package.json' with { type: 'json' }
+import tsconfigPaths from 'vite-tsconfig-paths'
 
 process.env.VITE_APP_VERSION = PackageJson.version
 if (process.env.NODE_ENV === 'production') {
@@ -14,40 +15,40 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 export default defineConfig({
+  // resolve: {
+  //   alias: {
+  //     '@': fileURLToPath(new URL('./src', import.meta.url)),
+  //   },
+  // },
   plugins: [
     VueDevTools(),
     vue(),
+    tsconfigPaths(),
+    tailwindcss(),
     AutoImport({
-      imports: [
-        'vue',
-        'vue-router',
-        'pinia',
-        {
-          '@/store': ['useStore'],
-          '@unhead/vue': ['useHead'],
-        },
-      ],
-      dts: 'auto-imports.d.ts',
+      imports: ['vue', 'vue-router'],
+      dts: true,
+      dirs: ['src/plugins'],
       vueTemplate: true,
+      resolvers: [PrimeVueResolver()],
+      eslintrc: {
+        enabled: true,
+      },
     }),
     Components({
-      dts: 'components.d.ts',
+      dirs: ['src/*'],
+      dts: true,
       resolvers: [PrimeVueResolver()],
     }),
-    tailwindcss(),
   ],
-  resolve: {
-    alias: {
-      '@': fileURLToPath(new URL('./src', import.meta.url)),
-    },
-  },
   css: {
     preprocessorMaxWorkers: true,
   },
   server: {
     proxy: {
-      '/api': {
-        target: 'http://localhost:8000',
+      '/project': {
+        target: 'http://localhost:3000',
+        changeOrigin: true,
         secure: false,
       },
     },

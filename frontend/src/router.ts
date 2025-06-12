@@ -4,7 +4,7 @@ import { createRouter, createWebHashHistory } from 'vue-router'
 const routes = [
   {
     path: '/',
-    component: () => import('@/layouts/DefaultLayout.vue'),
+    component: () => import('@frontend/layouts/DefaultLayout.vue'),
     children: [
       {
         path: '',
@@ -13,7 +13,7 @@ const routes = [
       {
         path: 'open',
         name: 'open',
-        component: () => import('@/pages/OpenProject.vue'),
+        component: () => import('@frontend/pages/OpenProject.vue'),
         meta: {
           title: 'Open Project',
         },
@@ -21,7 +21,7 @@ const routes = [
       {
         path: 'create',
         name: 'create',
-        component: () => import('@/pages/CreateProject.vue'),
+        component: () => import('@frontend/pages/CreateProject.vue'),
         meta: {
           title: 'Create Project',
         },

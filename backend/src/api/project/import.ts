@@ -1,4 +1,4 @@
-import { getDb } from '../../db'
+import { getDb } from '@backend/plugins/database'
 import type { Context } from 'elysia'
 import type { ImportProjectInput } from './schemas'
 

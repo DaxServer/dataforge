@@ -3,13 +3,10 @@ import { healthRoutes } from './api/health'
 import { projectRoutes } from './api/project'
 import swagger from '@elysiajs/swagger'
 import { logger } from '@bogeychan/elysia-logger'
-import { initializeDb } from './db'
+import { databasePlugin } from './plugins/database'
 
-// Initialize database with default path
-await initializeDb()
-
-// Create Elysia app
 const app = new Elysia()
+  .use(databasePlugin)
   .use(
     swagger({
       path: '/docs',
@@ -18,9 +15,8 @@ const app = new Elysia()
   .use(logger())
   .use(healthRoutes)
   .use(projectRoutes)
-  .get('/', () => 'OpenRefine NG')
-  .listen(process.env.PORT || 8000)
-
-console.log(`🦊 Elysia server is running at http://${app.server?.hostname}:${app.server?.port}`)
+  .listen(3000, () => {
+    console.log('🦊 Elysia is running at http://localhost:3000')
+  })
 
 export type App = typeof app

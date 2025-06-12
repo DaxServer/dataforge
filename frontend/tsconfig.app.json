@@ -1,5 +1,5 @@
 {
-  "extends": "@vue/tsconfig/tsconfig.dom.json",
+  "extends": ["../tsconfig.base.json", "@vue/tsconfig/tsconfig.dom.json"],
   "include": [
     "env.d.ts",
     "interface-extensions.d.ts",
@@ -11,10 +11,6 @@
   "exclude": ["src/**/__tests__/*", "vite.config.*", "vitest.config.*"],
   "compilerOptions": {
     "composite": true,
-    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
-    "baseUrl": ".",
-    "paths": {
-      "@/*": ["./src/*"]
-    }
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo"
   }
 }

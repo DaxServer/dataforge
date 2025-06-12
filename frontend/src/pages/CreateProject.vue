@@ -1,37 +1,19 @@
 <script setup lang="ts">
-import { ref } from 'vue'
-import { api } from '@/api/client'
-import { useRouter } from 'vue-router'
-
 const router = useRouter()
-const projectName = ref('')
+const api = useApi()
 const selectedFile = ref<File | null>(null)
 const isCreating = ref(false)
-const isUploading = ref(false)
 const message = ref('')
 const messageType = ref<'success' | 'error'>('success')
 
 const handleFileChange = (event: Event) => {
-  const target = event.target as HTMLInputElement
-  const file = target.files?.[0]
-
-  if (file) {
-    selectedFile.value = file
-    // Auto-generate project name from filename if not set
-    if (!projectName.value) {
-      const nameWithoutExt = file.name.replace(/\.[^/.]+$/, '')
-      projectName.value = nameWithoutExt
-    }
+  const input = event.target as HTMLInputElement
+  if (input.files && input.files.length > 0) {
+    selectedFile.value = input.files[0]
   }
 }
 
 const createProject = async () => {
-  if (!projectName.value.trim()) {
-    message.value = 'Please enter a project name'
-    messageType.value = 'error'
-    return
-  }
-
   if (!selectedFile.value) {
     message.value = 'Please select a file to upload'
     messageType.value = 'error'
@@ -42,37 +24,18 @@ const createProject = async () => {
   message.value = ''
 
   try {
-    // Step 1: Create the project
-    const createResponse = await api.project.post({
-      name: projectName.value.trim(),
-    })
-
-    if (createResponse.error) {
-      throw new Error('Failed to create project')
-    }
-
-    const projectId = createResponse.data?.data.id
-    if (!projectId) {
-      throw new Error('No project ID returned')
-    }
-
-    // Step 2: Upload the file to the project
-    isUploading.value = true
-    const uploadResponse = await api.project[projectId].import.file.post({
+    // Use the single endpoint to create project with JSON file
+    const response = await api.project.import.post({
       file: selectedFile.value,
     })
 
-    if (uploadResponse.error) {
-      throw new Error('Failed to upload file')
+    if (response.error) {
+      throw new Error('Failed to create project')
     }
 
-    // Step 3: Import the uploaded file
-    const importResponse = await api.project[projectId].import.post({
-      filePath: uploadResponse.data?.tempFilePath || '',
-    })
-
-    if (importResponse.error) {
-      throw new Error('Failed to import file')
+    const projectId = response.data?.data.id
+    if (!projectId) {
+      throw new Error('No project ID returned')
     }
 
     message.value = 'Project created and file imported successfully!'
@@ -89,7 +52,6 @@ const createProject = async () => {
     messageType.value = 'error'
   } finally {
     isCreating.value = false
-    isUploading.value = false
   }
 }
 </script>
@@ -107,27 +69,6 @@ const createProject = async () => {
           @submit.prevent="createProject"
           class="space-y-6"
         >
-          <!-- Project Name Input -->
-          <div>
-            <label
-              for="project-name"
-              class="block text-sm font-medium text-gray-700"
-            >
-              Project Name
-            </label>
-            <div class="mt-1">
-              <input
-                id="project-name"
-                v-model="projectName"
-                type="text"
-                class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                placeholder="Enter project name"
-                :disabled="isCreating || isUploading"
-                required
-              />
-            </div>
-          </div>
-
           <!-- File Upload Section -->
           <div>
             <label
@@ -165,15 +106,15 @@ const createProject = async () => {
                       name="file-upload"
                       type="file"
                       class="sr-only"
-                      accept=".csv,.tsv,.xlsx,.xls,.json"
+                      accept=".json"
                       @change="handleFileChange"
-                      :disabled="isCreating || isUploading"
+                      :disabled="isCreating"
                       required
                     />
                   </label>
                   <p class="pl-1">or drag and drop</p>
                 </div>
-                <p class="text-xs text-gray-500">CSV, TSV, Excel (.xlsx, .xls), JSON up to 10MB</p>
+                <p class="text-xs text-gray-500">JSON files up to 10MB</p>
               </div>
             </div>
           </div>
@@ -251,10 +192,10 @@ const createProject = async () => {
             <button
               type="submit"
               class="inline-flex items-center rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:opacity-50 disabled:cursor-not-allowed"
-              :disabled="isCreating || isUploading || !projectName.trim() || !selectedFile"
+              :disabled="isCreating || !selectedFile"
             >
               <svg
-                v-if="isCreating || isUploading"
+                v-if="isCreating"
                 class="-ml-1 mr-2 h-4 w-4 animate-spin"
                 fill="none"
                 viewBox="0 0 24 24"
@@ -273,13 +214,7 @@ const createProject = async () => {
                   d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                 ></path>
               </svg>
-              {{
-                isCreating
-                  ? 'Creating Project...'
-                  : isUploading
-                    ? 'Uploading File...'
-                    : 'Create Project'
-              }}
+              {{ isCreating ? 'Creating Project...' : 'Create Project' }}
             </button>
           </div>
         </form>

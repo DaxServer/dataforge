@@ -1,6 +1,17 @@
 {
   "name": "openrefine-ng",
   "version": "0.1.0",
+  "devDependencies": {
+    "@primevue/auto-import-resolver": "^4.3.5",
+    "@types/node": "^22.15.30",
+    "@vitejs/plugin-vue": "^5.2.4",
+    "@vue/test-utils": "^2.4.6",
+    "happy-dom": "^18.0.1",
+    "unplugin-auto-import": "^19.3.0",
+    "unplugin-vue-components": "^28.7.0",
+    "vite-tsconfig-paths": "^5.1.4",
+    "vitest": "^3.2.3"
+  },
   "engines": {
     "bun": ">=1.0.0"
   },
@@ -11,6 +22,8 @@
     "lint": "bun lint:backend && bun lint:frontend",
     "lint:backend": "eslint ./backend --ext .ts",
     "lint:frontend": "eslint ./frontend --ext .ts",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "typecheck": "bun tsc --noEmit",
     "typecheck:backend": "bun tsc -p ./backend/tsconfig.json --noEmit",
     "typecheck:frontend": "bun tsc -p ./frontend/tsconfig.json --noEmit"
@@ -38,8 +51,5 @@
       "typescript": "^5.8.3",
       "elysia": "^1.3.4"
     }
-  },
-  "devDependencies": {
-    "@types/node": "^22.15.30"
   }
 }

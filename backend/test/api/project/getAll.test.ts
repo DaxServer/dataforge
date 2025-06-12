@@ -11,7 +11,7 @@ import {
 } from 'bun:test'
 import { Elysia } from 'elysia'
 import { projectRoutes } from '../../../src/api/project'
-import { closeDb, initializeDb } from '../../../src/db'
+import { closeDb, initializeDb, getDb } from '@backend/plugins/database'
 import { treaty } from '@elysiajs/eden'
 
 // Create a test app with the project routes
@@ -48,7 +48,7 @@ describe('getAllProjects', () => {
     api = createTestApi()
 
     // Insert sample projects
-    const db = (await import('../../../src/db')).getDb()
+    const db = getDb()
     for (const project of sampleProjects) {
       await db.run(
         'INSERT INTO _meta_projects (id, name, created_at, updated_at) VALUES (?, ?, ?, ?)',
@@ -76,7 +76,7 @@ describe('getAllProjects', () => {
 
   test('should return an empty array when no projects exist', async () => {
     // Clear the test data for this specific test
-    const db = (await import('../../../src/db')).getDb()
+    const db = getDb()
     await db.run('DELETE FROM _meta_projects')
 
     const { data, status, error } = await api.project.get()

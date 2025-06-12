@@ -1,5 +1,5 @@
 import { describe, test, expect, afterEach } from 'bun:test'
-import { getDb, initializeDb, closeDb } from '../src/db'
+import { closeDb, getDb, initializeDb } from '@backend/plugins/database'
 
 describe('Database', () => {
   // Clean up the database after each test

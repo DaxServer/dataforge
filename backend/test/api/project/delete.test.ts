@@ -2,7 +2,7 @@
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test'
 import { Elysia } from 'elysia'
 import { projectRoutes } from '../../../src/api/project'
-import { closeDb, initializeDb, getDb } from '../../../src/db'
+import { closeDb, initializeDb, getDb } from '@backend/plugins/database'
 import { treaty } from '@elysiajs/eden'
 
 // Create a test app with the project routes

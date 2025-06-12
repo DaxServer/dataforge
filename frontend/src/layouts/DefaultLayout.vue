@@ -1,8 +1,4 @@
-<script setup lang="ts">
-import Sidebar from '@/components/Sidebar.vue'
-import Header from '@/components/Header.vue'
-import MainContent from '@/components/MainContent.vue'
-</script>
+<script setup lang="ts"></script>
 
 <template>
   <div class="flex h-screen w-full">

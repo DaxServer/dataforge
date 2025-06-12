@@ -1,0 +1,42 @@
+{
+  "compilerOptions": {
+    // Environment setup & latest features
+    "target": "ES2022",
+    "module": "ESNext",
+    "jsx": "preserve",
+
+    // Bundler mode
+    "moduleResolution": "node",
+    "noEmit": true,
+
+    // Best practices
+    "strict": true,
+    "skipLibCheck": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedIndexedAccess": true,
+    "noImplicitOverride": true,
+
+    // Some stricter flags (disabled by default)
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "noPropertyAccessFromIndexSignature": false,
+
+    // Others
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "types": ["bun-types"],
+    "baseUrl": ".",
+    "paths": {
+      "@backend": ["./backend/src"],
+      "@backend/*": ["./backend/src/*"],
+      "@frontend": ["./frontend/src"],
+      "@frontend/*": ["./frontend/src/*"]
+    },
+    "typeRoots": [
+      "./node_modules/@types"
+    ]
+  }
+}
