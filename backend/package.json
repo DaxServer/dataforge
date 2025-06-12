@@ -15,8 +15,9 @@
   "dependencies": {
     "@bogeychan/elysia-logger": "^0.1.8",
     "@duckdb/node-api": "^1.3.0-alpha.21",
+    "@elysiajs/eden": "catalog:",
     "@elysiajs/swagger": "^1.3.0",
-    "elysia": "^1.3.4"
+    "elysia": "catalog:"
   },
   "devDependencies": {
     "@types/bun": "catalog:",

@@ -1,21 +1,12 @@
-import tailwindcss from '@tailwindcss/vite'
+import { defineConfig } from 'vitest/config'
 import vue from '@vitejs/plugin-vue'
 import { fileURLToPath, URL } from 'node:url'
 import AutoImport from 'unplugin-auto-import/vite'
 import Components from 'unplugin-vue-components/vite'
 import { PrimeVueResolver } from '@primevue/auto-import-resolver'
-import { defineConfig } from 'vite'
-import VueDevTools from 'vite-plugin-vue-devtools'
-import PackageJson from './package.json' with { type: 'json' }
-
-process.env.VITE_APP_VERSION = PackageJson.version
-if (process.env.NODE_ENV === 'production') {
-  process.env.VITE_APP_BUILD_EPOCH = new Date().getTime().toString()
-}
 
 export default defineConfig({
   plugins: [
-    VueDevTools(),
     vue(),
     AutoImport({
       imports: [
@@ -34,22 +25,14 @@ export default defineConfig({
       dts: 'components.d.ts',
       resolvers: [PrimeVueResolver()],
     }),
-    tailwindcss(),
   ],
+  test: {
+    globals: true,
+    environment: 'happy-dom',
+  },
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),
-    },
-  },
-  css: {
-    preprocessorMaxWorkers: true,
-  },
-  server: {
-    proxy: {
-      '/api': {
-        target: 'http://localhost:8000',
-        secure: false,
-      },
     },
   },
 })
