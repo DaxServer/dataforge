@@ -26,9 +26,9 @@ export default defineConfig({
     tsconfigPaths(),
     tailwindcss(),
     AutoImport({
-      imports: ['vue', 'vue-router'],
+      imports: ['vue', 'vue-router', 'pinia'],
       dts: true,
-      dirs: ['src/plugins'],
+      dirs: ['src/plugins', 'src/stores'],
       vueTemplate: true,
       resolvers: [PrimeVueResolver()],
       eslintrc: {

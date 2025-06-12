@@ -27,6 +27,9 @@ pinia.use(({ store }) => {
 app.use(PrimeVue, {
   theme: {
     preset: Aura,
+    options: {
+      darkModeSelector: 'none', // Disable dark mode
+    },
   },
 })
 
