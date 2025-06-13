@@ -2,6 +2,7 @@ export const useCreateProjectStore = defineStore('createProject', () => {
   const router = useRouter()
   const api = useApi()
   const selectedFile = ref<File | null>(null)
+  const uploadedFiles = ref<File[]>([])
   const isCreating = ref(false)
   const message = ref<{ text: string; type: 'success' | 'error' | 'info' } | null>(null)
 
@@ -35,7 +36,12 @@ export const useCreateProjectStore = defineStore('createProject', () => {
       })
 
       if (data?.data?.id) {
-        message.value = { text: 'Project created successfully!', type: 'success' }
+        // Move file from selected to uploaded
+        if (selectedFile.value) {
+          uploadedFiles.value.push(selectedFile.value)
+          selectedFile.value = null
+        }
+        clearMessage()
         // setTimeout(() => {
         //   router.push(`/projects/${data.data.id}`)
         // }, 1000)
@@ -51,12 +57,14 @@ export const useCreateProjectStore = defineStore('createProject', () => {
 
   const resetState = () => {
     selectedFile.value = null
+    uploadedFiles.value = []
     isCreating.value = false
     message.value = null
   }
 
   return {
     selectedFile,
+    uploadedFiles,
     isCreating,
     message,
     handleFileSelect,

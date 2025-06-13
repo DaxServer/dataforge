@@ -11,9 +11,12 @@ This project will re-implement the OpenRefine project (https://github.com/OpenRe
 
 # Frontend
 
-- Based on Vue, PrimeVue, Vite, TypeScript.
+- Based on Vue Composition API, PrimeVue, Pinia, Vite, TypeScript.
 - Always use Elysia Eden for types and APIs.
 - Imports are autoloaded.
+- Always use Pinia to store the state.
+- Always use reactive elements, instead of computed properties.
+- Always use composables, instead of methods.
 
 # Database
 
