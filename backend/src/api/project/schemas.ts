@@ -52,6 +52,10 @@ export const ErrorSchema = t.Union([
     code: t.Literal('INVALID_JSON'),
     message: t.String(),
   }),
+  t.Object({
+    code: t.Literal('NOT_FOUND'),
+    message: t.String(),
+  }),
 ])
 
 // Convert ErrorResponse interface to a schema
@@ -155,10 +159,34 @@ const projectSchema = {
       500: errorResponseSchema,
     },
   },
+  getById: {
+    params: t.Object({
+      id: t.String({
+        pattern:
+          '^[0-9a-fA-F]{8}-?[0-9a-fA-F]{4}-?[0-9a-fA-F]{4}-?[0-9a-fA-F]{4}-?[0-9a-fA-F]{12}$',
+        error: 'ID must be a valid UUID',
+      }),
+    }),
+    response: {
+      200: t.Object({
+        data: t.Array(t.Any()),
+        meta: t.Object({
+          total: t.Number(),
+          limit: t.Number(),
+          offset: t.Number(),
+        }),
+      }),
+      400: errorResponseSchema,
+      404: errorResponseSchema,
+      422: errorResponseSchema,
+      500: errorResponseSchema,
+    },
+  },
   delete: {
     params: t.Object({
       id: t.String({
-        pattern: '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$',
+        pattern:
+          '^[0-9a-fA-F]{8}-?[0-9a-fA-F]{4}-?[0-9a-fA-F]{4}-?[0-9a-fA-F]{4}-?[0-9a-fA-F]{12}$',
         error: 'ID must be a valid UUID',
       }),
     }),
@@ -184,6 +212,7 @@ export const CreateProjectSchema = projectSchema.create
 export type CreateProjectInput = typeof projectSchema.create.body.static
 
 export const GetAllProjectsSchema = projectSchema.getAll
+export const GetProjectByIdSchema = projectSchema.getById
 export const DeleteProjectSchema = projectSchema.delete
 
 export const ImportProjectSchema = importSchema.import

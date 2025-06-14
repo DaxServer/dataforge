@@ -227,22 +227,33 @@ const handleFileUpload = async (event: Event) => {
 ### Backend Tests
 ```typescript
 // test/api/project/getById.test.ts
-import { describe, it, expect, beforeEach, afterEach } from 'bun:test'
-import { createTestApp, api } from '@backend/test-utils'
+import { afterEach, beforeEach, describe, expect, it } from 'bun:test'
+import { Elysia } from 'elysia'
+import { projectRoutes } from '@backend/api/project'
+import { initializeDb, closeDb } from '@backend/plugins/database'
+import { treaty } from '@elysiajs/eden'
+
+// Create a test client factory
+const createTestApi = () => {
+  return treaty(new Elysia().use(projectRoutes)).api
+}
 
 describe('Project API - GET /:id', () => {
-  let testApp: ReturnType<typeof createTestApp>
+  let api: ReturnType<typeof createTestApi>
   let projectId: string
 
   beforeEach(async () => {
-    testApp = createTestApp()
+    await initializeDb(':memory:')
+    api = createTestApi()
     const { data } = await api.project.post({ name: 'Test Project' })
     projectId = data?.id as string
   })
 
   afterEach(async () => {
     if (projectId) {
-      await api.project[':id'].delete({ params: { id: projectId } })
+      await api.project({ id: projectId }).delete()
+    }
+    await closeDb()
     }
   })
 
@@ -301,27 +312,32 @@ describe('useApi', () => {
 })
 ```
 
-### Test Utilities
+### Test Client Pattern
 ```typescript
-// @backend/test-utils.ts
+// In your test file
+import { afterEach, beforeEach, describe, expect, it } from 'bun:test'
 import { Elysia } from 'elysia'
-import { edenTreaty } from '@elysiajs/eden'
-import { databasePlugin } from '@backend/plugins/database'
 import { projectRoutes } from '@backend/api/project'
+import { initializeDb, closeDb } from '@backend/plugins/database'
+import { treaty } from '@elysiajs/eden'
 
-// Create the test app
-const app = new Elysia()
-  .decorate('dbConfig', { path: ':memory:' })
-  .use(databasePlugin)
-  .use(projectRoutes)
-
-// Export the app type for Eden
-export type App = typeof app
-
-export const createTestApp = () => {
-  return {
-    app,
-    api: edenTreaty<App>(app).api,
-  }
+// Create a test client factory directly in the test file
+const createTestApi = () => {
+  return treaty(new Elysia().use(projectRoutes)).api
 }
+
+describe('Project API', () => {
+  let api: ReturnType<typeof createTestApi>
+  
+  beforeEach(async () => {
+    await initializeDb(':memory:')
+    api = createTestApi()
+  })
+  
+  afterEach(async () => {
+    await closeDb()
+  })
+  
+  // Your tests here
+})
 ```
