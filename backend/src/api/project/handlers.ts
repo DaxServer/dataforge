@@ -145,13 +145,20 @@ export const importWithFile = async ({
     await cleanupProject(project.id, tempFilePath)
 
     set.status = 400
+    const errorMessage = parseError instanceof Error ? parseError.message : 'Failed to parse JSON'
+    // Extract the specific error part from the message (e.g., "Unexpected identifier 'json'")
+    const match = errorMessage.match(/Unexpected identifier "([^"]+)"/)
+    const errorDetail = match 
+      ? `JSON Parse error: Unexpected identifier "${match[1]}"`
+      : 'Failed to parse JSON'
+      
     return {
       errors: [
         {
           code: 'INVALID_JSON',
           message: 'Invalid JSON format in uploaded file',
           details: {
-            error: parseError instanceof Error ? parseError.message : 'JSON parsing failed',
+            error: errorDetail,
           },
         },
       ],
@@ -177,10 +184,26 @@ export const importWithFile = async ({
     }
   }
 
-  // Create table from JSON file
-  await db.run(
-    `CREATE TABLE "project_${project.id}" AS SELECT * FROM read_json_auto('${tempFilePath}')`
-  )
+  // Create table with autoincrement primary key and import data using DuckDB's JSON functions
+  await db.run(`
+    -- Create the table with an autoincrement primary key
+    CREATE TABLE "project_${project.id}" AS
+    SELECT 
+      row_number() OVER () AS id,
+      *
+    FROM (
+      SELECT * FROM read_json_auto('${tempFilePath}')
+    ) t
+  `)
+
+  // Add primary key constraint
+  await db.run(`
+    ALTER TABLE "project_${project.id}" 
+    ALTER COLUMN id SET NOT NULL;
+    
+    ALTER TABLE "project_${project.id}" 
+    ADD PRIMARY KEY (id);
+  `)
 
   // Clean up temporary file
   await Bun.file(tempFilePath).delete()

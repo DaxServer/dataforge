@@ -54,7 +54,7 @@ describe('createProject', () => {
     })
 
     test('should return 422 when name is missing', async () => {
-      // @ts-ignore
+      // @ts-expect-error - Testing invalid input where name is missing
       const { data, status, error } = await api.project.post({})
 
       expect(status).toBe(422)

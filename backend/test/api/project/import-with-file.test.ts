@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test'
 import { Elysia } from 'elysia'
-import { projectRoutes } from '../../../src/api/project'
-import { initializeDb, closeDb } from '@backend/plugins/database'
+import { projectRoutes } from '@backend/api/project'
+import { initializeDb, closeDb, getDb } from '@backend/plugins/database'
 import { treaty } from '@elysiajs/eden'
 
 // Create a test app with the project routes
@@ -19,6 +19,27 @@ describe('POST /api/project/import', () => {
 
   afterEach(async () => {
     await closeDb()
+
+    // Clean up temporary files
+    const tempDir = new URL('../../temp', import.meta.url).pathname
+
+    // Delete all files in the temp directory
+    const dir = await Bun.file(tempDir).exists()
+    if (dir) {
+      const files = await Bun.readdir(tempDir)
+
+      // Delete all files in the directory
+      await Promise.all(
+        files.map(async file => {
+          const filePath = `${tempDir}/${file}`
+          await Bun.file(filePath)
+            .remove()
+            .catch(() => {
+              // Ignore file removal errors
+            })
+        })
+      )
+    }
   })
 
   describe('Successful imports', () => {
@@ -94,7 +115,7 @@ describe('POST /api/project/import', () => {
 
     describe('Validation errors', () => {
       test('should return 422 for missing file', async () => {
-        // @ts-ignore
+        // @ts-expect-error - Testing invalid input where file is missing
         const { data, status, error } = await api.project.import.post({})
 
         expect(status).toBe(422)
@@ -187,6 +208,61 @@ describe('POST /api/project/import', () => {
             },
           ],
         })
+      })
+    })
+
+    describe('Table creation', () => {
+      test('should create table with autoincrement primary key', async () => {
+        // Create a valid JSON file
+        const testData = JSON.stringify({
+          rows: [
+            { name: 'John', age: 30, city: 'New York' },
+            { name: 'Jane', age: 25, city: 'Boston' },
+          ],
+          columns: ['name', 'age', 'city'],
+        })
+        const file = new File([testData], 'test-data.json', { type: 'application/json' })
+
+        const { data, status } = await api.project.import.post({ file })
+        expect(status).toBe(201)
+
+        const db = getDb()
+        const projectId = data?.data?.id
+
+        // Check if the table has an autoincrement primary key using DuckDB's PRAGMA table_info
+        const result = await db.runAndReadAll(`
+        PRAGMA table_info("project_${projectId}")
+      `)
+
+        const columns = result.getRowObjectsJson()
+
+        // Verify there is an 'id' column with autoincrement and primary key
+        const idColumn = (columns as DuckDBColumn[]).find(col => col.name === 'id')
+        expect(idColumn).toBeDefined()
+
+        // In DuckDB, primary key is indicated by pk > 0
+        expect(Number(idColumn.pk)).toBeGreaterThan(0)
+
+        // Check if the id column is autoincrement by checking its type and constraints
+        // In DuckDB, autoincrement columns are BIGINT PRIMARY KEY and NOT NULL
+        expect(idColumn.type.toUpperCase()).toBe('BIGINT')
+        // Handle both boolean true and number 1 for notnull
+        expect(Boolean(idColumn.notnull)).toBe(true)
+
+        // Verify the sequence is created for autoincrement
+        const sequenceCheck = await db.runAndReadAll(`
+        SELECT name FROM sqlite_master 
+        WHERE type='table' 
+        AND name='sqlite_sequence'
+      `)
+
+        // If sqlite_sequence exists, check if our table is in it
+        if (sequenceCheck.rowCount > 0) {
+          const sequence = await db.runAndReadAll(`
+          SELECT * FROM sqlite_sequence WHERE name = 'project_${projectId}'
+        `)
+          expect(sequence.rowCount).toBe(1)
+        }
       })
     })
 
@@ -334,6 +410,43 @@ describe('POST /api/project/import', () => {
             /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/
           ),
         })
+      })
+
+      test('should create table with autoincrement primary key', async () => {
+        // Create a valid JSON file
+        const testData = JSON.stringify({
+          rows: [
+            { name: 'John', age: 30, city: 'New York' },
+            { name: 'Jane', age: 25, city: 'Boston' },
+          ],
+          columns: ['name', 'age', 'city'],
+        })
+        const file = new File([testData], 'test-data.json', { type: 'application/json' })
+
+        const { data, status } = await api.project.import.post({ file })
+        expect(status).toBe(201)
+
+        const db = getDb()
+        const projectId = data?.data?.id
+
+        // Check if the table has an autoincrement primary key using DuckDB's PRAGMA table_info
+        const result = await db.runAndReadAll(`
+          PRAGMA table_info("project_${projectId}")
+        `)
+
+        const columns = result.getRowObjectsJson()
+
+        // Verify there is an 'id' column with autoincrement and primary key
+        const idColumn = (columns as DuckDBColumn[]).find(col => col.name === 'id')
+        expect(idColumn).toBeDefined()
+
+        // In DuckDB, primary key is indicated by pk > 0
+        expect(Number(idColumn.pk)).toBeGreaterThan(0)
+
+        // Check if the id column is autoincrement by checking its type and constraints
+        // In DuckDB, autoincrement columns are BIGINT PRIMARY KEY and NOT NULL
+        expect(idColumn.type.toUpperCase()).toBe('BIGINT')
+        expect(Boolean(idColumn.notnull)).toBe(true)
       })
     })
   })

@@ -20,14 +20,8 @@
   "scripts": {
     "dev": "bun -F '*' dev",
     "format": "prettier --write \"**/*.{ts,vue}\"",
-    "lint": "bun lint:backend && bun lint:frontend",
-    "lint:backend": "eslint ./backend --ext .ts",
-    "lint:frontend": "eslint ./frontend --ext .ts",
-    "test": "vitest run",
-    "test:watch": "vitest",
-    "typecheck": "bun tsc --noEmit",
-    "typecheck:backend": "bun tsc -p ./backend/tsconfig.json --noEmit",
-    "typecheck:frontend": "bun tsc -p ./frontend/tsconfig.json --noEmit"
+    "lint": "bun -F '*' lint",
+    "test": "vitest run"
   },
   "workspaces": {
     "packages": [

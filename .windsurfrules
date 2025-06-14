@@ -1,29 +1,5 @@
 This project will re-implement the OpenRefine project (https://github.com/OpenRefine/OpenRefine) (https://openrefine.org/).
 
-# TypeScript
+Project guidelines in the directory `guidelines` must always be followed.
 
-- Never use functions, always use arrow functions.
-- Always use Bun APIs.
-
-# Frontend
-
-- Based on Vue, PrimeVue, Vite, TypeScript.
-- Test with `bun tsc` command from package.json and report any errors.
-
-# Backend
-
-- Based on Elysia, Bun, TypeScript.
-- Do not use try...catch, let the handler handle it.
-
-# Database
-
-- Based on DuckDB
-- NodeJS Neo client is used.
-
-# Testing
-
-- Use `bun test` to run tests.
-- Always refer to Bun docs to understand how to write tests.
-- Never throw errors in tests.
-- Never use try...catch in tests.
-- Test the response directly without destructuring.
+At the end of each task, tests must be passed.
