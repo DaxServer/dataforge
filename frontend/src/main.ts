@@ -1,4 +1,4 @@
-import { createApp, markRaw } from 'vue'
+import { createApp, markRaw, type Component } from 'vue'
 import { createPinia } from 'pinia'
 import { createHead } from '@unhead/vue/client'
 import PrimeVue from 'primevue/config'
@@ -16,7 +16,7 @@ import '@frontend/assets/base.css'
 import { ApiPlugin } from '@frontend/plugins/api'
 
 const head = createHead()
-const app = createApp(App)
+const app = createApp(App as Component)
 
 // Initialize Pinia
 const pinia = createPinia()

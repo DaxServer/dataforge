@@ -8,8 +8,8 @@
     "build": "vite build",
     "preview": "vite preview",
     "test": "vitest run",
-    "lint": "eslint . --ext .ts --ext .vue",
-    "typecheck": "vue-tsc --noEmit"
+    "lint": "eslint .",
+    "typecheck": "vue-tsc --build"
   },
   "dependencies": {
     "@elysiajs/eden": "catalog:",
@@ -33,6 +33,7 @@
     "@types/node": "^22.15.30",
     "@typescript-eslint/eslint-plugin": "catalog:",
     "@vitejs/plugin-vue": "^5.2.4",
+    "@vitest/eslint-plugin": "^1.2.4",
     "@vue/eslint-config-prettier": "catalog:",
     "@vue/eslint-config-typescript": "catalog:",
     "@vue/test-utils": "^2.4.6",

@@ -9,6 +9,7 @@ declare global {
   const ApiKey: typeof import('./src/plugins/api')['ApiKey']
   const ApiPlugin: typeof import('./src/plugins/api')['ApiPlugin']
   const EffectScope: typeof import('vue')['EffectScope']
+  const FileUploadUploaderEvent: (typeof import('primevue/fileupload'))['FileUploadUploaderEvent']
   const acceptHMRUpdate: typeof import('pinia')['acceptHMRUpdate']
   const api: typeof import('./src/plugins/api')['api']
   const computed: typeof import('vue')['computed']
@@ -56,6 +57,7 @@ declare global {
   const readonly: typeof import('vue')['readonly']
   const ref: typeof import('vue')['ref']
   const resolveComponent: typeof import('vue')['resolveComponent']
+  const router: typeof import('./src/router')['default']
   const setActivePinia: typeof import('pinia')['setActivePinia']
   const setMapStoreSuffix: typeof import('pinia')['setMapStoreSuffix']
   const shallowReactive: typeof import('vue')['shallowReactive']
@@ -70,9 +72,10 @@ declare global {
   const unref: typeof import('vue')['unref']
   const useApi: typeof import('./src/plugins/api')['useApi']
   const useAttrs: typeof import('vue')['useAttrs']
-  const useCreateProjectStore: typeof import('./src/stores/createProject')['useCreateProjectStore']
+  const useCreateProjectStore: typeof import('./src/stores/create-project.store')['useCreateProjectStore']
   const useCssModule: typeof import('vue')['useCssModule']
   const useCssVars: typeof import('vue')['useCssVars']
+  const useFileManager: (typeof import('./src/composables/useFileManager'))['useFileManager']
   const useId: typeof import('vue')['useId']
   const useLink: typeof import('vue-router')['useLink']
   const useModel: typeof import('vue')['useModel']
@@ -90,6 +93,12 @@ declare global {
   // @ts-ignore
   export type { Component, Slot, Slots, ComponentPublicInstance, ComputedRef, DirectiveBinding, ExtractDefaultPropTypes, ExtractPropTypes, ExtractPublicPropTypes, InjectionKey, PropType, Ref, MaybeRef, MaybeRefOrGetter, VNode, WritableComputedRef } from 'vue'
   import('vue')
+  // @ts-ignore
+  export type { FileUploadUploaderEvent } from 'primevue/fileupload'
+  import('primevue/fileupload')
+  // @ts-ignore
+  export type { ProjectFile, FileSelectEvent, FileRemoveEvent, ApiClient } from './src/types/index'
+  import('./src/types/index')
 }
 
 // for vue template auto import
@@ -147,6 +156,7 @@ declare module 'vue' {
     readonly readonly: UnwrapRef<typeof import('vue')['readonly']>
     readonly ref: UnwrapRef<typeof import('vue')['ref']>
     readonly resolveComponent: UnwrapRef<typeof import('vue')['resolveComponent']>
+    readonly router: UnwrapRef<typeof import('./src/router')['default']>
     readonly setActivePinia: UnwrapRef<typeof import('pinia')['setActivePinia']>
     readonly setMapStoreSuffix: UnwrapRef<typeof import('pinia')['setMapStoreSuffix']>
     readonly shallowReactive: UnwrapRef<typeof import('vue')['shallowReactive']>
@@ -161,7 +171,7 @@ declare module 'vue' {
     readonly unref: UnwrapRef<typeof import('vue')['unref']>
     readonly useApi: UnwrapRef<typeof import('./src/plugins/api')['useApi']>
     readonly useAttrs: UnwrapRef<typeof import('vue')['useAttrs']>
-    readonly useCreateProjectStore: UnwrapRef<typeof import('./src/stores/createProject')['useCreateProjectStore']>
+    readonly useCreateProjectStore: UnwrapRef<typeof import('./src/stores/create-project.store')['useCreateProjectStore']>
     readonly useCssModule: UnwrapRef<typeof import('vue')['useCssModule']>
     readonly useCssVars: UnwrapRef<typeof import('vue')['useCssVars']>
     readonly useId: UnwrapRef<typeof import('vue')['useId']>

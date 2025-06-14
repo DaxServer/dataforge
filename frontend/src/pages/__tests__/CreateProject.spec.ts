@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { mount } from '@vue/test-utils'
+import { mount, type VueWrapper } from '@vue/test-utils'
+import { nextTick } from 'vue'
 import CreateProject from '@frontend/pages/CreateProject.vue'
 import { useApi } from '@frontend/plugins/api'
 
@@ -21,7 +22,7 @@ vi.mock('vue-router', () => ({
 }))
 
 describe('CreateProject', () => {
-  let wrapper: any
+  let wrapper: VueWrapper<InstanceType<typeof CreateProject>>
 
   beforeEach(() => {
     wrapper = mount(CreateProject)
@@ -48,7 +49,7 @@ describe('CreateProject', () => {
     })
 
     await fileInput.trigger('change')
-    await wrapper.vm.$nextTick()
+    await nextTick()
 
     const submitButton = wrapper.find('button[type="submit"]')
     expect(submitButton.attributes('disabled')).toBeUndefined()
@@ -64,7 +65,7 @@ describe('CreateProject', () => {
     })
 
     await fileInput.trigger('change')
-    await wrapper.vm.$nextTick()
+    await nextTick()
 
     expect(wrapper.text()).toContain('test.json')
   })
