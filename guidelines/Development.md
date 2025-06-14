@@ -162,6 +162,20 @@ We use [Bun Catalog](https://bun.sh/docs/cli/catalog) for managing our monorepo 
 - Use `readonly` for immutable properties
 - Avoid `any` type - use `unknown` instead when type is uncertain
 - Use type guards for type narrowing
+- Use path aliases for imports to improve code maintainability:
+  ```typescript
+  // Instead of relative paths
+  import { db } from '@backend/database'
+  import { User } from '@backend/models'
+
+  // Use path aliases
+  import { db } from '@backend/database'
+  import { User } from '@backend/models'
+  ```
+
+  Available path aliases:
+  - `@backend/*` - Points to `./backend/src/*`
+  - `@frontend/*` - Points to `./frontend/src/*`
 
 ## Frontend Development
 
@@ -179,8 +193,7 @@ We use [Bun Catalog](https://bun.sh/docs/cli/catalog) for managing our monorepo 
 ### Component Structure
 ```vue
 <script setup lang="ts">
-// 1. Imports
-import { ref, computed } from 'vue'
+// No need to import ref or computed - they're auto-imported
 
 // 2. Props and emits
 defineProps<{
@@ -281,7 +294,7 @@ Elysia Eden is a type-safe client generator for Elysia that provides end-to-end 
    ```typescript
    // frontend/src/composables/useApi.ts
    import { edenTreaty } from '@elysiajs/eden'
-   import type { App } from '../../backend/src/index'
+   import type { App } from '@backend'
    
    export const api = edenTreaty<App>('http://localhost:3000')
    ```
@@ -403,9 +416,9 @@ Elysia Eden is a type-safe client generator for Elysia that provides end-to-end 
 1. **Backend Tests**
    ```typescript
    // backend/test/api/project.test.ts
-   import { app } from '../../src/index'
+   import { app } from '@backend'
    import { edenTreaty } from '@elysiajs/eden'
-   import type { App } from '../../src/index'
+   import type { App } from '@backend'
    
    const api = edenTreaty<App>(app)
    

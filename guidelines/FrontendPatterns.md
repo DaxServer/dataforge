@@ -3,11 +3,84 @@
 > **Note**: These guidelines cover frontend-specific patterns and best practices for the project.
 
 ## Table of Contents
+- [Auto-Imports](#auto-imports)
 - [Component Design](#component-design)
 - [State Management](#state-management)
 - [Composables](#composables)
 - [Forms and Validation](#forms-and-validation)
 - [Performance](#performance)
+
+## Auto-Imports
+
+This project uses [unplugin-auto-import](https://github.com/unplugin/unplugin-auto-import) and [unplugin-vue-components](https://github.com/unplugin/unplugin-vue-components) to automatically import Vue APIs, components, and composables.
+
+### What's Auto-Imported
+
+- **Vue APIs**: All Vue Composition API functions are auto-imported (e.g., `ref`, `computed`, `onMounted`)
+- **Vue Router**: Router functions like `useRoute` and `useRouter`
+- **Pinia**: Store utilities like `defineStore` and `storeToRefs`
+- **Components**: Vue components in `src/components` are auto-imported
+- **Composables**: Functions in `src/composables` are auto-imported
+
+### Best Practices
+
+1. **No Manual Imports**
+   - Remove manual imports for Vue APIs, components, and composables
+   - Example: Instead of `import { ref } from 'vue'`, just use `ref` directly
+
+2. **Component Naming**
+   - Use PascalCase for component names
+   - Components are auto-imported based on their file name
+   - Example: `MyComponent.vue` can be used as `<MyComponent />`
+
+3. **Composables**
+   - Place composables in `src/composables`
+   - Use camelCase for composable names
+   - They are auto-imported based on their file name
+   - Example: `useMyComposable.ts` can be used as `useMyComposable()`
+
+4. **TypeScript Support**
+   - TypeScript types are automatically generated in `auto-imports.d.ts`
+   - No need to manually type auto-imported functions
+
+5. **IDE Support**
+   - Ensure your IDE is configured to read TypeScript types from `auto-imports.d.ts`
+   - Restart TypeScript server if auto-imports aren't recognized
+
+### Example Usage
+
+```vue
+<script setup>
+// No need to import ref, computed, or onMounted
+const count = ref(0)
+const double = computed(() => count.value * 2)
+
+onMounted(() => {
+  console.log('Component mounted')
+})
+
+// Using an auto-imported composable
+const { data, error } = useMyComposable()
+</script>
+
+<template>
+  <!-- Auto-imported component -->
+  <MyComponent />
+  
+  <div>
+    Count: {{ count }}
+    <button @click="count++">Increment</button>
+  </div>
+</template>
+```
+
+### Troubleshooting
+
+If auto-imports aren't working:
+1. Check that the function/component is in the correct directory
+2. Verify that `vite.config.ts` includes the correct auto-import configuration
+3. Restart your IDE's TypeScript server
+4. Check the `auto-imports.d.ts` file to see what's being auto-imported
 
 ## Component Design
 
@@ -28,8 +101,6 @@
 ### Example Component
 ```vue
 <script setup lang="ts">
-import { computed } from 'vue'
-
 interface Props {
   /** The user's full name */
   name: string
@@ -92,11 +163,7 @@ const statusClass = computed(() => ({
 
 ### Example Store
 ```typescript
-// stores/useUserStore.ts
-import { defineStore } from 'pinia'
-import { ref, computed } from 'vue'
-import { api } from '@/composables/useApi'
-
+// stores/user.ts
 export const useUserStore = defineStore('user', () => {
   const user = ref<User | null>(null)
   const isLoading = ref(false)
@@ -115,7 +182,7 @@ export const useUserStore = defineStore('user', () => {
       const { data } = await api.users.me.get()
       user.value = data
     } catch (err) {
-      error.value = err
+      error.value = err as Error
       throw err
     } finally {
       isLoading.value = false
@@ -150,7 +217,7 @@ export const useUserStore = defineStore('user', () => {
 ### Example Composable
 ```typescript
 // composables/useLocalStorage.ts
-import { ref, watch } from 'vue'
+// No need to import ref or watch - they're auto-imported
 
 export function useLocalStorage<T>(key: string, initialValue: T) {
   const stored = localStorage.getItem(key)
@@ -184,10 +251,7 @@ const theme = useLocalStorage('theme', 'light')
 ### Example Form
 ```vue
 <script setup lang="ts">
-import { z } from 'zod'
-import { ref } from 'vue'
-import { useForm } from 'vee-validate'
-import { toTypedSchema } from '@vee-validate/zod'
+// No need to import ref, useForm, toTypedSchema, or z - they're auto-imported
 
 const schema = z.object({
   email: z.string().email('Invalid email'),
@@ -278,8 +342,7 @@ const onSubmit = handleSubmit(async (values) => {
 ### Example: Lazy Loading
 ```vue
 <script setup>
-import { defineAsyncComponent } from 'vue'
-
+// No need to import defineAsyncComponent - it's auto-imported
 const HeavyComponent = defineAsyncComponent(() =>
   import('./HeavyComponent.vue')
 )
@@ -320,8 +383,8 @@ const HeavyComponent = defineAsyncComponent(() =>
 </template>
 
 <script setup>
-import { RecycleScroller } from 'vue-virtual-scroller'
-import 'vue-virtual-scroller/dist/vue-virtual-scroller.css'
+// No need to import RecycleScroller - it's auto-imported
+// The CSS is imported in main.ts
 
 const items = ref([
   { id: 1, name: 'Item 1' },

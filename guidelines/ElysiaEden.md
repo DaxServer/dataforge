@@ -26,10 +26,10 @@ When setting up Elysia with Eden on the backend, follow these conventions:
 Example backend setup:
 
 ```typescript
-// backend/src/index.ts
+// @backend/index.ts
 import { Elysia } from 'elysia'
 import { swagger } from '@elysiajs/swagger'
-import { userRoutes } from './routes/users'
+import { userRoutes } from '@backend/routes/users'
 
 // Create the Elysia app
 export const app = new Elysia()
@@ -49,7 +49,7 @@ console.log(
 Ensure your main Elysia app exports its type:
 
 ```typescript
-// backend/src/index.ts
+// @backend/index.ts
 export const app = new Elysia({
   // ... config
 })
@@ -61,7 +61,7 @@ export type App = typeof app
 Define routes with proper schemas for type inference:
 
 ```typescript
-// backend/src/api/project/routes.ts
+// @backend/api/project/routes.ts
 import { t } from 'elysia'
 
 export const projectRoutes = new Elysia({ prefix: '/api/project' })
@@ -87,19 +87,17 @@ export const projectRoutes = new Elysia({ prefix: '/api/project' })
 
 ### API Client Setup
 ```typescript
-// frontend/src/composables/useApi.ts
-import { edenTreaty } from '@elysiajs/eden'
-import type { App } from '../../backend/src/index'
+// @frontend/composables/useApi.ts
+// No need to import edenTreaty - it's auto-imported
+import type { App } from '@backend/index'
 
-export const api = edenTreaty<App>('http://localhost:3000')
+export const api = edenTreaty<App>('http://localhost:3000').api
 ```
 
 ### Using in Components
 ```vue
 <script setup lang="ts">
-import { ref } from 'vue'
-import { api } from '@/composables/useApi'
-
+// No need to import - it's auto-imported
 const projects = ref([])
 const error = ref(null)
 
@@ -138,17 +136,27 @@ onMounted(fetchProjects)
 
 ### Error Handling
 ```typescript
-async function createProject(projectData) {
+// No need to import InferRouteResponse - Eden Treaty handles types automatically
+
+async function createProject(projectData: { name: string }) {
   try {
     const { data, error } = await api.project.post(projectData)
+    
     if (error) {
-      const validationError = error.value?.errors?.[0]?.details[0]?.message
-      throw new Error(validationError || 'Failed to create project')
+      // Type-safe error handling
+      // error.value is automatically typed based on the route's error responses
+      const errorMessage = error.value?.errors?.[0]?.message || 'Failed to create project'
+      throw new Error(errorMessage)
     }
+    
+    // data is automatically typed based on the route's success response
     return data
   } catch (err) {
-    console.error('Project creation failed:', err)
-    throw err
+    if (err instanceof Error) {
+      console.error(`Project creation failed: ${err.message}`)
+      throw new Error(`Project creation failed: ${err.message}`)
+    }
+    throw new Error('An unexpected error occurred')
   }
 }
 ```
@@ -172,7 +180,7 @@ async function createProject(projectData) {
 
 // Frontend
 const { data } = await api.project.get({
-  $query: { limit: 10, offset: 0 }
+  query: { limit: 10, offset: 0 }
 })
 ```
 
@@ -183,6 +191,7 @@ const { data } = await api.project.get({
   '/import',
   async ({ body: { file } }) => {
     // Handle file upload
+    return { success: true, filename: file.name }
   },
   {
     body: t.Object({
@@ -196,12 +205,20 @@ async function handleFileUpload(event: Event) {
   const file = (event.target as HTMLInputElement).files?.[0]
   if (!file) return
   
-  const formData = new FormData()
-  formData.append('file', file)
-  
-  const { data, error } = await api.project.import.post(formData, {
-    $fetch: { body: formData }
-  })
+  try {
+    const formData = new FormData()
+    formData.append('file', file)
+    
+    const { data, error } = await api.project.import.post({
+      file: file  // Direct file upload
+    })
+    
+    if (error) throw error
+    return data
+  } catch (error) {
+    console.error('File upload failed:', error)
+    throw error
+  }
 }
 ```
 
@@ -209,21 +226,35 @@ async function handleFileUpload(event: Event) {
 
 ### Backend Tests
 ```typescript
-// backend/test/api/project.test.ts
-import { app } from '../../src/index'
-import { edenTreaty } from '@elysiajs/eden'
-import type { App } from '../../src/index'
+// test/api/project/getById.test.ts
+import { describe, it, expect, beforeEach, afterEach } from 'bun:test'
+import { createTestApp, api } from '@backend/test-utils'
 
-const api = edenTreaty<App>(app)
+describe('Project API - GET /:id', () => {
+  let testApp: ReturnType<typeof createTestApp>
+  let projectId: string
 
-describe('Project API', () => {
-  it('should create a project', async () => {
-    const projectData = { name: 'Test Project' }
-    const { data, error } = await api.project.post(projectData)
-    
-    expect(error).toBeNull()
-    expect(data).toMatchObject(projectData)
-    expect(data).toHaveProperty('id')
+  beforeEach(async () => {
+    testApp = createTestApp()
+    const { data } = await api.project.post({ name: 'Test Project' })
+    projectId = data?.id as string
+  })
+
+  afterEach(async () => {
+    if (projectId) {
+      await api.project[':id'].delete({ params: { id: projectId } })
+    }
+  })
+
+  it('should return project by id', async () => {
+    const { data, status, error } = await api.project[':id'].get({
+      params: { id: projectId }
+    })
+
+    expect(status).toBe(200)
+    expect(error).toBeUndefined()
+    expect(data).toHaveProperty('data')
+    expect(data?.data).toMatchObject({ name: 'Test Project' })
   })
 })
 ```
@@ -231,18 +262,69 @@ describe('Project API', () => {
 ### Frontend Tests
 ```typescript
 // frontend/tests/unit/useApi.test.ts
-import { api } from '@/composables/useApi'
-import { vi } from 'vitest'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { api } from '@frontend/composables/useApi'
+import type { App } from '@backend'
 
-vi.mock('@/composables/useApi')
+// Mock the API client
+vi.mock('@frontend/composables/useApi', () => ({
+  api: {
+    project: {
+      get: vi.fn(),
+      post: vi.fn(),
+      ':id': {
+        get: vi.fn(),
+        delete: vi.fn()
+      }
+    }
+  }
+}))
 
 describe('useApi', () => {
+  const mockProject = { id: '1', name: 'Test Project' }
+
   it('fetches projects', async () => {
-    const mockProjects = [{ id: '1', name: 'Test Project' }]
-    api.project.get.mockResolvedValue({ data: mockProjects })
+    // Setup mock
+    api.project.get.mockResolvedValue({ 
+      data: [mockProject],
+      status: 200 
+    })
     
-    const { data } = await api.project.get()
-    expect(data).toEqual(mockProjects)
+    // Test the API call
+    const { data, status } = await api.project.get()
+    
+    // Assertions
+    expect(status).toBe(200)
+    expect(data).toEqual([mockProject])
+    expect(api.project.get).toHaveBeenCalledTimes(1)
   })
 })
+```
+
+### Test Utilities
+```typescript
+// @backend/test-utils.ts
+import { Elysia } from 'elysia'
+import { edenTreaty } from '@elysiajs/eden'
+import { databasePlugin } from '@backend/plugins/database'
+import { projectRoutes } from '@backend/api/project'
+
+// Create the test app
+const app = new Elysia()
+  .decorate('dbConfig', { path: ':memory:' })
+  .use(databasePlugin)
+  .use(projectRoutes)
+
+// Export the app type for Eden
+export type App = typeof app
+
+// Create the Eden treaty client
+export const api = edenTreaty<App>(app)
+
+export function createTestApp() {
+  return {
+    app,
+    api
+  }
+}
 ```
