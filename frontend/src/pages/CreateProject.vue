@@ -1,4 +1,5 @@
 <script setup lang="ts">
+const { createProject } = useProjectCreationComposable()
 const store = useCreateProjectStore()
 const { isCreating } = storeToRefs(store)
 
@@ -28,7 +29,7 @@ onUnmounted(() => {
                 :preview-width="0"
                 :choose-button-props="{ severity: 'info' }"
                 :cancel-button-props="{ severity: 'danger' }"
-                @uploader="store.createProject($event)"
+                @uploader="createProject($event)"
               >
                 <template #empty>
                   <div
