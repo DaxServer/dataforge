@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import { useRoute } from 'vue-router'
-
 const route = useRoute()
 
 // Sidebar navigation items for OpenRefine
@@ -46,7 +44,7 @@ const navItems = [
                   ? 'text-gray-900'
                   : 'text-gray-400 group-hover:text-gray-500',
               ]"
-            ></i>
+            />
             {{ item.name }}
           </router-link>
         </li>

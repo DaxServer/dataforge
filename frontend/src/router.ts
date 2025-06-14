@@ -54,9 +54,9 @@ const router = createRouter({
 })
 
 // Set page title based on route meta
-router.beforeEach((to, from, next) => {
-  document.title = to.meta.title ? `OpenRefine - ${to.meta.title}` : 'OpenRefine'
-  next()
-})
+// router.beforeEach((to, from, next) => {
+//   document.title = to.meta.title ? `OpenRefine - ${to.meta.title}` : 'OpenRefine'
+//   next()
+// })
 
 export default router

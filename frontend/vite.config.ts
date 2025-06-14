@@ -26,9 +26,18 @@ export default defineConfig({
     tsconfigPaths(),
     tailwindcss(),
     AutoImport({
-      imports: ['vue', 'vue-router', 'pinia'],
+      imports: [
+        'vue',
+        'vue-router',
+        'pinia',
+        {
+          from: 'primevue/fileupload',
+          imports: ['FileUploadUploaderEvent'],
+          type: true,
+        },
+      ],
       dts: true,
-      dirs: ['src/plugins', 'src/stores'],
+      dirs: ['src/**'],
       vueTemplate: true,
       resolvers: [PrimeVueResolver()],
       eslintrc: {

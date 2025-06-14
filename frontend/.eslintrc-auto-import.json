@@ -1,5 +1,6 @@
 {
   "globals": {
+    "ApiClient": true,
     "ApiKey": true,
     "ApiPlugin": true,
     "Component": true,
@@ -10,9 +11,13 @@
     "ExtractDefaultPropTypes": true,
     "ExtractPropTypes": true,
     "ExtractPublicPropTypes": true,
+    "FileRemoveEvent": true,
+    "FileSelectEvent": true,
+    "FileUploadUploaderEvent": true,
     "InjectionKey": true,
     "MaybeRef": true,
     "MaybeRefOrGetter": true,
+    "ProjectFile": true,
     "PropType": true,
     "Ref": true,
     "Slot": true,
@@ -66,6 +71,7 @@
     "readonly": true,
     "ref": true,
     "resolveComponent": true,
+    "router": true,
     "setActivePinia": true,
     "setMapStoreSuffix": true,
     "shallowReactive": true,

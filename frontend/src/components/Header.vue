@@ -7,12 +7,12 @@ const route = useRoute()
     <!-- Breadcrumb -->
     <div class="flex items-center text-sm">
       <span class="text-gray-500">Projects</span>
-      <i class="pi pi-angle-right mx-2 text-gray-400"></i>
+      <i class="pi pi-angle-right mx-2 text-gray-400" />
       <span class="font-medium text-gray-900">{{ route.meta.title || 'Untitled Project' }}</span>
     </div>
 
     <!-- Spacer -->
-    <div class="flex-1"></div>
+    <div class="flex-1" />
 
     <!-- Actions -->
     <div class="flex items-center space-x-4">
