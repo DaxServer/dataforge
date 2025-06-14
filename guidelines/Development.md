@@ -162,6 +162,20 @@ We use [Bun Catalog](https://bun.sh/docs/cli/catalog) for managing our monorepo 
 - Use `readonly` for immutable properties
 - Avoid `any` type - use `unknown` instead when type is uncertain
 - Use type guards for type narrowing
+- Use path aliases for imports to improve code maintainability:
+  ```typescript
+  // Instead of relative paths
+  import { db } from '@backend/database'
+  import { User } from '@backend/models'
+
+  // Use path aliases
+  import { db } from '@backend/database'
+  import { User } from '@backend/models'
+  ```
+
+  Available path aliases:
+  - `@backend/*` - Points to `./backend/src/*`
+  - `@frontend/*` - Points to `./frontend/src/*`
 
 ## Frontend Development
 
@@ -179,8 +193,7 @@ We use [Bun Catalog](https://bun.sh/docs/cli/catalog) for managing our monorepo 
 ### Component Structure
 ```vue
 <script setup lang="ts">
-// 1. Imports
-import { ref, computed } from 'vue'
+// No need to import ref or computed - they're auto-imported
 
 // 2. Props and emits
 defineProps<{
@@ -195,7 +208,7 @@ const count = ref(0)
 const doubleCount = computed(() => count.value * 2)
 
 // 5. Methods
-function increment() {
+const increment = () => {
   count.value++
 }
 </script>
@@ -281,7 +294,7 @@ Elysia Eden is a type-safe client generator for Elysia that provides end-to-end 
    ```typescript
    // frontend/src/composables/useApi.ts
    import { edenTreaty } from '@elysiajs/eden'
-   import type { App } from '../../backend/src/index'
+   import type { App } from '@backend'
    
    export const api = edenTreaty<App>('http://localhost:3000')
    ```
@@ -295,7 +308,7 @@ Elysia Eden is a type-safe client generator for Elysia that provides end-to-end 
    const projects = ref([])
    const error = ref(null)
    
-   async function fetchProjects() {
+   const fetchProjects = async () => {
      try {
        const { data, error: apiError } = await api.project.get()
        if (apiError) throw apiError
@@ -329,7 +342,7 @@ Elysia Eden is a type-safe client generator for Elysia that provides end-to-end 
 
 2. **Error Handling**
    ```typescript
-   async function createProject(projectData) {
+   const createProject = async (projectData) => {
      try {
        const { data, error } = await api.project.post(projectData)
        if (error) {
@@ -385,7 +398,7 @@ Elysia Eden is a type-safe client generator for Elysia that provides end-to-end 
    )
    
    // Frontend
-   async function handleFileUpload(event: Event) {
+   const handleFileUpload = async (event: Event) => {
      const file = (event.target as HTMLInputElement).files?.[0]
      if (!file) return
      
@@ -403,9 +416,9 @@ Elysia Eden is a type-safe client generator for Elysia that provides end-to-end 
 1. **Backend Tests**
    ```typescript
    // backend/test/api/project.test.ts
-   import { app } from '../../src/index'
+   import { app } from '@backend'
    import { edenTreaty } from '@elysiajs/eden'
-   import type { App } from '../../src/index'
+   import type { App } from '@backend'
    
    const api = edenTreaty<App>(app)
    
@@ -491,7 +504,7 @@ const app = new Elysia()
 
 ### Example Query
 ```typescript
-async function getUserWithPosts(userId: string) {
+const getUserWithPosts = async (userId: string) => {
   return db.transaction().execute(async (trx) => {
     const user = await trx
       .selectFrom('users')

@@ -12,6 +12,97 @@
 - [E2E Testing](#e2e-testing)
 - [Running Tests](#running-tests)
 
+## Elysia and Eden Testing Patterns
+
+### Test Application Setup
+
+When testing Elysia applications with Eden:
+
+1. **Create a test app factory** that sets up your application with test configurations
+2. **Use in-memory database** for all tests
+3. **Create a new app instance** for each test to ensure isolation
+4. **Use Eden's treaty client** for type-safe API calls
+
+```typescript
+// @backend/test-utils.ts
+import { Elysia } from 'elysia'
+import { edenTreaty } from '@elysiajs/eden'
+import { databasePlugin } from '@backend/plugins/database'
+import { projectRoutes } from '@backend/api/project'
+
+export const createTestApp = () => {
+  const app = new Elysia()
+    .decorate('dbConfig', { path: ':memory:' })
+    .use(databasePlugin)
+    .use(projectRoutes)
+    
+  return {
+    app,
+    api: edenTreaty<typeof app>(app).api,
+  }
+}
+
+// In your test file
+import { createTestApp } from '../test-utils'
+
+describe('Project API', () => {
+  let testApp: ReturnType<typeof createTestApp>
+  
+  beforeEach(() => {
+    testApp = createTestApp()
+  })
+  
+  it('should do something', async () => {
+    const { data, status, error } = await testApp.api.endpoint.get(params)
+    // assertions
+  })
+})
+```
+
+### Response Handling
+
+When testing Eden API responses:
+
+1. Always destructure the response into `{ data, status, error }`
+2. Test the response status code
+3. Test the response data structure
+4. For error responses, test the error structure
+
+### Error Testing
+
+When testing error responses:
+
+1. Test the HTTP status code
+2. Test that `data` is null
+3. Test the error structure using `toMatchObject`
+4. Test specific error codes and messages
+
+```typescript
+const { data, status, error } = await testApp.api.projects[':id'].get({
+  params: { id: 'invalid-id' }
+})
+
+expect(status).toBe(400)
+expect(data).toBeNull()
+expect(error).toMatchObject({
+  status: 400,
+  value: {
+    errors: [
+      {
+        code: 'VALIDATION',
+        message: 'Validation failed',
+        details: expect.arrayContaining([
+          expect.objectContaining({
+            path: 'id',
+            message: 'Invalid uuid',
+          }),
+        ]),
+      },
+    ],
+  },
+})
+```
+
 ## Test Structure
 
 All test files should follow this structure:
@@ -27,7 +118,7 @@ Example:
 ```typescript
 // 1. Imports
 import { describe, it, expect, beforeAll, afterAll } from 'bun:test'
-import { setupTestDatabase, teardownTestDatabase } from '../test-utils'
+import { setupTestDatabase, teardownTestDatabase } from '@backend/test-utils'
 
 // 2. Test Data
 const testUser = {
@@ -160,7 +251,7 @@ const result = await api.project.post({})
 
 ```typescript
 // test-utils.ts
-export function createTestApp() {
+export const createTestApp = () => {
   const app = new Elysia()
     .decorate('dbConfig', { path: ':memory:' })
     .use(databasePlugin)
@@ -168,7 +259,7 @@ export function createTestApp() {
   
   return {
     app,
-    api: treaty(app).api,
+    api: edenTreaty<App>(app).api
     // Add any test utilities here
   }
 }
@@ -238,7 +329,7 @@ describe('Project API', () => {
 // test/factories/project.ts
 import { faker } from '@faker-js/faker'
 
-export function createProject(overrides = {}) {
+export const createProject = (overrides = {}) => {
   return {
     id: faker.string.uuid(),
     name: faker.company.name(),
