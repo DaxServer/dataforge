@@ -174,7 +174,7 @@ export const useUserStore = defineStore('user', () => {
     user.value ? `${user.value.firstName} ${user.value.lastName}` : ''
   )
 
-  async function fetchUser() {
+  const fetchUser = async () => {
     isLoading.value = true
     error.value = null
     

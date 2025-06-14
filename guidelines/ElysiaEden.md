@@ -101,7 +101,7 @@ export const api = edenTreaty<App>('http://localhost:3000').api
 const projects = ref([])
 const error = ref(null)
 
-async function fetchProjects() {
+const fetchProjects = async () => {
   try {
     const { data, error: apiError } = await api.project.get()
     if (apiError) throw apiError
@@ -138,7 +138,7 @@ onMounted(fetchProjects)
 ```typescript
 // No need to import InferRouteResponse - Eden Treaty handles types automatically
 
-async function createProject(projectData: { name: string }) {
+const createProject = async (projectData: { name: string }) => {
   try {
     const { data, error } = await api.project.post(projectData)
     
@@ -201,7 +201,7 @@ const { data } = await api.project.get({
 )
 
 // Frontend
-async function handleFileUpload(event: Event) {
+const handleFileUpload = async (event: Event) => {
   const file = (event.target as HTMLInputElement).files?.[0]
   if (!file) return
   
@@ -318,13 +318,10 @@ const app = new Elysia()
 // Export the app type for Eden
 export type App = typeof app
 
-// Create the Eden treaty client
-export const api = edenTreaty<App>(app)
-
-export function createTestApp() {
+export const createTestApp = () => {
   return {
     app,
-    api
+    api: edenTreaty<App>(app).api,
   }
 }
 ```

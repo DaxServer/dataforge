@@ -25,11 +25,12 @@ When testing Elysia applications with Eden:
 
 ```typescript
 // @backend/test-utils.ts
-// No need to import Elysia or edenTreaty - they're auto-imported
+import { Elysia } from 'elysia'
+import { edenTreaty } from '@elysiajs/eden'
 import { databasePlugin } from '@backend/plugins/database'
 import { projectRoutes } from '@backend/api/project'
 
-export function createTestApp() {
+export const createTestApp = () => {
   const app = new Elysia()
     .decorate('dbConfig', { path: ':memory:' })
     .use(databasePlugin)
@@ -37,7 +38,7 @@ export function createTestApp() {
     
   return {
     app,
-    api: edenTreaty<typeof app>(app)
+    api: edenTreaty<typeof app>(app).api,
   }
 }
 
@@ -250,7 +251,7 @@ const result = await api.project.post({})
 
 ```typescript
 // test-utils.ts
-export function createTestApp() {
+export const createTestApp = () => {
   const app = new Elysia()
     .decorate('dbConfig', { path: ':memory:' })
     .use(databasePlugin)
@@ -258,7 +259,7 @@ export function createTestApp() {
   
   return {
     app,
-    api: treaty(app).api,
+    api: edenTreaty<App>(app).api
     // Add any test utilities here
   }
 }
@@ -328,7 +329,7 @@ describe('Project API', () => {
 // test/factories/project.ts
 import { faker } from '@faker-js/faker'
 
-export function createProject(overrides = {}) {
+export const createProject = (overrides = {}) => {
   return {
     id: faker.string.uuid(),
     name: faker.company.name(),

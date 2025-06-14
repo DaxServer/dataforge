@@ -208,7 +208,7 @@ const count = ref(0)
 const doubleCount = computed(() => count.value * 2)
 
 // 5. Methods
-function increment() {
+const increment = () => {
   count.value++
 }
 </script>
@@ -308,7 +308,7 @@ Elysia Eden is a type-safe client generator for Elysia that provides end-to-end 
    const projects = ref([])
    const error = ref(null)
    
-   async function fetchProjects() {
+   const fetchProjects = async () => {
      try {
        const { data, error: apiError } = await api.project.get()
        if (apiError) throw apiError
@@ -342,7 +342,7 @@ Elysia Eden is a type-safe client generator for Elysia that provides end-to-end 
 
 2. **Error Handling**
    ```typescript
-   async function createProject(projectData) {
+   const createProject = async (projectData) => {
      try {
        const { data, error } = await api.project.post(projectData)
        if (error) {
@@ -398,7 +398,7 @@ Elysia Eden is a type-safe client generator for Elysia that provides end-to-end 
    )
    
    // Frontend
-   async function handleFileUpload(event: Event) {
+   const handleFileUpload = async (event: Event) => {
      const file = (event.target as HTMLInputElement).files?.[0]
      if (!file) return
      
@@ -504,7 +504,7 @@ const app = new Elysia()
 
 ### Example Query
 ```typescript
-async function getUserWithPosts(userId: string) {
+const getUserWithPosts = async (userId: string) => {
   return db.transaction().execute(async (trx) => {
     const user = await trx
       .selectFrom('users')
