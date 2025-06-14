@@ -10,7 +10,7 @@ import {
   setSystemTime,
 } from 'bun:test'
 import { Elysia } from 'elysia'
-import { projectRoutes } from '../../../src/api/project'
+import { projectRoutes } from '@backend/api/project'
 import { closeDb, initializeDb, getDb } from '@backend/plugins/database'
 import { treaty } from '@elysiajs/eden'
 
@@ -94,7 +94,7 @@ describe('getAllProjects', () => {
     // Sort projects by created_at in descending order
     const expectedProjects = [...sampleProjects]
       .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
-      .map((project) => ({
+      .map(project => ({
         ...project,
         // DuckDB returns timestamps in format: 'YYYY-MM-DD HH:MM:SS' (naive timestamp without timezone)
         created_at: project.created_at,

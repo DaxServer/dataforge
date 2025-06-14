@@ -6,7 +6,7 @@ import { logger } from '@bogeychan/elysia-logger'
 import { databasePlugin } from './plugins/database'
 import { cors } from '@elysiajs/cors'
 
-const app = new Elysia({
+export const elysiaApp = new Elysia({
   serve: {
     maxRequestBodySize: 1024 * 1024 * 1024, // 1GB
   },
@@ -25,4 +25,4 @@ const app = new Elysia({
     console.log('🦊 Elysia is running at http://localhost:3000')
   })
 
-export type App = typeof app
+export type App = typeof elysiaApp

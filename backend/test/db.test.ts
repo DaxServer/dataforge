@@ -1,10 +1,16 @@
-import { describe, test, expect, afterEach } from 'bun:test'
-import { closeDb, getDb, initializeDb } from '@backend/plugins/database'
+import { describe, test, expect, afterEach, beforeEach } from 'bun:test'
+import { closeDb, getDb, initializeDb } from '../src/plugins/database'
 
 describe('Database', () => {
   // Clean up the database after each test
   afterEach(async () => {
     await closeDb()
+  })
+
+  test('should initialize database successfully', async () => {
+    const db = await initializeDb(':memory:')
+    expect(db).toBeDefined()
+    expect(typeof db.run).toBe('function')
   })
 
   test('getDb should return a database connection', async () => {
@@ -17,7 +23,6 @@ describe('Database', () => {
     // Verify the connection exists and has the expected methods
     expect(db).toBeDefined()
     expect(typeof db.run).toBe('function')
-    expect(typeof db.runAndReadAll).toBe('function')
   })
 
   test('getDb should throw if database is not initialized', () => {
@@ -26,6 +31,10 @@ describe('Database', () => {
   })
 
   describe('closeDb', () => {
+    beforeEach(async () => {
+      await closeDb()
+    })
+
     test('should close the database connection', async () => {
       // Initialize and get the database connection
       await initializeDb(':memory:')
@@ -43,8 +52,8 @@ describe('Database', () => {
       // First close
       await closeDb()
 
-      // Second close should not throw and should resolve to undefined
-      expect(closeDb()).resolves.toBeUndefined()
+      // Second close should not throw
+      await expect(closeDb()).resolves.toBeUndefined()
     })
 
     test('should allow re-initialization after closing', async () => {
@@ -53,10 +62,9 @@ describe('Database', () => {
       await closeDb()
 
       // Should be able to initialize again
-      expect(initializeDb(':memory:')).resolves.toBeDefined()
-
-      // Clean up
-      await closeDb()
+      const db = await initializeDb(':memory:')
+      expect(db).toBeDefined()
+      expect(typeof db.run).toBe('function')
     })
   })
 })

@@ -21,12 +21,14 @@ export const projectRoutes = new Elysia({ prefix: '/api/project' })
             code,
             message: 'Validation failed',
             details:
-              error.all?.map((e: any) => ({
-                path: e.path?.replace(/^\/body\//, '') || 'unknown',
-                message: e.message || 'Invalid value',
-                expected: e.expected,
-                received: e.value,
-              })) || [],
+              error.all?.map(
+                (e: { path?: string; message?: string; expected?: unknown; value: unknown }) => ({
+                  path: e.path?.replace(/^\/body\//, '') || 'unknown',
+                  message: e.message || 'Invalid value',
+                  expected: e.expected,
+                  received: e.value,
+                })
+              ) || [],
           },
         ],
       }
