@@ -92,6 +92,7 @@
     "useId": true,
     "useLink": true,
     "useModel": true,
+    "useProjectCreationComposable": true,
     "useRoute": true,
     "useRouter": true,
     "useSlots": true,
