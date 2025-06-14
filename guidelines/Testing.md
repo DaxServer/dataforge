@@ -18,42 +18,41 @@
 
 When testing Elysia applications with Eden:
 
-1. **Create a test app factory** that sets up your application with test configurations
+1. **Create a test client factory** directly in your test file
 2. **Use in-memory database** for all tests
 3. **Create a new app instance** for each test to ensure isolation
 4. **Use Eden's treaty client** for type-safe API calls
 
 ```typescript
-// @backend/test-utils.ts
+// In your test file
+import { afterEach, beforeEach, describe, expect, it } from 'bun:test'
 import { Elysia } from 'elysia'
-import { edenTreaty } from '@elysiajs/eden'
-import { databasePlugin } from '@backend/plugins/database'
 import { projectRoutes } from '@backend/api/project'
+import { initializeDb, closeDb } from '@backend/plugins/database'
+import { treaty } from '@elysiajs/eden'
 
-export const createTestApp = () => {
-  const app = new Elysia()
-    .decorate('dbConfig', { path: ':memory:' })
-    .use(databasePlugin)
-    .use(projectRoutes)
-    
-  return {
-    app,
-    api: edenTreaty<typeof app>(app).api,
-  }
+// Create a test app with the project routes
+const createTestApi = () => {
+  return treaty(new Elysia().use(projectRoutes)).api
 }
 
-// In your test file
-import { createTestApp } from '../test-utils'
-
 describe('Project API', () => {
-  let testApp: ReturnType<typeof createTestApp>
+  let api: ReturnType<typeof createTestApi>
   
-  beforeEach(() => {
-    testApp = createTestApp()
+  beforeEach(async () => {
+    // Initialize a fresh in-memory database
+    await initializeDb(':memory:')
+    
+    // Create a fresh app instance for each test
+    api = createTestApi()
+  })
+  
+  afterEach(async () => {
+    await closeDb()
   })
   
   it('should do something', async () => {
-    const { data, status, error } = await testApp.api.endpoint.get(params)
+    const { data, status, error } = await api.endpoint.get(params)
     // assertions
   })
 })
@@ -63,10 +62,13 @@ describe('Project API', () => {
 
 When testing Eden API responses:
 
-1. Always destructure the response into `{ data, status, error }`
-2. Test the response status code
-3. Test the response data structure
-4. For error responses, test the error structure
+1. Always destructure the Eden response into `{ data, status, error }`
+2. Test the response status code directly using the destructured `status`
+3. Test the response data structure directly using the destructured `data`
+4. Test the error structure directly using the destructured `error`
+5. **Do not further destructure** the `data`, `status`, or `error` properties - test them directly
+
+**Important**: The destructuring applies only to the initial Eden response. Once you have `data`, `status`, and `error`, test these properties directly without additional destructuring.
 
 ### Error Testing
 
@@ -117,8 +119,11 @@ Example:
 
 ```typescript
 // 1. Imports
-import { describe, it, expect, beforeAll, afterAll } from 'bun:test'
-import { setupTestDatabase, teardownTestDatabase } from '@backend/test-utils'
+import { afterEach, beforeEach, describe, expect, it } from 'bun:test'
+import { Elysia } from 'elysia'
+import { userRoutes } from '@backend/api/user'
+import { initializeDb, closeDb } from '@backend/plugins/database'
+import { treaty } from '@elysiajs/eden'
 
 // 2. Test Data
 const testUser = {
@@ -127,20 +132,29 @@ const testUser = {
   password: 'securepassword123!'
 }
 
+// Create a test client factory
+const createTestApi = () => {
+  return treaty(new Elysia().use(userRoutes)).api
+}
+
 describe('User Authentication', () => {
+  let api: ReturnType<typeof createTestApi>
+
   // 3. Setup
-  beforeAll(async () => {
-    await setupTestDatabase()
+  beforeEach(async () => {
+    await initializeDb(':memory:')
+    api = createTestApi()
   })
 
   // 4. Test Cases
   it('should register a new user', async () => {
+    const { data, status, error } = await api.user.register.post(testUser)
     // Test implementation
   })
 
   // 5. Cleanup
-  afterAll(async () => {
-    await teardownTestDatabase()
+  afterEach(async () => {
+    await closeDb()
   })
 })
 ```
@@ -168,22 +182,44 @@ When testing API responses, follow this pattern to ensure consistent and maintai
 
 ### Response Structure
 
-1. **Destructure the response** to access `status`, `data`, and `error`
-2. **Test the response structure** using the destructured values
-3. **Use matchers** for flexible and maintainable assertions
+1. **Destructure the Eden response** to access `status`, `data`, and `error`
+2. **Test the response structure** using the destructured values with appropriate matchers
+3. **Do not access nested properties directly** - use `toHaveProperty()` matcher instead
+4. **Do not further destructure** the `data`, `status`, or `error` properties
+5. **Use matchers** for flexible and maintainable assertions
+
+### Example: Testing Success Responses
+
+```typescript
+// 1. Destructure the Eden response only
+const { data, status, error } = await api.project({ id: projectId }).get()
+
+// 2. Test the response structure using matchers
+expect(status).toBe(200)
+expect(error).toBeNull()
+expect(data).toBeDefined()
+
+// 3. Test nested properties using toHaveProperty matcher
+expect(data).toHaveProperty('data')
+expect(data).toHaveProperty('meta')
+expect(data).toHaveProperty('data.length', 3)
+expect(data).toHaveProperty('meta.total', 3)
+```
 
 ### Example: Testing Error Responses
 
 ```typescript
-// 1. Destructure the response
+// 1. Destructure the Eden response only
 const { data, status, error } = await api.project.post({})
 
-// 2. Test the response structure
+// 2. Test the response structure using matchers
 expect(status).toBe(422)
 expect(data).toBeNull()
 
-// 3. Test error structure with matchers
+// 3. Test error structure using matchers
 expect(error).toBeDefined()
+expect(error).toHaveProperty('status', 422)
+expect(error).toHaveProperty('value.errors')
 expect(error).toMatchObject({
   status: 422,
   value: {
@@ -206,14 +242,29 @@ expect(error).toMatchObject({
 ### Anti-patterns to Avoid
 
 ```typescript
-// ❌ Don't chain property access
+// ❌ Don't chain property access on the raw response
 expect(response.status).toBe(422)
 
-// ❌ Don't use deep property access
+// ❌ Don't use deep property access on the raw response
 expect(response.error.status).toBe(422)
 
-// ❌ Don't skip destructuring when testing responses
+// ❌ Don't skip destructuring the Eden response
 const result = await api.project.post({})
+expect(result.status).toBe(422) // Wrong - should destructure first
+
+// ❌ Don't further destructure the data, status, or error properties
+const { data, status, error } = await api.project.post({})
+const { data: innerData, meta } = data // Wrong - use toHaveProperty instead
+
+// ❌ Don't access nested properties directly
+expect(data.data).toBeInstanceOf(Array) // Wrong - use toHaveProperty
+expect(data.data.length).toBe(3) // Wrong - use toHaveProperty
+expect(data.meta.total).toBe(3) // Wrong - use toHaveProperty
+
+// ✅ Correct way - use toHaveProperty matcher
+expect(data).toHaveProperty('data')
+expect(data).toHaveProperty('data.length', 3)
+expect(data).toHaveProperty('meta.total', 3)
 ```
 
 ### Matcher Guidelines
@@ -250,28 +301,28 @@ const result = await api.project.post({})
 ### Example Test Setup
 
 ```typescript
-// test-utils.ts
-export const createTestApp = () => {
-  const app = new Elysia()
-    .decorate('dbConfig', { path: ':memory:' })
-    .use(databasePlugin)
-    .use(projectRoutes)
-  
-  return {
-    app,
-    api: edenTreaty<App>(app).api
-    // Add any test utilities here
-  }
+// In your test file
+import { afterEach, beforeEach, describe, expect, it } from 'bun:test'
+import { Elysia } from 'elysia'
+import { projectRoutes } from '@backend/api/project'
+import { initializeDb, closeDb } from '@backend/plugins/database'
+import { treaty } from '@elysiajs/eden'
+
+// Create a test client factory
+const createTestApi = () => {
+  return treaty(new Elysia().use(projectRoutes)).api
 }
 
-// In your test file
-import { createTestApp } from '../test-utils'
-
 describe('Project API', () => {
-  let testApp: ReturnType<typeof createTestApp>
+  let api: ReturnType<typeof createTestApi>
   
-  beforeEach(() => {
-    testApp = createTestApp()
+  beforeEach(async () => {
+    await initializeDb(':memory:')
+    api = createTestApi()
+  })
+  
+  afterEach(async () => {
+    await closeDb()
   })
   
   // Tests go here

@@ -1,6 +1,60 @@
-import { getDb } from '@backend/plugins/database'
 import type { Context } from 'elysia'
 import type { CreateProjectInput, Project, ImportWithFileInput } from './schemas'
+import { getDb } from '@backend/plugins/database'
+
+export const getProjectById = async ({
+  params: { id },
+  set,
+}: Context<{ params: { id: string } }>) => {
+  const db = getDb()
+
+  // First, check if the project exists in _meta_projects
+  const projectReader = await db.runAndReadAll('SELECT * FROM _meta_projects WHERE id = ?', [id])
+  const projects = projectReader.getRowObjectsJson()
+
+  if (projects.length === 0) {
+    set.status = 404
+    return {
+      errors: [
+        {
+          code: 'NOT_FOUND',
+          message: 'Project not found',
+        },
+      ],
+    }
+  }
+
+  try {
+    // Get the project's data from the project table (first 25 rows)
+    const tableName = `project_${id}`
+    const rowsReader = await db.runAndReadAll(`SELECT * FROM "${tableName}" LIMIT 25`)
+    const rows = rowsReader.getRowObjectsJson()
+
+    return {
+      data: rows,
+      meta: {
+        total: rows.length, // For simplicity, we're not doing a separate count query
+        limit: 25,
+        offset: 0,
+      },
+    }
+  } catch (error) {
+    // If the table doesn't exist, return empty data
+    if (error instanceof Error && error.message.includes('does not exist')) {
+      return {
+        data: [],
+        meta: {
+          total: 0,
+          limit: 25,
+          offset: 0,
+        },
+      }
+    }
+
+    // Re-throw other errors
+    throw error
+  }
+}
 
 export const getAllProjects = async () => {
   const db = getDb()
@@ -148,10 +202,10 @@ export const importWithFile = async ({
     const errorMessage = parseError instanceof Error ? parseError.message : 'Failed to parse JSON'
     // Extract the specific error part from the message (e.g., "Unexpected identifier 'json'")
     const match = errorMessage.match(/Unexpected identifier "([^"]+)"/)
-    const errorDetail = match 
+    const errorDetail = match
       ? `JSON Parse error: Unexpected identifier "${match[1]}"`
       : 'Failed to parse JSON'
-      
+
     return {
       errors: [
         {
@@ -188,7 +242,7 @@ export const importWithFile = async ({
   await db.run(`
     -- Create the table with an autoincrement primary key
     CREATE TABLE "project_${project.id}" AS
-    SELECT 
+    SELECT
       row_number() OVER () AS id,
       *
     FROM (
@@ -198,10 +252,10 @@ export const importWithFile = async ({
 
   // Add primary key constraint
   await db.run(`
-    ALTER TABLE "project_${project.id}" 
+    ALTER TABLE "project_${project.id}"
     ALTER COLUMN id SET NOT NULL;
-    
-    ALTER TABLE "project_${project.id}" 
+
+    ALTER TABLE "project_${project.id}"
     ADD PRIMARY KEY (id);
   `)
 
