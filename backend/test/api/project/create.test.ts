@@ -4,6 +4,7 @@ import { Elysia } from 'elysia'
 import { projectRoutes } from '../../../src/api/project'
 import { closeDb, initializeDb } from '@backend/plugins/database'
 import { treaty } from '@elysiajs/eden'
+import { UUID_REGEX_PATTERN } from '../../../src/api/project/schemas'
 
 // Create a test app with the project routes
 const createTestApi = () => {
@@ -42,9 +43,7 @@ describe('createProject', () => {
       expect(data).toMatchObject({
         data: {
           name: projectData.name,
-          id: expect.stringMatching(
-            /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
-          ),
+          id: expect.stringMatching(UUID_REGEX_PATTERN),
           // Expecting naive timestamp format: YYYY-MM-DD HH:MM:SS[.SSS] (with optional milliseconds)
           created_at: expect.stringMatching(/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}(\.\d{1,3})?$/),
           updated_at: expect.stringMatching(/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}(\.\d{1,3})?$/),

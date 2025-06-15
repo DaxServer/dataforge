@@ -3,6 +3,7 @@ import { Elysia } from 'elysia'
 import { projectRoutes } from '@backend/api/project'
 import { initializeDb, closeDb, getDb } from '@backend/plugins/database'
 import { treaty } from '@elysiajs/eden'
+import { UUID_REGEX_PATTERN } from '@backend/api/project/schemas'
 
 // Create a test app with the project routes
 const createTestApi = () => {
@@ -60,9 +61,7 @@ describe('POST /api/project/import', () => {
       expect(error).toBeNull()
       expect(data).toMatchObject({
         data: {
-          id: expect.stringMatching(
-            /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
-          ),
+          id: expect.stringMatching(UUID_REGEX_PATTERN),
         },
       })
     })
@@ -84,9 +83,7 @@ describe('POST /api/project/import', () => {
       expect(error).toBeNull()
       expect(data).toMatchObject({
         data: {
-          id: expect.stringMatching(
-            /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
-          ),
+          id: expect.stringMatching(UUID_REGEX_PATTERN),
         },
       })
     })
@@ -107,9 +104,7 @@ describe('POST /api/project/import', () => {
       expect(status).toBe(201)
       expect(error).toBeNull()
       expect(data).toHaveProperty('data', {
-        id: expect.stringMatching(
-          /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
-        ),
+        id: expect.stringMatching(UUID_REGEX_PATTERN),
       })
     })
 
@@ -368,9 +363,7 @@ describe('POST /api/project/import', () => {
         expect(status).toBe(201)
         expect(error).toBeNull()
         expect(data).toHaveProperty('data', {
-          id: expect.stringMatching(
-            /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/
-          ),
+          id: expect.stringMatching(UUID_REGEX_PATTERN),
         })
       })
 
@@ -390,9 +383,7 @@ describe('POST /api/project/import', () => {
         expect(status).toBe(201)
         expect(error).toBeNull()
         expect(data).toHaveProperty('data', {
-          id: expect.stringMatching(
-            /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/
-          ),
+          id: expect.stringMatching(UUID_REGEX_PATTERN),
         })
       })
 
@@ -406,9 +397,7 @@ describe('POST /api/project/import', () => {
         expect(status).toBe(201)
         expect(error).toBeNull()
         expect(data).toHaveProperty('data', {
-          id: expect.stringMatching(
-            /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/
-          ),
+          id: expect.stringMatching(UUID_REGEX_PATTERN),
         })
       })
 

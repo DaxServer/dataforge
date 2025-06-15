@@ -4,6 +4,7 @@ import { Elysia } from 'elysia'
 import { projectRoutes } from '../../../src/api/project'
 import { closeDb, initializeDb, getDb } from '@backend/plugins/database'
 import { treaty } from '@elysiajs/eden'
+import { UUID_REGEX } from '../../../src/api/project/schemas'
 
 // Create a test app with the project routes
 const createTestApi = () => {
@@ -90,8 +91,7 @@ describe('deleteProject', () => {
           details: [
             {
               path: '/id',
-              message:
-                "Expected string to match '^[0-9a-fA-F]{8}-?[0-9a-fA-F]{4}-?[0-9a-fA-F]{4}-?[0-9a-fA-F]{4}-?[0-9a-fA-F]{12}$'",
+              message: `Expected string to match '${UUID_REGEX}'`,
               received: 'invalid-uuid-format',
             },
           ],
