@@ -54,10 +54,15 @@ describe('Project API - GET /:id', () => {
 
   // Test Helpers
   const cleanupTestData = async () => {
-    if (projectId && api) {
-      const { error } = await api.project({ id: projectId }).delete()
-      expect(error).toBeNull()
-    }
+    expect(projectId).toBeDefined()
+    expect(api).toBeDefined()
+    const { error } = await api.project({ id: projectId }).delete()
+    expect(error).toBeNull()
+
+    // Clean up temporary files
+    const tempFilePath = './temp/test-data.json'
+    const tempFile = Bun.file(tempFilePath)
+    await tempFile.delete()
   }
 
   const importTestData = async () => {

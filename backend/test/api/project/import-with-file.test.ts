@@ -4,6 +4,7 @@ import { projectRoutes } from '@backend/api/project'
 import { initializeDb, closeDb, getDb } from '@backend/plugins/database'
 import { treaty } from '@elysiajs/eden'
 import { UUID_REGEX_PATTERN } from '@backend/api/project/schemas'
+import { readdir } from 'node:fs/promises'
 
 // Create a test app with the project routes
 const createTestApi = () => {
@@ -23,24 +24,15 @@ describe('POST /api/project/import', () => {
 
     // Clean up temporary files
     const tempDir = new URL('../../temp', import.meta.url).pathname
-
-    // Delete all files in the temp directory
-    const dir = await Bun.file(tempDir).exists()
-    if (dir) {
-      const files = await Bun.readdir(tempDir)
-
-      // Delete all files in the directory
-      await Promise.all(
-        files.map(async file => {
-          const filePath = `${tempDir}/${file}`
-          await Bun.file(filePath)
-            .remove()
-            .catch(() => {
-              // Ignore file removal errors
-            })
-        })
-      )
-    }
+    const files = await readdir(tempDir).catch(() => [])
+    await Promise.all(
+      files.map(async file => {
+        const filePath = `${tempDir}/${file}`
+        await Bun.file(filePath)
+          .delete()
+          .catch(() => {})
+      })
+    )
   })
 
   describe('Successful imports', () => {
@@ -244,20 +236,11 @@ describe('POST /api/project/import', () => {
         // Handle both boolean true and number 1 for notnull
         expect(Boolean(idColumn.notnull)).toBe(true)
 
-        // Verify the sequence is created for autoincrement
-        const sequenceCheck = await db.runAndReadAll(`
-        SELECT name FROM sqlite_master 
-        WHERE type='table' 
-        AND name='sqlite_sequence'
-      `)
-
-        // If sqlite_sequence exists, check if our table is in it
-        if (sequenceCheck.rowCount > 0) {
-          const sequence = await db.runAndReadAll(`
-          SELECT * FROM sqlite_sequence WHERE name = 'project_${projectId}'
-        `)
-          expect(sequence.rowCount).toBe(1)
-        }
+        // In DuckDB, autoincrement columns don't necessarily create explicit sequences
+        // Instead, verify that the table was created successfully with the autoincrement column
+        // The presence of the BIGINT PRIMARY KEY column with NOT NULL constraint is sufficient
+        expect(idColumn.type.toUpperCase()).toBe('BIGINT')
+        expect(Boolean(idColumn.pk)).toBe(true)
       })
     })
 

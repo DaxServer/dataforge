@@ -173,6 +173,7 @@ describe('User Authentication', () => {
 - Avoid complex logic in tests
 - Mock external dependencies
 - Never use `try...catch` in tests
+- **Never use conditional statements** (if/else, switch, ternary operators) in tests
 - Test edge cases and error conditions
 - Keep tests deterministic (same input should always produce same output)
 

@@ -65,12 +65,33 @@ We leverage Bun's built-in APIs throughout our codebase for better performance a
    - Use `Bun.password` for password hashing
    - Use `Bun.semver` for version comparisons
 
-5. **When Not to Use Bun APIs**
-   - In frontend application code (except tests)
-   - When a specific Node.js module is required and has no Bun equivalent
-   - When working with browser-specific APIs
+5. **Node.js API Restrictions**
+   - **GENERAL RULE**: Prefer Bun's native APIs over Node.js equivalents when available
+   - **File System Operations - EXCEPTION**: For file system operations, Bun recommends using Node.js `fs` APIs as they are optimized internally
+   - Do not import from `http`, `crypto`, or other Node.js built-in modules (except `fs`)
+   - Always use Bun's native equivalents for non-fs operations
+   - This restriction applies to all backend code, tests, and utilities
+   - Examples of recommended imports:
+     ```typescript
+     // ✅ RECOMMENDED for file system operations
+     import { readdir, mkdir } from 'node:fs/promises'
+     import { watch } from 'node:fs'
+     
+     // ❌ Avoid these Node.js APIs
+     import { createServer } from 'http'
+     import { join } from 'path'
+     
+     // ✅ Use Bun APIs instead
+     const server = Bun.serve({ ... })
+     const filePath = Bun.resolveSync('./file', import.meta.dir)
+     ```
 
-6. **Testing with Bun**
+6. **When Not to Use Bun APIs**
+   - In frontend application code (except tests)
+   - When working with browser-specific APIs
+   - Note: If you think you need a Node.js module, find the Bun equivalent first
+
+7. **Testing with Bun**
    - Use `Bun.test()` for writing tests
    - Leverage `Bun.spawn()` for integration tests
    - Use `Bun.file()` for test fixtures

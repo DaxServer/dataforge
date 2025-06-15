@@ -36,13 +36,12 @@ describe('POST /project/:projectId/import-file', () => {
     expect(status).toBe(201)
     expect(data).toHaveProperty('tempFilePath')
     expect(typeof data.tempFilePath).toBe('string')
+    expect(data.tempFilePath).toMatch(/\.json$/)
     expect(error).toBeNull()
 
     // Clean up the temporary file
     const tempFile = Bun.file(data.tempFilePath)
-    if (await tempFile.exists()) {
-      await tempFile.delete()
-    }
+    await tempFile.delete()
   })
 
   test('should return 422 for empty file', async () => {
@@ -94,8 +93,8 @@ describe('POST /project/:projectId/import-file', () => {
     expect(data.tempFilePath).toMatch(/\.json$/)
     expect(error).toBeNull()
 
-    // Verify the file exists at the temporary location
     const tempFile = Bun.file(data.tempFilePath)
+    // Verify the file exists at the temporary location
     expect(await tempFile.exists()).toBe(true)
 
     // Verify the file content matches what was uploaded
@@ -163,8 +162,6 @@ describe('POST /project/:projectId/import-file', () => {
 
     // Clean up the temporary file
     const tempFile = Bun.file(uploadData.tempFilePath)
-    if (await tempFile.exists()) {
-      await tempFile.delete()
-    }
+    await tempFile.delete()
   })
 })
