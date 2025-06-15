@@ -1,5 +1,12 @@
 import { t } from 'elysia'
 
+// Single UUID regex pattern that accepts any valid UUID version with hyphens (case-insensitive)
+export const UUID_REGEX =
+  '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$'
+
+// RegExp version of UUID_REGEX for test matching
+export const UUID_REGEX_PATTERN = new RegExp(UUID_REGEX, 'i')
+
 export const ErrorSchema = t.Union([
   t.Object({
     code: t.Literal('VALIDATION'),
@@ -162,8 +169,7 @@ const projectSchema = {
   getById: {
     params: t.Object({
       id: t.String({
-        pattern:
-          '^[0-9a-fA-F]{8}-?[0-9a-fA-F]{4}-?[0-9a-fA-F]{4}-?[0-9a-fA-F]{4}-?[0-9a-fA-F]{12}$',
+        pattern: UUID_REGEX,
         error: 'ID must be a valid UUID',
       }),
     }),
@@ -185,8 +191,7 @@ const projectSchema = {
   delete: {
     params: t.Object({
       id: t.String({
-        pattern:
-          '^[0-9a-fA-F]{8}-?[0-9a-fA-F]{4}-?[0-9a-fA-F]{4}-?[0-9a-fA-F]{4}-?[0-9a-fA-F]{12}$',
+        pattern: UUID_REGEX,
         error: 'ID must be a valid UUID',
       }),
     }),
