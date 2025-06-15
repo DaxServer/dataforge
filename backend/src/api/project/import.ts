@@ -135,10 +135,9 @@ export const importProjectFile = async ({ set, body }: Context) => {
     // Convert file to buffer and save to temporary location
     const fileBuffer = await file.arrayBuffer()
     const uint8Array = new Uint8Array(fileBuffer)
-    const buffer = Buffer.from(uint8Array)
 
-    // Write the file to temporary location using Bun.write <mcreference link="https://bun.sh/docs/api/file-io" index="1">1</mcreference>
-    await Bun.write(tempFilePath, buffer)
+    // Write the file to temporary location using Bun.write
+    await Bun.write(tempFilePath, uint8Array)
 
     set.status = 201
     return {

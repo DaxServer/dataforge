@@ -42,9 +42,8 @@ describe('deleteProject', () => {
     )
 
     const result = insertReader.getRowObjectsJson() as Array<{ id: string }>
-    if (!result[0]?.id) {
-      throw new Error('Failed to create test project')
-    }
+    expect(result[0]).toBeDefined()
+    expect(result[0]).toHaveProperty('id')
     const testProjectId = result[0].id
 
     const { data, status, error } = await api.project({ id: testProjectId }).delete()

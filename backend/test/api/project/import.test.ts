@@ -34,6 +34,7 @@ describe('POST /project/:projectId/import', () => {
     expect(data).toBe('')
     expect(error).toBeNull()
 
+    // Cleanup
     await Bun.file(tempFilePath).delete()
   })
 

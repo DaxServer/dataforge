@@ -1,7 +1,6 @@
 import { Elysia } from 'elysia'
 
 import { DuckDBConnection, DuckDBInstance } from '@duckdb/node-api'
-import path from 'path'
 
 let connection: DuckDBConnection | null = null
 let instance: DuckDBInstance | null = null
@@ -23,7 +22,7 @@ export const initializeDb = async (dbPath: string = 'openrefine.db'): Promise<Du
   connection = await instance.connect()
 
   // Read and execute the SQL file using Bun's file API
-  const sqlPath = path.join(import.meta.dir, '..', 'sql', 'create_projects_table.sql')
+  const sqlPath = Bun.resolveSync('../sql/create_projects_table.sql', import.meta.dir)
   const sql = await Bun.file(sqlPath).text()
 
   await connection.run(sql)

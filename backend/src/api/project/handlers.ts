@@ -188,9 +188,8 @@ export const importWithFile = async ({
 
   const fileBuffer = await file.arrayBuffer()
   const uint8Array = new Uint8Array(fileBuffer)
-  const buffer = Buffer.from(uint8Array)
 
-  await Bun.write(tempFilePath, buffer)
+  await Bun.write(tempFilePath, uint8Array)
 
   // Parse JSON and handle syntax errors
   try {
