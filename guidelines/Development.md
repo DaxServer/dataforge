@@ -44,14 +44,14 @@ We leverage Bun's built-in APIs throughout our codebase for better performance a
    // File operations
    const file = Bun.file('path/to/file.txt')
    const contents = await file.text()
-   
+
    // Environment variables
    const isProd = Bun.env.NODE_ENV === 'production'
-   
+
    // Process management
    const process = Bun.spawn(['ls', '-la'])
    const text = await new Response(process.stdout).text()
-   
+
    // JSON operations (faster than JSON.parse/stringify)
    const data = { hello: 'world' }
    await Bun.write('data.json', Bun.JSON.stringify(data))
@@ -76,11 +76,11 @@ We leverage Bun's built-in APIs throughout our codebase for better performance a
      // ✅ RECOMMENDED for file system operations
      import { readdir, mkdir } from 'node:fs/promises'
      import { watch } from 'node:fs'
-     
+
      // ❌ Avoid these Node.js APIs
      import { createServer } from 'http'
      import { join } from 'path'
-     
+
      // ✅ Use Bun APIs instead
      const server = Bun.serve({ ... })
      const filePath = Bun.resolveSync('./file', import.meta.dir)
@@ -98,7 +98,7 @@ We leverage Bun's built-in APIs throughout our codebase for better performance a
    - Example test:
      ```typescript
      import { expect, test } from 'bun:test'
-     
+
      test('2 + 2', () => {
        expect(2 + 2).toBe(4)
      })
@@ -132,13 +132,13 @@ We use [Bun Catalog](https://bun.sh/docs/cli/catalog) for managing our monorepo 
    ```bash
    # Install all dependencies
    bun install
-   
+
    # Run script in a specific workspace
    bun --cwd frontend dev
-   
+
    # Add a dependency to a workspace
    bun add -w @openrefine/ui react
-   
+
    # Run tests across all workspaces
    bun test
    ```
@@ -164,6 +164,40 @@ We use [Bun Catalog](https://bun.sh/docs/cli/catalog) for managing our monorepo 
    - Use TypeScript project references for better dependency tracking
    - Document workspace-specific configuration in each package's README
    - Run `bun install` after pulling changes that modify dependencies
+
+## Error Handling
+
+### Project-Wide Error Handling Principles
+
+**Universal No-Throw Pattern:**
+
+- **NEVER use `throw new Error()` anywhere in the codebase**
+- Always return error results in the format `{ error: string | null, data: any }`
+- Set reactive error state in frontend stores/composables
+- Return early on errors
+- Let components handle error display
+
+**Context-Specific Approaches:**
+
+1. **Frontend Stores/Composables**: 
+   - Set reactive error state instead of throwing
+   - Return early on errors
+   - Use the pattern: `if (error) { errorState.value = 'message'; return }`
+   - Clear error state at the beginning of operations
+
+2. **Frontend Services/Utilities**: 
+   - Return error results instead of throwing
+   - Use the pattern: `return { error: 'message', data: null }`
+
+3. **Backend (Elysia)**:
+   - Return error results instead of throwing
+   - Use the pattern: `return { error: 'message', data: null }`
+   - Let Elysia handle HTTP status codes based on error results
+
+4. **Testing**:
+   - Never throw errors in tests
+   - Never use try/catch in tests
+   - Test error states through return values and error properties
 
 ## Code Style
 
@@ -200,23 +234,93 @@ We use [Bun Catalog](https://bun.sh/docs/cli/catalog) for managing our monorepo 
 
 ## Frontend Development
 
+### Project Structure
+
+```text
+frontend/
+├── src/
+│   ├── components/     # Reusable components
+│   ├── composables/    # Composition functions
+│   ├── layouts/        # Layout components
+│   ├── pages/          # Route components
+│   ├── stores/         # Pinia stores
+│   └── utils/          # Utility functions
+├── public/             # Static assets
+└── tests/              # Test files
+```
+
+**IMPORTANT**: No `types/` directory - all types come from Elysia Eden backend inference.
+
+### Type Safety and Elysia Eden
+
+**MANDATORY: Use Elysia Eden inferred types exclusively**
+
+- **NEVER create custom interfaces or types for data structures**
+- All API types must be inferred from the Elysia Eden App type
+- This applies to frontend, backend, and testing code
+- Use type inference and utility types when needed
+
+**Exceptions (Rare Cases Only):**
+- Internal utility types that don't represent data structures
+- Generic helper types for code organization
+- Configuration or environment types not related to API data
+- **Always prefer Elysia Eden types when available**
+
+#### Frontend Type Usage
+
+```typescript
+// ✅ CORRECT: Use Elysia Eden inferred types
+import type { App } from '@backend'
+
+// Infer request/response types from your Elysia app
+type GetUsersResponse = Awaited<ReturnType<App['api']['users']['get']>>
+type CreateUserBody = Parameters<App['api']['users']['post']>[0]['body']
+type UserType = GetUsersResponse['data'][0]
+
+// ✅ CORRECT: Use utility types for transformations
+type PartialUser = Partial<UserType>
+type UserEmail = Pick<UserType, 'email'>
+
+// ✅ ACCEPTABLE: Internal utility types (rare cases)
+type ComponentProps = {
+  variant: 'primary' | 'secondary'
+  size: 'sm' | 'md' | 'lg'
+}
+
+// ❌ WRONG: Never create custom interfaces for API data
+interface CustomUser {
+  id: string
+  name: string
+}
+```
+
 ### Vue 3 Composition API
 - Use `<script setup>` syntax for components
+- **REQUIRED**: Vue Single File Components must follow this exact order:
+  1. `<script setup>` (or `<script>`) - Always first
+  2. `<template>` - Always second  
+  3. `<style>` - Always last (if present)
+- **MANDATORY**: Use Tailwind CSS for ALL styling
+- **FORBIDDEN**: No hardcoded CSS styles or inline styles
+- Use Tailwind utility classes exclusively for all visual styling
 - Organize component code in this order:
   1. Component props and emits
   2. Reactive state (ref, reactive)
-  3. Computed properties
-  4. Watchers
-  5. Lifecycle hooks
-  6. Methods
-  7. Template
+  3. Watchers (for derived state)
+  4. Lifecycle hooks
+  5. Methods
+  6. Template
 
 ### Component Structure
 ```vue
 <script setup lang="ts">
-// No need to import ref or computed - they're auto-imported
+// 1. Imports - Always import backend types when needed
+import type { App } from '@backend'
 
-// 2. Props and emits
+// Use Elysia Eden inferred types - NEVER create custom interfaces
+// type CounterData = Awaited<ReturnType<App['api']['counter']['get']>>['data']
+
+// 2. Props and emits - Use backend types when applicable
 defineProps<{
   /** Description of the prop */
   title: string
@@ -224,9 +328,12 @@ defineProps<{
 
 // 3. Reactive state
 const count = ref(0)
+const doubleCount = ref(0)
 
-// 4. Computed properties
-const doubleCount = computed(() => count.value * 2)
+// 4. Watchers (for derived state)
+watch(count, (newCount) => {
+  doubleCount.value = newCount * 2
+}, { immediate: true })
 
 // 5. Methods
 const increment = () => {
@@ -235,19 +342,18 @@ const increment = () => {
 </script>
 
 <template>
-  <div class="component">
-    <h2>{{ title }}</h2>
-    <p>Count: {{ count }}</p>
-    <p>Double: {{ doubleCount }}</p>
-    <button @click="increment">Increment</button>
+  <div class="p-6 bg-surface-0 rounded-lg shadow-sm">
+    <h2 class="text-xl font-bold mb-4">{{ title }}</h2>
+    <p class="text-surface-700 mb-2">Count: {{ count }}</p>
+    <p class="text-surface-700 mb-4">Double: {{ doubleCount }}</p>
+    <button 
+      @click="increment"
+      class="px-4 py-2 bg-primary-500 text-white rounded-md hover:bg-primary-600 transition-colors"
+    >
+      Increment
+    </button>
   </div>
 </template>
-
-<style scoped>
-.component {
-  /* Styles go here */
-}
-</style>
 ```
 
 ### State Management
@@ -277,7 +383,7 @@ Elysia Eden is a type-safe client generator for Elysia that provides end-to-end 
    export const app = new Elysia({
      // ... config
    })
-   
+
    export type App = typeof app
    ```
 
@@ -286,7 +392,7 @@ Elysia Eden is a type-safe client generator for Elysia that provides end-to-end 
    ```typescript
    // backend/src/api/project/routes.ts
    import { t } from 'elysia'
-   
+
    export const projectRoutes = new Elysia({ prefix: '/api/project' })
      .get(
        '/:id',
@@ -316,7 +422,7 @@ Elysia Eden is a type-safe client generator for Elysia that provides end-to-end 
    // frontend/src/composables/useApi.ts
    import { edenTreaty } from '@elysiajs/eden'
    import type { App } from '@backend'
-   
+
    export const api = edenTreaty<App>('http://localhost:3000')
    ```
 
@@ -325,24 +431,23 @@ Elysia Eden is a type-safe client generator for Elysia that provides end-to-end 
    <script setup lang="ts">
    import { ref } from 'vue'
    import { api } from '@/composables/useApi'
-   
+
    const projects = ref([])
    const error = ref(null)
-   
+
    const fetchProjects = async () => {
-     try {
-       const { data, error: apiError } = await api.project.get()
-       if (apiError) throw apiError
-       projects.value = data
-     } catch (err) {
-       error.value = err.message
+     const { data, error: apiError } = await api.project.get()
+     if (apiError) {
+       error.value = 'Failed to fetch projects'
+       return
      }
+     projects.value = data
    }
-   
+
    // Call on component mount
    onMounted(fetchProjects)
    </script>
-   
+
    <template>
      <div>
        <div v-if="error" class="text-red-500">{{ error }}</div>
@@ -362,22 +467,56 @@ Elysia Eden is a type-safe client generator for Elysia that provides end-to-end 
    - Use the generated `App` type in your frontend
 
 2. **Error Handling**
+
+   **Frontend (Stores/Composables)**: Never use `throw new Error()` - set reactive error state instead
    ```typescript
+   // ❌ DON'T: Throw errors in frontend stores
    const createProject = async (projectData) => {
      try {
        const { data, error } = await api.project.post(projectData)
        if (error) {
-         // Handle API validation errors
-         const validationError = error.value?.errors?.[0]?.details[0]?.message
-         throw new Error(validationError || 'Failed to create project')
+         throw new Error('Failed to create project') // DON'T DO THIS
        }
-       return data
      } catch (err) {
-       // Handle network/other errors
-       console.error('Project creation failed:', err)
-       throw err
+       throw err // DON'T DO THIS
      }
    }
+
+   // ✅ DO: Set error state in frontend stores
+   const createProject = async (projectData) => {
+     isLoading.value = true
+     error.value = null
+
+     try {
+       const { data, error: apiError } = await api.project.post(projectData)
+
+       if (apiError) {
+         error.value = new Error(apiError.value?.message || 'Failed to create project')
+         return
+       }
+
+       // Handle success
+       project.value = data
+     } catch (err) {
+       error.value = err as Error
+     } finally {
+       isLoading.value = false
+     }
+   }
+   ```
+
+   **Backend**: Return error results instead of throwing
+   ```typescript
+   // ✅ DO: Return error results
+   app.post('/project', async ({ body }) => {
+     const result = await createProject(body)
+
+     if (result.error) {
+       return { error: result.error, data: null }
+     }
+
+     return { error: null, data: result.data }
+   })
    ```
 
 3. **Query Parameters**
@@ -396,7 +535,7 @@ Elysia Eden is a type-safe client generator for Elysia that provides end-to-end 
        })
      }
    )
-   
+
    // Frontend
    const { data } = await api.project.get({
      $query: { limit: 10, offset: 0 }
@@ -417,15 +556,15 @@ Elysia Eden is a type-safe client generator for Elysia that provides end-to-end 
        })
      }
    )
-   
+
    // Frontend
    const handleFileUpload = async (event: Event) => {
      const file = (event.target as HTMLInputElement).files?.[0]
      if (!file) return
-     
+
      const formData = new FormData()
      formData.append('file', file)
-     
+
      const { data, error } = await api.project.import.post(formData, {
        $fetch: { body: formData }
      })
@@ -440,14 +579,14 @@ Elysia Eden is a type-safe client generator for Elysia that provides end-to-end 
    import { app } from '@backend'
    import { edenTreaty } from '@elysiajs/eden'
    import type { App } from '@backend'
-   
+
    const api = edenTreaty<App>(app)
-   
+
    describe('Project API', () => {
      it('should create a project', async () => {
        const projectData = { name: 'Test Project' }
        const { data, error } = await api.project.post(projectData)
-       
+
        expect(error).toBeNull()
        expect(data).toMatchObject(projectData)
        expect(data).toHaveProperty('id')
@@ -460,14 +599,14 @@ Elysia Eden is a type-safe client generator for Elysia that provides end-to-end 
    // frontend/tests/unit/useApi.test.ts
    import { api } from '@/composables/useApi'
    import { vi } from 'vitest'
-   
+
    vi.mock('@/composables/useApi')
-   
+
    describe('useApi', () => {
      it('fetches projects', async () => {
        const mockProjects = [{ id: '1', name: 'Test Project' }]
        api.project.get.mockResolvedValue({ data: mockProjects })
-       
+
        const { data } = await api.project.get()
        expect(data).toEqual(mockProjects)
      })
@@ -499,7 +638,7 @@ const app = new Elysia()
     } catch (error) {
       console.error('Failed to fetch items:', error)
       return new Response(
-        JSON.stringify({ 
+        JSON.stringify({
           error: 'Failed to fetch items',
           details: error instanceof Error ? error.message : 'Unknown error'
         }),
@@ -526,7 +665,7 @@ const app = new Elysia()
 ### Example Query
 ```typescript
 const getUserWithPosts = async (userId: string) => {
-  return db.transaction().execute(async (trx) => {
+  const result = await db.transaction().execute(async (trx) => {
     const user = await trx
       .selectFrom('users')
       .where('id', '=', userId)
@@ -534,7 +673,7 @@ const getUserWithPosts = async (userId: string) => {
       .executeTakeFirst()
 
     if (!user) {
-      throw new Error('User not found')
+      return { error: 'User not found', data: null }
     }
 
     const posts = await trx
@@ -544,10 +683,15 @@ const getUserWithPosts = async (userId: string) => {
       .execute()
 
     return {
-      ...user,
-      posts,
+      error: null,
+      data: {
+        ...user,
+        posts,
+      }
     }
   })
+
+  return result
 }
 ```
 

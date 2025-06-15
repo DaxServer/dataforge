@@ -20,7 +20,63 @@
 - **Database**: DuckDB
 - **Testing**: Bun Test
 
+## Architecture Overview
+
+### Backend (Elysia)
+- RESTful API with type-safe routes
+- **Dynamic database schema** - table structure created at runtime
+- Database integration with Drizzle ORM
+- Authentication and authorization
+- File upload handling
+- Real-time features with WebSockets
+
+### Frontend (Vue 3)
+- Composition API with TypeScript
+- **NO custom types or interfaces** - relies solely on Elysia Eden
+- Pinia for state management
+- Vue Router for navigation
+- Tailwind CSS for styling
+- Elysia Eden for API client and all type information
+
+### Database Schema Philosophy
+- Database table structure is **dynamically created** in the backend
+- Schema is **never known deterministically** at build time
+- Frontend **must never hardcode** any database structure
+- All type information flows from backend through Elysia Eden
+
 ## Error Handling
+
+### Project-Wide Error Handling Principles
+
+**Universal No-Throw Pattern:**
+
+- **NEVER use `throw new Error()` anywhere in the codebase**
+- Always return error results in the format `{ error: string | null, data: any }`
+- Set reactive error state in frontend stores/composables
+- Return early on errors
+- Let components handle error display
+
+**Context-Specific Approaches:**
+
+1. **Frontend Stores/Composables**: 
+   - Set reactive error state instead of throwing
+   - Return early on errors
+   - Use the pattern: `if (error) { errorState.value = 'message'; return }`
+   - Clear error state at the beginning of operations
+
+2. **Frontend Services/Utilities**: 
+   - Return error results instead of throwing
+   - Use the pattern: `return { error: 'message', data: null }`
+
+3. **Backend (Elysia)**:
+   - Return error results instead of throwing
+   - Use the pattern: `return { error: 'message', data: null }`
+   - Let Elysia handle HTTP status codes based on error results
+
+4. **Testing**:
+   - Never throw errors in tests
+   - Never use try/catch in tests
+   - Test error states through return values and error properties
 
 ### Error Types
 - Use custom error classes that extend `Error`

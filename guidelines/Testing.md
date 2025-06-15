@@ -1,8 +1,11 @@
 # Testing Guidelines
 
-> **Note**: For general project guidelines, coding standards, and workflows, please refer to the [General Guidelines](./General.md). All documentation should follow the [Style Guide](./StyleGuide.md).
+This document outlines testing patterns and best practices for the OpenRefine NG project.
+
+> **Note**: Frontend testing is currently **not implemented** in this project. Frontend testing guidelines have been moved to <mcfile name="FrontendTesting.md" path="/Users/sriharithalla/projects/openrefine-ng/guidelines/FrontendTesting.md"></mcfile> for future reference.
 
 ## Table of Contents
+- [Elysia and Eden Testing Patterns](#elysia-and-eden-testing-patterns)
 - [Test Structure](#test-structure)
 - [Writing Tests](#writing-tests)
 - [Response Handling](#response-handling)

@@ -6,6 +6,7 @@
 - [Auto-Imports](#auto-imports)
 - [Component Design](#component-design)
 - [State Management](#state-management)
+  - [Error Handling in Stores](#error-handling-in-stores)
 - [Composables](#composables)
 - [Forms and Validation](#forms-and-validation)
 - [Performance](#performance)
@@ -16,11 +17,33 @@ This project uses [unplugin-auto-import](https://github.com/unplugin/unplugin-au
 
 ### What's Auto-Imported
 
-- **Vue APIs**: All Vue Composition API functions are auto-imported (e.g., `ref`, `computed`, `onMounted`)
+- **Vue APIs**: All Vue Composition API functions are auto-imported (e.g., `ref`, `watch`, `onMounted`)
 - **Vue Router**: Router functions like `useRoute` and `useRouter`
 - **Pinia**: Store utilities like `defineStore` and `storeToRefs`
 - **Components**: Vue components in `src/components` are auto-imported
 - **Composables**: Functions in `src/composables` are auto-imported
+
+### Auto-imports
+
+The following are auto-imported and don't need explicit imports:
+
+```typescript
+// Vue APIs
+ref, reactive, watch, watchEffect, onMounted, onUnmounted, 
+nextTick, defineProps, defineEmits, defineExpose, withDefaults
+
+// Vue Router
+useRouter, useRoute
+
+// Pinia
+defineStore, storeToRefs
+
+// Utilities
+toRefs, toRef, unref, isRef
+
+// IMPORTANT: Always explicitly import types from '@backend'
+import type { App } from '@backend'
+```
 
 ### Best Practices
 
@@ -50,10 +73,15 @@ This project uses [unplugin-auto-import](https://github.com/unplugin/unplugin-au
 ### Example Usage
 
 ```vue
-<script setup>
-// No need to import ref, computed, or onMounted
+<script setup lang="ts">
+// No need to import ref or onMounted
 const count = ref(0)
-const double = computed(() => count.value * 2)
+const double = ref(0)
+
+// Update double reactively when count changes
+watch(count, (newCount) => {
+  double.value = newCount * 2
+}, { immediate: true })
 
 onMounted(() => {
   console.log('Component mounted')
@@ -84,70 +112,111 @@ If auto-imports aren't working:
 
 ## Component Design
 
-### Atomic Design
-- Follow atomic design principles:
-  - **Atoms**: Basic building blocks (buttons, inputs, etc.)
-  - **Molecules**: Groups of atoms (search bar, form field with label)
-  - **Organisms**: Complex UI components (header, sidebar)
-  - **Templates**: Page layouts
-  - **Pages**: Complete views
+### Component Structure
 
-### Props and Emits
-- Use TypeScript interfaces for props
-- Define default values for optional props
+Components should follow this structure:
+
+1. **Script Setup** - Composition API with TypeScript
+2. **Template** - Clean, semantic HTML with Tailwind CSS classes
+3. **Style** - Only for extremely rare cases where Tailwind cannot achieve the desired styling
+
+### Best Practices
+
+- Use `<script setup>` syntax for all components
+- **REQUIRED**: Vue Single File Components must follow this exact order:
+  1. `<script setup>` (or `<script>`) - Always first
+  2. `<template>` - Always second
+  3. `<style>` - Always last (if present)
+- **NEVER create custom types or interfaces for data structures** - rely solely on Elysia Eden types
+- **Rare exceptions**: Internal utility types, component props, or configuration types not related to API data
+- Use `ref` for reactive primitives
+- **MANDATORY**: Use Tailwind CSS for ALL styling
+- **FORBIDDEN**: No hardcoded CSS styles or inline styles
+- Use Tailwind utility classes exclusively for layout, spacing, colors, typography, and responsive design
 - Use `defineEmits` with type safety
-- Document props with JSDoc
+- Import types from Elysia Eden App type only
 
-### Example Component
+## Tailwind CSS Usage
+
+### Mandatory Requirements
+- **ALL styling must use Tailwind CSS utility classes**
+- **NO custom CSS** in `<style>` blocks unless absolutely necessary
+- **NO inline styles** using the `style` attribute
+- **NO hardcoded CSS values** anywhere in components
+
+### Styling Guidelines
+- Use Tailwind classes for all spacing: `p-4`, `m-2`, `space-y-4`, etc.
+- Use Tailwind classes for colors: `bg-primary-500`, `text-surface-600`, etc.
+- Use Tailwind classes for typography: `text-lg`, `font-semibold`, etc.
+- Use Tailwind classes for layout: `flex`, `grid`, `items-center`, etc.
+- Use Tailwind classes for responsive design: `md:flex`, `lg:grid-cols-3`, etc.
+- Use Tailwind classes for states: `hover:bg-primary-600`, `focus:ring-2`, etc.
+
+### Example: Proper Tailwind Usage
 ```vue
 <script setup lang="ts">
-interface Props {
-  /** The user's full name */
-  name: string
-  /** Whether the user is active */
-  isActive?: boolean
-  /** User's score (0-100) */
-  score?: number
-}
-
-const props = withDefaults(defineProps<Props>(), {
-  isActive: false,
-  score: 0
-})
-
-const emit = defineEmits<{
-  (e: 'update:isActive', value: boolean): void
-  (e: 'delete'): void
-}>()
-
-const statusClass = computed(() => ({
-  'bg-green-100 text-green-800': props.isActive,
-  'bg-gray-100 text-gray-800': !props.isActive
-}))
+// Component logic here
 </script>
 
 <template>
-  <div class="flex items-center p-4 border rounded">
-    <div class="flex-1">
-      <h3 class="text-lg font-medium">{{ name }}</h3>
-      <span :class="['px-2 py-1 text-xs rounded-full', statusClass]">
-        {{ isActive ? 'Active' : 'Inactive' }}
-      </span>
-    </div>
-    <div class="flex items-center space-x-2">
-      <button 
-        @click="emit('update:isActive', !isActive)"
-        class="px-3 py-1 text-sm bg-blue-500 text-white rounded hover:bg-blue-600"
-      >
-        Toggle
-      </button>
-      <button 
-        @click="emit('delete')"
-        class="p-1 text-red-500 hover:text-red-700"
-      >
-        <TrashIcon class="w-5 h-5" />
-      </button>
-    </div>
+  <!-- Good: Using Tailwind classes -->
+  <div class="p-6 bg-white rounded-lg shadow-md border border-gray-200">
+    <h2 class="text-2xl font-bold text-gray-900 mb-4">Title</h2>
+    <p class="text-gray-600 leading-relaxed">Content here</p>
+    <button class="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors">
+      Action
+    </button>
+  </div>
+</template>
+```
+
+### What NOT to Do
+```vue
+<!-- Bad: Custom CSS -->
+<style scoped>
+.custom-card {
+  padding: 24px;
+  background: white;
+  border-radius: 8px;
+}
+</style>
+
+<!-- Bad: Inline styles -->
+<div style="padding: 24px; background: white;">
+  Content
+</div>
+```
+
+### Example Component
+
+```vue
+<script setup lang="ts">
+import type { App } from '@backend'
+
+// Use Elysia Eden inferred types - never create custom interfaces
+type UserType = Awaited<ReturnType<App['api']['users']['get']>>['data'][0]
+
+interface Props {
+  user: UserType
+}
+
+interface Emits {
+  edit: [userId: string]
+}
+
+const props = defineProps<Props>()
+const emit = defineEmits<Emits>()
+
+const handleEdit = () => {
+  emit('edit', props.user.id)
+}
+</script>
+
+<template>
+  <div class="p-4 border border-surface-border rounded-md">
+    <h3 class="text-lg font-semibold mb-2">{{ user.name }}</h3>
+    <p class="text-surface-600 mb-4">{{ user.email }}</p>
+    <Button @click="handleEdit">Edit</Button>
   </div>
 </template>
 ```
@@ -161,35 +230,92 @@ const statusClass = computed(() => ({
 - Use actions for async operations
 - Use getters for derived state
 
+### Error Handling in Stores
+- **NEVER use `throw new Error()` in store actions**
+- Always set the `error` state and return early instead of throwing
+- Use reactive error state to communicate errors to components
+- Clear error state at the beginning of new operations
+- Handle both API errors and unexpected errors consistently
+
+```typescript
+// ❌ DON'T: Throw errors in store actions
+const fetchData = async () => {
+  try {
+    const { data, error: apiError } = await api.getData()
+    if (apiError) {
+      throw new Error('API Error') // DON'T DO THIS
+    }
+  } catch (err) {
+    throw err // DON'T DO THIS
+  }
+}
+
+// ✅ DO: Set error state and return early
+const fetchData = async () => {
+  isLoading.value = true
+  error.value = null
+  
+  try {
+    const { data, error: apiError } = await api.getData()
+    
+    if (apiError) {
+      error.value = new Error(apiError.value?.message || 'Failed to fetch data')
+      return
+    }
+    
+    // Handle success
+    items.value = data
+  } catch (err) {
+    error.value = err as Error
+  } finally {
+    isLoading.value = false
+  }
+}
+```
+
 ### Example Store
 ```typescript
 // stores/user.ts
+import type { App } from '@backend'
+
+// Use Elysia Eden inferred types only - NEVER create custom types
+type UserType = Awaited<ReturnType<App['api']['users']['me']['get']>>['data']
+
 export const useUserStore = defineStore('user', () => {
-  const user = ref<User | null>(null)
+  const user = ref<UserType | null>(null)
   const isLoading = ref(false)
   const error = ref<Error | null>(null)
 
-  const isAuthenticated = computed(() => !!user.value)
-  const fullName = computed(() => 
-    user.value ? `${user.value.firstName} ${user.value.lastName}` : ''
-  )
+  const isAuthenticated = ref(false)
+  const fullName = ref('')
+
+  // Update authentication status and full name reactively when user changes
+  watch(user, (newUser) => {
+    isAuthenticated.value = !!newUser
+    fullName.value = newUser ? `${newUser.firstName} ${newUser.lastName}` : ''
+  }, { immediate: true })
 
   const fetchUser = async () => {
     isLoading.value = true
     error.value = null
     
     try {
-      const { data } = await api.users.me.get()
+      const { data, error: apiError } = await api.users.me.get()
+      
+      if (apiError) {
+        error.value = new Error(apiError.value?.message || 'Failed to fetch user')
+        return
+      }
+      
       user.value = data
     } catch (err) {
       error.value = err as Error
-      throw err
     } finally {
       isLoading.value = false
     }
   }
 
-  function $reset() {
+  const $reset = () => {
     user.value = null
     error.value = null
   }
@@ -219,7 +345,7 @@ export const useUserStore = defineStore('user', () => {
 // composables/useLocalStorage.ts
 // No need to import ref or watch - they're auto-imported
 
-export function useLocalStorage<T>(key: string, initialValue: T) {
+export const useLocalStorage = <T>(key: string, initialValue: T) => {
   const stored = localStorage.getItem(key)
   const value = ref(stored ? JSON.parse(stored) : initialValue)
 
@@ -237,88 +363,49 @@ const theme = useLocalStorage('theme', 'light')
 ## Forms and Validation
 
 ### Form Handling
-- Use `v-model` with form inputs
-- Group related fields with `v-model` and an object
-- Use computed properties for derived form values
-- Handle form submission with `@submit.prevent`
 
-### Validation
-- Use Zod for schema validation
-- Show validation errors near the relevant fields
-- Disable submit button when form is invalid
-- Show loading state during submission
+- **NEVER create custom form types** - use Elysia Eden inferred types
+- Use reactive elements with watchers for derived form values
+- Leverage Elysia's built-in validation (backend validates dynamically)
+- Handle form submission with proper error handling
+- Use loading states during submission
 
 ### Example Form
+
 ```vue
 <script setup lang="ts">
-// No need to import ref, useForm, toTypedSchema, or z - they're auto-imported
+import type { App } from '@backend'
 
-const schema = z.object({
-  email: z.string().email('Invalid email'),
-  password: z.string().min(8, 'Password must be at least 8 characters'),
-  confirmPassword: z.string()
-}).refine((data) => data.password === data.confirmPassword, {
-  message: "Passwords don't match",
-  path: ['confirmPassword']
+// Use Elysia Eden inferred types for form data
+type CreateUserBody = Parameters<App['api']['users']['post']>[0]['body']
+
+const form = ref<CreateUserBody>({
+  name: '',
+  email: '',
+  age: 0
 })
 
-const { handleSubmit, errors } = useForm({
-  validationSchema: toTypedSchema(schema),
-  initialValues: {
-    email: '',
-    password: '',
-    confirmPassword: ''
-  }
-})
-
+const errors = ref<Record<string, string>>({})
 const isSubmitting = ref(false)
-const submitError = ref('')
 
-const onSubmit = handleSubmit(async (values) => {
+// Let backend handle validation - no client-side schema needed
+const submitForm = async () => {
+  isSubmitting.value = true
+  errors.value = {}
+  
   try {
-    isSubmitting.value = true
-    submitError.value = ''
-    await api.auth.register.post(values)
-    // Handle success
+    const response = await api.users.post(form.value)
+    // Handle success - backend validates dynamically
   } catch (error) {
-    submitError.value = error.message
+    // Handle validation errors from backend
+    if (error.status === 422) {
+      errors.value = error.data.errors
+    }
   } finally {
     isSubmitting.value = false
   }
-})
+}
 </script>
-
-<template>
-  <form @submit="onSubmit" class="space-y-4">
-    <div>
-      <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
-      <input
-        id="email"
-        v-model="email"
-        type="email"
-        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
-        :class="{ 'border-red-500': errors.email }"
-      />
-      <p v-if="errors.email" class="mt-1 text-sm text-red-600">
-        {{ errors.email }}
-      </p>
-    </div>
-    
-    <!-- Other form fields -->
-    
-    <div v-if="submitError" class="p-4 text-red-700 bg-red-100 rounded">
-      {{ submitError }}
-    </div>
-    
-    <button
-      type="submit"
-      :disabled="isSubmitting"
-      class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:opacity-50"
-    >
-      {{ isSubmitting ? 'Submitting...' : 'Submit' }}
-    </button>
-  </form>
-</template>
 ```
 
 ## Performance
@@ -341,7 +428,7 @@ const onSubmit = handleSubmit(async (values) => {
 
 ### Example: Lazy Loading
 ```vue
-<script setup>
+<script setup lang="ts">
 // No need to import defineAsyncComponent - it's auto-imported
 const HeavyComponent = defineAsyncComponent(() =>
   import('./HeavyComponent.vue')
@@ -368,6 +455,16 @@ const HeavyComponent = defineAsyncComponent(() =>
 
 ### Example: Virtual Scrolling
 ```vue
+<script setup lang="ts">
+// No need to import RecycleScroller - it's auto-imported
+// The CSS is imported in main.ts
+
+const items = ref([
+  { id: 1, name: 'Item 1' },
+  // ... more items
+])
+</script>
+
 <template>
   <RecycleScroller
     class="h-[400px]"
@@ -381,16 +478,6 @@ const HeavyComponent = defineAsyncComponent(() =>
     </div>
   </RecycleScroller>
 </template>
-
-<script setup>
-// No need to import RecycleScroller - it's auto-imported
-// The CSS is imported in main.ts
-
-const items = ref([
-  { id: 1, name: 'Item 1' },
-  // ... more items
-])
-</script>
 ```
 
 ### Memory Management

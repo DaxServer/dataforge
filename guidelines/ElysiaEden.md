@@ -102,13 +102,12 @@ const projects = ref([])
 const error = ref(null)
 
 const fetchProjects = async () => {
-  try {
-    const { data, error: apiError } = await api.project.get()
-    if (apiError) throw apiError
-    projects.value = data
-  } catch (err) {
-    error.value = err.message
+  const { data, error: apiError } = await api.project.get()
+  if (apiError) {
+    error.value = 'Failed to fetch projects'
+    return
   }
+  projects.value = data
 }
 
 // Call on component mount
@@ -133,31 +132,79 @@ onMounted(fetchProjects)
 - Always define input/output schemas in your backend routes
 - Use the generated `App` type in your frontend
 - Enable strict mode in TypeScript
+- **NEVER create custom types for data structures** - use Elysia Eden inferred types
+- **Rare exceptions**: Internal utility types, configuration types, or helper types not related to API data
+
+#### Automatic Type Inference
+
+Elysia Eden provides full type safety - **NEVER create custom types**:
+
+```typescript
+// CORRECT: Use Elysia Eden inferred types
+import type { App } from '@backend'
+
+// Extract types from the backend API
+type User = Awaited<ReturnType<App['api']['users']['get']>>['data']
+type CreateUserBody = Parameters<App['api']['users']['post']>[0]['body']
+type UpdateUserBody = Parameters<App['api']['users']['patch']>[0]['body']
+
+// Types are automatically inferred from backend
+const user = await api.users({ id: '123' }).get()
+// user is typed as the response from GET /users/:id
+
+const newUser = await api.users.post({
+  name: 'John Doe',
+  email: 'john@example.com'
+})
+// Request body is typed according to the backend schema
+
+// WRONG: Never create custom interfaces
+// interface User { id: string; name: string } // DON'T DO THIS
+```
 
 ### Error Handling
-```typescript
-// No need to import InferRouteResponse - Eden Treaty handles types automatically
 
+**Frontend Context (Stores/Composables)**: Use reactive error state instead of throwing
+```typescript
+// ✅ DO: Set error state in frontend stores
 const createProject = async (projectData: { name: string }) => {
+  isLoading.value = true
+  error.value = null
+  
   try {
-    const { data, error } = await api.project.post(projectData)
+    const { data, error: apiError } = await api.project.post(projectData)
     
-    if (error) {
+    if (apiError) {
       // Type-safe error handling
       // error.value is automatically typed based on the route's error responses
-      const errorMessage = error.value?.errors?.[0]?.message || 'Failed to create project'
-      throw new Error(errorMessage)
+      const errorMessage = apiError.value?.errors?.[0]?.message || 'Failed to create project'
+      error.value = new Error(errorMessage)
+      return
     }
     
     // data is automatically typed based on the route's success response
-    return data
+    project.value = data
   } catch (err) {
-    if (err instanceof Error) {
-      console.error(`Project creation failed: ${err.message}`)
-      throw new Error(`Project creation failed: ${err.message}`)
-    }
-    throw new Error('An unexpected error occurred')
+    error.value = err as Error
+  } finally {
+    isLoading.value = false
   }
+}
+```
+
+**Service/Utility Context**: Return error results instead of throwing
+```typescript
+// ✅ DO: Return error results in utility functions
+const createProjectService = async (projectData: { name: string }) => {
+  const { data, error } = await api.project.post(projectData)
+  
+  if (error) {
+    const errorMessage = error.value?.errors?.[0]?.message || 'Failed to create project'
+    console.error(`Project creation failed: ${errorMessage}`)
+    return { error: errorMessage, data: null }
+  }
+  
+  return { error: null, data }
 }
 ```
 
@@ -200,25 +247,34 @@ const { data } = await api.project.get({
   }
 )
 
-// Frontend
-const handleFileUpload = async (event: Event) => {
-  const file = (event.target as HTMLInputElement).files?.[0]
-  if (!file) return
+// Frontend Store/Composable
+const useFileUpload = () => {
+  const isUploading = ref(false)
+  const error = ref<string | null>(null)
+  const data = ref(null)
   
-  try {
-    const formData = new FormData()
-    formData.append('file', file)
+  const handleFileUpload = async (event: Event) => {
+    const file = (event.target as HTMLInputElement).files?.[0]
+    if (!file) return
     
-    const { data, error } = await api.project.import.post({
+    isUploading.value = true
+    error.value = null
+    
+    const { data: result, error: apiError } = await api.project.import.post({
       file: file  // Direct file upload
     })
     
-    if (error) throw error
-    return data
-  } catch (error) {
-    console.error('File upload failed:', error)
-    throw error
+    if (apiError) {
+      error.value = 'File upload failed'
+      isUploading.value = false
+      return
+    }
+    
+    data.value = result
+    isUploading.value = false
   }
+  
+  return { handleFileUpload, isUploading, error, data }
 }
 ```
 
