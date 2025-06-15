@@ -16,5 +16,9 @@
         </router-view>
       </MainContent>
     </div>
+
+    <!-- Global Toast and Confirm Dialog -->
+    <Toast />
+    <ConfirmDialog />
   </div>
 </template>

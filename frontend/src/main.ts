@@ -3,6 +3,8 @@ import { createPinia } from 'pinia'
 import { createHead } from '@unhead/vue/client'
 import PrimeVue from 'primevue/config'
 import Aura from '@primeuix/themes/aura'
+import ToastService from 'primevue/toastservice'
+import ConfirmationService from 'primevue/confirmationservice'
 import 'primeicons/primeicons.css'
 
 // Import your router and app
@@ -39,6 +41,8 @@ app.use(router)
 app.use(pinia)
 app.use(head)
 app.use(ApiPlugin)
+app.use(ToastService)
+app.use(ConfirmationService)
 
 // Mount the app
 app.mount('#app')
