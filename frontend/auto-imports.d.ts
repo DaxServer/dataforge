@@ -72,6 +72,7 @@ declare global {
   const unref: (typeof import('vue'))['unref']
   const useApi: (typeof import('./src/plugins/api'))['useApi']
   const useAttrs: (typeof import('vue'))['useAttrs']
+  const useConfirm: (typeof import('primevue/useconfirm'))['useConfirm']
   const useCreateProjectStore: (typeof import('./src/stores/create-project.store'))['useCreateProjectStore']
   const useCssModule: (typeof import('vue'))['useCssModule']
   const useCssVars: (typeof import('vue'))['useCssVars']
@@ -80,10 +81,13 @@ declare global {
   const useLink: (typeof import('vue-router'))['useLink']
   const useModel: (typeof import('vue'))['useModel']
   const useProjectCreationComposable: (typeof import('./src/composables/useProjectCreationComposable'))['useProjectCreationComposable']
+  const useProjectListComposable: (typeof import('./src/composables/useProjectListComposable'))['useProjectListComposable']
+  const useProjectListStore: (typeof import('./src/stores/project-list.store'))['useProjectListStore']
   const useRoute: (typeof import('vue-router'))['useRoute']
   const useRouter: (typeof import('vue-router'))['useRouter']
   const useSlots: (typeof import('vue'))['useSlots']
   const useTemplateRef: (typeof import('vue'))['useTemplateRef']
+  const useToast: (typeof import('primevue/usetoast'))['useToast']
   const watch: (typeof import('vue'))['watch']
   const watchEffect: (typeof import('vue'))['watchEffect']
   const watchPostEffect: (typeof import('vue'))['watchPostEffect']
@@ -172,6 +176,7 @@ declare module 'vue' {
     readonly unref: UnwrapRef<(typeof import('vue'))['unref']>
     readonly useApi: UnwrapRef<(typeof import('./src/plugins/api'))['useApi']>
     readonly useAttrs: UnwrapRef<(typeof import('vue'))['useAttrs']>
+    readonly useConfirm: UnwrapRef<(typeof import('primevue/useconfirm'))['useConfirm']>
     readonly useCreateProjectStore: UnwrapRef<(typeof import('./src/stores/create-project.store'))['useCreateProjectStore']>
     readonly useCssModule: UnwrapRef<(typeof import('vue'))['useCssModule']>
     readonly useCssVars: UnwrapRef<(typeof import('vue'))['useCssVars']>
@@ -179,10 +184,13 @@ declare module 'vue' {
     readonly useLink: UnwrapRef<(typeof import('vue-router'))['useLink']>
     readonly useModel: UnwrapRef<(typeof import('vue'))['useModel']>
     readonly useProjectCreationComposable: UnwrapRef<(typeof import('./src/composables/useProjectCreationComposable'))['useProjectCreationComposable']>
+    readonly useProjectListComposable: UnwrapRef<(typeof import('./src/composables/useProjectListComposable'))['useProjectListComposable']>
+    readonly useProjectListStore: UnwrapRef<(typeof import('./src/stores/project-list.store'))['useProjectListStore']>
     readonly useRoute: UnwrapRef<(typeof import('vue-router'))['useRoute']>
     readonly useRouter: UnwrapRef<(typeof import('vue-router'))['useRouter']>
     readonly useSlots: UnwrapRef<(typeof import('vue'))['useSlots']>
     readonly useTemplateRef: UnwrapRef<(typeof import('vue'))['useTemplateRef']>
+    readonly useToast: UnwrapRef<(typeof import('primevue/usetoast'))['useToast']>
     readonly watch: UnwrapRef<(typeof import('vue'))['watch']>
     readonly watchEffect: UnwrapRef<(typeof import('vue'))['watchEffect']>
     readonly watchPostEffect: UnwrapRef<(typeof import('vue'))['watchPostEffect']>

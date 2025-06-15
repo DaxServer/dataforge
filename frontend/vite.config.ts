@@ -29,6 +29,14 @@ export default defineConfig({
           imports: ['FileUploadUploaderEvent'],
           type: true,
         },
+        {
+          from: 'primevue/useconfirm',
+          imports: ['useConfirm'],
+        },
+        {
+          from: 'primevue/usetoast',
+          imports: ['useToast'],
+        },
       ],
       dts: true,
       dirs: ['src/**'],
