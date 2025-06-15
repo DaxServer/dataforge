@@ -31,11 +31,26 @@ This document defines the writing and formatting standards for all project docum
 
 ### Vue Components
 - Use `<script setup>` syntax
+- **REQUIRED**: Vue Single File Components (SFC) must follow this exact order:
+  1. `<script setup>` (or `<script>`) - Always first
+  2. `<template>` - Always second
+  3. `<style>` - Always last (if present)
+- This order is mandatory and must be consistent across all Vue components
 - Use PascalCase for component names
 - Use kebab-case for component files
 - Use `ref` for reactive primitives
-- Use `computed` for derived state
+- **Always use reactive elements** for state management
+- Use `computed` **only in extreme cases with explicit approval**
 - Use `watch` and `watchEffect` sparingly
+
+### Styling Requirements
+- **MANDATORY**: Use Tailwind CSS for ALL styling
+- **FORBIDDEN**: No hardcoded CSS styles in `<style>` blocks
+- **FORBIDDEN**: No inline styles using `style` attribute
+- **FORBIDDEN**: No custom CSS classes outside of Tailwind
+- Use Tailwind utility classes exclusively for styling
+- If `<style>` blocks exist, they should only contain component-specific CSS that cannot be achieved with Tailwind (extremely rare cases)
+- All spacing, colors, typography, and layout must use Tailwind classes
 
 ## Documentation Structure
 
@@ -64,6 +79,37 @@ Each file should start with:
 - Include a brief description above the code block
 - Keep code blocks focused and concise
 - Use comments to explain non-obvious parts
+
+## TypeScript Guidelines
+
+### Type Definitions
+
+- **NEVER create custom interfaces or types for data structures**
+- **Rare exceptions**: Internal utility types, component props, or configuration types not related to API data
+- **ALWAYS use Elysia Eden inferred types from the backend**
+- Use `unknown` over `any` for truly unknown data
+- Use strict type checking
+- Database schema is dynamic - frontend must not hardcode any structure
+
+### Example
+
+```typescript
+// CORRECT - Use Elysia Eden types
+import type { App } from '@backend'
+
+type User = Awaited<ReturnType<App['api']['users']['get']>>['data']
+type CreateUserBody = Parameters<App['api']['users']['post']>[0]['body']
+type UpdateUserBody = Parameters<App['api']['users']['patch']>[0]['body']
+
+// WRONG - Never create custom types
+interface User {
+  id: string
+  name: string
+  email: string
+}
+
+type Status = 'active' | 'inactive' | 'pending'
+```
 
 ### Tables
 - Use pipe syntax for tables
