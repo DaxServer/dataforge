@@ -26,6 +26,14 @@ const routes = [
           title: 'Create Project',
         },
       },
+      {
+        path: 'project/:id',
+        name: 'ProjectView',
+        component: () => import('@frontend/views/ProjectView.vue'),
+        meta: {
+          title: 'Project View',
+        },
+      },
     ],
   },
   // Add a catch-all route for 404s

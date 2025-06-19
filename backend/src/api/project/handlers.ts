@@ -33,6 +33,7 @@ export const getProjectById = async ({
     return {
       data: rows,
       meta: {
+        name: projects?.[0]?.name ?? 'Unknown Project',
         total: rows.length, // For simplicity, we're not doing a separate count query
         limit: 25,
         offset: 0,
@@ -44,6 +45,7 @@ export const getProjectById = async ({
       return {
         data: [],
         meta: {
+          name: projects?.[0]?.name ?? 'Unknown Project',
           total: 0,
           limit: 25,
           offset: 0,

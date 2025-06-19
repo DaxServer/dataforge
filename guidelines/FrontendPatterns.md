@@ -41,14 +41,14 @@ defineStore, storeToRefs
 // Utilities
 toRefs, toRef, unref, isRef
 
-// IMPORTANT: Always explicitly import types from '@backend'
+// IMPORTANT: Always explicitly import types from '@backend'. `@backend` path alias imports are required.
 import type { App } from '@backend'
 ```
 
 ### Best Practices
 
 1. **No Manual Imports**
-   - Remove manual imports for Vue APIs, components, and composables
+   - Imports are autoloaded. Explicit imports, except for backend-prefixed ones, are not allowed in the frontend.
    - Example: Instead of `import { ref } from 'vue'`, just use `ref` directly
 
 2. **Component Naming**
@@ -61,6 +61,8 @@ import type { App } from '@backend'
    - Use camelCase for composable names
    - They are auto-imported based on their file name
    - Example: `useMyComposable.ts` can be used as `useMyComposable()`
+   - **CRITICAL**: Composables MUST NOT export state that belongs to a Pinia store. Instead, composables should use the store directly via `storeToRefs` or `store.property`.
+   - Composables MUST NOT proxy store actions. If a function in a composable simply calls a store action, move that function directly into the store.
 
 4. **TypeScript Support**
    - TypeScript types are automatically generated in `auto-imports.d.ts`
@@ -130,11 +132,13 @@ Components should follow this structure:
 - **NEVER create custom types or interfaces for data structures** - rely solely on Elysia Eden types
 - **Rare exceptions**: Internal utility types, component props, or configuration types not related to API data
 - Use `ref` for reactive primitives
-- **MANDATORY**: Use Tailwind CSS for ALL styling
-- **FORBIDDEN**: No hardcoded CSS styles or inline styles
+- MANDATORY: Use Tailwind CSS for ALL styling
+- FORBIDDEN: No hardcoded CSS styles or inline styles
 - Use Tailwind utility classes exclusively for layout, spacing, colors, typography, and responsive design
 - Use `defineEmits` with type safety
-- Import types from Elysia Eden App type only
+- Importing types from the Elysia Eden App type.
+- Referencing the [Elysia Eden guidelines](./ElysiaEden.md) for detailed information on API interaction.
+- Always destructure Elysia Eden responses as `{ data, status, error }`.
 
 ## Tailwind CSS Usage
 

@@ -41,7 +41,7 @@ describe('Project API - GET /:id', () => {
     })
     expect(error).toBeNull()
     expect(status).toBe(201)
-    projectId = data.data.id
+    projectId = data?.data?.id as string
 
     // Import test data into the project
     await importTestData()
@@ -89,6 +89,7 @@ describe('Project API - GET /:id', () => {
     expect(data).toHaveProperty('data.0.name', 'John')
     expect(data).toHaveProperty('data.0.age', '30')
     expect(data).toHaveProperty('data.0.city', 'New York')
+    expect(data).toHaveProperty('meta.name', 'Test Project for getById')
   })
 
   it('should return 404 for non-existent project', async () => {
@@ -113,7 +114,7 @@ describe('Project API - GET /:id', () => {
       name: 'Empty Project',
     })
     expect(createError).toBeNull()
-    const emptyProjectId = createData.data.id
+    const emptyProjectId = createData?.data?.id as string
 
     const { data, status, error } = await api.project({ id: emptyProjectId }).get()
 
@@ -122,6 +123,7 @@ describe('Project API - GET /:id', () => {
     expect(data).toBeDefined()
     expect(data).toHaveProperty('data')
     expect(data).toHaveProperty('data.length', 0)
+    expect(data).toHaveProperty('meta.name', 'Empty Project')
 
     // Cleanup
     await api.project({ id: emptyProjectId }).delete()
@@ -138,5 +140,6 @@ describe('Project API - GET /:id', () => {
     expect(data).toHaveProperty('meta.total', 3)
     expect(data).toHaveProperty('meta.limit', 25)
     expect(data).toHaveProperty('meta.offset', 0)
+    expect(data).toHaveProperty('meta.name', 'Test Project for getById')
   })
 })

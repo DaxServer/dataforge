@@ -86,6 +86,8 @@ export const projectRoutes = new Elysia({ prefix: '/api/project' })
 ## Frontend Integration
 
 ### API Client Setup
+**IMPORTANT**: The Elysia `App` type from the backend should **NEVER** be used directly in the frontend for API calls. Instead, always use Elysia Eden (via `edenTreaty`) for type-safe API interactions.
+
 ```typescript
 // @frontend/composables/useApi.ts
 // No need to import edenTreaty - it's auto-imported
@@ -133,6 +135,7 @@ onMounted(fetchProjects)
 - Use the generated `App` type in your frontend
 - Enable strict mode in TypeScript
 - **NEVER create custom types for data structures** - use Elysia Eden inferred types
+- **Reuse Backend Schemas**: For complex data structures, export and import backend schemas directly into the frontend for type definitions. This ensures consistency and avoids hardcoding types.
 - **Rare exceptions**: Internal utility types, configuration types, or helper types not related to API data
 
 #### Automatic Type Inference

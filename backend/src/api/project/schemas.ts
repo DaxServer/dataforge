@@ -177,6 +177,7 @@ const projectSchema = {
       200: t.Object({
         data: t.Array(t.Any()),
         meta: t.Object({
+          name: t.String(),
           total: t.Number(),
           limit: t.Number(),
           offset: t.Number(),

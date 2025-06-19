@@ -22,7 +22,7 @@ export const useProjectListComposable = () => {
 
   // Open a project (navigate to project view)
   const openProject = (projectId: string) => {
-    router.push(`/projects/${projectId}`)
+    router.push({ name: 'ProjectView', params: { id: projectId } })
   }
 
   // Delete a project with confirmation

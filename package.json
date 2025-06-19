@@ -9,7 +9,8 @@
     "dev": "bun -F '*' dev",
     "format": "prettier --write \"**/*.{ts,vue}\"",
     "lint": "bun -F '*' lint",
-    "test": "bun -F backend test"
+    "test": "bun -F backend test",
+    "mcpi": "bunx @modelcontextprotocol/inspector"
   },
   "type": "module",
   "workspaces": {
