@@ -19,7 +19,7 @@ const navItems = [
 <template>
   <div class="w-64 h-full bg-white border-r border-gray-200 flex-shrink-0">
     <!-- Logo/App Name -->
-    <div class="p-4 border-b border-gray-200">
+    <div class="p-4 border-b border-gray-200 h-16">
       <h1 class="text-xl font-semibold text-gray-800">OpenRefine</h1>
     </div>
 
