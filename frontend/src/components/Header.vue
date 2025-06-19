@@ -15,28 +15,5 @@ const route = useRoute()
     <div class="flex-1" />
 
     <!-- Actions -->
-    <div class="flex items-center space-x-4">
-      <Button
-        icon="pi pi-cog"
-        text
-        rounded
-        severity="secondary"
-        aria-label="Settings"
-      />
-      <Button
-        icon="pi pi-question-circle"
-        text
-        rounded
-        severity="secondary"
-        aria-label="Help"
-      />
-      <Button
-        icon="pi pi-user"
-        text
-        rounded
-        severity="secondary"
-        aria-label="User"
-      />
-    </div>
   </header>
 </template>
