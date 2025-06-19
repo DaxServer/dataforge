@@ -80,9 +80,11 @@ declare global {
   const useId: (typeof import('vue'))['useId']
   const useLink: (typeof import('vue-router'))['useLink']
   const useModel: (typeof import('vue'))['useModel']
+  const useProjectActions: (typeof import('./src/composables/useProjectActions'))['useProjectActions']
   const useProjectCreationComposable: (typeof import('./src/composables/useProjectCreationComposable'))['useProjectCreationComposable']
   const useProjectListComposable: (typeof import('./src/composables/useProjectListComposable'))['useProjectListComposable']
   const useProjectListStore: (typeof import('./src/stores/project-list.store'))['useProjectListStore']
+  const useProjectStore: (typeof import('./src/stores/project.store'))['useProjectStore']
   const useRoute: (typeof import('vue-router'))['useRoute']
   const useRouter: (typeof import('vue-router'))['useRouter']
   const useSlots: (typeof import('vue'))['useSlots']
@@ -183,9 +185,11 @@ declare module 'vue' {
     readonly useId: UnwrapRef<(typeof import('vue'))['useId']>
     readonly useLink: UnwrapRef<(typeof import('vue-router'))['useLink']>
     readonly useModel: UnwrapRef<(typeof import('vue'))['useModel']>
+    readonly useProjectActions: UnwrapRef<(typeof import('./src/composables/useProjectActions'))['useProjectActions']>
     readonly useProjectCreationComposable: UnwrapRef<(typeof import('./src/composables/useProjectCreationComposable'))['useProjectCreationComposable']>
     readonly useProjectListComposable: UnwrapRef<(typeof import('./src/composables/useProjectListComposable'))['useProjectListComposable']>
     readonly useProjectListStore: UnwrapRef<(typeof import('./src/stores/project-list.store'))['useProjectListStore']>
+    readonly useProjectStore: UnwrapRef<(typeof import('./src/stores/project.store'))['useProjectStore']>
     readonly useRoute: UnwrapRef<(typeof import('vue-router'))['useRoute']>
     readonly useRouter: UnwrapRef<(typeof import('vue-router'))['useRouter']>
     readonly useSlots: UnwrapRef<(typeof import('vue'))['useSlots']>

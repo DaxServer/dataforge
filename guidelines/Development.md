@@ -165,6 +165,15 @@ We use [Bun Catalog](https://bun.sh/docs/cli/catalog) for managing our monorepo 
    - Document workspace-specific configuration in each package's README
    - Run `bun install` after pulling changes that modify dependencies
 
+## Guideline Exceptions
+
+Certain files are intentionally allowed to deviate from specific guidelines due to their foundational role or integration requirements. Violations in these files are acknowledged and do not require immediate remediation.
+
+- `frontend/src/App.vue`
+- `frontend/src/main.ts`
+- `frontend/src/router.ts`
+- `frontend/src/plugins/api.ts`
+
 ## Error Handling
 
 ### Project-Wide Error Handling Principles
@@ -179,13 +188,13 @@ We use [Bun Catalog](https://bun.sh/docs/cli/catalog) for managing our monorepo 
 
 **Context-Specific Approaches:**
 
-1. **Frontend Stores/Composables**: 
+1. **Frontend Stores/Composables**:
    - Set reactive error state instead of throwing
    - Return early on errors
    - Use the pattern: `if (error) { errorState.value = 'message'; return }`
    - Clear error state at the beginning of operations
 
-2. **Frontend Services/Utilities**: 
+2. **Frontend Services/Utilities**:
    - Return error results instead of throwing
    - Use the pattern: `return { error: 'message', data: null }`
 
@@ -298,7 +307,7 @@ interface CustomUser {
 - Use `<script setup>` syntax for components
 - **REQUIRED**: Vue Single File Components must follow this exact order:
   1. `<script setup>` (or `<script>`) - Always first
-  2. `<template>` - Always second  
+  2. `<template>` - Always second
   3. `<style>` - Always last (if present)
 - **MANDATORY**: Use Tailwind CSS for ALL styling
 - **FORBIDDEN**: No hardcoded CSS styles or inline styles
@@ -346,7 +355,7 @@ const increment = () => {
     <h2 class="text-xl font-bold mb-4">{{ title }}</h2>
     <p class="text-surface-700 mb-2">Count: {{ count }}</p>
     <p class="text-surface-700 mb-4">Double: {{ doubleCount }}</p>
-    <button 
+    <button
       @click="increment"
       class="px-4 py-2 bg-primary-500 text-white rounded-md hover:bg-primary-600 transition-colors"
     >

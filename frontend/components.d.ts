@@ -22,6 +22,7 @@ declare module 'vue' {
     Message: typeof import('primevue/message')['default']
     OpenProject: typeof import('./src/pages/OpenProject.vue')['default']
     ProgressSpinner: typeof import('primevue/progressspinner')['default']
+    ProjectView: typeof import('./src/views/ProjectView.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     Sidebar: typeof import('./src/components/Sidebar.vue')['default']
