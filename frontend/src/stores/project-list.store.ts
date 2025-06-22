@@ -9,39 +9,45 @@ export const useProjectListStore = defineStore('projectList', () => {
   const error = ref<string | null>(null)
 
   // Getters
-  const hasProjects = computed(() => projects.value.length > 0)
-  const projectCount = computed(() => projects.value.length)
+  const hasProjects = ref(false)
+  const projectCount = ref(0)
+
+  // Update reactive getters when projects change
+  watch(
+    projects,
+    (newProjects) => {
+      hasProjects.value = newProjects.length > 0
+      projectCount.value = newProjects.length
+    },
+    { immediate: true }
+  )
 
   // Actions
   const fetchProjects = async () => {
     isLoading.value = true
     error.value = null
 
-    try {
-      const response = await api.project.get()
-
-      if (response.data?.data) {
-        projects.value = response.data.data
-      } else {
-        projects.value = []
-      }
-    } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Failed to fetch projects'
+    const { data, error: apiError } = await api.project.get()
+    if (apiError) {
+      error.value = 'Failed to fetch projects'
       projects.value = []
-    } finally {
-      isLoading.value = false
+    } else {
+      projects.value = data.data
     }
+    isLoading.value = false
   }
 
   const deleteProject = async (projectId: string) => {
-    try {
-      await api.project({ id: projectId }).delete()
-      // Remove from local state
-      projects.value = projects.value.filter((p) => p.id !== projectId)
-    } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Failed to delete project'
-      throw err
+    const { error: apiError } = await api.project({ id: projectId }).delete()
+    if (apiError) {
+      error.value =
+        (apiError.value && 'message' in apiError.value
+          ? apiError.value.message
+          : apiError.value?.errors?.[0]?.message) || 'Failed to delete project'
+      return
     }
+    // Remove from local state
+    projects.value = projects.value.filter((p) => p.id !== projectId)
   }
 
   const clearError = () => {

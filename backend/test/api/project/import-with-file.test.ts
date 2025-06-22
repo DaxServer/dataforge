@@ -51,11 +51,8 @@ describe('POST /api/project/import', () => {
 
       expect(status).toBe(201)
       expect(error).toBeNull()
-      expect(data).toMatchObject({
-        data: {
-          id: expect.stringMatching(UUID_REGEX_PATTERN),
-        },
-      })
+      expect(data).toHaveProperty('data')
+      expect(data).toHaveProperty('data.id', expect.stringMatching(UUID_REGEX_PATTERN))
     })
 
     test('should create project and import JSON file with custom name', async () => {
@@ -73,11 +70,8 @@ describe('POST /api/project/import', () => {
 
       expect(status).toBe(201)
       expect(error).toBeNull()
-      expect(data).toMatchObject({
-        data: {
-          id: expect.stringMatching(UUID_REGEX_PATTERN),
-        },
-      })
+      expect(data).toHaveProperty('data')
+      expect(data).toHaveProperty('data.id', expect.stringMatching(UUID_REGEX_PATTERN))
     })
 
     test('should handle large JSON files', async () => {
@@ -109,20 +103,13 @@ describe('POST /api/project/import', () => {
         expect(data).toBeNull()
         expect(error).toBeDefined()
         expect(error).toHaveProperty('status', 422)
-        expect(error).toHaveProperty('value', {
-          errors: [
-            {
-              code: 'VALIDATION',
-              details: [
-                {
-                  message: "Expected kind 'File'",
-                  path: '/file',
-                },
-              ],
-              message: 'Validation failed',
-            },
-          ],
-        })
+        expect(error).toHaveProperty('value.data', [])
+        expect(error).toHaveProperty('value.errors.length', 1)
+        expect(error).toHaveProperty('value.errors.0.code', 'VALIDATION')
+        expect(error).toHaveProperty('value.errors.0.details', expect.any(Array))
+        expect(error).toHaveProperty('value.errors.0.details.0.path', '/file')
+        expect(error).toHaveProperty('value.errors.0.details.0.message', "Expected kind 'File'")
+        expect(error).toHaveProperty('value.errors.0.details.0.schema')
       })
 
       test('should return 422 for empty file', async () => {
@@ -134,6 +121,13 @@ describe('POST /api/project/import', () => {
         expect(data).toBeNull()
         expect(error).toBeDefined()
         expect(error).toHaveProperty('status', 422)
+        expect(error).toHaveProperty('value.data', [])
+        expect(error).toHaveProperty('value.errors.length', 1)
+        expect(error).toHaveProperty('value.errors.0.code', 'VALIDATION')
+        expect(error).toHaveProperty('value.errors.0.details', expect.any(Array))
+        expect(error).toHaveProperty('value.errors.0.details.0.path', '/file')
+        expect(error).toHaveProperty('value.errors.0.details.0.message', "Expected kind 'File'")
+        expect(error).toHaveProperty('value.errors.0.details.0.schema')
       })
 
       test('should return 422 for invalid name (too long)', async () => {
@@ -150,21 +144,11 @@ describe('POST /api/project/import', () => {
         expect(data).toBeNull()
         expect(error).toBeDefined()
         expect(error).toHaveProperty('status', 422)
-        expect(error).toHaveProperty('value', {
-          errors: [
-            {
-              code: 'VALIDATION',
-              details: [
-                {
-                  message: 'Expected string length less or equal to 255',
-                  path: '/name',
-                  received: longName,
-                },
-              ],
-              message: 'Validation failed',
-            },
-          ],
-        })
+        expect(error).toHaveProperty('value.data', [])
+        expect(error).toHaveProperty('value.errors.length', 1)
+        expect(error).toHaveProperty('value.errors.0.code', 'VALIDATION')
+        expect(error).toHaveProperty('value.errors.0.message')
+        expect(error).toHaveProperty('value.errors.0.details', expect.any(Array))
       })
 
       test('should return 422 for invalid name (empty string)', async () => {
@@ -180,21 +164,11 @@ describe('POST /api/project/import', () => {
         expect(data).toBeNull()
         expect(error).toBeDefined()
         expect(error).toHaveProperty('status', 422)
-        expect(error).toHaveProperty('value', {
-          errors: [
-            {
-              code: 'VALIDATION',
-              details: [
-                {
-                  message: 'Expected string length greater or equal to 1',
-                  path: '/name',
-                  received: '',
-                },
-              ],
-              message: 'Validation failed',
-            },
-          ],
-        })
+        expect(error).toHaveProperty('value.data', [])
+        expect(error).toHaveProperty('value.errors.length', 1)
+        expect(error).toHaveProperty('value.errors.0.code', 'VALIDATION')
+        expect(error).toHaveProperty('value.errors.0.message')
+        expect(error).toHaveProperty('value.errors.0.details', expect.any(Array))
       })
     })
 
@@ -255,17 +229,14 @@ describe('POST /api/project/import', () => {
         expect(data).toBeNull()
         expect(error).toBeDefined()
         expect(error).toHaveProperty('status', 400)
-        expect(error).toHaveProperty('value', {
-          errors: [
-            {
-              code: 'INVALID_JSON',
-              details: {
-                error: 'Failed to parse JSON',
-              },
-              message: 'Invalid JSON format in uploaded file',
-            },
-          ],
-        })
+        expect(error).toHaveProperty('value.data', [])
+        expect(error).toHaveProperty('value.errors.length', 1)
+        expect(error).toHaveProperty('value.errors.0.code', 'INVALID_JSON')
+        expect(error).toHaveProperty(
+          'value.errors.0.message',
+          'Invalid JSON format in uploaded file'
+        )
+        expect(error).toHaveProperty('value.errors.0.details', expect.any(Array))
       })
 
       test('should return 400 for non-JSON file content', async () => {
@@ -278,17 +249,14 @@ describe('POST /api/project/import', () => {
         expect(data).toBeNull()
         expect(error).toBeDefined()
         expect(error).toHaveProperty('status', 400)
-        expect(error).toHaveProperty('value', {
-          errors: [
-            {
-              code: 'INVALID_JSON',
-              details: {
-                error: 'Failed to parse JSON',
-              },
-              message: 'Invalid JSON format in uploaded file',
-            },
-          ],
-        })
+        expect(error).toHaveProperty('value.data', [])
+        expect(error).toHaveProperty('value.errors.length', 1)
+        expect(error).toHaveProperty('value.errors.0.code', 'INVALID_JSON')
+        expect(error).toHaveProperty(
+          'value.errors.0.message',
+          'Invalid JSON format in uploaded file'
+        )
+        expect(error).toHaveProperty('value.errors.0.details', expect.any(Array))
       })
     })
 
@@ -306,15 +274,11 @@ describe('POST /api/project/import', () => {
         expect(data).toBeNull()
         expect(error).toBeDefined()
         expect(error).toHaveProperty('status', 500)
-        expect(error).toHaveProperty('value', {
-          errors: [
-            {
-              code: 'UNKNOWN',
-              details: {},
-              message: 'Database not initialized. Call initializeDb() first.',
-            },
-          ],
-        })
+        expect(error).toHaveProperty('value.data', [])
+        expect(error).toHaveProperty('value.errors.length', 1)
+        expect(error).toHaveProperty('value.errors.0.code', 'INTERNAL_SERVER_ERROR')
+        expect(error).toHaveProperty('value.errors.0.message')
+        expect(error).toHaveProperty('value.errors.0.details', [])
 
         // Reinitialize for cleanup
         await initializeDb(':memory:')

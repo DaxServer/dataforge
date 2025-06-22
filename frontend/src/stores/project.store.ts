@@ -30,7 +30,7 @@ export const useProjectStore = defineStore('project', () => {
     meta.value = rows.meta
 
     // Generate columns from first row if data exists
-    if (rows.data && rows.data.length > 0) {
+    if (rows.data.length > 0) {
       const firstRow = rows.data[0]
       columns.value = Object.keys(firstRow).map((key) => ({
         field: key,

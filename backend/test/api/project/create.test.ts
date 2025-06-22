@@ -1,10 +1,10 @@
 /// <reference types="bun-types" />
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test'
 import { Elysia } from 'elysia'
-import { projectRoutes } from '../../../src/api/project'
+import { projectRoutes } from '@backend/api/project'
 import { closeDb, initializeDb } from '@backend/plugins/database'
 import { treaty } from '@elysiajs/eden'
-import { UUID_REGEX_PATTERN } from '../../../src/api/project/schemas'
+import { UUID_REGEX_PATTERN } from '@backend/api/project/schemas.ts'
 
 // Create a test app with the project routes
 const createTestApi = () => {
@@ -40,15 +40,19 @@ describe('createProject', () => {
 
       // Verify the response status and structure
       expect(status).toBe(201)
-      expect(data).toMatchObject({
-        data: {
-          name: projectData.name,
-          id: expect.stringMatching(UUID_REGEX_PATTERN),
-          // Expecting naive timestamp format: YYYY-MM-DD HH:MM:SS[.SSS] (with optional milliseconds)
-          created_at: expect.stringMatching(/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}(\.\d{1,3})?$/),
-          updated_at: expect.stringMatching(/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}(\.\d{1,3})?$/),
-        },
-      })
+      expect(data).toHaveProperty('data')
+      expect(data).toHaveProperty('data.name', projectData.name)
+      expect(data).toHaveProperty('data.id')
+      expect(data).toHaveProperty('data.id', expect.stringMatching(UUID_REGEX_PATTERN))
+      // Expecting naive timestamp format: YYYY-MM-DD HH:MM:SS[.SSS] (with optional milliseconds)
+      expect(data).toHaveProperty(
+        'data.created_at',
+        expect.stringMatching(/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}(\.\d{1,3})?$/)
+      )
+      expect(data).toHaveProperty(
+        'data.updated_at',
+        expect.stringMatching(/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}(\.\d{1,3})?$/)
+      )
       expect(error).toBeNull()
     })
 
@@ -59,23 +63,26 @@ describe('createProject', () => {
       expect(status).toBe(422)
       expect(data).toBeNull()
 
-      // Check that the error object has the expected structure
       expect(error).toBeDefined()
       expect(error).toHaveProperty('status', 422)
-      expect(error).toHaveProperty('value', {
-        errors: [
-          {
-            code: 'VALIDATION',
-            message: 'Validation failed',
-            details: [
-              {
-                path: '/name',
-                message: 'Expected string',
+      expect(error).toHaveProperty('value.data', [])
+      expect(error).toHaveProperty('value.errors', [
+        {
+          code: 'VALIDATION',
+          message: 'Project name is required and must be at least 1 character long',
+          details: [
+            {
+              path: '/name',
+              message: 'Expected string',
+              schema: {
+                error: 'Project name is required and must be at least 1 character long',
+                minLength: 1,
+                type: 'string',
               },
-            ],
-          },
-        ],
-      })
+            },
+          ],
+        },
+      ])
     })
 
     test('should return 422 when name is empty', async () => {
@@ -86,24 +93,26 @@ describe('createProject', () => {
       expect(status).toBe(422)
       expect(data).toBeNull()
 
-      // Check that the error object has the expected structure
       expect(error).toBeDefined()
       expect(error).toHaveProperty('status', 422)
-      expect(error).toHaveProperty('value', {
-        errors: [
-          {
-            code: 'VALIDATION',
-            message: 'Validation failed',
-            details: [
-              {
-                path: '/name',
-                message: 'Expected string length greater or equal to 1',
-                received: '',
+      expect(error).toHaveProperty('value.data', [])
+      expect(error).toHaveProperty('value.errors', [
+        {
+          code: 'VALIDATION',
+          message: 'Project name is required and must be at least 1 character long',
+          details: [
+            {
+              path: '/name',
+              message: 'Expected string length greater or equal to 1',
+              schema: {
+                error: 'Project name is required and must be at least 1 character long',
+                minLength: 1,
+                type: 'string',
               },
-            ],
-          },
-        ],
-      })
+            },
+          ],
+        },
+      ])
     })
   })
 })

@@ -16,6 +16,7 @@ import {
   ImportWithFileSchema,
 } from './schemas'
 import { importProject, importProjectFile } from './import'
+import { ApiErrorHandler } from '@backend/types/error-handler'
 
 export const projectRoutes = new Elysia({ prefix: '/api/project' })
   .onError(({ code, error, set }) => {
@@ -23,19 +24,16 @@ export const projectRoutes = new Elysia({ prefix: '/api/project' })
     if (code === 'VALIDATION') {
       set.status = 422
       return {
+        data: [],
         errors: [
           {
             code,
-            message: 'Validation failed',
-            details:
-              error.all?.map(
-                (e: { path?: string; message?: string; expected?: unknown; value: unknown }) => ({
-                  path: e.path?.replace(/^\/body\//, '') || 'unknown',
-                  message: e.message || 'Invalid value',
-                  expected: e.expected,
-                  received: e.value,
-                })
-              ) || [],
+            message: error.validator.Errors(error.value).First().schema.error,
+            details: Array.from(error.validator.Errors(error.value)).map(e => ({
+              path: (e as { path: string }).path,
+              message: (e as { message: string }).message,
+              schema: (e as { schema: object }).schema,
+            })),
           },
         ],
       }
@@ -44,15 +42,7 @@ export const projectRoutes = new Elysia({ prefix: '/api/project' })
     // Handle other errors
     set.status = 500
     const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred'
-    return {
-      errors: [
-        {
-          code,
-          message: errorMessage,
-          details: {},
-        },
-      ],
-    }
+    return ApiErrorHandler.internalServerErrorWithData(errorMessage)
   })
   .get('/', getAllProjects, GetAllProjectsSchema)
   .get('/:id', getProjectById, GetProjectByIdSchema)

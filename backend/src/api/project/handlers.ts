@@ -1,32 +1,30 @@
 import type { Context } from 'elysia'
-import type { CreateProjectInput, Project, ImportWithFileInput } from './schemas'
+import type {
+  CreateProjectInput,
+  Project,
+  ImportWithFileInput,
+  GetProjectByIdInput,
+} from './schemas'
 import { getDb } from '@backend/plugins/database'
+import { ApiErrorHandler } from '@backend/types/error-handler'
 
-export const getProjectById = async ({
-  params: { id },
-  set,
-}: Context<{ params: { id: string } }>) => {
+export const getProjectById = async ({ params, set }: Context<{ params: GetProjectByIdInput }>) => {
   const db = getDb()
 
   // First, check if the project exists in _meta_projects
-  const projectReader = await db.runAndReadAll('SELECT * FROM _meta_projects WHERE id = ?', [id])
+  const projectReader = await db.runAndReadAll('SELECT * FROM _meta_projects WHERE id = ?', [
+    params.id,
+  ])
   const projects = projectReader.getRowObjectsJson()
 
   if (projects.length === 0) {
     set.status = 404
-    return {
-      errors: [
-        {
-          code: 'NOT_FOUND',
-          message: 'Project not found',
-        },
-      ],
-    }
+    return ApiErrorHandler.notFoundErrorWithData('Project')
   }
 
   try {
     // Get the project's data from the project table (first 25 rows)
-    const tableName = `project_${id}`
+    const tableName = `project_${params.id}`
     const rowsReader = await db.runAndReadAll(`SELECT * FROM "${tableName}" LIMIT 25`)
     const rows = rowsReader.getRowObjectsJson()
 
@@ -89,14 +87,9 @@ export const createProject = async ({
 
   if (projects.length === 0) {
     set.status = 500
-    return {
-      errors: [
-        {
-          code: 'DATABASE_ERROR',
-          message: 'Failed to create project: No project returned from database',
-        },
-      ],
-    }
+    return ApiErrorHandler.databaseErrorWithData(
+      'Failed to create project: No project returned from database'
+    )
   }
 
   set.status = 201
@@ -117,7 +110,7 @@ export const deleteProject = async ({ params, set }: Context<{ params: { id: str
 
   if (deleted.length === 0) {
     set.status = 404
-    return new Response(null)
+    return ApiErrorHandler.notFoundErrorWithData('Project')
   }
 
   set.status = 204
@@ -170,14 +163,9 @@ export const importWithFile = async ({
   const projects = reader.getRowObjectsJson()
   if (projects.length === 0) {
     set.status = 500
-    return {
-      errors: [
-        {
-          code: 'PROJECT_CREATION_FAILED',
-          message: 'Failed to create project: No project returned from database',
-        },
-      ],
-    }
+    return ApiErrorHandler.projectCreationErrorWithData(
+      'Failed to create project: No project returned from database'
+    )
   }
 
   const project = projects[0] as Project
@@ -207,17 +195,9 @@ export const importWithFile = async ({
       ? `JSON Parse error: Unexpected identifier "${match[1]}"`
       : 'Failed to parse JSON'
 
-    return {
-      errors: [
-        {
-          code: 'INVALID_JSON',
-          message: 'Invalid JSON format in uploaded file',
-          details: {
-            error: errorDetail,
-          },
-        },
-      ],
-    }
+    return ApiErrorHandler.invalidJsonErrorWithData('Invalid JSON format in uploaded file', [
+      errorDetail,
+    ])
   }
 
   // Check if table already exists
@@ -229,14 +209,9 @@ export const importWithFile = async ({
     // await cleanupProject(db, project.id, tempFilePath)
 
     set.status = 500
-    return {
-      errors: [
-        {
-          code: 'DATA_IMPORT_FAILED',
-          message: `Table with name 'project_${project.id}' already exists`,
-        },
-      ],
-    }
+    return ApiErrorHandler.dataImportErrorWithData(
+      `Table with name 'project_${project.id}' already exists`
+    )
   }
 
   // Create table with autoincrement primary key and import data using DuckDB's JSON functions
