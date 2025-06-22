@@ -1,6 +1,6 @@
 import { describe, expect, test, beforeEach, afterEach } from 'bun:test'
 import { Elysia } from 'elysia'
-import { projectRoutes } from '../../../src/api/project'
+import { projectRoutes } from '@backend/api/project'
 import { initializeDb, closeDb, getDb } from '@backend/plugins/database'
 import { treaty } from '@elysiajs/eden'
 
@@ -58,21 +58,15 @@ describe('POST /project/:projectId/import-file', () => {
     expect(data).toBeNull()
     expect(error).toBeDefined()
     expect(error).toHaveProperty('status', 422)
-    expect(error).toHaveProperty('value', {
-      errors: [
-        {
-          code: 'VALIDATION',
-          details: [
-            {
-              message: "Expected kind 'File'",
-              path: '/file',
-              received: {},
-            },
-          ],
-          message: 'Validation failed',
-        },
-      ],
-    })
+    expect(error).toHaveProperty('value.data', [])
+    expect(error).toHaveProperty('value.errors')
+    expect(error.value.errors).toHaveLength(1)
+    expect(error.value.errors[0]).toHaveProperty('code', 'VALIDATION')
+    expect(error.value.errors[0]).toHaveProperty('details')
+    expect(error.value.errors[0].details).toHaveLength(1)
+    expect(error.value.errors[0].details[0]).toHaveProperty('message', "Expected kind 'File'")
+    expect(error.value.errors[0].details[0]).toHaveProperty('path', '/file')
+    expect(error.value.errors[0].details[0]).toHaveProperty('schema')
   })
 
   test('should save uploaded file to temporary location', async () => {

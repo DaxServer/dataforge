@@ -1,4 +1,5 @@
 import { t } from 'elysia'
+import { ErrorResponseWithDataSchema } from '@backend/types/error-schemas'
 
 // Single UUID regex pattern that accepts any valid UUID version with hyphens (case-insensitive)
 export const UUID_REGEX =
@@ -6,69 +7,6 @@ export const UUID_REGEX =
 
 // RegExp version of UUID_REGEX for test matching
 export const UUID_REGEX_PATTERN = new RegExp(UUID_REGEX, 'i')
-
-export const ErrorSchema = t.Union([
-  t.Object({
-    code: t.Literal('VALIDATION'),
-    message: t.String(),
-  }),
-  t.Object({
-    code: t.Literal('MISSING_FILE_PATH'),
-    message: t.String(),
-  }),
-  t.Object({
-    code: t.Literal('MISSING_FILE'),
-    message: t.String(),
-  }),
-  t.Object({
-    code: t.Literal('INVALID_FILE_TYPE'),
-    message: t.String(),
-  }),
-  t.Object({
-    code: t.Literal('EMPTY_FILE'),
-    message: t.String(),
-  }),
-  t.Object({
-    code: t.Literal('FILE_NOT_FOUND'),
-    message: t.String(),
-    details: t.Object({
-      filePath: t.String(),
-    }),
-  }),
-  t.Object({
-    code: t.Literal('TABLE_ALREADY_EXISTS'),
-    message: t.String(),
-  }),
-  t.Object({
-    code: t.Literal('INTERNAL_SERVER_ERROR'),
-    message: t.String(),
-  }),
-  t.Object({
-    code: t.Literal('DATABASE_ERROR'),
-    message: t.String(),
-  }),
-  t.Object({
-    code: t.Literal('PROJECT_CREATION_FAILED'),
-    message: t.String(),
-  }),
-  t.Object({
-    code: t.Literal('DATA_IMPORT_FAILED'),
-    message: t.String(),
-  }),
-  t.Object({
-    code: t.Literal('INVALID_JSON'),
-    message: t.String(),
-  }),
-  t.Object({
-    code: t.Literal('NOT_FOUND'),
-    message: t.String(),
-  }),
-])
-
-// Convert ErrorResponse interface to a schema
-export const errorResponseSchema = t.Object({
-  errors: t.Array(ErrorSchema),
-})
 
 // Shared project schema
 const projectResponseSchema = t.Object({
@@ -88,9 +26,10 @@ export const importSchema = {
     }),
     response: {
       201: t.Void(),
-      400: errorResponseSchema,
-      409: errorResponseSchema,
-      500: errorResponseSchema,
+      400: ErrorResponseWithDataSchema,
+      409: ErrorResponseWithDataSchema,
+      422: ErrorResponseWithDataSchema,
+      500: ErrorResponseWithDataSchema,
     },
   },
   importFile: {
@@ -109,10 +48,10 @@ export const importSchema = {
       201: t.Object({
         tempFilePath: t.String(),
       }),
-      400: errorResponseSchema,
-      409: errorResponseSchema,
-      422: errorResponseSchema,
-      500: errorResponseSchema,
+      400: ErrorResponseWithDataSchema,
+      409: ErrorResponseWithDataSchema,
+      422: ErrorResponseWithDataSchema,
+      500: ErrorResponseWithDataSchema,
     },
   },
   importWithFile: {
@@ -137,9 +76,9 @@ export const importSchema = {
           id: t.String(),
         }),
       }),
-      400: errorResponseSchema,
-      422: errorResponseSchema,
-      500: errorResponseSchema,
+      400: ErrorResponseWithDataSchema,
+      422: ErrorResponseWithDataSchema,
+      500: ErrorResponseWithDataSchema,
     },
   },
 }
@@ -162,8 +101,8 @@ const projectSchema = {
       201: t.Object({
         data: projectResponseSchema,
       }),
-      422: errorResponseSchema,
-      500: errorResponseSchema,
+      422: ErrorResponseWithDataSchema,
+      500: ErrorResponseWithDataSchema,
     },
   },
   getById: {
@@ -183,10 +122,10 @@ const projectSchema = {
           offset: t.Number(),
         }),
       }),
-      400: errorResponseSchema,
-      404: errorResponseSchema,
-      422: errorResponseSchema,
-      500: errorResponseSchema,
+      400: ErrorResponseWithDataSchema,
+      404: ErrorResponseWithDataSchema,
+      422: ErrorResponseWithDataSchema,
+      500: ErrorResponseWithDataSchema,
     },
   },
   delete: {
@@ -198,9 +137,9 @@ const projectSchema = {
     }),
     response: {
       204: t.Void(),
-      404: errorResponseSchema,
-      422: errorResponseSchema,
-      500: errorResponseSchema,
+      404: ErrorResponseWithDataSchema,
+      422: ErrorResponseWithDataSchema,
+      500: ErrorResponseWithDataSchema,
     },
   },
   getAll: {
@@ -208,7 +147,7 @@ const projectSchema = {
       200: t.Object({
         data: t.Array(projectResponseSchema),
       }),
-      500: errorResponseSchema,
+      500: ErrorResponseWithDataSchema,
     },
   },
 }
@@ -218,7 +157,10 @@ export const CreateProjectSchema = projectSchema.create
 export type CreateProjectInput = typeof projectSchema.create.body.static
 
 export const GetAllProjectsSchema = projectSchema.getAll
+
 export const GetProjectByIdSchema = projectSchema.getById
+export type GetProjectByIdInput = typeof projectSchema.getById.params.static
+
 export const DeleteProjectSchema = projectSchema.delete
 
 export const ImportProjectSchema = importSchema.import

@@ -1,6 +1,7 @@
 import { getDb } from '@backend/plugins/database'
 import type { Context } from 'elysia'
 import type { ImportProjectInput } from './schemas'
+import { ApiErrorHandler } from '@backend/types/error-handler'
 
 export const importProject = async ({
   params: { id },
@@ -11,31 +12,14 @@ export const importProject = async ({
 
   if (!filePath) {
     set.status = 400
-    return {
-      errors: [
-        {
-          code: 'MISSING_FILE_PATH',
-          message: 'File path is required',
-        },
-      ],
-    }
+    return ApiErrorHandler.missingFilePathError()
   }
 
   const fileExists = await Bun.file(filePath).exists()
 
   if (!fileExists) {
     set.status = 400
-    return {
-      errors: [
-        {
-          code: 'FILE_NOT_FOUND',
-          message: 'File not found',
-          details: {
-            filePath,
-          },
-        },
-      ],
-    }
+    return ApiErrorHandler.fileNotFoundError(filePath)
   }
 
   // We'll check if the file exists but won't parse it
@@ -51,29 +35,15 @@ export const importProject = async ({
     )
   } catch (error) {
     set.status = 500
-    return {
-      errors: [
-        {
-          code: 'INTERNAL_SERVER_ERROR',
-          message: 'Failed to check if table exists',
-          details: {
-            error: (error as Error).message,
-          },
-        },
-      ],
-    }
+    return ApiErrorHandler.internalServerErrorWithData(
+      'An error occurred while importing the project',
+      [(error as Error).message]
+    )
   }
 
   if (tableExistsReader.getRows().length > 0) {
     set.status = 409
-    return {
-      errors: [
-        {
-          code: 'TABLE_ALREADY_EXISTS',
-          message: `Table with name 'project_${id}' already exists`,
-        },
-      ],
-    }
+    return ApiErrorHandler.tableExistsErrorWithData(`project_${id}`)
   }
 
   // Try to create the table directly
@@ -91,13 +61,12 @@ export const importProject = async ({
     ) {
       set.status = 400
       return {
+        data: [],
         errors: [
           {
             code: 'VALIDATION',
             message: 'Error with JSON file',
-            details: {
-              error: (error as Error).message,
-            },
+            details: [(error as Error).message],
           },
         ],
       }
@@ -105,17 +74,10 @@ export const importProject = async ({
 
     // Handle any other errors
     set.status = 500
-    return {
-      errors: [
-        {
-          code: 'INTERNAL_SERVER_ERROR',
-          message: `An error occurred while importing the project`,
-          details: {
-            error: (error as Error).message,
-          },
-        },
-      ],
-    }
+    return ApiErrorHandler.internalServerErrorWithData(
+      'An error occurred while importing the project',
+      [(error as Error).message]
+    )
   }
 }
 
@@ -145,16 +107,8 @@ export const importProjectFile = async ({ set, body }: Context) => {
     }
   } catch (error) {
     set.status = 500
-    return {
-      errors: [
-        {
-          code: 'INTERNAL_SERVER_ERROR',
-          message: 'Failed to save uploaded file',
-          details: {
-            error: (error as Error).message,
-          },
-        },
-      ],
-    }
+    return ApiErrorHandler.internalServerErrorWithData('Failed to save uploaded file', [
+      (error as Error).message,
+    ])
   }
 }

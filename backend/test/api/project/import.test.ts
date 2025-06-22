@@ -1,6 +1,6 @@
 import { describe, expect, test, beforeEach, afterEach } from 'bun:test'
 import { Elysia } from 'elysia'
-import { projectRoutes } from '../../../src/api/project'
+import { projectRoutes } from '@backend/api/project'
 import { initializeDb, closeDb, getDb } from '@backend/plugins/database'
 import { treaty } from '@elysiajs/eden'
 
@@ -19,6 +19,17 @@ describe('POST /project/:projectId/import', () => {
 
   afterEach(async () => {
     await closeDb()
+
+    // Clean up temporary files created during tests
+    const tempFiles = ['./temp-test-file.json', './temp-invalid-json-file.json']
+
+    await Promise.all(
+      tempFiles.map(async filePath => {
+        await Bun.file(filePath)
+          .delete()
+          .catch(() => {})
+      })
+    )
   })
 
   test('should return 201 for a valid import', async () => {
@@ -31,16 +42,14 @@ describe('POST /project/:projectId/import', () => {
     })
 
     expect(status).toBe(201)
-    expect(data).toBe('')
+    expect(data).toBeEmpty()
     expect(error).toBeNull()
-
-    // Cleanup
-    await Bun.file(tempFilePath).delete()
   })
 
   test('should return 400 for a missing JSON file', async () => {
     const projectId = 'test-project-id'
-    const nonExistentFilePath = '/path/to/non-existent-file.json'
+    const nonExistentFilePath = './non-existent-file.json'
+
     const { data, status, error } = await api.project({ id: projectId }).import.post({
       filePath: nonExistentFilePath,
     })
@@ -49,17 +58,11 @@ describe('POST /project/:projectId/import', () => {
     expect(data).toBeNull()
     expect(error).toBeDefined()
     expect(error).toHaveProperty('status', 400)
-    expect(error).toHaveProperty('value', {
-      errors: [
-        {
-          code: 'FILE_NOT_FOUND',
-          message: expect.any(String),
-          details: {
-            filePath: nonExistentFilePath,
-          },
-        },
-      ],
-    })
+    expect(error).toHaveProperty('value.data', [])
+    expect(error).toHaveProperty('value.errors')
+    expect(error.value.errors).toHaveLength(1)
+    expect(error.value.errors[0]).toHaveProperty('code', 'FILE_NOT_FOUND')
+    expect(error.value.errors[0]).toHaveProperty('message', expect.any(String))
   })
 
   test('should return 500 for invalid JSON content in file', async () => {
@@ -75,19 +78,14 @@ describe('POST /project/:projectId/import', () => {
     expect(data).toBeNull()
     expect(error).toBeDefined()
     expect(error).toHaveProperty('status', 500)
-    expect(error).toHaveProperty('value', {
-      errors: [
-        {
-          code: 'INTERNAL_SERVER_ERROR',
-          message: 'An error occurred while importing the project',
-          details: {
-            error: expect.any(String),
-          },
-        },
-      ],
-    })
-
-    await Bun.file(tempFilePath).delete()
+    expect(error).toHaveProperty('value.data', [])
+    expect(error).toHaveProperty('value.errors')
+    expect(error.value.errors).toHaveLength(1)
+    expect(error.value.errors[0]).toHaveProperty('code', 'INTERNAL_SERVER_ERROR')
+    expect(error.value.errors[0]).toHaveProperty(
+      'message',
+      'An error occurred while importing the project'
+    )
   })
 
   test('should create a DuckDB table after successful import', async () => {
@@ -101,7 +99,7 @@ describe('POST /project/:projectId/import', () => {
     })
 
     expect(status).toBe(201)
-    expect(data).toBe('')
+    expect(data).toBeEmpty()
     expect(error).toBeNull()
 
     // Verify table creation in DuckDB
@@ -110,8 +108,6 @@ describe('POST /project/:projectId/import', () => {
     const result = reader.getRowObjectsJson()
 
     expect(result.length).toBeGreaterThan(0)
-
-    await Bun.file(tempFilePath).delete()
   })
 
   test('should return 409 when importing to an existing table', async () => {
@@ -129,7 +125,7 @@ describe('POST /project/:projectId/import', () => {
       filePath: tempFilePath,
     })
     expect(firstStatus).toBe(201)
-    expect(firstData).toBe('')
+    expect(firstData).toBeEmpty()
     expect(firstError).toBeNull()
 
     // Second import with same project ID - should fail with 409
@@ -141,15 +137,14 @@ describe('POST /project/:projectId/import', () => {
     expect(data).toBeNull()
     expect(error).toBeDefined()
     expect(error).toHaveProperty('status', 409)
-    expect(error).toHaveProperty('value', {
-      errors: [
-        {
-          code: 'TABLE_ALREADY_EXISTS',
-          message: expect.any(String),
-        },
-      ],
-    })
-
-    await Bun.file(tempFilePath).delete()
+    expect(error).toHaveProperty('value')
+    expect(error.value).toHaveProperty('data', [])
+    expect(error.value).toHaveProperty('errors')
+    expect(error.value.errors).toHaveLength(1)
+    expect(error.value.errors[0]).toHaveProperty('code', 'TABLE_ALREADY_EXISTS')
+    expect(error.value.errors[0]).toHaveProperty(
+      'message',
+      expect.stringContaining('already exists')
+    )
   })
 })

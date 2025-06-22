@@ -96,16 +96,31 @@ describe('Project API - GET /:id', () => {
     const { data, status, error } = await api.project({ id: NON_EXISTENT_UUID }).get()
 
     expect(status).toBe(404)
-    expect(error).toBeDefined()
     expect(data).toBeNull()
+    expect(error).toBeDefined()
+    expect(error).toHaveProperty('status', 404)
+    expect(error).toHaveProperty('value.data', [])
+    expect(error).toHaveProperty('value.errors', [
+      {
+        code: 'NOT_FOUND',
+        message: 'Project not found',
+        details: [],
+      },
+    ])
   })
 
   it('should return 422 for invalid project id format', async () => {
     const { data, status, error } = await api.project({ id: INVALID_UUID }).get()
 
     expect(status).toBe(422)
-    expect(error).toBeDefined()
     expect(data).toBeNull()
+    expect(error).toBeDefined()
+    expect(error).toHaveProperty('status', 422)
+    expect(error).toHaveProperty('value.data', [])
+    expect(error).toHaveProperty('value.errors.length', 1)
+    expect(error).toHaveProperty('value.errors.0.code', 'VALIDATION')
+    expect(error).toHaveProperty('value.errors.0.message')
+    expect(error).toHaveProperty('value.errors.0.details')
   })
 
   it('should return project with empty data', async () => {

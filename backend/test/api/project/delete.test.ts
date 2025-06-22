@@ -1,10 +1,10 @@
 /// <reference types="bun-types" />
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test'
 import { Elysia } from 'elysia'
-import { projectRoutes } from '../../../src/api/project'
+import { projectRoutes } from '@backend/api/project'
 import { closeDb, initializeDb, getDb } from '@backend/plugins/database'
 import { treaty } from '@elysiajs/eden'
-import { UUID_REGEX } from '../../../src/api/project/schemas'
+import { UUID_REGEX } from '@backend/api/project/schemas.ts'
 
 // Create a test app with the project routes
 const createTestApi = () => {
@@ -74,7 +74,11 @@ describe('deleteProject', () => {
     expect(data).toBeNull()
     expect(error).toBeDefined()
     expect(error).toHaveProperty('status', 404)
-    expect(error).toHaveProperty('value', '')
+    expect(error).toHaveProperty('value.data', [])
+    expect(error).toHaveProperty('value.errors.length', 1)
+    expect(error).toHaveProperty('value.errors.0.code', 'NOT_FOUND')
+    expect(error).toHaveProperty('value.errors.0.message')
+    expect(error).toHaveProperty('value.errors.0.details', [])
   })
 
   test('should return 422 when trying to delete with invalid UUID format', async () => {
@@ -82,20 +86,24 @@ describe('deleteProject', () => {
 
     expect(status).toBe(422)
     expect(data).toBeNull()
-    expect(error).toHaveProperty('value', {
-      errors: [
-        {
-          code: 'VALIDATION',
-          message: 'Validation failed',
-          details: [
-            {
-              path: '/id',
-              message: `Expected string to match '${UUID_REGEX}'`,
-              received: 'invalid-uuid-format',
+    expect(error).toHaveProperty('status', 422)
+    expect(error).toHaveProperty('value.data', [])
+    expect(error).toHaveProperty('value.errors', [
+      {
+        code: 'VALIDATION',
+        message: 'ID must be a valid UUID',
+        details: [
+          {
+            path: '/id',
+            message: `Expected string to match '${UUID_REGEX}'`,
+            schema: {
+              error: 'ID must be a valid UUID',
+              pattern: UUID_REGEX,
+              type: 'string',
             },
-          ],
-        },
-      ],
-    })
+          },
+        ],
+      },
+    ])
   })
 })
