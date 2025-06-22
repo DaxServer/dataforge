@@ -698,17 +698,17 @@ describe('Project API', () => {
 
 ### Factories
 - Use factory functions for creating test data
-- Keep factories in `test/factories`
+- Keep factories in `tests/factories`
 - Use Faker.js for realistic test data
 
 ### Fixtures
 - Store complex test data in JSON files
-- Keep fixtures in `test/fixtures`
+- Keep fixtures in `tests/fixtures`
 - Use meaningful file names
 
 ### Example Factory
 ```typescript
-// test/factories/project.ts
+// tests/factories/project.ts
 import { faker } from '@faker-js/faker'
 
 export const createProject = (overrides = {}) => {
@@ -761,7 +761,7 @@ To debug tests, use:
 
 ```bash
 # Run with Node.js inspector
-bun --inspect test/path/to/test.test.ts
+bun --inspect tests/path/to/test.test.ts
 ```
 
 Then open Chrome DevTools to debug the test execution.

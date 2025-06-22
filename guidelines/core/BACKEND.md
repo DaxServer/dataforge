@@ -327,7 +327,7 @@ ToDo
 The backend uses **Bun's built-in test runner** with the following organization:
 
 ```
-backend/test/
+backend/tests/
 ├── api/
 │   └── project/
 │       ├── create.test.ts
@@ -448,5 +448,5 @@ const cleanupTestData = async () => {
 bun test
 
 # Run specific test file
-bun test test/api/project/create.test.ts
+bun test tests/api/project/create.test.ts
 ```
