@@ -14,12 +14,15 @@
     "@elysiajs/eden": "catalog:",
     "@primeuix/themes": "^1.1.2",
     "@unhead/vue": "^2.0.10",
+    "@vueuse/core": "^13.4.0",
+    "@vueuse/router": "^13.4.0",
+    "linkify-it": "^5.0.0",
     "pinia": "^3.0.3",
     "primeicons": "^7.0.0",
     "primevue": "^4.3.5",
     "tailwindcss-primeui": "^0.6.1",
     "vue": "^3.5.17",
-    "vue-router": "^4.5.1"
+    "vue-router": "4"
   },
   "devDependencies": {
     "@primevue/auto-import-resolver": "^4.3.5",
@@ -27,6 +30,7 @@
     "@tailwindcss/typography": "^0.5.16",
     "@tailwindcss/vite": "^4.1.10",
     "@tsconfig/node22": "^22.0.2",
+    "@types/linkify-it": "^5.0.0",
     "@types/node": "catalog:",
     "@typescript-eslint/eslint-plugin": "catalog:",
     "@vitejs/plugin-vue": "^5.2.4",
