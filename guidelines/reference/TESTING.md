@@ -38,7 +38,6 @@ When testing Elysia applications with Eden:
 import { afterEach, beforeEach, describe, expect, it } from 'bun:test'
 import { Elysia } from 'elysia'
 import { projectRoutes } from '@backend/api/project'
-import { initializeDb, closeDb } from '@backend/plugins/database'
 import { treaty } from '@elysiajs/eden'
 
 // Create a test app with the project routes
@@ -50,10 +49,43 @@ describe('Project API', () => {
   let api: ReturnType<typeof createTestApi>
 
   beforeEach(async () => {
-    // Initialize a fresh in-memory database
-    await initializeDb(':memory:')
+    // Initialize logic goes here
 
     // Create a fresh app instance for each test
+    api = createTestApi()
+  })
+
+  afterEach(async () => {
+    // Cleanup logic goes here
+  })
+
+  it('should do something', async () => {
+    const { data, status, error } = await api.endpoint.get(params)
+    // assertions
+  })
+})
+```
+
+### Example: Backend Tests for a Specific Endpoint
+
+```typescript
+// tests/api/project/getById.test.ts
+import { afterEach, beforeEach, describe, expect, it } from 'bun:test'
+import { Elysia } from 'elysia'
+import { projectRoutes } from '@backend/api/project'
+import { initializeDb, closeDb } from '@backend/plugins/database'
+import { treaty } from '@elysiajs/eden'
+
+// Create a test client factory
+const createTestApi = () => {
+  return treaty(new Elysia().use(projectRoutes)).api
+}
+
+describe('Project API - GET /:id', () => {
+  let api: ReturnType<typeof createTestApi>
+
+  beforeEach(async () => {
+    await initializeDb(':memory:')
     api = createTestApi()
   })
 
@@ -61,9 +93,38 @@ describe('Project API', () => {
     await closeDb()
   })
 
-  it('should do something', async () => {
-    const { data, status, error } = await api.endpoint.get(params)
-    // assertions
+  it('should return a project by ID', async () => {
+    // Assume a project exists or create one for testing
+    const projectId = 'some-valid-uuid'
+    const { data, status, error } = await api.project({ id: projectId }).get()
+
+    expect(status).toBe(200)
+    expect(error).toBeNull()
+    expect(data).toEqual(expect.objectContaining({
+      data: expect.objectContaining({
+        id: projectId,
+        name: expect.any(String),
+      }),
+    }))
+  })
+
+  it('should return 404 if project not found', async () => {
+    const nonExistentId = 'non-existent-uuid'
+    const { data, status, error } = await api.project({ id: nonExistentId }).get()
+
+    expect(status).toBe(404)
+    expect(data).toBeNull()
+    expect(error).toEqual(expect.objectContaining({
+      status: 404,
+      value: expect.objectContaining({
+        errors: expect.arrayContaining([
+          expect.objectContaining({
+            code: 'NOT_FOUND',
+            message: 'Project not found',
+          }),
+        ]),
+      }),
+    }))
   })
 })
 ```
@@ -93,14 +154,10 @@ expect(status).toBe(200)
 expect(data).toBeDefined()
 expect(error).toBeNull()
 
-// Use toHaveProperty() for nested properties
-expect(data).toHaveProperty('data')
-expect(data).toHaveProperty('data.id', 'some-id')
-expect(error).toHaveProperty('status', 400)
-
-// Check error is defined before accessing its properties
-expect(error).toBeDefined()
-expect(error).toHaveProperty('value.errors')
+// Use expect.objectContaining() for nested properties
+expect(data).toEqual(expect.objectContaining({ data: expect.objectContaining({ id: 'some-id' }) }))
+expect(error).toEqual(expect.objectContaining({ status: 400 }))
+expect(error).toEqual(expect.objectContaining({ value: expect.objectContaining({ errors: expect.any(Array) }) }))
 ```
 
 **❌ Don't:**
@@ -118,13 +175,10 @@ const { id } = data // ❌ Avoid this
 expect(data.data.id).toBe('some-id') // ❌ Avoid this
 
 // Don't use toMatchObject for error structure testing
-expect(error).toMatchObject({ status: 400 }) // ❌ Prefer toHaveProperty
-
-// Don't forget to check if error is defined
-expect(error.status).toBe(400) // ❌ This might throw if error is undefined
+expect(error).toMatchObject({ status: 400 }) // ❌ Prefer expect.objectContaining
 
 // Don't use incorrect error structure assertions
-expect(error).toHaveProperty('data') // ❌ Wrong path, should be 'value.data'
+expect(error).toEqual(expect.objectContaining({ data: expect.any(Object) })) // ❌ Wrong path, should be 'value.data'
 ```
 
 ### Error Testing
@@ -133,7 +187,7 @@ When testing error responses:
 
 1. Test the HTTP status code
 2. Test that `data` is null
-3. Test the error structure using `toHaveProperty`
+3. Test the error structure using `expect.objectContaining`
 4. Test specific error codes and messages
 
 ```typescript
@@ -143,21 +197,24 @@ const { data, status, error } = await testApp.api.projects({
 
 expect(status).toBe(400)
 expect(data).toBeNull()
-expect(error).toBeDefined()
-expect(error).toHaveProperty('status', 400)
-expect(error).toHaveProperty('value.data', [])
-expect(error).toHaveProperty('value.errors', [
-  {
-    code: 'VALIDATION',
-    message: 'Validation failed',
-    details: [
-       {
-         path: 'id',
-         message: 'Invalid uuid',
-       },
-     ],
-   },
- ])
+expect(error).toEqual(expect.objectContaining({
+  status: 400,
+  value: expect.objectContaining({
+    data: [],
+    errors: expect.arrayContaining([
+      expect.objectContaining({
+        code: 'VALIDATION',
+        message: 'Validation failed',
+        details: expect.arrayContaining([
+          expect.objectContaining({
+            path: 'id',
+            message: 'Invalid uuid'
+          })
+        ])
+      })
+    ])
+  })
+}))
 ```
 
 ## Test Structure
@@ -253,13 +310,12 @@ const { data, status, error } = await api.project({ id: projectId }).get()
 // 2. Test the response structure using matchers
 expect(status).toBe(200)
 expect(error).toBeNull()
-expect(data).toBeDefined()
 
-// 3. Test nested properties using toHaveProperty matcher
-expect(data).toHaveProperty('data')
-expect(data).toHaveProperty('meta')
-expect(data).toHaveProperty('data.length', 3)
-expect(data).toHaveProperty('meta.total', 3)
+// 3. Test nested properties using expect.objectContaining
+expect(data).toEqual(expect.objectContaining({
+  data: expect.objectContaining({ length: 3 }),
+  meta: expect.objectContaining({ total: 3 })
+}))
 ```
 
 ### Example: Testing Error Responses
@@ -272,23 +328,26 @@ const { data, status, error } = await api.project.post({})
 expect(status).toBe(422)
 expect(data).toBeNull()
 
-// 3. Test error structure using toHaveProperty
-expect(error).toBeDefined()
-expect(error).toHaveProperty('status', 422)
-expect(error).toHaveProperty('value.data', [])
-expect(error).toHaveProperty('value.errors', [
-  {
-    code: 'VALIDATION',
-    message: 'Validation failed',
-    details: [
+// 3. Test error structure using expect.objectContaining
+expect(error).toEqual(expect.objectContaining({
+  status: 422,
+  value: expect.objectContaining({
+    data: [],
+    errors: expect.arrayContaining([
       {
-        path: '/name',
-        message: 'Expected string',
-        received: undefined,
+        code: 'VALIDATION',
+        message: 'Validation failed',
+        details: expect.arrayContaining([
+          expect.objectContaining({
+            path: '/name',
+            message: 'Expected string',
+            received: undefined,
+          }),
+        ]),
       },
-    ],
-  },
-])
+    ]),
+  }),
+}))
 ```
 
 ### Error Structure Patterns
@@ -308,104 +367,34 @@ const { data, status, error } = await api.project.post({ name: '' })
 
 expect(status).toBe(422)
 expect(data).toBeNull()
-expect(error).toBeDefined()
-expect(error).toHaveProperty('status', 422)
-expect(error).toHaveProperty('value.data', [])
-expect(error).toHaveProperty('value.errors', [
-  {
-    code: 'VALIDATION',
-    message: 'Validation failed',
-    details: [
-      {
-        path: '/name',
-        message: 'String must contain at least 1 character(s)',
-        received: '',
-      },
-    ],
-  },
-])
+expect(error).toEqual(expect.objectContaining({
+  status: 422,
+  value: expect.objectContaining({
+    data: expect.arrayContaining([]),
+    errors: expect.arrayContaining([
+      expect.objectContaining({
+        code: 'VALIDATION',
+        message: 'Validation failed',
+        details: expect.arrayContaining([
+          expect.objectContaining({
+            path: '/name',
+            message: 'String must contain at least 1 character(s)',
+            received: '',
+          }),
+        ]),
+      }),
+    ]),
+  }),
+}))
 ```
 
-#### Client Errors (400)
+Error responses for other HTTP status codes (e.g., 400, 404, 409, 500) follow the same general structure, with differences in the `status`, `code`, and `message` properties. For example:
 
-When testing client errors (e.g., 400 Bad Request, 422 Unprocessable Entity), focus on asserting the correct HTTP status code, the absence of data, and the structure of the error object. The error object should typically contain a `status` property matching the HTTP status, and a `value.data.errors` array detailing the specific validation or client-side issues.
+- **404 Not Found**: `status: 404`, `code: 'NOT_FOUND'`, `message: 'Resource not found'`
+- **409 Conflict**: `status: 409`, `code: 'TABLE_ALREADY_EXISTS'`, `message: 'Table already exists for this project'`
+- **500 Internal Server Error**: `status: 500`, `code: 'INTERNAL_SERVER_ERROR'`, `message: 'An unexpected error occurred'`
 
-```typescript
-// Example for a 422 Unprocessable Entity error
-expect(status).toBe(422)
-expect(data).toBeNull()
-expect(error).toHaveProperty('status', 422)
-expect(error).toHaveProperty('value.data')
-expect(error).toHaveProperty('value.data.errors')
-expect(error).toHaveProperty('value.data.errors.length', 1)
-expect(error).toHaveProperty('value.data.errors[0].code', 'VALIDATION_ERROR')
-expect(error).toHaveProperty('value.data.errors[0].message', 'Validation failed')
-```
-#### Not Found Errors (404)
-
-When testing for resources not found (404), the focus should be on verifying the 404 HTTP status code, ensuring no data is returned, and confirming the error object's structure, which typically includes a `status` property matching 404 and a `value.errors` array with a `NOT_FOUND` code.
-
-```typescript
-// Example for a 404 Not Found error
-const { data, status, error } = await api.project({ id: 'non-existent' }).delete()
-
-expect(status).toBe(404)
-expect(data).toBeNull()
-expect(error).toBeDefined()
-expect(error).toHaveProperty('status', 404)
-expect(error).toHaveProperty('value.data', [])
-expect(error).toHaveProperty('value.errors', [
-  {
-    code: 'NOT_FOUND',
-    message: 'Resource not found',
-    details: [],
-  },
-])
-```
-
-#### Conflict Errors (409)
-
-When testing for conflict errors (409), assert the correct HTTP status code, ensure no data is returned, and verify the error object's structure. The error object should typically include a `status` property matching 409 and a `value.errors` array with a specific conflict code, such as `TABLE_ALREADY_EXISTS`.
-
-```typescript
-// Example for a 409 Conflict error
-const { data, status, error } = await api.project({ id: projectId }).import.post({ file })
-
-expect(status).toBe(409)
-expect(data).toBeNull()
-expect(error).toBeDefined()
-expect(error).toHaveProperty('status', 409)
-expect(error).toHaveProperty('value.data', [])
-expect(error).toHaveProperty('value.errors', [
-  {
-    code: 'TABLE_ALREADY_EXISTS',
-    message: 'Table already exists for this project',
-    details: [],
-  },
-])
-```
-
-#### Server Errors (500)
-
-When testing for server errors (500), verify the 500 HTTP status code, ensure no data is returned, and confirm the error object's structure. The error object should typically include a `status` property matching 500 and a `value.errors` array with a generic server error code like `INTERNAL_SERVER_ERROR`.
-
-```typescript
-// Example for a 500 Internal Server Error
-const { data, status, error } = await api.project({ id: projectId }).import.post({ file })
-
-expect(status).toBe(500)
-expect(data).toBeNull()
-expect(error).toBeDefined()
-expect(error).toHaveProperty('status', 500)
-expect(error).toHaveProperty('value.data', [])
-expect(error).toHaveProperty('value.errors', [
-  {
-    code: 'INTERNAL_SERVER_ERROR',
-    message: 'An unexpected error occurred',
-    details: [],
-  },
-])
-```
+In all cases, `value.data` will be an empty array `[]` and `details` will be an array, potentially empty or containing specific error details.
 
 ### Anti-patterns to Avoid
 
@@ -414,17 +403,18 @@ expect(error).toHaveProperty('value.errors', [
 expect(response.status).toBe(422)
 
 // ❌ Don't use toMatchObject for error structure testing
-expect(error).toMatchObject({ status: 422 })  // Use toHaveProperty instead
+expect(error).toMatchObject({ status: 422 })  // Use expect.objectContaining instead
 
 // ❌ Don't use incorrect error structure assertions
-expect(error).toHaveProperty('data', [])  // Wrong - should be 'value.data'
-expect(error).toHaveProperty('errors')    // Wrong - should be 'value.errors'
+expect(error).toEqual(expect.objectContaining({ data: [] }))  // Wrong - should be 'value.data'
+expect(error).toEqual(expect.objectContaining({ errors: expect.any(Array) }))    // Wrong - should be 'value.errors'
 
 // ❌ Don't use generic error checking for specific error types
-expect(error).toHaveProperty('value')  // Too generic - be specific about structure
+expect(error).toEqual(expect.objectContaining({ value: expect.any(Object) }))  // Too generic - be specific about structure
 
-// ❌ Don't forget to check error is defined first
-expect(error).toHaveProperty('status', 422)  // Missing: expect(error).toBeDefined()
+// ❌ Avoid redundant toBeDefined() check
+expect(error).toBeDefined()
+expect(error).toEqual(expect.objectContaining({ status: 422 }))
 
 // ❌ Don't use deep property access on the raw response
 expect(response.error.status).toBe(422)
@@ -435,24 +425,25 @@ expect(result.status).toBe(422) // Wrong - should destructure first
 
 // ❌ Don't further destructure the data, status, or error properties
 const { data, status, error } = await api.project.post({})
-const { data: innerData, meta } = data // Wrong - use toHaveProperty instead
+const { data: innerData, meta } = data // Wrong - use expect.objectContaining instead
 
 // ❌ Don't access nested properties directly
-expect(data.data).toBeInstanceOf(Array) // Wrong - use toHaveProperty
-expect(data.data.length).toBe(3) // Wrong - use toHaveProperty
-expect(data.meta.total).toBe(3) // Wrong - use toHaveProperty
+expect(data.data).toBeInstanceOf(Array) // Wrong - use expect.objectContaining
+expect(data.data.length).toBe(3) // Wrong - use expect.objectContaining
+expect(data.meta.total).toBe(3) // Wrong - use expect.objectContaining
 
-// ✅ Correct way - use toHaveProperty matcher
-expect(data).toHaveProperty('data')
-expect(data).toHaveProperty('data.length', 3)
-expect(data).toHaveProperty('meta.total', 3)
+// ✅ Correct way - use expect.objectContaining
+expect(data).toEqual(expect.objectContaining({
+  data: expect.objectContaining({ length: 3 }),
+  meta: expect.objectContaining({ total: 3 })
+}))
 ```
 
 ### Matcher Guidelines
 
 | Matcher | When to Use | Example |
 |---------|-------------|---------|
-| `expect.objectContaining()` | When testing specific fields in an object | `expect(user).toHaveProperty('id', 1)` |
+| `expect.objectContaining()` | When testing specific fields in an object | `expect(user).toEqual(expect.objectContaining({ id: 1 }))` |
 | `expect.arrayContaining()` | When testing specific items in an array | `expect(users).toEqual(expect.arrayContaining([{ id: 1 }]))` |
 | `expect.any()` | When only the type matters | `expect(user.id).toEqual(expect.any(Number))` |
 | `expect.stringContaining()` | When testing partial strings | `expect(error).toEqual(expect.stringContaining('not found'))` |
@@ -561,12 +552,28 @@ Here are some common assertion patterns you'll use, based on typical backend tes
   expect(data).toBeNull()
   ```
 
-- **`toHaveProperty(property, value?)`**: Checks if an object has a property, optionally verifying its value.
+- **`expect.objectContaining(object)`**: Matches any received object that recursively matches the expected properties. Use this for robust and flexible property validation, especially with nested objects.
 
   ```typescript
-  expect(data).toHaveProperty('data')
-  expect(data).toHaveProperty('data.name', projectData.name)
-  expect(error).toHaveProperty('status', 422)
+  expect(data).toEqual(expect.objectContaining({
+    data: expect.objectContaining({ name: projectData.name }),
+  }))
+  ```
+
+  ```typescript
+  expect(error).toEqual(expect.objectContaining({
+    status: 422,
+    value: expect.objectContaining({
+      data: expect.arrayContaining([]),
+      errors: expect.arrayContaining([
+        expect.objectContaining({
+          code: expect.any(String),
+          message: expect.any(String),
+          details: expect.arrayContaining([]),
+        }),
+      ]),
+    }),
+  }))
   ```
 
 - **`toBeNull()`**: Verifies that a value is `null`.
@@ -576,42 +583,41 @@ Here are some common assertion patterns you'll use, based on typical backend tes
   expect(error).toBeNull()
   ```
 
-- **`toBeDefined()`**: Verifies that a value is not `undefined`.
-
-  ```typescript
-  expect(error).toBeDefined()
-  ```
-
 - **`stringMatching(regex)`**: Checks if a string matches a regular expression.
 
   ```typescript
-  expect(data).toHaveProperty('data.id', expect.stringMatching(UUID_REGEX_PATTERN))
-  expect(data).toHaveProperty(
-    'data.created_at',
-    expect.stringMatching(/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}(\.\d{1,3})?$/)
-  )
+  expect(data).toEqual(expect.objectContaining({
+    data: expect.objectContaining({
+      id: expect.stringMatching(UUID_REGEX_PATTERN),
+      created_at: expect.stringMatching(/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}(\.\d{1,3})?$/),
+    }),
+  }))
   ```
 
 - **`toEqual(value)`**: Recursively checks for deep equality of all properties of objects or elements of arrays.
 
   ```typescript
-  expect(error).toHaveProperty('value.errors', [
-    {
-      code: 'VALIDATION',
-      message: 'Project name is required and must be at least 1 character long',
-      details: [
-        {
-          path: '/name',
-          message: 'Expected string',
-          schema: {
-            error: 'Project name is required and must be at least 1 character long',
-            minLength: 1,
-            type: 'string',
-          },
-        },
-      ],
-    },
-  ])
+  expect(error).toEqual(expect.objectContaining({
+    value: expect.objectContaining({
+      errors: expect.arrayContaining([
+        expect.objectContaining({
+          code: 'VALIDATION',
+          message: 'Project name is required and must be at least 1 character long',
+          details: expect.arrayContaining([
+            expect.objectContaining({
+              path: '/name',
+              message: 'Expected string',
+              schema: expect.objectContaining({
+                error: 'Project name is required and must be at least 1 character long',
+                minLength: 1,
+                type: 'string',
+              }),
+            }),
+          ]),
+        }),
+      ]),
+    }),
+  }))
   ```
 
 ## Database in Tests
@@ -789,8 +795,14 @@ describe('createErrorWithData', () => {
 describe('ApiErrorHandler', () => {
   it('should create validation error', () => {
     const result = ApiErrorHandler.validationError('Invalid input', [])
-    expect(result.status).toBe(422)
-    expect(result.value.errors[0].code).toBe('VALIDATION')
+    expect(result).toEqual(expect.objectContaining({
+      status: 422,
+      value: expect.objectContaining({
+        errors: expect.arrayContaining([
+          expect.objectContaining({ code: 'VALIDATION' })
+        ])
+      })
+    }))
   })
 })
 ```

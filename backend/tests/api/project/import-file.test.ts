@@ -34,9 +34,11 @@ describe('POST /project/:projectId/import-file', () => {
     })
 
     expect(status).toBe(201)
-    expect(data).toHaveProperty('tempFilePath')
-    expect(typeof data.tempFilePath).toBe('string')
-    expect(data.tempFilePath).toMatch(/\.json$/)
+    expect(data).toEqual(
+      expect.objectContaining({
+        tempFilePath: expect.stringMatching(/\.json$/),
+      })
+    )
     expect(error).toBeNull()
 
     // Clean up the temporary file
@@ -56,17 +58,30 @@ describe('POST /project/:projectId/import-file', () => {
 
     expect(status).toBe(422)
     expect(data).toBeNull()
-    expect(error).toBeDefined()
-    expect(error).toHaveProperty('status', 422)
-    expect(error).toHaveProperty('value.data', [])
-    expect(error).toHaveProperty('value.errors')
-    expect(error.value.errors).toHaveLength(1)
-    expect(error.value.errors[0]).toHaveProperty('code', 'VALIDATION')
-    expect(error.value.errors[0]).toHaveProperty('details')
-    expect(error.value.errors[0].details).toHaveLength(1)
-    expect(error.value.errors[0].details[0]).toHaveProperty('message', "Expected kind 'File'")
-    expect(error.value.errors[0].details[0]).toHaveProperty('path', '/file')
-    expect(error.value.errors[0].details[0]).toHaveProperty('schema')
+    expect(error).toEqual(
+      expect.objectContaining({
+        value: expect.objectContaining({
+          data: expect.arrayContaining([]),
+          errors: expect.arrayContaining([
+            expect.objectContaining({
+              code: 'VALIDATION',
+              details: expect.arrayContaining([
+                expect.objectContaining({
+                  message: "Expected kind 'File'",
+                  path: '/file',
+                  schema: expect.objectContaining({
+                    default: 'File',
+                    format: 'binary',
+                    minSize: 1,
+                    type: 'string',
+                  }),
+                }),
+              ]),
+            }),
+          ]),
+        }),
+      })
+    )
   })
 
   test('should save uploaded file to temporary location', async () => {
@@ -82,9 +97,11 @@ describe('POST /project/:projectId/import-file', () => {
 
     // Should return 201 when file is successfully saved
     expect(status).toBe(201)
-    expect(data).toHaveProperty('tempFilePath')
-    expect(typeof data.tempFilePath).toBe('string')
-    expect(data.tempFilePath).toMatch(/\.json$/)
+    expect(data).toEqual(
+      expect.objectContaining({
+        tempFilePath: expect.stringMatching(/\.json$/),
+      })
+    )
     expect(error).toBeNull()
 
     const tempFile = Bun.file(data.tempFilePath)
@@ -103,11 +120,13 @@ describe('POST /project/:projectId/import-file', () => {
     let projectId = 'test-duckdb-import'
 
     // Create a test file with JSON data
-    const testData = JSON.stringify([
+    const TEST_DATA = [
       { id: 1, name: 'John', age: 30 },
       { id: 2, name: 'Jane', age: 25 },
-    ])
-    const file = new File([testData], 'test-data.json', { type: 'application/json' })
+    ]
+    const file = new File([JSON.stringify(TEST_DATA)], 'test-data.json', {
+      type: 'application/json',
+    })
 
     // First, upload the file
     const {
@@ -119,7 +138,11 @@ describe('POST /project/:projectId/import-file', () => {
     })
 
     expect(uploadStatus).toBe(201)
-    expect(uploadData).toHaveProperty('tempFilePath')
+    expect(uploadData).toEqual(
+      expect.objectContaining({
+        tempFilePath: expect.stringMatching(/\.json$/),
+      })
+    )
     expect(uploadError).toBeNull()
 
     // Then, import the uploaded file into DuckDB using the existing import endpoint
@@ -132,7 +155,7 @@ describe('POST /project/:projectId/import-file', () => {
     })
 
     expect(importStatus).toBe(201)
-    expect(importData).toBe('')
+    expect(importData).toBeEmpty()
     expect(importError).toBeNull()
 
     // Verify table creation in DuckDB
@@ -146,13 +169,17 @@ describe('POST /project/:projectId/import-file', () => {
     const dataReader = await db.runAndReadAll(`SELECT * FROM "project_${projectId}"`)
     const importedData = dataReader.getRowObjectsJson()
 
-    expect(importedData).toHaveLength(2)
-    expect(importedData[0]).toHaveProperty('id', '1')
-    expect(importedData[0]).toHaveProperty('name', 'John')
-    expect(importedData[0]).toHaveProperty('age', '30')
-    expect(importedData[1]).toHaveProperty('id', '2')
-    expect(importedData[1]).toHaveProperty('name', 'Jane')
-    expect(importedData[1]).toHaveProperty('age', '25')
+    expect(importedData).toEqual(
+      expect.arrayContaining(
+        TEST_DATA.map(({ id, name, age }) =>
+          expect.objectContaining({
+            id: expect.stringMatching(id.toString()),
+            name: expect.stringMatching(name),
+            age: expect.stringMatching(age.toString()),
+          })
+        )
+      )
+    )
 
     // Clean up the temporary file
     const tempFile = Bun.file(uploadData.tempFilePath)

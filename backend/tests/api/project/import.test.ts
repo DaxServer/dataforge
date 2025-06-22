@@ -56,13 +56,21 @@ describe('POST /project/:projectId/import', () => {
 
     expect(status).toBe(400)
     expect(data).toBeNull()
-    expect(error).toBeDefined()
-    expect(error).toHaveProperty('status', 400)
-    expect(error).toHaveProperty('value.data', [])
-    expect(error).toHaveProperty('value.errors')
-    expect(error.value.errors).toHaveLength(1)
-    expect(error.value.errors[0]).toHaveProperty('code', 'FILE_NOT_FOUND')
-    expect(error.value.errors[0]).toHaveProperty('message', expect.any(String))
+    expect(error).toEqual(
+      expect.objectContaining({
+        status: 400,
+        value: expect.objectContaining({
+          data: expect.arrayContaining([]),
+          errors: expect.arrayContaining([
+            expect.objectContaining({
+              code: 'FILE_NOT_FOUND',
+              message: 'File not found',
+              details: expect.arrayContaining([]),
+            }),
+          ]),
+        }),
+      })
+    )
   })
 
   test('should return 500 for invalid JSON content in file', async () => {
@@ -76,15 +84,20 @@ describe('POST /project/:projectId/import', () => {
 
     expect(status).toBe(500)
     expect(data).toBeNull()
-    expect(error).toBeDefined()
-    expect(error).toHaveProperty('status', 500)
-    expect(error).toHaveProperty('value.data', [])
-    expect(error).toHaveProperty('value.errors')
-    expect(error.value.errors).toHaveLength(1)
-    expect(error.value.errors[0]).toHaveProperty('code', 'INTERNAL_SERVER_ERROR')
-    expect(error.value.errors[0]).toHaveProperty(
-      'message',
-      'An error occurred while importing the project'
+    expect(error).toEqual(
+      expect.objectContaining({
+        status: 500,
+        value: expect.objectContaining({
+          data: expect.arrayContaining([]),
+          errors: expect.arrayContaining([
+            expect.objectContaining({
+              code: 'INTERNAL_SERVER_ERROR',
+              message: 'An error occurred while importing the project',
+              details: expect.arrayContaining([expect.stringContaining('Malformed JSON')]),
+            }),
+          ]),
+        }),
+      })
     )
   })
 
@@ -135,16 +148,20 @@ describe('POST /project/:projectId/import', () => {
 
     expect(status).toBe(409)
     expect(data).toBeNull()
-    expect(error).toBeDefined()
-    expect(error).toHaveProperty('status', 409)
-    expect(error).toHaveProperty('value')
-    expect(error.value).toHaveProperty('data', [])
-    expect(error.value).toHaveProperty('errors')
-    expect(error.value.errors).toHaveLength(1)
-    expect(error.value.errors[0]).toHaveProperty('code', 'TABLE_ALREADY_EXISTS')
-    expect(error.value.errors[0]).toHaveProperty(
-      'message',
-      expect.stringContaining('already exists')
+    expect(error).toEqual(
+      expect.objectContaining({
+        status: 409,
+        value: expect.objectContaining({
+          data: expect.arrayContaining([]),
+          errors: expect.arrayContaining([
+            expect.objectContaining({
+              code: 'TABLE_ALREADY_EXISTS',
+              message: `Table with name 'project_${projectId}' already exists`,
+              details: expect.arrayContaining([]),
+            }),
+          ]),
+        }),
+      })
     )
   })
 })

@@ -51,8 +51,13 @@ describe('POST /api/project/import', () => {
 
       expect(status).toBe(201)
       expect(error).toBeNull()
-      expect(data).toHaveProperty('data')
-      expect(data).toHaveProperty('data.id', expect.stringMatching(UUID_REGEX_PATTERN))
+      expect(data).toEqual(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            id: expect.stringMatching(UUID_REGEX_PATTERN),
+          }),
+        })
+      )
     })
 
     test('should create project and import JSON file with custom name', async () => {
@@ -70,8 +75,13 @@ describe('POST /api/project/import', () => {
 
       expect(status).toBe(201)
       expect(error).toBeNull()
-      expect(data).toHaveProperty('data')
-      expect(data).toHaveProperty('data.id', expect.stringMatching(UUID_REGEX_PATTERN))
+      expect(data).toEqual(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            id: expect.stringMatching(UUID_REGEX_PATTERN),
+          }),
+        })
+      )
     })
 
     test('should handle large JSON files', async () => {
@@ -89,9 +99,13 @@ describe('POST /api/project/import', () => {
 
       expect(status).toBe(201)
       expect(error).toBeNull()
-      expect(data).toHaveProperty('data', {
-        id: expect.stringMatching(UUID_REGEX_PATTERN),
-      })
+      expect(data).toEqual(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            id: expect.stringMatching(UUID_REGEX_PATTERN),
+          }),
+        })
+      )
     })
 
     describe('Validation errors', () => {
@@ -101,15 +115,31 @@ describe('POST /api/project/import', () => {
 
         expect(status).toBe(422)
         expect(data).toBeNull()
-        expect(error).toBeDefined()
-        expect(error).toHaveProperty('status', 422)
-        expect(error).toHaveProperty('value.data', [])
-        expect(error).toHaveProperty('value.errors.length', 1)
-        expect(error).toHaveProperty('value.errors.0.code', 'VALIDATION')
-        expect(error).toHaveProperty('value.errors.0.details', expect.any(Array))
-        expect(error).toHaveProperty('value.errors.0.details.0.path', '/file')
-        expect(error).toHaveProperty('value.errors.0.details.0.message', "Expected kind 'File'")
-        expect(error).toHaveProperty('value.errors.0.details.0.schema')
+        expect(error).toEqual(
+          expect.objectContaining({
+            status: 422,
+            value: expect.objectContaining({
+              data: expect.arrayContaining([]),
+              errors: expect.arrayContaining([
+                expect.objectContaining({
+                  code: 'VALIDATION',
+                  details: expect.arrayContaining([
+                    expect.objectContaining({
+                      path: '/file',
+                      message: "Expected kind 'File'",
+                      schema: expect.objectContaining({
+                        default: 'File',
+                        format: 'binary',
+                        minSize: 1,
+                        type: 'string',
+                      }),
+                    }),
+                  ]),
+                }),
+              ]),
+            }),
+          })
+        )
       })
 
       test('should return 422 for empty file', async () => {
@@ -119,15 +149,31 @@ describe('POST /api/project/import', () => {
 
         expect(status).toBe(422)
         expect(data).toBeNull()
-        expect(error).toBeDefined()
-        expect(error).toHaveProperty('status', 422)
-        expect(error).toHaveProperty('value.data', [])
-        expect(error).toHaveProperty('value.errors.length', 1)
-        expect(error).toHaveProperty('value.errors.0.code', 'VALIDATION')
-        expect(error).toHaveProperty('value.errors.0.details', expect.any(Array))
-        expect(error).toHaveProperty('value.errors.0.details.0.path', '/file')
-        expect(error).toHaveProperty('value.errors.0.details.0.message', "Expected kind 'File'")
-        expect(error).toHaveProperty('value.errors.0.details.0.schema')
+        expect(error).toEqual(
+          expect.objectContaining({
+            status: 422,
+            value: expect.objectContaining({
+              data: expect.arrayContaining([]),
+              errors: expect.arrayContaining([
+                expect.objectContaining({
+                  code: 'VALIDATION',
+                  details: expect.arrayContaining([
+                    expect.objectContaining({
+                      path: '/file',
+                      message: "Expected kind 'File'",
+                      schema: expect.objectContaining({
+                        default: 'File',
+                        format: 'binary',
+                        minSize: 1,
+                        type: 'string',
+                      }),
+                    }),
+                  ]),
+                }),
+              ]),
+            }),
+          })
+        )
       })
 
       test('should return 422 for invalid name (too long)', async () => {
@@ -142,13 +188,31 @@ describe('POST /api/project/import', () => {
 
         expect(status).toBe(422)
         expect(data).toBeNull()
-        expect(error).toBeDefined()
-        expect(error).toHaveProperty('status', 422)
-        expect(error).toHaveProperty('value.data', [])
-        expect(error).toHaveProperty('value.errors.length', 1)
-        expect(error).toHaveProperty('value.errors.0.code', 'VALIDATION')
-        expect(error).toHaveProperty('value.errors.0.message')
-        expect(error).toHaveProperty('value.errors.0.details', expect.any(Array))
+        expect(error).toEqual(
+          expect.objectContaining({
+            status: 422,
+            value: expect.objectContaining({
+              data: expect.arrayContaining([]),
+              errors: expect.arrayContaining([
+                expect.objectContaining({
+                  code: 'VALIDATION',
+                  details: expect.arrayContaining([
+                    expect.objectContaining({
+                      path: '/name',
+                      message: 'Expected string length less or equal to 255',
+                      schema: expect.objectContaining({
+                        error: 'Project name must be between 1 and 255 characters long if provided',
+                        maxLength: 255,
+                        minLength: 1,
+                        type: 'string',
+                      }),
+                    }),
+                  ]),
+                }),
+              ]),
+            }),
+          })
+        )
       })
 
       test('should return 422 for invalid name (empty string)', async () => {
@@ -162,13 +226,31 @@ describe('POST /api/project/import', () => {
 
         expect(status).toBe(422)
         expect(data).toBeNull()
-        expect(error).toBeDefined()
-        expect(error).toHaveProperty('status', 422)
-        expect(error).toHaveProperty('value.data', [])
-        expect(error).toHaveProperty('value.errors.length', 1)
-        expect(error).toHaveProperty('value.errors.0.code', 'VALIDATION')
-        expect(error).toHaveProperty('value.errors.0.message')
-        expect(error).toHaveProperty('value.errors.0.details', expect.any(Array))
+        expect(error).toEqual(
+          expect.objectContaining({
+            status: 422,
+            value: expect.objectContaining({
+              data: expect.arrayContaining([]),
+              errors: expect.arrayContaining([
+                expect.objectContaining({
+                  code: 'VALIDATION',
+                  details: expect.arrayContaining([
+                    expect.objectContaining({
+                      path: '/name',
+                      message: 'Expected string length greater or equal to 1',
+                      schema: expect.objectContaining({
+                        error: 'Project name must be between 1 and 255 characters long if provided',
+                        maxLength: 255,
+                        minLength: 1,
+                        type: 'string',
+                      }),
+                    }),
+                  ]),
+                }),
+              ]),
+            }),
+          })
+        )
       })
     })
 
@@ -227,16 +309,21 @@ describe('POST /api/project/import', () => {
 
         expect(status).toBe(400)
         expect(data).toBeNull()
-        expect(error).toBeDefined()
-        expect(error).toHaveProperty('status', 400)
-        expect(error).toHaveProperty('value.data', [])
-        expect(error).toHaveProperty('value.errors.length', 1)
-        expect(error).toHaveProperty('value.errors.0.code', 'INVALID_JSON')
-        expect(error).toHaveProperty(
-          'value.errors.0.message',
-          'Invalid JSON format in uploaded file'
+        expect(error).toEqual(
+          expect.objectContaining({
+            status: 400,
+            value: expect.objectContaining({
+              data: expect.arrayContaining([]),
+              errors: expect.arrayContaining([
+                expect.objectContaining({
+                  code: 'INVALID_JSON',
+                  message: 'Invalid JSON format in uploaded file',
+                  details: expect.arrayContaining(['Failed to parse JSON']),
+                }),
+              ]),
+            }),
+          })
         )
-        expect(error).toHaveProperty('value.errors.0.details', expect.any(Array))
       })
 
       test('should return 400 for non-JSON file content', async () => {
@@ -247,16 +334,21 @@ describe('POST /api/project/import', () => {
 
         expect(status).toBe(400)
         expect(data).toBeNull()
-        expect(error).toBeDefined()
-        expect(error).toHaveProperty('status', 400)
-        expect(error).toHaveProperty('value.data', [])
-        expect(error).toHaveProperty('value.errors.length', 1)
-        expect(error).toHaveProperty('value.errors.0.code', 'INVALID_JSON')
-        expect(error).toHaveProperty(
-          'value.errors.0.message',
-          'Invalid JSON format in uploaded file'
+        expect(error).toEqual(
+          expect.objectContaining({
+            status: 400,
+            value: expect.objectContaining({
+              data: expect.arrayContaining([]),
+              errors: expect.arrayContaining([
+                expect.objectContaining({
+                  code: 'INVALID_JSON',
+                  message: 'Invalid JSON format in uploaded file',
+                  details: expect.arrayContaining(['Failed to parse JSON']),
+                }),
+              ]),
+            }),
+          })
         )
-        expect(error).toHaveProperty('value.errors.0.details', expect.any(Array))
       })
     })
 
@@ -272,13 +364,21 @@ describe('POST /api/project/import', () => {
 
         expect(status).toBe(500)
         expect(data).toBeNull()
-        expect(error).toBeDefined()
-        expect(error).toHaveProperty('status', 500)
-        expect(error).toHaveProperty('value.data', [])
-        expect(error).toHaveProperty('value.errors.length', 1)
-        expect(error).toHaveProperty('value.errors.0.code', 'INTERNAL_SERVER_ERROR')
-        expect(error).toHaveProperty('value.errors.0.message')
-        expect(error).toHaveProperty('value.errors.0.details', [])
+        expect(error).toEqual(
+          expect.objectContaining({
+            status: 500,
+            value: expect.objectContaining({
+              data: expect.arrayContaining([]),
+              errors: expect.arrayContaining([
+                expect.objectContaining({
+                  code: 'INTERNAL_SERVER_ERROR',
+                  message: 'Database not initialized. Call initializeDb() first.',
+                  details: expect.arrayContaining([]),
+                }),
+              ]),
+            }),
+          })
+        )
 
         // Reinitialize for cleanup
         await initializeDb(':memory:')
@@ -294,7 +394,13 @@ describe('POST /api/project/import', () => {
 
         expect(status).toBe(201)
         expect(error).toBeNull()
-        expect(data).toHaveProperty('data')
+        expect(data).toEqual(
+          expect.objectContaining({
+            data: expect.objectContaining({
+              id: expect.stringMatching(UUID_REGEX_PATTERN),
+            }),
+          })
+        )
       })
 
       test('should handle special characters in project name', async () => {
@@ -309,9 +415,13 @@ describe('POST /api/project/import', () => {
 
         expect(status).toBe(201)
         expect(error).toBeNull()
-        expect(data).toHaveProperty('data', {
-          id: expect.stringMatching(UUID_REGEX_PATTERN),
-        })
+        expect(data).toEqual(
+          expect.objectContaining({
+            data: expect.objectContaining({
+              id: expect.stringMatching(UUID_REGEX_PATTERN),
+            }),
+          })
+        )
       })
 
       test('should handle Unicode content in JSON', async () => {
@@ -329,9 +439,13 @@ describe('POST /api/project/import', () => {
 
         expect(status).toBe(201)
         expect(error).toBeNull()
-        expect(data).toHaveProperty('data', {
-          id: expect.stringMatching(UUID_REGEX_PATTERN),
-        })
+        expect(data).toEqual(
+          expect.objectContaining({
+            data: expect.objectContaining({
+              id: expect.stringMatching(UUID_REGEX_PATTERN),
+            }),
+          })
+        )
       })
 
       test('should handle files with different extensions but JSON content', async () => {
@@ -343,9 +457,13 @@ describe('POST /api/project/import', () => {
         // Should still work if content is valid JSON
         expect(status).toBe(201)
         expect(error).toBeNull()
-        expect(data).toHaveProperty('data', {
-          id: expect.stringMatching(UUID_REGEX_PATTERN),
-        })
+        expect(data).toEqual(
+          expect.objectContaining({
+            data: expect.objectContaining({
+              id: expect.stringMatching(UUID_REGEX_PATTERN),
+            }),
+          })
+        )
       })
 
       test('should create table with autoincrement primary key', async () => {
