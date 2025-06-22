@@ -298,48 +298,6 @@ describe('Project API - GET /:id', () => {
 })
 ```
 
-### Frontend Tests (future development)
-```typescript
-// frontend/tests/unit/useApi.test.ts
-import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { api } from '@frontend/composables/useApi'
-import type { App } from '@backend'
-
-// Mock the API client
-vi.mock('@frontend/composables/useApi', () => ({
-  api: {
-    project: {
-      get: vi.fn(),
-      post: vi.fn(),
-      ':id': {
-        get: vi.fn(),
-        delete: vi.fn()
-      }
-    }
-  }
-}))
-
-describe('useApi', () => {
-  const mockProject = { id: '1', name: 'Test Project' }
-
-  it('fetches projects', async () => {
-    // Setup mock
-    api.project.get.mockResolvedValue({
-      data: [mockProject],
-      status: 200
-    })
-
-    // Test the API call
-    const { data, status } = await api.project.get()
-
-    // Assertions
-    expect(status).toBe(200)
-    expect(data).toEqual([mockProject])
-    expect(api.project.get).toHaveBeenCalledTimes(1)
-  })
-})
-```
-
 ### Test Client Pattern
 ```typescript
 // In your test file

@@ -6,7 +6,6 @@
 - **[General Guidelines](./GENERAL.md)** - Project-wide standards and setup
 - **[Backend Guidelines](./BACKEND.md)** - API contracts and integration
 - **[Elysia Eden Reference](../reference/ELYSIA_EDEN.md)** - Type-safe API integration
-- **[Testing Reference](../reference/TESTING.md)** - Frontend testing patterns
 - **[Style Guide Reference](../reference/STYLE_GUIDE.md)** - Detailed formatting rules
 
 ## Table of Contents
@@ -20,7 +19,6 @@
 - [API Integration](#api-integration)
 - [Forms and Validation](#forms-and-validation)
 - [Performance Optimization](#performance-optimization)
-- [Testing](#testing)
 
 ## Overview
 
@@ -31,7 +29,6 @@
 - **Styling**: Tailwind CSS
 - **Build Tool**: Vite
 - **Type Safety**: TypeScript + Elysia Eden
-- **Testing**: Bun test (when implemented)
 
 ### Core Principles
 - **Type Safety**: All types come from Elysia Eden backend inference
@@ -679,74 +676,3 @@ const updateManualRef = (newData: any) => {
   triggerRef(manualRef)
 }
 ```
-
-## Testing
-
-### Component Testing (Future Implementation)
-```typescript
-// tests/components/UserProfile.test.ts
-import { test, expect } from 'bun:test'
-import { mount } from '@vue/test-utils'
-import UserProfile from '@/components/UserProfile.vue'
-import type { User } from '@backend'
-
-test('UserProfile displays user information', () => {
-  const mockUser: User = {
-    id: '1',
-    firstName: 'John',
-    lastName: 'Doe',
-    email: 'john@example.com'
-  }
-
-  const wrapper = mount(UserProfile, {
-    props: { user: mockUser }
-  })
-
-  expect(wrapper.text()).toContain('John Doe')
-  expect(wrapper.text()).toContain('john@example.com')
-})
-
-test('UserProfile emits edit event when edit button clicked', async () => {
-  const mockUser: User = {
-    id: '1',
-    firstName: 'John',
-    lastName: 'Doe',
-    email: 'john@example.com'
-  }
-
-  const wrapper = mount(UserProfile, {
-    props: { user: mockUser }
-  })
-
-  await wrapper.find('[data-testid="edit-button"]').trigger('click')
-
-  expect(wrapper.emitted('edit')).toBeTruthy()
-  expect(wrapper.emitted('edit')?.[0]).toEqual([mockUser])
-})
-```
-
-### Composable Testing (Future Implementation)
-```typescript
-// tests/composables/useLocalStorage.test.ts
-import { test, expect } from 'bun:test'
-import { useLocalStorage } from '@/composables/useLocalStorage'
-
-test('useLocalStorage returns default value initially', () => {
-  const storage = useLocalStorage('test-key', 'default')
-  expect(storage.value).toBe('default')
-})
-
-test('useLocalStorage persists value to localStorage', () => {
-  const storage = useLocalStorage('test-key', 'default')
-  storage.value = 'new value'
-
-  expect(localStorage.getItem('test-key')).toBe('"new value"')
-})
-```
-
----
-
-**Related Guidelines:**
-- [General Guidelines](./GENERAL.md) - Project-wide standards
-- [Backend Guidelines](./BACKEND.md) - Elysia, Database, API design
-- [Conflicts to Resolve](./CONFLICTS_TO_RESOLVE.md) - Outstanding decisions needed

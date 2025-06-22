@@ -247,7 +247,6 @@ project-root/
 │   │   ├── composables/
 │   │   ├── stores/
 │   │   └── pages/
-│   └── tests/         # Frontend tests
 └── guidelines/        # Project documentation
 ```
 
