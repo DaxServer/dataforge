@@ -30,14 +30,11 @@ guidelines/
 │   ├── GENERAL.md              # Project-wide standards
 │   ├── FRONTEND.md             # Vue 3 + Tailwind + Pinia
 │   └── BACKEND.md              # Elysia + DuckDB + APIs
-├── reference/                   # Detailed implementation guides
-│   ├── ERROR_HANDLING.md       # Error patterns & examples
-│   ├── ELYSIA_EDEN.md         # Type-safe API integration
-│   ├── TESTING.md             # Testing strategies
-│   └── STYLE_GUIDE.md         # Code formatting details
-└── conflicts/                   # Project decisions & migration
-    ├── CONFLICTS_TO_RESOLVE.md # Outstanding decisions
-    └── MIGRATION_GUIDE.md      # Transition guidance
+└── reference/                   # Detailed implementation guides
+    ├── ERROR_HANDLING.md       # Error patterns & examples
+    ├── ELYSIA_EDEN.md         # Type-safe API integration
+    ├── TESTING.md             # Testing strategies
+    └── STYLE_GUIDE.md         # Code formatting details
 ```
 
 ## 🎯 Key Principles
@@ -63,8 +60,7 @@ guidelines/
 ## 🔄 Workflow Integration
 
 ### Before Starting Development
-1. Check [Conflicts & Decisions](./conflicts/CONFLICTS_TO_RESOLVE.md) for any blocking issues
-2. Review relevant core guidelines
+1. Review relevant core guidelines
 
 ### During Development
 1. Follow the appropriate core guidelines

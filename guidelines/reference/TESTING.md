@@ -1,33 +1,26 @@
 # Testing Reference
 
-> **Comprehensive testing strategies and patterns for backend and frontend**
+> **Comprehensive testing strategies and patterns for backend**
 
 ## Related Guidelines
 - **[Backend Guidelines](../core/BACKEND.md)** - Core backend testing principles
-- **[Frontend Guidelines](../core/FRONTEND.md)** - Frontend testing approach
 - **[General Guidelines](../core/GENERAL.md)** - Project-wide testing philosophy
 - **[Error Handling Reference](./ERROR_HANDLING.md)** - Testing error scenarios
 - **[Elysia Eden Reference](./ELYSIA_EDEN.md)** - Testing type-safe APIs
-
-## Quick Links
-- [Backend Testing](#backend-testing)
-- [Frontend Testing](#frontend-testing)
-- [Integration Testing](#integration-testing)
-- [Test Data Management](#test-data-management)
-- [Best Practices](#best-practices)
-
-> **Note**: Frontend testing is currently **not implemented** but guidelines are provided for future implementation.
 
 ## Table of Contents
 - [Elysia and Eden Testing Patterns](#elysia-and-eden-testing-patterns)
 - [Test Structure](#test-structure)
 - [Writing Tests](#writing-tests)
 - [Response Handling](#response-handling)
+- [Temporary File Cleanup Patterns](#temporary-file-cleanup-patterns)
+- [Writing Assertions](#writing-assertions)
 - [Database in Tests](#database-in-tests)
 - [Test Doubles](#test-doubles)
 - [Test Data](#test-data)
-- [E2E Testing](#e2e-testing)
 - [Running Tests](#running-tests)
+- [Testing Private Methods](#testing-private-methods)
+- [Important Notes](#important-notes)
 
 ## Elysia and Eden Testing Patterns
 
@@ -87,6 +80,53 @@ When testing Eden API responses:
 
 **Important**: The destructuring applies only to the initial Eden response. Once you have `data`, `status`, and `error`, test these properties directly without additional destructuring.
 
+#### Do's and Don'ts
+
+**✅ Do:**
+
+```typescript
+// Destructure the Eden response once
+const { data, status, error } = await api.endpoint.get(params)
+
+// Test data, status, and error directly
+expect(status).toBe(200)
+expect(data).toBeDefined()
+expect(error).toBeNull()
+
+// Use toHaveProperty() for nested properties
+expect(data).toHaveProperty('data')
+expect(data).toHaveProperty('data.id', 'some-id')
+expect(error).toHaveProperty('status', 400)
+
+// Check error is defined before accessing its properties
+expect(error).toBeDefined()
+expect(error).toHaveProperty('value.errors')
+```
+
+**❌ Don't:**
+
+```typescript
+// Don't chain property access on the raw response
+const response = await api.endpoint.get(params)
+expect(response.status).toBe(200) // ❌ Avoid this
+
+// Don't further destructure data, status, or error
+const { data, status, error } = await api.endpoint.get(params)
+const { id } = data // ❌ Avoid this
+
+// Don't access nested properties directly
+expect(data.data.id).toBe('some-id') // ❌ Avoid this
+
+// Don't use toMatchObject for error structure testing
+expect(error).toMatchObject({ status: 400 }) // ❌ Prefer toHaveProperty
+
+// Don't forget to check if error is defined
+expect(error.status).toBe(400) // ❌ This might throw if error is undefined
+
+// Don't use incorrect error structure assertions
+expect(error).toHaveProperty('data') // ❌ Wrong path, should be 'value.data'
+```
+
 ### Error Testing
 
 When testing error responses:
@@ -97,9 +137,9 @@ When testing error responses:
 4. Test specific error codes and messages
 
 ```typescript
-const { data, status, error } = await testApp.api.projects[':id'].get({
-  params: { id: 'invalid-id' }
-})
+const { data, status, error } = await testApp.api.projects({
+  id: 'invalid-id'
+}).get()
 
 expect(status).toBe(400)
 expect(data).toBeNull()
@@ -161,15 +201,14 @@ describe('User Authentication', () => {
     api = createTestApi()
   })
 
-  // 4. Test Cases
-  it('should register a new user', async () => {
-    const { data, status, error } = await api.user.register.post(testUser)
-    // Test implementation
-  })
-
-  // 5. Cleanup
+  // 4. Cleanup
   afterEach(async () => {
     await closeDb()
+  })
+
+  // 5. Test Cases
+  it('should register a new user', async () => {
+    // Test implementation
   })
 })
 ```
@@ -188,7 +227,8 @@ describe('User Authentication', () => {
 - Avoid complex logic in tests
 - Mock external dependencies
 - Never use `try...catch` in tests
-- **Never use conditional statements** (if/else, switch, ternary operators) in tests
+- Never use conditional statements (if/else, switch, ternary operators) in tests
+- Never throw in tests
 - Test edge cases and error conditions
 - Keep tests deterministic (same input should always produce same output)
 
@@ -288,37 +328,25 @@ expect(error).toHaveProperty('value.errors', [
 
 #### Client Errors (400)
 
-The following error codes are available for 400 status responses:
-- `MISSING_FILE_PATH`: When file path is missing
-- `MISSING_FILE`: When required file is missing
-- `INVALID_FILE_TYPE`: When file type is not supported
-- `EMPTY_FILE`: When uploaded file is empty
-- `FILE_NOT_FOUND`: When specified file cannot be found
-- `INVALID_JSON`: When JSON format is invalid
+When testing client errors (e.g., 400 Bad Request, 422 Unprocessable Entity), focus on asserting the correct HTTP status code, the absence of data, and the structure of the error object. The error object should typically contain a `status` property matching the HTTP status, and a `value.data.errors` array detailing the specific validation or client-side issues.
 
 ```typescript
-const { data, status, error } = await api.project.import.post({ file: invalidFile })
-
-expect(status).toBe(400)
+// Example for a 422 Unprocessable Entity error
+expect(status).toBe(422)
 expect(data).toBeNull()
-expect(error).toBeDefined()
-expect(error).toHaveProperty('status', 400)
-expect(error).toHaveProperty('value.data', [])
-expect(error).toHaveProperty('value.errors', [
-  {
-    code: 'INVALID_JSON',
-    message: 'Invalid JSON format in uploaded file',
-    details: [],
-  },
-])
+expect(error).toHaveProperty('status', 422)
+expect(error).toHaveProperty('value.data')
+expect(error).toHaveProperty('value.data.errors')
+expect(error).toHaveProperty('value.data.errors.length', 1)
+expect(error).toHaveProperty('value.data.errors[0].code', 'VALIDATION_ERROR')
+expect(error).toHaveProperty('value.data.errors[0].message', 'Validation failed')
 ```
-
 #### Not Found Errors (404)
 
-The following error codes are available for 404 status responses:
-- `NOT_FOUND`: When requested resource cannot be found
+When testing for resources not found (404), the focus should be on verifying the 404 HTTP status code, ensuring no data is returned, and confirming the error object's structure, which typically includes a `status` property matching 404 and a `value.errors` array with a `NOT_FOUND` code.
 
 ```typescript
+// Example for a 404 Not Found error
 const { data, status, error } = await api.project({ id: 'non-existent' }).delete()
 
 expect(status).toBe(404)
@@ -337,10 +365,10 @@ expect(error).toHaveProperty('value.errors', [
 
 #### Conflict Errors (409)
 
-The following error codes are available for 409 status responses:
-- `TABLE_ALREADY_EXISTS`: When attempting to create a table that already exists
+When testing for conflict errors (409), assert the correct HTTP status code, ensure no data is returned, and verify the error object's structure. The error object should typically include a `status` property matching 409 and a `value.errors` array with a specific conflict code, such as `TABLE_ALREADY_EXISTS`.
 
 ```typescript
+// Example for a 409 Conflict error
 const { data, status, error } = await api.project({ id: projectId }).import.post({ file })
 
 expect(status).toBe(409)
@@ -359,13 +387,10 @@ expect(error).toHaveProperty('value.errors', [
 
 #### Server Errors (500)
 
-The following error codes are available for 500 status responses:
-- `INTERNAL_SERVER_ERROR`: When an unexpected server error occurs
-- `DATABASE_ERROR`: When database operations fail
-- `PROJECT_CREATION_FAILED`: When project creation fails
-- `DATA_IMPORT_FAILED`: When data import operations fail
+When testing for server errors (500), verify the 500 HTTP status code, ensure no data is returned, and confirm the error object's structure. The error object should typically include a `status` property matching 500 and a `value.errors` array with a generic server error code like `INTERNAL_SERVER_ERROR`.
 
 ```typescript
+// Example for a 500 Internal Server Error
 const { data, status, error } = await api.project({ id: projectId }).import.post({ file })
 
 expect(status).toBe(500)
@@ -515,12 +540,79 @@ await Bun.file(tempFilePath).delete() // May throw if file doesn't exist
 4. **Prefer temp directories**: Keep temporary files organized in dedicated directories
 5. **Document temp file patterns**: Make it clear what files tests create
 
-### Assertion Best Practices
+## Writing Assertions
 
-- Be explicit about which parts of the response you're testing
-- Test one thing per assertion
-- Use the most specific matcher possible
-- Avoid testing implementation details
+Assertions are the core of any test, verifying that the code behaves as expected. Bun's test runner provides a familiar `expect` API, similar to Jest or Vitest, allowing for a wide range of assertions.
+
+- **Be Specific**: Assertions should be as specific as possible. Instead of `expect(result).toBeDefined()`, prefer `expect(result).toEqual({ key: 'value' })`.
+- **One Assertion Per Test (Ideally)**: While not always strictly possible or practical, aiming for one logical assertion per test makes tests easier to understand and debug. If a test fails, you know exactly what failed.
+- **Avoid Over-Testing Implementation Details**: Test the observable behavior of your code, not its internal implementation. Refactoring should not break tests unless the behavior changes.
+- **Use Matchers Appropriately**: Choose the right matcher for the job. For example, use `toEqual` for deep equality checks on objects and arrays, and `toBe` for primitive value equality or referential equality.
+- **Clear Error Messages**: When writing custom matchers or complex assertions, ensure that the failure messages are clear and helpful.
+
+### Common Assertions and Examples
+
+Here are some common assertion patterns you'll use, based on typical backend testing scenarios:
+
+- **`toBe(value)`**: Checks for strict equality (===) for primitive values or referential equality for objects.
+
+  ```typescript
+  expect(status).toBe(201)
+  expect(data).toBeNull()
+  ```
+
+- **`toHaveProperty(property, value?)`**: Checks if an object has a property, optionally verifying its value.
+
+  ```typescript
+  expect(data).toHaveProperty('data')
+  expect(data).toHaveProperty('data.name', projectData.name)
+  expect(error).toHaveProperty('status', 422)
+  ```
+
+- **`toBeNull()`**: Verifies that a value is `null`.
+
+  ```typescript
+  expect(data).toBeNull()
+  expect(error).toBeNull()
+  ```
+
+- **`toBeDefined()`**: Verifies that a value is not `undefined`.
+
+  ```typescript
+  expect(error).toBeDefined()
+  ```
+
+- **`stringMatching(regex)`**: Checks if a string matches a regular expression.
+
+  ```typescript
+  expect(data).toHaveProperty('data.id', expect.stringMatching(UUID_REGEX_PATTERN))
+  expect(data).toHaveProperty(
+    'data.created_at',
+    expect.stringMatching(/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}(\.\d{1,3})?$/)
+  )
+  ```
+
+- **`toEqual(value)`**: Recursively checks for deep equality of all properties of objects or elements of arrays.
+
+  ```typescript
+  expect(error).toHaveProperty('value.errors', [
+    {
+      code: 'VALIDATION',
+      message: 'Project name is required and must be at least 1 character long',
+      details: [
+        {
+          path: '/name',
+          message: 'Expected string',
+          schema: {
+            error: 'Project name is required and must be at least 1 character long',
+            minLength: 1,
+            type: 'string',
+          },
+        },
+      ],
+    },
+  ])
+  ```
 
 ## Database in Tests
 
@@ -629,37 +721,6 @@ export const createProject = (overrides = {}) => {
     ...overrides
   }
 }
-```
-
-## E2E Testing
-
-### Setup
-- Use Playwright for E2E tests
-- Store tests in `tests/e2e`
-- Use page object model pattern
-
-### Best Practices
-- Test critical user flows
-- Use data-testid attributes for reliable selectors
-- Run tests in headless mode in CI
-- Take screenshots on failure
-
-### Example Test
-```typescript
-// tests/e2e/projects.spec.ts
-import { test, expect } from '@playwright/test'
-import { ProjectsPage } from '../pages/projects-page'
-
-test.describe('Projects', () => {
-  test('should create a new project', async ({ page }) => {
-    const projectsPage = new ProjectsPage(page)
-    await projectsPage.goto()
-    await projectsPage.createProject('My New Project')
-
-    await expect(page.getByText('Project created successfully')).toBeVisible()
-    await expect(page.getByText('My New Project')).toBeVisible()
-  })
-})
 ```
 
 ## Running Tests

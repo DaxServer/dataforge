@@ -450,8 +450,3 @@ bun test
 # Run specific test file
 bun test test/api/project/create.test.ts
 ```
----
-
-**Related Guidelines:**
-- [General Guidelines](./GENERAL.md) - Project-wide standards
-- [Frontend Guidelines](./FRONTEND.md) - Vue 3, Tailwind, Pinia
