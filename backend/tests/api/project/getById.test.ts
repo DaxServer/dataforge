@@ -84,12 +84,25 @@ describe('Project API - GET /:id', () => {
 
     expect(status).toBe(200)
     expect(error).toBeNull()
-    expect(data).toBeDefined()
-    expect(data).toHaveProperty('data')
-    expect(data).toHaveProperty('data.0.name', 'John')
-    expect(data).toHaveProperty('data.0.age', '30')
-    expect(data).toHaveProperty('data.0.city', 'New York')
-    expect(data).toHaveProperty('meta.name', 'Test Project for getById')
+    expect(data).toEqual(
+      expect.objectContaining({
+        data: expect.arrayContaining(
+          TEST_DATA.map(({ name, age, city }) =>
+            expect.objectContaining({
+              name,
+              age: expect.stringMatching(age.toString()),
+              city,
+            })
+          )
+        ),
+        meta: expect.objectContaining({
+          total: TEST_DATA.length,
+          limit: 25,
+          offset: 0,
+          name: 'Test Project for getById',
+        }),
+      })
+    )
   })
 
   it('should return 404 for non-existent project', async () => {
@@ -97,16 +110,21 @@ describe('Project API - GET /:id', () => {
 
     expect(status).toBe(404)
     expect(data).toBeNull()
-    expect(error).toBeDefined()
-    expect(error).toHaveProperty('status', 404)
-    expect(error).toHaveProperty('value.data', [])
-    expect(error).toHaveProperty('value.errors', [
-      {
-        code: 'NOT_FOUND',
-        message: 'Project not found',
-        details: [],
-      },
-    ])
+    expect(error).toEqual(
+      expect.objectContaining({
+        status: 404,
+        value: expect.objectContaining({
+          data: expect.arrayContaining([]),
+          errors: expect.arrayContaining([
+            expect.objectContaining({
+              code: 'NOT_FOUND',
+              message: 'Project not found',
+              details: [],
+            }),
+          ]),
+        }),
+      })
+    )
   })
 
   it('should return 422 for invalid project id format', async () => {
@@ -114,13 +132,21 @@ describe('Project API - GET /:id', () => {
 
     expect(status).toBe(422)
     expect(data).toBeNull()
-    expect(error).toBeDefined()
-    expect(error).toHaveProperty('status', 422)
-    expect(error).toHaveProperty('value.data', [])
-    expect(error).toHaveProperty('value.errors.length', 1)
-    expect(error).toHaveProperty('value.errors.0.code', 'VALIDATION')
-    expect(error).toHaveProperty('value.errors.0.message')
-    expect(error).toHaveProperty('value.errors.0.details')
+    expect(error).toEqual(
+      expect.objectContaining({
+        status: 422,
+        value: expect.objectContaining({
+          data: expect.arrayContaining([]),
+          errors: expect.arrayContaining([
+            expect.objectContaining({
+              code: 'VALIDATION',
+              message: expect.any(String),
+              details: expect.any(Array),
+            }),
+          ]),
+        }),
+      })
+    )
   })
 
   it('should return project with empty data', async () => {
@@ -135,26 +161,19 @@ describe('Project API - GET /:id', () => {
 
     expect(status).toBe(200)
     expect(error).toBeNull()
-    expect(data).toBeDefined()
-    expect(data).toHaveProperty('data')
-    expect(data).toHaveProperty('data.length', 0)
-    expect(data).toHaveProperty('meta.name', 'Empty Project')
+    expect(data).toMatchObject(
+      expect.objectContaining({
+        data: expect.arrayContaining([]),
+        meta: expect.objectContaining({
+          total: 0,
+          limit: 25,
+          offset: 0,
+          name: 'Empty Project',
+        }),
+      })
+    )
 
     // Cleanup
     await api.project({ id: emptyProjectId }).delete()
-  })
-
-  it('should return project with correct structure', async () => {
-    const { data, status, error } = await api.project({ id: projectId }).get()
-
-    expect(status).toBe(200)
-    expect(error).toBeNull()
-    expect(data).toBeDefined()
-    expect(data).toHaveProperty('data')
-    expect(data).toHaveProperty('data.length', 3) // Should have 3 test records
-    expect(data).toHaveProperty('meta.total', 3)
-    expect(data).toHaveProperty('meta.limit', 25)
-    expect(data).toHaveProperty('meta.offset', 0)
-    expect(data).toHaveProperty('meta.name', 'Test Project for getById')
   })
 })

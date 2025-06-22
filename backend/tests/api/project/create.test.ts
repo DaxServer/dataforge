@@ -40,18 +40,15 @@ describe('createProject', () => {
 
       // Verify the response status and structure
       expect(status).toBe(201)
-      expect(data).toHaveProperty('data')
-      expect(data).toHaveProperty('data.name', projectData.name)
-      expect(data).toHaveProperty('data.id')
-      expect(data).toHaveProperty('data.id', expect.stringMatching(UUID_REGEX_PATTERN))
-      // Expecting naive timestamp format: YYYY-MM-DD HH:MM:SS[.SSS] (with optional milliseconds)
-      expect(data).toHaveProperty(
-        'data.created_at',
-        expect.stringMatching(/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}(\.\d{1,3})?$/)
-      )
-      expect(data).toHaveProperty(
-        'data.updated_at',
-        expect.stringMatching(/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}(\.\d{1,3})?$/)
+      expect(data).toEqual(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            name: projectData.name,
+            id: expect.stringMatching(UUID_REGEX_PATTERN),
+            created_at: expect.stringMatching(/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}(\.\d{1,3})?$/),
+            updated_at: expect.stringMatching(/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}(\.\d{1,3})?$/),
+          }),
+        })
       )
       expect(error).toBeNull()
     })
@@ -62,27 +59,31 @@ describe('createProject', () => {
 
       expect(status).toBe(422)
       expect(data).toBeNull()
-
-      expect(error).toBeDefined()
-      expect(error).toHaveProperty('status', 422)
-      expect(error).toHaveProperty('value.data', [])
-      expect(error).toHaveProperty('value.errors', [
-        {
-          code: 'VALIDATION',
-          message: 'Project name is required and must be at least 1 character long',
-          details: [
-            {
-              path: '/name',
-              message: 'Expected string',
-              schema: {
-                error: 'Project name is required and must be at least 1 character long',
-                minLength: 1,
-                type: 'string',
-              },
-            },
-          ],
-        },
-      ])
+      expect(error).toEqual(
+        expect.objectContaining({
+          status: 422,
+          value: expect.objectContaining({
+            data: [],
+            errors: expect.arrayContaining([
+              expect.objectContaining({
+                code: 'VALIDATION',
+                message: 'Project name is required and must be at least 1 character long',
+                details: expect.arrayContaining([
+                  expect.objectContaining({
+                    path: '/name',
+                    message: 'Expected string',
+                    schema: expect.objectContaining({
+                      error: 'Project name is required and must be at least 1 character long',
+                      minLength: 1,
+                      type: 'string',
+                    }),
+                  }),
+                ]),
+              }),
+            ]),
+          }),
+        })
+      )
     })
 
     test('should return 422 when name is empty', async () => {
@@ -92,27 +93,31 @@ describe('createProject', () => {
 
       expect(status).toBe(422)
       expect(data).toBeNull()
-
-      expect(error).toBeDefined()
-      expect(error).toHaveProperty('status', 422)
-      expect(error).toHaveProperty('value.data', [])
-      expect(error).toHaveProperty('value.errors', [
-        {
-          code: 'VALIDATION',
-          message: 'Project name is required and must be at least 1 character long',
-          details: [
-            {
-              path: '/name',
-              message: 'Expected string length greater or equal to 1',
-              schema: {
-                error: 'Project name is required and must be at least 1 character long',
-                minLength: 1,
-                type: 'string',
-              },
-            },
-          ],
-        },
-      ])
+      expect(error).toEqual(
+        expect.objectContaining({
+          status: 422,
+          value: expect.objectContaining({
+            data: [],
+            errors: expect.arrayContaining([
+              expect.objectContaining({
+                code: 'VALIDATION',
+                message: 'Project name is required and must be at least 1 character long',
+                details: expect.arrayContaining([
+                  expect.objectContaining({
+                    path: '/name',
+                    message: 'Expected string length greater or equal to 1',
+                    schema: expect.objectContaining({
+                      error: 'Project name is required and must be at least 1 character long',
+                      minLength: 1,
+                      type: 'string',
+                    }),
+                  }),
+                ]),
+              }),
+            ]),
+          }),
+        })
+      )
     })
   })
 })

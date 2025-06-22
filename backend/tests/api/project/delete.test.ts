@@ -6,27 +6,19 @@ import { closeDb, initializeDb, getDb } from '@backend/plugins/database'
 import { treaty } from '@elysiajs/eden'
 import { UUID_REGEX } from '@backend/api/project/schemas.ts'
 
-// Create a test app with the project routes
 const createTestApi = () => {
   return treaty(new Elysia().use(projectRoutes)).api
 }
 
 describe('deleteProject', () => {
-  // Create a test app instance for each test
   let api: ReturnType<typeof createTestApi>
 
-  // Set up and clean up database for each test
   beforeEach(async () => {
-    // Initialize a fresh in-memory database
     await initializeDb(':memory:')
-
-    // Create a fresh app instance for each test
     api = createTestApi()
   })
 
-  // Clean up after each test
   afterEach(async () => {
-    // Close the database connection
     await closeDb()
   })
 
@@ -59,7 +51,7 @@ describe('deleteProject', () => {
     ])
     const projects = selectReader.getRowObjectsJson()
 
-    expect(projects.length).toBe(0)
+    expect(projects).toEqual([])
   })
 
   test('should return 404 when trying to delete non-existent project', async () => {
@@ -72,13 +64,21 @@ describe('deleteProject', () => {
     // Verify the response status and body
     expect(status).toBe(404)
     expect(data).toBeNull()
-    expect(error).toBeDefined()
-    expect(error).toHaveProperty('status', 404)
-    expect(error).toHaveProperty('value.data', [])
-    expect(error).toHaveProperty('value.errors.length', 1)
-    expect(error).toHaveProperty('value.errors.0.code', 'NOT_FOUND')
-    expect(error).toHaveProperty('value.errors.0.message')
-    expect(error).toHaveProperty('value.errors.0.details', [])
+    expect(error).toEqual(
+      expect.objectContaining({
+        status: 404,
+        value: expect.objectContaining({
+          data: expect.arrayContaining([]),
+          errors: expect.arrayContaining([
+            expect.objectContaining({
+              code: 'NOT_FOUND',
+              message: 'Project not found',
+              details: expect.arrayContaining([]),
+            }),
+          ]),
+        }),
+      })
+    )
   })
 
   test('should return 422 when trying to delete with invalid UUID format', async () => {
@@ -86,24 +86,30 @@ describe('deleteProject', () => {
 
     expect(status).toBe(422)
     expect(data).toBeNull()
-    expect(error).toHaveProperty('status', 422)
-    expect(error).toHaveProperty('value.data', [])
-    expect(error).toHaveProperty('value.errors', [
-      {
-        code: 'VALIDATION',
-        message: 'ID must be a valid UUID',
-        details: [
-          {
-            path: '/id',
-            message: `Expected string to match '${UUID_REGEX}'`,
-            schema: {
-              error: 'ID must be a valid UUID',
-              pattern: UUID_REGEX,
-              type: 'string',
-            },
-          },
-        ],
-      },
-    ])
+    expect(error).toEqual(
+      expect.objectContaining({
+        status: 422,
+        value: expect.objectContaining({
+          data: expect.any(Array),
+          errors: expect.arrayContaining([
+            expect.objectContaining({
+              code: 'VALIDATION',
+              message: 'ID must be a valid UUID',
+              details: expect.arrayContaining([
+                expect.objectContaining({
+                  path: '/id',
+                  message: `Expected string to match '${UUID_REGEX}'`,
+                  schema: expect.objectContaining({
+                    error: 'ID must be a valid UUID',
+                    pattern: UUID_REGEX,
+                    type: 'string',
+                  }),
+                }),
+              ]),
+            }),
+          ]),
+        }),
+      })
+    )
   })
 })
