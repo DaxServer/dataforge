@@ -78,7 +78,9 @@ declare global {
   const useCssVars: (typeof import('vue'))['useCssVars']
   const useFileManager: (typeof import('./src/composables/useFileManager'))['useFileManager']
   const useId: (typeof import('vue'))['useId']
+  const useLineBreak: (typeof import('./src/composables/useLineBreak'))['useLineBreak']
   const useLink: (typeof import('vue-router'))['useLink']
+  const useLinkify: (typeof import('./src/composables/useLinkify'))['useLinkify']
   const useModel: (typeof import('vue'))['useModel']
   const useProjectActions: (typeof import('./src/composables/useProjectActions'))['useProjectActions']
   const useProjectCreationComposable: (typeof import('./src/composables/useProjectCreationComposable'))['useProjectCreationComposable']
@@ -86,6 +88,7 @@ declare global {
   const useProjectListStore: (typeof import('./src/stores/project-list.store'))['useProjectListStore']
   const useProjectStore: (typeof import('./src/stores/project.store'))['useProjectStore']
   const useRoute: (typeof import('vue-router'))['useRoute']
+  const useRouteParams: (typeof import('@vueuse/router'))['useRouteParams']
   const useRouter: (typeof import('vue-router'))['useRouter']
   const useSlots: (typeof import('vue'))['useSlots']
   const useTemplateRef: (typeof import('vue'))['useTemplateRef']
@@ -183,7 +186,9 @@ declare module 'vue' {
     readonly useCssModule: UnwrapRef<(typeof import('vue'))['useCssModule']>
     readonly useCssVars: UnwrapRef<(typeof import('vue'))['useCssVars']>
     readonly useId: UnwrapRef<(typeof import('vue'))['useId']>
+    readonly useLineBreak: UnwrapRef<(typeof import('./src/composables/useLineBreak'))['useLineBreak']>
     readonly useLink: UnwrapRef<(typeof import('vue-router'))['useLink']>
+    readonly useLinkify: UnwrapRef<(typeof import('./src/composables/useLinkify'))['useLinkify']>
     readonly useModel: UnwrapRef<(typeof import('vue'))['useModel']>
     readonly useProjectActions: UnwrapRef<(typeof import('./src/composables/useProjectActions'))['useProjectActions']>
     readonly useProjectCreationComposable: UnwrapRef<(typeof import('./src/composables/useProjectCreationComposable'))['useProjectCreationComposable']>

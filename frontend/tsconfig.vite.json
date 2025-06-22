@@ -1,10 +1,15 @@
 {
-  "extends": ["../tsconfig.base.json", "@tsconfig/node22/tsconfig.json"],
-  "include": ["vite.config.*", "vitest.config.*", "src/**/*.ts", "src/**/*.vue", "*.d.ts", "../backend/src/**/*.ts", "env.d.ts",
-    "interface-extensions.d.ts",
-    "components.d.ts",
-    "auto-imports.d.ts",
-    ],
+  "extends": [
+    "../tsconfig.base.json",
+    "@tsconfig/node22/tsconfig.json"
+  ],
+  "include": [
+    "*.config.*",
+    "*.d.ts",
+    "src/**/*.ts",
+    "src/**/*.vue",
+    "../backend/src/**/*.ts",
+  ],
   "compilerOptions": {
     "composite": true,
     "noEmit": true,

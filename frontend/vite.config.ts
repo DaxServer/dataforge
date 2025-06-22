@@ -25,6 +25,10 @@ export default defineConfig({
         'vue-router',
         'pinia',
         {
+          from: '@vueuse/router',
+          imports: ['useRouteParams'],
+        },
+        {
           from: 'primevue/fileupload',
           imports: ['FileUploadUploaderEvent'],
           type: true,
