@@ -1,8 +1,22 @@
-# Testing Guidelines
+# Testing Reference
 
-This document outlines testing patterns and best practices for the OpenRefine NG project.
+> **Comprehensive testing strategies and patterns for backend and frontend**
 
-> **Note**: Frontend testing is currently **not implemented** in this project. Frontend testing guidelines have been moved to <mcfile name="FrontendTesting.md" path="/Users/sriharithalla/projects/openrefine-ng/guidelines/FrontendTesting.md"></mcfile> for future reference.
+## Related Guidelines
+- **[Backend Guidelines](../core/BACKEND.md)** - Core backend testing principles
+- **[Frontend Guidelines](../core/FRONTEND.md)** - Frontend testing approach
+- **[General Guidelines](../core/GENERAL.md)** - Project-wide testing philosophy
+- **[Error Handling Reference](./ERROR_HANDLING.md)** - Testing error scenarios
+- **[Elysia Eden Reference](./ELYSIA_EDEN.md)** - Testing type-safe APIs
+
+## Quick Links
+- [Backend Testing](#backend-testing)
+- [Frontend Testing](#frontend-testing)
+- [Integration Testing](#integration-testing)
+- [Test Data Management](#test-data-management)
+- [Best Practices](#best-practices)
+
+> **Note**: Frontend testing is currently **not implemented** but guidelines are provided for future implementation.
 
 ## Table of Contents
 - [Elysia and Eden Testing Patterns](#elysia-and-eden-testing-patterns)
@@ -41,19 +55,19 @@ const createTestApi = () => {
 
 describe('Project API', () => {
   let api: ReturnType<typeof createTestApi>
-  
+
   beforeEach(async () => {
     // Initialize a fresh in-memory database
     await initializeDb(':memory:')
-    
+
     // Create a fresh app instance for each test
     api = createTestApi()
   })
-  
+
   afterEach(async () => {
     await closeDb()
   })
-  
+
   it('should do something', async () => {
     const { data, status, error } = await api.endpoint.get(params)
     // assertions
@@ -79,7 +93,7 @@ When testing error responses:
 
 1. Test the HTTP status code
 2. Test that `data` is null
-3. Test the error structure using `toMatchObject`
+3. Test the error structure using `toHaveProperty`
 4. Test specific error codes and messages
 
 ```typescript
@@ -89,23 +103,21 @@ const { data, status, error } = await testApp.api.projects[':id'].get({
 
 expect(status).toBe(400)
 expect(data).toBeNull()
-expect(error).toMatchObject({
-  status: 400,
-  value: {
-    errors: [
-      {
-        code: 'VALIDATION',
-        message: 'Validation failed',
-        details: expect.arrayContaining([
-          expect.objectContaining({
-            path: 'id',
-            message: 'Invalid uuid',
-          }),
-        ]),
-      },
-    ],
-  },
-})
+expect(error).toBeDefined()
+expect(error).toHaveProperty('status', 400)
+expect(error).toHaveProperty('value.data', [])
+expect(error).toHaveProperty('value.errors', [
+  {
+    code: 'VALIDATION',
+    message: 'Validation failed',
+    details: [
+       {
+         path: 'id',
+         message: 'Invalid uuid',
+       },
+     ],
+   },
+ ])
 ```
 
 ## Test Structure
@@ -220,27 +232,154 @@ const { data, status, error } = await api.project.post({})
 expect(status).toBe(422)
 expect(data).toBeNull()
 
-// 3. Test error structure using matchers
+// 3. Test error structure using toHaveProperty
 expect(error).toBeDefined()
 expect(error).toHaveProperty('status', 422)
-expect(error).toHaveProperty('value.errors')
-expect(error).toMatchObject({
-  status: 422,
-  value: {
-    errors: expect.arrayContaining([
-      expect.objectContaining({
-        code: 'VALIDATION',
-        message: 'Validation failed',
-        details: expect.arrayContaining([
-          expect.objectContaining({
-            path: '/name',
-            message: 'Expected string',
-          }),
-        ]),
-      }),
-    ]),
+expect(error).toHaveProperty('value.data', [])
+expect(error).toHaveProperty('value.errors', [
+  {
+    code: 'VALIDATION',
+    message: 'Validation failed',
+    details: [
+      {
+        path: '/name',
+        message: 'Expected string',
+        received: undefined,
+      },
+    ],
   },
-})
+])
+```
+
+### Error Structure Patterns
+
+All API error responses follow a consistent structure. The error object contains:
+
+- `status`: HTTP status code
+- `value.data`: Always an empty array `[]` for error responses
+- `value.errors`: Array of error objects with details
+
+**Note**: Error responses do not include stack traces for security and cleanliness reasons.
+
+#### Validation Errors (422)
+
+```typescript
+const { data, status, error } = await api.project.post({ name: '' })
+
+expect(status).toBe(422)
+expect(data).toBeNull()
+expect(error).toBeDefined()
+expect(error).toHaveProperty('status', 422)
+expect(error).toHaveProperty('value.data', [])
+expect(error).toHaveProperty('value.errors', [
+  {
+    code: 'VALIDATION',
+    message: 'Validation failed',
+    details: [
+      {
+        path: '/name',
+        message: 'String must contain at least 1 character(s)',
+        received: '',
+      },
+    ],
+  },
+])
+```
+
+#### Client Errors (400)
+
+The following error codes are available for 400 status responses:
+- `MISSING_FILE_PATH`: When file path is missing
+- `MISSING_FILE`: When required file is missing
+- `INVALID_FILE_TYPE`: When file type is not supported
+- `EMPTY_FILE`: When uploaded file is empty
+- `FILE_NOT_FOUND`: When specified file cannot be found
+- `INVALID_JSON`: When JSON format is invalid
+
+```typescript
+const { data, status, error } = await api.project.import.post({ file: invalidFile })
+
+expect(status).toBe(400)
+expect(data).toBeNull()
+expect(error).toBeDefined()
+expect(error).toHaveProperty('status', 400)
+expect(error).toHaveProperty('value.data', [])
+expect(error).toHaveProperty('value.errors', [
+  {
+    code: 'INVALID_JSON',
+    message: 'Invalid JSON format in uploaded file',
+    details: [],
+  },
+])
+```
+
+#### Not Found Errors (404)
+
+The following error codes are available for 404 status responses:
+- `NOT_FOUND`: When requested resource cannot be found
+
+```typescript
+const { data, status, error } = await api.project({ id: 'non-existent' }).delete()
+
+expect(status).toBe(404)
+expect(data).toBeNull()
+expect(error).toBeDefined()
+expect(error).toHaveProperty('status', 404)
+expect(error).toHaveProperty('value.data', [])
+expect(error).toHaveProperty('value.errors', [
+  {
+    code: 'NOT_FOUND',
+    message: 'Resource not found',
+    details: [],
+  },
+])
+```
+
+#### Conflict Errors (409)
+
+The following error codes are available for 409 status responses:
+- `TABLE_ALREADY_EXISTS`: When attempting to create a table that already exists
+
+```typescript
+const { data, status, error } = await api.project({ id: projectId }).import.post({ file })
+
+expect(status).toBe(409)
+expect(data).toBeNull()
+expect(error).toBeDefined()
+expect(error).toHaveProperty('status', 409)
+expect(error).toHaveProperty('value.data', [])
+expect(error).toHaveProperty('value.errors', [
+  {
+    code: 'TABLE_ALREADY_EXISTS',
+    message: 'Table already exists for this project',
+    details: [],
+  },
+])
+```
+
+#### Server Errors (500)
+
+The following error codes are available for 500 status responses:
+- `INTERNAL_SERVER_ERROR`: When an unexpected server error occurs
+- `DATABASE_ERROR`: When database operations fail
+- `PROJECT_CREATION_FAILED`: When project creation fails
+- `DATA_IMPORT_FAILED`: When data import operations fail
+
+```typescript
+const { data, status, error } = await api.project({ id: projectId }).import.post({ file })
+
+expect(status).toBe(500)
+expect(data).toBeNull()
+expect(error).toBeDefined()
+expect(error).toHaveProperty('status', 500)
+expect(error).toHaveProperty('value.data', [])
+expect(error).toHaveProperty('value.errors', [
+  {
+    code: 'INTERNAL_SERVER_ERROR',
+    message: 'An unexpected error occurred',
+    details: [],
+  },
+])
 ```
 
 ### Anti-patterns to Avoid
@@ -248,6 +387,19 @@ expect(error).toMatchObject({
 ```typescript
 // ❌ Don't chain property access on the raw response
 expect(response.status).toBe(422)
+
+// ❌ Don't use toMatchObject for error structure testing
+expect(error).toMatchObject({ status: 422 })  // Use toHaveProperty instead
+
+// ❌ Don't use incorrect error structure assertions
+expect(error).toHaveProperty('data', [])  // Wrong - should be 'value.data'
+expect(error).toHaveProperty('errors')    // Wrong - should be 'value.errors'
+
+// ❌ Don't use generic error checking for specific error types
+expect(error).toHaveProperty('value')  // Too generic - be specific about structure
+
+// ❌ Don't forget to check error is defined first
+expect(error).toHaveProperty('status', 422)  // Missing: expect(error).toBeDefined()
 
 // ❌ Don't use deep property access on the raw response
 expect(response.error.status).toBe(422)
@@ -275,10 +427,93 @@ expect(data).toHaveProperty('meta.total', 3)
 
 | Matcher | When to Use | Example |
 |---------|-------------|---------|
-| `expect.objectContaining()` | When testing specific fields in an object | `expect(user).toMatchObject({ id: 1 })` |
+| `expect.objectContaining()` | When testing specific fields in an object | `expect(user).toHaveProperty('id', 1)` |
 | `expect.arrayContaining()` | When testing specific items in an array | `expect(users).toEqual(expect.arrayContaining([{ id: 1 }]))` |
 | `expect.any()` | When only the type matters | `expect(user.id).toEqual(expect.any(Number))` |
 | `expect.stringContaining()` | When testing partial strings | `expect(error).toEqual(expect.stringContaining('not found'))` |
+
+## Temporary File Cleanup Patterns
+
+When tests create temporary files, they **MUST** be cleaned up to prevent test pollution and avoid leaving artifacts in the project directory.
+
+### ✅ Recommended Pattern: afterEach Cleanup
+
+```typescript
+import { afterEach, beforeEach, describe, expect, test } from 'bun:test'
+
+describe('File operations', () => {
+  afterEach(async () => {
+    // Clean up temporary files created during tests
+    const tempFiles = [
+      './temp-test-file.json',
+      './temp-invalid-json-file.json'
+    ]
+
+    await Promise.all(
+      tempFiles.map(async filePath => {
+        await Bun.file(filePath).delete().catch(() => {})
+      })
+    )
+  })
+
+  test('should process file', async () => {
+    const tempFilePath = './temp-test-file.json'
+    await Bun.write(tempFilePath, JSON.stringify({ test: 'data' }))
+
+    // Test logic here
+    // No manual cleanup needed - afterEach handles it
+  })
+})
+```
+
+### ✅ Alternative Pattern: Directory Cleanup
+
+```typescript
+import { readdir } from 'node:fs/promises'
+
+afterEach(async () => {
+  // Clean up entire temporary directory
+  const tempDir = new URL('../../temp', import.meta.url).pathname
+  const files = await readdir(tempDir).catch(() => [])
+  await Promise.all(
+    files.map(async file => {
+      const filePath = `${tempDir}/${file}`
+      await Bun.file(filePath).delete().catch(() => {})
+    })
+  )
+})
+```
+
+### ❌ Anti-patterns
+
+```typescript
+// ❌ Don't rely on manual cleanup in each test
+test('should process file', async () => {
+  const tempFilePath = './temp-test-file.json'
+  await Bun.write(tempFilePath, JSON.stringify({ test: 'data' }))
+
+  // Test logic
+
+  await Bun.file(tempFilePath).delete() // Fragile - may not run if test fails
+})
+
+// ❌ Don't create files in project root without cleanup
+test('should process file', async () => {
+  await Bun.write('./some-file.json', 'data')
+  // No cleanup - leaves artifacts
+})
+
+// ❌ Don't ignore cleanup errors without good reason
+await Bun.file(tempFilePath).delete() // May throw if file doesn't exist
+```
+
+### Best Practices
+
+1. **Use afterEach for cleanup**: Ensures cleanup runs even if tests fail
+2. **List all temp files explicitly**: Makes cleanup predictable and thorough
+3. **Use .catch(() => {})**: Prevents cleanup failures from breaking tests
+4. **Prefer temp directories**: Keep temporary files organized in dedicated directories
+5. **Document temp file patterns**: Make it clear what files tests create
 
 ### Assertion Best Practices
 
@@ -319,16 +554,16 @@ const createTestApi = () => {
 
 describe('Project API', () => {
   let api: ReturnType<typeof createTestApi>
-  
+
   beforeEach(async () => {
     await initializeDb(':memory:')
     api = createTestApi()
   })
-  
+
   afterEach(async () => {
     await closeDb()
   })
-  
+
   // Tests go here
 })
 ```
@@ -420,7 +655,7 @@ test.describe('Projects', () => {
     const projectsPage = new ProjectsPage(page)
     await projectsPage.goto()
     await projectsPage.createProject('My New Project')
-    
+
     await expect(page.getByText('Project created successfully')).toBeVisible()
     await expect(page.getByText('My New Project')).toBeVisible()
   })
@@ -437,14 +672,8 @@ Always use the package.json scripts to run tests and related commands:
 # Run all tests
 bun test
 
-# Run tests in watch mode
-bun test --watch
-
 # Run a specific test file
 bun test path/to/test/file.test.ts
-
-# Generate test coverage report
-bun test --coverage
 ```
 
 ### Required Checks Before Completion
@@ -476,9 +705,39 @@ bun --inspect test/path/to/test.test.ts
 
 Then open Chrome DevTools to debug the test execution.
 
+### Testing Private Methods
+
+**Do NOT test private methods directly**:
+
+- Private methods are implementation details and should not be tested directly
+- TypeScript will show compilation errors when accessing private methods from tests
+- If you need to test functionality in a private method, test it through the public API
+- If a private method contains complex logic that needs testing, consider refactoring it into a separate utility function
+
+```typescript
+// ❌ DON'T: Test private methods directly
+describe('createErrorWithData', () => {
+  it('should create error with data', () => {
+    // This will cause TypeScript compilation errors
+    const result = ApiErrorHandler.createErrorWithData('ERROR', 'message', [], {})
+    expect(result).toBeDefined()
+  })
+})
+
+// ✅ DO: Test through public API
+describe('ApiErrorHandler', () => {
+  it('should create validation error', () => {
+    const result = ApiErrorHandler.validationError('Invalid input', [])
+    expect(result.status).toBe(422)
+    expect(result.value.errors[0].code).toBe('VALIDATION')
+  })
+})
+```
+
 ### Important Notes
 
 - Never run testing tools directly (e.g., `vitest`, `eslint`, `typescript`)
 - Always use the package.json scripts
 - All checks must pass before considering a task complete
 - The CI pipeline enforces these same checks
+- Do not test private methods directly - test through public APIs only
