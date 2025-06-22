@@ -254,7 +254,7 @@ const useFileUpload = () => {
 
 ### Backend Tests
 ```typescript
-// test/api/project/getById.test.ts
+// tests/api/project/getById.test.ts
 import { afterEach, beforeEach, describe, expect, it } from 'bun:test'
 import { Elysia } from 'elysia'
 import { projectRoutes } from '@backend/api/project'

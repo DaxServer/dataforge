@@ -240,7 +240,7 @@ project-root/
 │   │   ├── api/       # Route handlers
 │   │   ├── plugins/   # Elysia plugins
 │   │   └── types/     # Backend-specific types
-│   └── test/          # Backend tests
+│   └── tests/         # Backend tests
 ├── frontend/          # Frontend application
 │   ├── src/
 │   │   ├── components/
