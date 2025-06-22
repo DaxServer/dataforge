@@ -1,6 +1,19 @@
-# Elysia Eden Guidelines
+# Elysia Eden Integration Reference
 
-> **Note**: These guidelines cover the usage of Elysia Eden for type-safe API interactions between frontend and backend. All documentation should follow the [Style Guide](../guidelines/StyleGuide.md).
+> **Detailed implementation guide for type-safe API integration**
+
+## Related Guidelines
+- **[Backend Guidelines](../core/BACKEND.md)** - Core backend development with Elysia
+- **[Frontend Guidelines](../core/FRONTEND.md)** - API consumption patterns
+- **[General Guidelines](../core/GENERAL.md)** - Project-wide type safety principles
+- **[Testing Reference](./TESTING.md)** - Testing type-safe APIs
+
+## Quick Links
+- [Backend Setup](#backend-setup)
+- [Frontend Integration](#frontend-integration)
+- [Type Safety Patterns](#type-safety-patterns)
+- [Best Practices](#best-practices)
+- [Common Issues](#common-issues)
 
 ## Table of Contents
 - [Backend Setup](#backend-setup)
@@ -12,50 +25,11 @@
 
 When setting up Elysia with Eden on the backend, follow these conventions:
 
-1. **Export App Type**
-   - Always export the `App` type from your main application file
-   - Use proper TypeScript types for all route handlers
-   - Document all endpoints with JSDoc
-
-2. **Route Definitions**
+1. **Route Definitions**
    - Organize routes by resource
    - Use consistent naming for route parameters
    - Validate all inputs with Zod schemas
    - Document response types
-
-Example backend setup:
-
-```typescript
-// @backend/index.ts
-import { Elysia } from 'elysia'
-import { swagger } from '@elysiajs/swagger'
-import { userRoutes } from '@backend/routes/users'
-
-// Create the Elysia app
-export const app = new Elysia()
-  .use(swagger())
-  .use(userRoutes)
-  .listen(3000)
-
-// Export the app type for Eden
-export type App = typeof app
-
-console.log(
-  `🦊 Elysia server is running at ${app.server?.hostname}:${app.server?.port}`
-)
-```
-
-### Export App Type
-Ensure your main Elysia app exports its type:
-
-```typescript
-// @backend/index.ts
-export const app = new Elysia({
-  // ... config
-})
-
-export type App = typeof app
-```
 
 ### Route Definitions
 Define routes with proper schemas for type inference:
@@ -85,21 +59,11 @@ export const projectRoutes = new Elysia({ prefix: '/api/project' })
 
 ## Frontend Integration
 
-### API Client Setup
-**IMPORTANT**: The Elysia `App` type from the backend should **NEVER** be used directly in the frontend for API calls. Instead, always use Elysia Eden (via `edenTreaty`) for type-safe API interactions.
-
-```typescript
-// @frontend/composables/useApi.ts
-// No need to import edenTreaty - it's auto-imported
-import type { App } from '@backend/index'
-
-export const api = edenTreaty<App>('http://localhost:3000').api
-```
-
-### Using in Components
+### Using API Client in Components
 ```vue
 <script setup lang="ts">
-// No need to import - it's auto-imported
+// MANDATORY: Always use useApi() composable
+const { api } = useApi()
 const projects = ref([])
 const error = ref(null)
 
@@ -152,6 +116,7 @@ type CreateUserBody = Parameters<App['api']['users']['post']>[0]['body']
 type UpdateUserBody = Parameters<App['api']['users']['patch']>[0]['body']
 
 // Types are automatically inferred from backend
+const { api } = useApi()
 const user = await api.users({ id: '123' }).get()
 // user is typed as the response from GET /users/:id
 
@@ -171,12 +136,13 @@ const newUser = await api.users.post({
 ```typescript
 // ✅ DO: Set error state in frontend stores
 const createProject = async (projectData: { name: string }) => {
+  const { api } = useApi()
   isLoading.value = true
   error.value = null
-  
+
   try {
     const { data, error: apiError } = await api.project.post(projectData)
-    
+
     if (apiError) {
       // Type-safe error handling
       // error.value is automatically typed based on the route's error responses
@@ -184,7 +150,7 @@ const createProject = async (projectData: { name: string }) => {
       error.value = new Error(errorMessage)
       return
     }
-    
+
     // data is automatically typed based on the route's success response
     project.value = data
   } catch (err) {
@@ -200,13 +166,13 @@ const createProject = async (projectData: { name: string }) => {
 // ✅ DO: Return error results in utility functions
 const createProjectService = async (projectData: { name: string }) => {
   const { data, error } = await api.project.post(projectData)
-  
+
   if (error) {
     const errorMessage = error.value?.errors?.[0]?.message || 'Failed to create project'
     console.error(`Project creation failed: ${errorMessage}`)
     return { error: errorMessage, data: null }
   }
-  
+
   return { error: null, data }
 }
 ```
@@ -229,9 +195,11 @@ const createProjectService = async (projectData: { name: string }) => {
 )
 
 // Frontend
-const { data } = await api.project.get({
+const { api } = useApi()
+const response = await api.project.get({
   query: { limit: 10, offset: 0 }
 })
+const { data } = response
 ```
 
 ### File Uploads
@@ -252,31 +220,32 @@ const { data } = await api.project.get({
 
 // Frontend Store/Composable
 const useFileUpload = () => {
+  const { api } = useApi()
   const isUploading = ref(false)
   const error = ref<string | null>(null)
   const data = ref(null)
-  
+
   const handleFileUpload = async (event: Event) => {
     const file = (event.target as HTMLInputElement).files?.[0]
     if (!file) return
-    
+
     isUploading.value = true
     error.value = null
-    
+
     const { data: result, error: apiError } = await api.project.import.post({
       file: file  // Direct file upload
     })
-    
+
     if (apiError) {
       error.value = 'File upload failed'
       isUploading.value = false
       return
     }
-    
+
     data.value = result
     isUploading.value = false
   }
-  
+
   return { handleFileUpload, isUploading, error, data }
 }
 ```
@@ -324,12 +293,12 @@ describe('Project API - GET /:id', () => {
     expect(status).toBe(200)
     expect(error).toBeUndefined()
     expect(data).toHaveProperty('data')
-    expect(data?.data).toMatchObject({ name: 'Test Project' })
+    expect(data).toHaveProperty('data.name', 'Test Project')
   })
 })
 ```
 
-### Frontend Tests
+### Frontend Tests (future development)
 ```typescript
 // frontend/tests/unit/useApi.test.ts
 import { describe, it, expect, vi, beforeEach } from 'vitest'
@@ -355,14 +324,14 @@ describe('useApi', () => {
 
   it('fetches projects', async () => {
     // Setup mock
-    api.project.get.mockResolvedValue({ 
+    api.project.get.mockResolvedValue({
       data: [mockProject],
-      status: 200 
+      status: 200
     })
-    
+
     // Test the API call
     const { data, status } = await api.project.get()
-    
+
     // Assertions
     expect(status).toBe(200)
     expect(data).toEqual([mockProject])
@@ -387,16 +356,16 @@ const createTestApi = () => {
 
 describe('Project API', () => {
   let api: ReturnType<typeof createTestApi>
-  
+
   beforeEach(async () => {
     await initializeDb(':memory:')
     api = createTestApi()
   })
-  
+
   afterEach(async () => {
     await closeDb()
   })
-  
+
   // Your tests here
 })
 ```

@@ -1,4 +1,18 @@
-# Style Guide for Documentation
+# Style Guide Reference
+
+> **Detailed formatting and writing standards for code and documentation**
+
+## Related Guidelines
+- **[General Guidelines](../core/GENERAL.md)** - Project-wide code style principles
+- **[Frontend Guidelines](../core/FRONTEND.md)** - Vue and Tailwind specific styles
+- **[Backend Guidelines](../core/BACKEND.md)** - Elysia and TypeScript patterns
+
+## Quick Links
+- [Terminology](#terminology)
+- [Code Examples](#code-examples)
+- [Documentation Standards](#documentation-standards)
+- [File Naming](#file-naming)
+- [Formatting Rules](#formatting-rules)
 
 This document defines the writing and formatting standards for all project documentation to ensure consistency across all files.
 
@@ -85,8 +99,10 @@ Each file should start with:
 ### Type Definitions
 
 - **NEVER create custom interfaces or types for data structures**
-- **Rare exceptions**: Internal utility types, component props, or configuration types not related to API data
-- **ALWAYS use Elysia Eden inferred types from the backend**
+- **Rare exceptions**: 
+  - Internal utility types, component props, or configuration types not related to API data
+  - **Typebox types from backend schemas** (e.g., `import type { Project } from '@backend/api/project/schemas'`)
+- **ALWAYS use Elysia Eden inferred types from the backend for API responses**
 - Use `unknown` over `any` for truly unknown data
 - Use strict type checking
 - Database schema is dynamic - frontend must not hardcode any structure
