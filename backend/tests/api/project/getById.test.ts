@@ -165,10 +165,11 @@ describe('Project API - GET /:id', () => {
       expect.objectContaining({
         data: expect.arrayContaining([]),
         meta: expect.objectContaining({
+          name: 'Empty Project',
+          schema: expect.arrayContaining([]),
           total: 0,
           limit: 25,
           offset: 0,
-          name: 'Empty Project',
         }),
       })
     )
