@@ -152,7 +152,7 @@ describe('Project API - GET /:id', () => {
     expect(error).toBeNull()
     expect(data).toHaveProperty('data', [])
     expect(data).toHaveProperty('meta', {
-      name: 'Empty Project',
+      name: 'Unknown Project',
       schema: [],
       total: 0,
       limit: 25,
