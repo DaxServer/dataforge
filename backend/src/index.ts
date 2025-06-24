@@ -1,10 +1,10 @@
 import { Elysia } from 'elysia'
-import { healthRoutes } from './api/health'
-import { projectRoutes } from './api/project'
+import { cors } from '@elysiajs/cors'
 import swagger from '@elysiajs/swagger'
 import { logger } from '@bogeychan/elysia-logger'
-import { databasePlugin } from './plugins/database'
-import { cors } from '@elysiajs/cors'
+import { databasePlugin } from '@backend/plugins/database'
+import { healthRoutes } from '@backend/api/health'
+import { projectRoutes } from '@backend/api/project'
 
 export const elysiaApp = new Elysia({
   serve: {

@@ -1,8 +1,8 @@
 import { describe, expect, test, beforeEach, afterEach } from 'bun:test'
 import { Elysia } from 'elysia'
-import { projectRoutes } from '@backend/api/project'
-import { initializeDb, closeDb, getDb } from '@backend/plugins/database'
 import { treaty } from '@elysiajs/eden'
+import { initializeDb, closeDb, getDb } from '@backend/plugins/database'
+import { projectRoutes } from '@backend/api/project'
 
 // Create a test app with the project import routes
 const createTestApi = () => {
@@ -33,7 +33,7 @@ describe('POST /project/:projectId/import', () => {
   })
 
   test('should return 201 for a valid import', async () => {
-    const projectId = 'test-project-id'
+    const projectId = '550e8400-e29b-41d4-a716-446655440000'
     const tempFilePath = './temp-test-file.json'
     await Bun.write(tempFilePath, JSON.stringify({ test: 'data' }))
 
@@ -47,7 +47,7 @@ describe('POST /project/:projectId/import', () => {
   })
 
   test('should return 400 for a missing JSON file', async () => {
-    const projectId = 'test-project-id'
+    const projectId = '550e8400-e29b-41d4-a716-446655440001'
     const nonExistentFilePath = './non-existent-file.json'
 
     const { data, status, error } = await api.project({ id: projectId }).import.post({
@@ -74,7 +74,7 @@ describe('POST /project/:projectId/import', () => {
   })
 
   test('should return 500 for invalid JSON content in file', async () => {
-    const projectId = 'test-project-id'
+    const projectId = '550e8400-e29b-41d4-a716-446655440002'
     const tempFilePath = './temp-invalid-json-file.json'
     await Bun.write(tempFilePath, 'this is not valid json')
 
@@ -102,7 +102,7 @@ describe('POST /project/:projectId/import', () => {
   })
 
   test('should create a DuckDB table after successful import', async () => {
-    const projectId = 'test-project-id'
+    const projectId = '550e8400-e29b-41d4-a716-446655440003'
     const tempFilePath = './temp-test-file.json'
     const testData = [{ id: 1, name: 'test' }]
     await Bun.write(tempFilePath, JSON.stringify(testData))
@@ -124,7 +124,7 @@ describe('POST /project/:projectId/import', () => {
   })
 
   test('should return 409 when importing to an existing table', async () => {
-    const projectId = 'duplicate-project-id'
+    const projectId = '550e8400-e29b-41d4-a716-446655440004'
     const tempFilePath = './temp-test-file.json'
     const testData = [{ id: 1, name: 'test' }]
     await Bun.write(tempFilePath, JSON.stringify(testData))

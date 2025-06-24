@@ -1,2 +1,1 @@
-export * from './routes'
-export * from './handlers'
+export * from '@backend/api/project/_routes'

@@ -10,9 +10,9 @@ import {
   setSystemTime,
 } from 'bun:test'
 import { Elysia } from 'elysia'
-import { projectRoutes } from '@backend/api/project'
-import { closeDb, initializeDb, getDb } from '@backend/plugins/database'
 import { treaty } from '@elysiajs/eden'
+import { closeDb, initializeDb, getDb } from '@backend/plugins/database'
+import { projectRoutes } from '@backend/api/project'
 
 // Create a test app with the project routes
 const createTestApi = () => {

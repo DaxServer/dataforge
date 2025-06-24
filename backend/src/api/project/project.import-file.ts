@@ -1,124 +1,8 @@
-import type { Context } from 'elysia'
-import type {
-  CreateProjectInput,
-  Project,
-  ImportWithFileInput,
-  GetProjectByIdInput,
-} from '@backend/api/project/schemas'
+import { t, type Context } from 'elysia'
+import type { Project } from '@backend/api/project/_schemas'
 import { getDb } from '@backend/plugins/database'
 import { ApiErrorHandler } from '@backend/types/error-handler'
-import { enhanceSchemaWithTypes } from '@backend/utils/duckdb-types'
-
-export const getProjectById = async ({ params, set }: Context<{ params: GetProjectByIdInput }>) => {
-  const db = getDb()
-
-  // First, check if the project exists in _meta_projects
-  const projectReader = await db.runAndReadAll('SELECT * FROM _meta_projects WHERE id = ?', [
-    params.id,
-  ])
-  const projects = projectReader.getRowObjectsJson()
-
-  if (projects.length === 0) {
-    set.status = 404
-    return ApiErrorHandler.notFoundErrorWithData('Project')
-  }
-
-  try {
-    // Get the project's data from the project table (first 25 rows)
-    const tableName = `project_${params.id}`
-    const rowsReader = await db.runAndReadAll(`SELECT * FROM "${tableName}" LIMIT 25`)
-    const rows = rowsReader.getRowObjectsJson()
-    const schema = rowsReader.columnNameAndTypeObjectsJson()
-
-    return {
-      data: rows,
-      meta: {
-        name: projects?.[0]?.name ?? 'Unknown Project',
-        schema: enhanceSchemaWithTypes(schema),
-        total: rows.length, // For simplicity, we're not doing a separate count query
-        limit: 25,
-        offset: 0,
-      },
-    }
-  } catch (error) {
-    // If the table doesn't exist, return empty data
-    if (error instanceof Error && error.message.includes('does not exist')) {
-      return {
-        data: [],
-        meta: {
-          name: projects?.[0]?.name ?? 'Unknown Project',
-          schema: enhanceSchemaWithTypes([]),
-          total: 0,
-          limit: 25,
-          offset: 0,
-        },
-      }
-    }
-
-    // Re-throw other errors
-    throw error
-  }
-}
-
-export const getAllProjects = async () => {
-  const db = getDb()
-  const reader = await db.runAndReadAll('SELECT * FROM _meta_projects ORDER BY created_at DESC')
-
-  const projects = reader.getRowObjectsJson()
-
-  return {
-    data: projects as Project[],
-  }
-}
-
-export const createProject = async ({
-  body,
-  set,
-}: Context<{
-  body: CreateProjectInput
-}>) => {
-  const db = getDb()
-
-  // Insert the new project and get the inserted row in one operation
-  const reader = await db.runAndReadAll(
-    `INSERT INTO _meta_projects (name)
-     VALUES (?)
-     RETURNING *`,
-    [body.name]
-  )
-
-  const projects = reader.getRowObjectsJson()
-
-  if (projects.length === 0) {
-    set.status = 500
-    return ApiErrorHandler.databaseErrorWithData(
-      'Failed to create project: No project returned from database'
-    )
-  }
-
-  set.status = 201
-  return {
-    data: projects[0] as Project,
-  }
-}
-
-export const deleteProject = async ({ params, set }: Context<{ params: { id: string } }>) => {
-  const db = getDb()
-
-  // Delete the project and return the deleted row if it exists
-  const reader = await db.runAndReadAll('DELETE FROM _meta_projects WHERE id = ? RETURNING id', [
-    params.id,
-  ])
-
-  const deleted = reader.getRowObjectsJson()
-
-  if (deleted.length === 0) {
-    set.status = 404
-    return ApiErrorHandler.notFoundErrorWithData('Project')
-  }
-
-  set.status = 204
-}
+import { ErrorResponseWithDataSchema } from '@backend/types/error-schemas'
 
 const cleanupProject = async (projectId: string, tempFilePath?: string) => {
   const db = getDb()
@@ -130,11 +14,41 @@ const cleanupProject = async (projectId: string, tempFilePath?: string) => {
   }
 }
 
+export const ProjectImportFileSchema = {
+  body: t.Object({
+    file: t.File({
+      // Note: File type validation has known issues in Elysia 1.3.x
+      // See: https://github.com/elysiajs/elysia/issues/1073
+      // type: ['application/json'], // Temporarily disabled due to validation issues
+      minSize: 1, // Reject empty files
+    }),
+    name: t.Optional(
+      t.String({
+        minLength: 1,
+        maxLength: 255,
+        error: 'Project name must be between 1 and 255 characters long if provided',
+      })
+    ),
+  }),
+  response: {
+    201: t.Object({
+      data: t.Object({
+        id: t.String(),
+      }),
+    }),
+    400: ErrorResponseWithDataSchema,
+    422: ErrorResponseWithDataSchema,
+    500: ErrorResponseWithDataSchema,
+  },
+}
+
+type ProjectImportBody = typeof ProjectImportFileSchema.body.static
+
 export const importWithFile = async ({
   body,
   set,
 }: Context<{
-  body: ImportWithFileInput
+  body: ProjectImportBody
 }>) => {
   const { file, name } = body
 

@@ -196,6 +196,7 @@ declare module 'vue' {
     readonly useProjectListStore: UnwrapRef<(typeof import('./src/stores/project-list.store'))['useProjectListStore']>
     readonly useProjectStore: UnwrapRef<(typeof import('./src/stores/project.store'))['useProjectStore']>
     readonly useRoute: UnwrapRef<(typeof import('vue-router'))['useRoute']>
+    readonly useRouteParams: UnwrapRef<(typeof import('@vueuse/router'))['useRouteParams']>
     readonly useRouter: UnwrapRef<(typeof import('vue-router'))['useRouter']>
     readonly useSlots: UnwrapRef<(typeof import('vue'))['useSlots']>
     readonly useTemplateRef: UnwrapRef<(typeof import('vue'))['useTemplateRef']>
