@@ -1,13 +1,11 @@
-import { t, type Context } from 'elysia'
-import type { Project } from '@backend/api/project/_schemas'
-import { getDb } from '@backend/plugins/database'
+import { t } from 'elysia'
+import type { DuckDBConnection } from '@duckdb/node-api'
 import { ApiErrorHandler } from '@backend/types/error-handler'
 import { ErrorResponseWithDataSchema } from '@backend/types/error-schemas'
+import type { Project } from '@backend/api/project/_schemas'
 
-const cleanupProject = async (projectId: string, tempFilePath?: string) => {
-  const db = getDb()
-
-  await db.run('DELETE FROM _meta_projects WHERE id = ?', [projectId])
+const cleanupProject = async (db: () => DuckDBConnection, projectId: string, tempFilePath?: string) => {
+  await db().run('DELETE FROM _meta_projects WHERE id = ?', [projectId])
 
   if (tempFilePath) {
     await Bun.file(tempFilePath).delete()
@@ -44,15 +42,12 @@ export const ProjectImportFileSchema = {
 
 type ProjectImportBody = typeof ProjectImportFileSchema.body.static
 
-export const importWithFile = async ({
-  body,
-  set,
-}: Context<{
-  body: ProjectImportBody
-}>) => {
+export const importWithFile = async (
+  db: () => DuckDBConnection,
+  body: ProjectImportBody,
+  status
+) => {
   const { file, name } = body
-
-  const db = getDb()
 
   // Generate project name if not provided
   const projectName =
@@ -71,7 +66,7 @@ export const importWithFile = async ({
     })()
 
   // Create the project
-  const reader = await db.runAndReadAll(
+  const reader = await db().runAndReadAll(
     `INSERT INTO _meta_projects (name)
      VALUES (?)
      RETURNING *`,
@@ -80,9 +75,11 @@ export const importWithFile = async ({
 
   const projects = reader.getRowObjectsJson()
   if (projects.length === 0) {
-    set.status = 500
-    return ApiErrorHandler.projectCreationErrorWithData(
-      'Failed to create project: No project returned from database'
+    return status(
+      500,
+      ApiErrorHandler.projectCreationErrorWithData(
+        'Failed to create project: No project returned from database'
+      )
     )
   }
 
@@ -103,9 +100,8 @@ export const importWithFile = async ({
   try {
     await Bun.file(tempFilePath).json()
   } catch (parseError) {
-    await cleanupProject(project.id, tempFilePath)
+    await cleanupProject(db, project.id, tempFilePath)
 
-    set.status = 400
     const errorMessage = parseError instanceof Error ? parseError.message : 'Failed to parse JSON'
     // Extract the specific error part from the message (e.g., "Unexpected identifier 'json'")
     const match = errorMessage.match(/Unexpected identifier "([^"]+)"/)
@@ -113,27 +109,32 @@ export const importWithFile = async ({
       ? `JSON Parse error: Unexpected identifier "${match[1]}"`
       : 'Failed to parse JSON'
 
-    return ApiErrorHandler.invalidJsonErrorWithData('Invalid JSON format in uploaded file', [
-      errorDetail,
-    ])
+    return status(
+      400,
+      ApiErrorHandler.invalidJsonErrorWithData('Invalid JSON format in uploaded file', [
+        errorDetail,
+      ])
+    )
   }
 
   // Check if table already exists
-  const tableExistsReader = await db.runAndReadAll(
+  const tableExistsReader = await db().runAndReadAll(
     `SELECT 1 FROM duckdb_tables() WHERE table_name = 'project_${project.id}'`
   )
 
   if (tableExistsReader.getRows().length > 0) {
     // await cleanupProject(db, project.id, tempFilePath)
 
-    set.status = 500
-    return ApiErrorHandler.dataImportErrorWithData(
-      `Table with name 'project_${project.id}' already exists`
+    return status(
+      500,
+      ApiErrorHandler.dataImportErrorWithData(
+        `Table with name 'project_${project.id}' already exists`
+      )
     )
   }
 
   // Create table with autoincrement primary key and import data using DuckDB's JSON functions
-  await db.run(`
+  await db().run(`
     -- Create the table with an autoincrement primary key
     CREATE TABLE "project_${project.id}" AS
     SELECT
@@ -145,7 +146,7 @@ export const importWithFile = async ({
   `)
 
   // Add primary key constraint
-  await db.run(`
+  await db().run(`
     ALTER TABLE "project_${project.id}"
     ALTER COLUMN id SET NOT NULL;
 
@@ -156,8 +157,7 @@ export const importWithFile = async ({
   // Clean up temporary file
   await Bun.file(tempFilePath).delete()
 
-  set.status = 201
-  return {
+  return status(201, {
     data: { id: project.id },
-  }
+  })
 }

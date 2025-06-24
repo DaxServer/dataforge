@@ -1,5 +1,5 @@
-import { t, type Context } from 'elysia'
-import { getDb } from '@backend/plugins/database'
+import { t } from 'elysia'
+import type { DuckDBConnection } from '@duckdb/node-api'
 import { ApiErrorHandler } from '@backend/types/error-handler'
 import { ProjectUUIDParams } from '@backend/api/project/_schemas'
 import { ErrorResponseWithDataSchema } from '@backend/types/error-schemas'
@@ -10,7 +10,7 @@ export const ProjectImportSchema = {
     filePath: t.String(),
   }),
   response: {
-    201: t.Void(),
+    201: t.Null(),
     400: ErrorResponseWithDataSchema,
     409: ErrorResponseWithDataSchema,
     422: ErrorResponseWithDataSchema,
@@ -20,55 +20,50 @@ export const ProjectImportSchema = {
 
 type ProjectImportBody = typeof ProjectImportSchema.body.static
 
-export const importProject = async ({
-  params,
-  body,
-  set,
-}: Context<{ params: typeof ProjectUUIDParams; body: ProjectImportBody }>) => {
+export const importProject = async (
+  db: () => DuckDBConnection,
+  id: string,
+  body: ProjectImportBody,
+  status
+) => {
   const { filePath } = body
 
   if (!filePath) {
-    set.status = 400
-    return ApiErrorHandler.missingFilePathError()
+    return status(400, ApiErrorHandler.missingFilePathError())
   }
 
   const fileExists = await Bun.file(filePath).exists()
 
   if (!fileExists) {
-    set.status = 400
-    return ApiErrorHandler.fileNotFoundError(filePath)
+    return status(400, ApiErrorHandler.fileNotFoundError(filePath))
   }
 
   // We'll check if the file exists but won't parse it
   // DuckDB's read_json_auto will handle the parsing
 
-  const db = getDb()
-
   // Check if a table with the same project ID already exists
   let tableExistsReader
   try {
-    tableExistsReader = await db.runAndReadAll(
-      `SELECT 1 FROM duckdb_tables() WHERE table_name = 'project_${params.id}'`
+    tableExistsReader = await db().runAndReadAll(
+      `SELECT 1 FROM duckdb_tables() WHERE table_name = 'project_${id}'`
     )
   } catch (error) {
-    set.status = 500
-    return ApiErrorHandler.internalServerErrorWithData(
-      'An error occurred while importing the project',
-      [(error as Error).message]
+    return status(
+      500,
+      ApiErrorHandler.internalServerErrorWithData('An error occurred while importing the project', [
+        (error as Error).message,
+      ])
     )
   }
 
   if (tableExistsReader.getRows().length > 0) {
-    set.status = 409
-    return ApiErrorHandler.tableExistsErrorWithData(`project_${params.id}`)
+    return status(409, ApiErrorHandler.tableExistsErrorWithData(`project_${id}`))
   }
 
   // Try to create the table directly
   try {
-    await db.run(
-      `CREATE TABLE "project_${params.id}" AS SELECT * FROM read_json_auto('${filePath}')`
-    )
-    set.status = 201
+    await db().run(`CREATE TABLE "project_${id}" AS SELECT * FROM read_json_auto('${filePath}')`)
+    return status(201, new Response(null))
   } catch (error) {
     // Check if the error is related to JSON parsing
     const errorMessage = String(error)
@@ -78,24 +73,20 @@ export const importProject = async ({
       errorMessage.includes('parse') ||
       errorMessage.includes('Parse')
     ) {
-      set.status = 400
-      return {
-        data: [],
-        errors: [
-          {
-            code: 'VALIDATION',
-            message: 'Error with JSON file',
-            details: [(error as Error).message],
-          },
-        ],
-      }
+      return status(
+        400,
+        ApiErrorHandler.invalidJsonErrorWithData('Invalid JSON format in uploaded file', [
+          (error as Error).message,
+        ])
+      )
     }
 
     // Handle any other errors
-    set.status = 500
-    return ApiErrorHandler.internalServerErrorWithData(
-      'An error occurred while importing the project',
-      [(error as Error).message]
+    return status(
+      500,
+      ApiErrorHandler.internalServerErrorWithData('An error occurred while importing the project', [
+        (error as Error).message,
+      ])
     )
   }
 }
@@ -122,12 +113,7 @@ export const ProjectImportFileAltSchema = {
 
 type ProjectImportFileBody = typeof ProjectImportFileAltSchema.body.static
 
-export const importProjectFile = async ({
-  set,
-  body,
-}: Context<{
-  body: ProjectImportFileBody
-}>) => {
+export const importProjectFile = async (body: ProjectImportFileBody, status) => {
   try {
     // Generate a unique temporary file name
     const timestamp = Date.now()
@@ -142,14 +128,15 @@ export const importProjectFile = async ({
     // Write the file to temporary location using Bun.write
     await Bun.write(tempFilePath, uint8Array)
 
-    set.status = 201
-    return {
+    return status(201, {
       tempFilePath,
-    }
+    })
   } catch (error) {
-    set.status = 500
-    return ApiErrorHandler.internalServerErrorWithData('Failed to save uploaded file', [
-      (error as Error).message,
-    ])
+    return status(
+      500,
+      ApiErrorHandler.internalServerErrorWithData('Failed to save uploaded file', [
+        (error as Error).message,
+      ])
+    )
   }
 }

@@ -1,5 +1,5 @@
 import { t } from 'elysia'
-import { getDb } from '@backend/plugins/database'
+import type { DuckDBConnection } from '@duckdb/node-api'
 import { ErrorResponseWithDataSchema } from '@backend/types/error-schemas'
 import { ProjectResponseSchema, type Project } from '@backend/api/project/_schemas'
 
@@ -12,9 +12,8 @@ export const ProjectsGetAllSchema = {
   },
 }
 
-export const getAllProjects = async () => {
-  const db = getDb()
-  const reader = await db.runAndReadAll('SELECT * FROM _meta_projects ORDER BY created_at DESC')
+export const getAllProjects = async (db: () => DuckDBConnection) => {
+  const reader = await db().runAndReadAll('SELECT * FROM _meta_projects ORDER BY created_at DESC')
 
   const projects = reader.getRowObjectsJson()
 
