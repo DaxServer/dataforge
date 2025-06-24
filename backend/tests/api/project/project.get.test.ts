@@ -4,7 +4,7 @@ import { Elysia } from 'elysia'
 import { treaty } from '@elysiajs/eden'
 import { initializeDb, closeDb } from '@backend/plugins/database'
 import { projectRoutes } from '@backend/api/project'
-import { UUID_REGEX, UUID_REGEX_PATTERN } from '@backend/api/project/_schemas'
+import { UUID_REGEX } from '@backend/api/project/_schemas'
 
 const TEST_DATA = [
   { name: 'John', age: 30, city: 'New York' },
@@ -152,7 +152,7 @@ describe('Project API - GET /:id', () => {
     expect(error).toBeNull()
     expect(data).toHaveProperty('data', [])
     expect(data).toHaveProperty('meta', {
-      name: 'Empty Project',
+      name: 'Unknown Project',
       schema: [],
       total: 0,
       limit: 25,

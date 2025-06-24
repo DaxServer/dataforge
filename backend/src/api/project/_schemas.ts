@@ -24,3 +24,12 @@ export const ProjectUUIDParams = t.Object({
     error: 'ID must be a valid UUID',
   }),
 })
+
+export const DuckDBColumnSchema = t.Array(
+  t.Object({
+    name: t.String(),
+    type: t.String(),
+  })
+)
+
+export type DuckDBColumnSchema = typeof DuckDBColumnSchema.static

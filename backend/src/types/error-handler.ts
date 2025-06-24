@@ -17,7 +17,10 @@ export class ApiErrorHandler {
   /**
    * Create a validation error response with data array (for compatibility)
    */
-  static validationErrorWithData(message: string = 'Validation failed', details: unknown[] = []) {
+  static validationErrorWithData(
+    message: string = 'Validation failed',
+    details: unknown[] = []
+  ): ErrorResponseWithData {
     return this.createErrorWithData('VALIDATION', message, details)
   }
 
@@ -34,7 +37,10 @@ export class ApiErrorHandler {
   /**
    * Create a not found error response with data array (for compatibility)
    */
-  static notFoundErrorWithData(resource: string = 'Resource', identifier?: string) {
+  static notFoundErrorWithData(
+    resource: string = 'Resource',
+    identifier?: string
+  ): ErrorResponseWithData {
     const message = identifier
       ? `${resource} with identifier '${identifier}' not found`
       : `${resource} not found`
@@ -60,7 +66,7 @@ export class ApiErrorHandler {
   /**
    * Create a table already exists error response with data array
    */
-  static tableExistsErrorWithData(tableName: string) {
+  static tableExistsErrorWithData(tableName: string): ErrorResponseWithData {
     return this.createErrorWithData(
       'TABLE_ALREADY_EXISTS',
       `Table with name '${tableName}' already exists`
@@ -184,8 +190,7 @@ export class ApiErrorHandler {
   static tableExistsError(tableName: string): ErrorResponseWithData {
     return this.createErrorWithData(
       'TABLE_ALREADY_EXISTS',
-      `Table with name '${tableName}' already exists`,
-      []
+      `Table with name '${tableName}' already exists`
     )
   }
 

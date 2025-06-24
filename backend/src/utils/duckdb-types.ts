@@ -1,4 +1,5 @@
 import { DuckDBTypeId, type Json } from '@duckdb/node-api'
+import type { DuckDBColumnSchema } from '@backend/api/project/_schemas'
 
 export const getTypeFromTypeId = (typeId: number): string => {
   switch (typeId) {
@@ -34,9 +35,9 @@ export const getTypeFromTypeId = (typeId: number): string => {
   }
 }
 
-export const enhanceSchemaWithTypes = (schema: Json): Json => {
+export const enhanceSchemaWithTypes = (schema: Json): DuckDBColumnSchema => {
   return schema.map(col => ({
     name: col.columnName,
     type: getTypeFromTypeId(col.columnType.typeId),
-  }))
+  })) as DuckDBColumnSchema
 }

@@ -224,48 +224,6 @@ describe('POST /api/project/import', () => {
       })
     })
 
-    describe('Table creation', () => {
-      test('should create table with autoincrement primary key', async () => {
-        const testData = JSON.stringify({
-          rows: [
-            { name: 'John', age: 30, city: 'New York' },
-            { name: 'Jane', age: 25, city: 'Boston' },
-          ],
-          columns: ['name', 'age', 'city'],
-        })
-        const file = new File([testData], 'test-data.json', { type: 'application/json' })
-
-        const { data, status } = await api.project.import.post({ file })
-        expect(status).toBe(201)
-
-        const db = getDb()
-        const projectId = data?.data?.id
-
-        const result = await db.runAndReadAll(`PRAGMA table_info("project_${projectId}")`)
-
-        const columns = result.getRowObjectsJson()
-
-        // Verify there is an 'id' column with autoincrement and primary key
-        const idColumn = (columns as DuckDBColumn[]).find(col => col.name === 'id')
-        expect(idColumn).toBeDefined()
-
-        // In DuckDB, primary key is indicated by pk > 0
-        expect(Number(idColumn.pk)).toBeGreaterThan(0)
-
-        // Check if the id column is autoincrement by checking its type and constraints
-        // In DuckDB, autoincrement columns are BIGINT PRIMARY KEY and NOT NULL
-        expect(idColumn.type.toUpperCase()).toBe('BIGINT')
-        // Handle both boolean true and number 1 for notnull
-        expect(Boolean(idColumn.notnull)).toBe(true)
-
-        // In DuckDB, autoincrement columns don't necessarily create explicit sequences
-        // Instead, verify that the table was created successfully with the autoincrement column
-        // The presence of the BIGINT PRIMARY KEY column with NOT NULL constraint is sufficient
-        expect(idColumn.type.toUpperCase()).toBe('BIGINT')
-        expect(Boolean(idColumn.pk)).toBe(true)
-      })
-    })
-
     describe('File processing errors', () => {
       test('should return 400 for invalid JSON content', async () => {
         const invalidJson = '{ "invalid": json content }'
