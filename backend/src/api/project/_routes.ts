@@ -1,22 +1,17 @@
 import { Elysia } from 'elysia'
-import { GetProjectByIdSchema } from './schemas'
-import {
-  createProject,
-  deleteProject,
-  getAllProjects,
-  getProjectById,
-  importWithFile,
-} from './handlers'
-import {
-  CreateProjectSchema,
-  DeleteProjectSchema,
-  GetAllProjectsSchema,
-  ImportProjectSchema,
-  ImportFileProjectSchema,
-  ImportWithFileSchema,
-} from './schemas'
-import { importProject, importProjectFile } from './import'
 import { ApiErrorHandler } from '@backend/types/error-handler'
+import { getDb } from '@backend/plugins/database'
+import {
+  importProject,
+  importProjectFile,
+  ProjectImportFileAltSchema,
+  ProjectImportSchema,
+} from '@backend/api/project/import'
+import { createProject, ProjectCreateSchema } from '@backend/api/project/project.create'
+import { deleteProject, ProjectDeleteSchema } from '@backend/api/project/project.delete'
+import { getProjectById, GetProjectByIdSchema } from '@backend/api/project/project.get'
+import { getAllProjects, ProjectsGetAllSchema } from '@backend/api/project/project.get-all'
+import { importWithFile, ProjectImportFileSchema } from '@backend/api/project/project.import-file'
 
 export const projectRoutes = new Elysia({ prefix: '/api/project' })
   .onError(({ code, error, set }) => {
@@ -44,10 +39,11 @@ export const projectRoutes = new Elysia({ prefix: '/api/project' })
     const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred'
     return ApiErrorHandler.internalServerErrorWithData(errorMessage)
   })
-  .get('/', getAllProjects, GetAllProjectsSchema)
+  .decorate('db', getDb)
+  .get('/', getAllProjects, ProjectsGetAllSchema)
   .get('/:id', getProjectById, GetProjectByIdSchema)
-  .post('/', createProject, CreateProjectSchema)
-  .delete('/:id', deleteProject, DeleteProjectSchema)
-  .post('/:id/import', importProject, ImportProjectSchema)
-  .post('/:id/import/file', importProjectFile, ImportFileProjectSchema)
-  .post('/import', importWithFile, ImportWithFileSchema)
+  .post('/', createProject, ProjectCreateSchema)
+  .delete('/:id', deleteProject, ProjectDeleteSchema)
+  .post('/:id/import', importProject, ProjectImportSchema)
+  .post('/:id/import/file', importProjectFile, ProjectImportFileAltSchema)
+  .post('/import', importWithFile, ProjectImportFileSchema)

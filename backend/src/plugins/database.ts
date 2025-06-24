@@ -20,11 +20,12 @@ export const initializeDb = async (dbPath: string = 'openrefine.db'): Promise<Du
   // Connect to the database
   connection = await instance.connect()
 
-  // Read and execute the SQL file using Bun's file API
-  const sqlPath = Bun.resolveSync('../sql/create_projects_table.sql', import.meta.dir)
-  const sql = await Bun.file(sqlPath).text()
-
-  await connection.run(sql)
+  await connection.run(`CREATE TABLE IF NOT EXISTS _meta_projects (
+  id UUID PRIMARY KEY DEFAULT uuid(),
+  name TEXT NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);`)
 
   return connection
 }

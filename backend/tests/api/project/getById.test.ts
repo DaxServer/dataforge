@@ -1,13 +1,10 @@
 /// <reference types="bun-types" />
-
-// 1. Imports
 import { afterEach, beforeEach, describe, expect, it } from 'bun:test'
 import { Elysia } from 'elysia'
-import { projectRoutes } from '@backend/api/project'
-import { initializeDb, closeDb } from '@backend/plugins/database'
 import { treaty } from '@elysiajs/eden'
+import { initializeDb, closeDb } from '@backend/plugins/database'
+import { projectRoutes } from '@backend/api/project'
 
-// 2. Test Data
 const TEST_DATA = [
   { name: 'John', age: 30, city: 'New York' },
   { name: 'Jane', age: 25, city: 'Los Angeles' },
@@ -22,7 +19,6 @@ const createTestApi = () => {
   return treaty(new Elysia().use(projectRoutes)).api
 }
 
-// 3. Test Suite
 describe('Project API - GET /:id', () => {
   let api: ReturnType<typeof createTestApi>
   let projectId: string
@@ -78,7 +74,6 @@ describe('Project API - GET /:id', () => {
     expect(status).toBe(201)
   }
 
-  // 4. Test Cases
   it('should return project by id', async () => {
     const { data, status, error } = await api.project({ id: projectId }).get()
 

@@ -1,10 +1,10 @@
 /// <reference types="bun-types" />
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test'
 import { Elysia } from 'elysia'
-import { projectRoutes } from '@backend/api/project'
-import { closeDb, initializeDb } from '@backend/plugins/database'
 import { treaty } from '@elysiajs/eden'
-import { UUID_REGEX_PATTERN } from '@backend/api/project/schemas.ts'
+import { closeDb, initializeDb } from '@backend/plugins/database'
+import { projectRoutes } from '@backend/api/project'
+import { UUID_REGEX_PATTERN } from '@backend/api/project/_schemas'
 
 // Create a test app with the project routes
 const createTestApi = () => {

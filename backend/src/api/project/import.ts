@@ -1,13 +1,30 @@
+import { t, type Context } from 'elysia'
 import { getDb } from '@backend/plugins/database'
-import type { Context } from 'elysia'
-import type { ImportProjectInput } from './schemas'
 import { ApiErrorHandler } from '@backend/types/error-handler'
+import { ProjectUUIDParams } from '@backend/api/project/_schemas'
+import { ErrorResponseWithDataSchema } from '@backend/types/error-schemas'
+
+export const ProjectImportSchema = {
+  params: ProjectUUIDParams,
+  body: t.Object({
+    filePath: t.String(),
+  }),
+  response: {
+    201: t.Void(),
+    400: ErrorResponseWithDataSchema,
+    409: ErrorResponseWithDataSchema,
+    422: ErrorResponseWithDataSchema,
+    500: ErrorResponseWithDataSchema,
+  },
+}
+
+type ProjectImportBody = typeof ProjectImportSchema.body.static
 
 export const importProject = async ({
-  params: { id },
+  params,
   body,
   set,
-}: Context<{ body: ImportProjectInput }>) => {
+}: Context<{ params: typeof ProjectUUIDParams; body: ProjectImportBody }>) => {
   const { filePath } = body
 
   if (!filePath) {
@@ -31,7 +48,7 @@ export const importProject = async ({
   let tableExistsReader
   try {
     tableExistsReader = await db.runAndReadAll(
-      `SELECT 1 FROM duckdb_tables() WHERE table_name = 'project_${id}'`
+      `SELECT 1 FROM duckdb_tables() WHERE table_name = 'project_${params.id}'`
     )
   } catch (error) {
     set.status = 500
@@ -43,12 +60,14 @@ export const importProject = async ({
 
   if (tableExistsReader.getRows().length > 0) {
     set.status = 409
-    return ApiErrorHandler.tableExistsErrorWithData(`project_${id}`)
+    return ApiErrorHandler.tableExistsErrorWithData(`project_${params.id}`)
   }
 
   // Try to create the table directly
   try {
-    await db.run(`CREATE TABLE "project_${id}" AS SELECT * FROM read_json_auto('${filePath}')`)
+    await db.run(
+      `CREATE TABLE "project_${params.id}" AS SELECT * FROM read_json_auto('${filePath}')`
+    )
     set.status = 201
   } catch (error) {
     // Check if the error is related to JSON parsing
@@ -81,13 +100,35 @@ export const importProject = async ({
   }
 }
 
-export const importProjectFile = async ({ set, body }: Context) => {
+export const ProjectImportFileAltSchema = {
+  body: t.Object({
+    file: t.File({
+      // Note: File type validation has known issues in Elysia 1.3.x
+      // See: https://github.com/elysiajs/elysia/issues/1073
+      // type: ['application/json'], // Temporarily disabled due to validation issues
+      minSize: 1, // Reject empty files
+    }),
+  }),
+  response: {
+    201: t.Object({
+      tempFilePath: t.String(),
+    }),
+    400: ErrorResponseWithDataSchema,
+    409: ErrorResponseWithDataSchema,
+    422: ErrorResponseWithDataSchema,
+    500: ErrorResponseWithDataSchema,
+  },
+}
+
+type ProjectImportFileBody = typeof ProjectImportFileAltSchema.body.static
+
+export const importProjectFile = async ({
+  set,
+  body,
+}: Context<{
+  body: ProjectImportFileBody
+}>) => {
   try {
-    // File type validation is handled by Elysia schema validation
-    // which returns 422 for invalid file types
-
-    const { file } = body as { file: File }
-
     // Generate a unique temporary file name
     const timestamp = Date.now()
     const randomSuffix = Math.random().toString(36).substring(2, 8)
@@ -95,7 +136,7 @@ export const importProjectFile = async ({ set, body }: Context) => {
     const tempFilePath = `./temp/${tempFileName}`
 
     // Convert file to buffer and save to temporary location
-    const fileBuffer = await file.arrayBuffer()
+    const fileBuffer = await body.file.arrayBuffer()
     const uint8Array = new Uint8Array(fileBuffer)
 
     // Write the file to temporary location using Bun.write

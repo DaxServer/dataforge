@@ -1,8 +1,8 @@
 import { describe, expect, test, beforeEach, afterEach } from 'bun:test'
 import { Elysia } from 'elysia'
-import { projectRoutes } from '@backend/api/project'
-import { initializeDb, closeDb, getDb } from '@backend/plugins/database'
 import { treaty } from '@elysiajs/eden'
+import { initializeDb, closeDb, getDb } from '@backend/plugins/database'
+import { projectRoutes } from '@backend/api/project'
 
 // Create a test app with the project import routes
 const createTestApi = () => {
@@ -22,7 +22,7 @@ describe('POST /project/:projectId/import-file', () => {
   })
 
   test('should accept non-JSON file type (type validation disabled)', async () => {
-    const projectId = 'test-project-id'
+    const projectId = '550e8400-e29b-41d4-a716-446655440005'
 
     // Create a test file with non-JSON mime type
     // Note: File type validation is currently disabled due to Elysia 1.3.x issues
@@ -117,7 +117,7 @@ describe('POST /project/:projectId/import-file', () => {
   })
 
   test('should successfully import uploaded file into DuckDB', async () => {
-    let projectId = 'test-duckdb-import'
+    let projectId = '550e8400-e29b-41d4-a716-446655440008'
 
     // Create a test file with JSON data
     const TEST_DATA = [
