@@ -4,7 +4,6 @@ import { treaty } from '@elysiajs/eden'
 import { initializeDb, closeDb, getDb } from '@backend/plugins/database'
 import { projectRoutes } from '@backend/api/project'
 
-// Create a test app with the project import routes
 const createTestApi = () => {
   return treaty(new Elysia().use(projectRoutes)).api
 }
@@ -34,22 +33,15 @@ describe('POST /project/:projectId/import-file', () => {
     })
 
     expect(status).toBe(201)
-    expect(data).toEqual(
-      expect.objectContaining({
-        tempFilePath: expect.stringMatching(/\.json$/),
-      })
-    )
+    expect(data).toHaveProperty('tempFilePath', expect.stringMatching(/\.json$/))
     expect(error).toBeNull()
 
-    // Clean up the temporary file
     const tempFile = Bun.file(data.tempFilePath)
     await tempFile.delete()
   })
 
   test('should return 422 for empty file', async () => {
-    const projectId = 'test-project-id'
-
-    // Create an empty file
+    const projectId = Bun.randomUUIDv7()
     const file = new File([], 'empty-file.json', { type: 'application/json' })
 
     const { data, status, error } = await api.project({ id: projectId }).import.file.post({
@@ -58,36 +50,32 @@ describe('POST /project/:projectId/import-file', () => {
 
     expect(status).toBe(422)
     expect(data).toBeNull()
-    expect(error).toEqual(
-      expect.objectContaining({
-        value: expect.objectContaining({
-          data: expect.arrayContaining([]),
-          errors: expect.arrayContaining([
-            expect.objectContaining({
-              code: 'VALIDATION',
-              details: expect.arrayContaining([
-                expect.objectContaining({
-                  message: "Expected kind 'File'",
-                  path: '/file',
-                  schema: expect.objectContaining({
-                    default: 'File',
-                    format: 'binary',
-                    minSize: 1,
-                    type: 'string',
-                  }),
-                }),
-              ]),
-            }),
-          ]),
-        }),
-      })
-    )
+    expect(error).toHaveProperty('status', 422)
+    expect(error).toHaveProperty('value', {
+      data: [],
+      errors: [
+        {
+          code: 'VALIDATION',
+          details: [
+            {
+              message: "Expected kind 'File'",
+              path: '/file',
+              schema: {
+                default: 'File',
+                format: 'binary',
+                minSize: 1,
+                type: 'string',
+              },
+            },
+          ],
+        },
+      ],
+    })
   })
 
   test('should save uploaded file to temporary location', async () => {
-    const projectId = 'test-project-id'
+    const projectId = Bun.randomUUIDv7()
 
-    // Create a test file with JSON data
     const testData = JSON.stringify({ name: 'John', age: 30, city: 'New York' })
     const file = new File([testData], 'test-data.json', { type: 'application/json' })
 
@@ -95,31 +83,22 @@ describe('POST /project/:projectId/import-file', () => {
       file,
     })
 
-    // Should return 201 when file is successfully saved
     expect(status).toBe(201)
-    expect(data).toEqual(
-      expect.objectContaining({
-        tempFilePath: expect.stringMatching(/\.json$/),
-      })
-    )
+    expect(data).toHaveProperty('tempFilePath', expect.stringMatching(/\.json$/))
     expect(error).toBeNull()
 
     const tempFile = Bun.file(data.tempFilePath)
-    // Verify the file exists at the temporary location
     expect(await tempFile.exists()).toBe(true)
 
-    // Verify the file content matches what was uploaded
     const savedContent = await tempFile.text()
     expect(savedContent).toBe(testData)
 
-    // Clean up the temporary file
     await tempFile.delete()
   })
 
   test('should successfully import uploaded file into DuckDB', async () => {
-    let projectId = '550e8400-e29b-41d4-a716-446655440008'
+    const projectId = Bun.randomUUIDv7()
 
-    // Create a test file with JSON data
     const TEST_DATA = [
       { id: 1, name: 'John', age: 30 },
       { id: 2, name: 'Jane', age: 25 },
@@ -128,7 +107,6 @@ describe('POST /project/:projectId/import-file', () => {
       type: 'application/json',
     })
 
-    // First, upload the file
     const {
       data: uploadData,
       status: uploadStatus,
@@ -138,14 +116,9 @@ describe('POST /project/:projectId/import-file', () => {
     })
 
     expect(uploadStatus).toBe(201)
-    expect(uploadData).toEqual(
-      expect.objectContaining({
-        tempFilePath: expect.stringMatching(/\.json$/),
-      })
-    )
+    expect(uploadData).toHaveProperty('tempFilePath', expect.stringMatching(/\.json$/))
     expect(uploadError).toBeNull()
 
-    // Then, import the uploaded file into DuckDB using the existing import endpoint
     const {
       data: importData,
       status: importStatus,
@@ -158,30 +131,25 @@ describe('POST /project/:projectId/import-file', () => {
     expect(importData).toBeEmpty()
     expect(importError).toBeNull()
 
-    // Verify table creation in DuckDB
     const db = getDb()
     const reader = await db.runAndReadAll(`PRAGMA table_info("project_${projectId}")`)
     const tableInfo = reader.getRowObjectsJson()
 
     expect(tableInfo.length).toBeGreaterThan(0)
 
-    // Verify data was imported correctly
     const dataReader = await db.runAndReadAll(`SELECT * FROM "project_${projectId}"`)
     const importedData = dataReader.getRowObjectsJson()
 
     expect(importedData).toEqual(
       expect.arrayContaining(
-        TEST_DATA.map(({ id, name, age }) =>
-          expect.objectContaining({
-            id: expect.stringMatching(id.toString()),
-            name: expect.stringMatching(name),
-            age: expect.stringMatching(age.toString()),
-          })
-        )
+        TEST_DATA.map(({ id, name, age }) => ({
+          id: expect.stringMatching(id.toString()),
+          name,
+          age: expect.stringMatching(age.toString()),
+        }))
       )
     )
 
-    // Clean up the temporary file
     const tempFile = Bun.file(uploadData.tempFilePath)
     await tempFile.delete()
   })

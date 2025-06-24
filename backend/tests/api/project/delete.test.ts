@@ -25,7 +25,6 @@ describe('deleteProject', () => {
   test('should delete an existing project and return 204', async () => {
     const db = getDb()
 
-    // Insert a test project
     const insertReader = await db.runAndReadAll(
       `INSERT INTO _meta_projects (name)
        VALUES (?)
@@ -40,12 +39,10 @@ describe('deleteProject', () => {
 
     const { data, status, error } = await api.project({ id: testProjectId }).delete()
 
-    // Verify the response status and body
     expect(status).toBe(204)
     expect(data).toBeEmpty()
     expect(error).toBeNull()
 
-    // Verify the project is actually deleted
     const selectReader = await db.runAndReadAll('SELECT * FROM _meta_projects WHERE id = ?', [
       testProjectId,
     ])
@@ -55,30 +52,23 @@ describe('deleteProject', () => {
   })
 
   test('should return 404 when trying to delete non-existent project', async () => {
-    // Use a valid UUID that doesn't exist in the database
     const nonExistentId = Bun.randomUUIDv7()
 
-    // Attempt to delete the non-existent project
     const { data, status, error } = await api.project({ id: nonExistentId }).delete()
 
-    // Verify the response status and body
     expect(status).toBe(404)
     expect(data).toBeNull()
-    expect(error).toEqual(
-      expect.objectContaining({
-        status: 404,
-        value: expect.objectContaining({
-          data: expect.arrayContaining([]),
-          errors: expect.arrayContaining([
-            expect.objectContaining({
-              code: 'NOT_FOUND',
-              message: 'Project not found',
-              details: expect.arrayContaining([]),
-            }),
-          ]),
-        }),
-      })
-    )
+    expect(error).toHaveProperty('status', 404)
+    expect(error).toHaveProperty('value', {
+      data: [],
+      errors: [
+        {
+          code: 'NOT_FOUND',
+          message: 'Project not found',
+          details: [],
+        },
+      ],
+    })
   })
 
   test('should return 422 when trying to delete with invalid UUID format', async () => {
@@ -86,30 +76,26 @@ describe('deleteProject', () => {
 
     expect(status).toBe(422)
     expect(data).toBeNull()
-    expect(error).toEqual(
-      expect.objectContaining({
-        status: 422,
-        value: expect.objectContaining({
-          data: expect.any(Array),
-          errors: expect.arrayContaining([
-            expect.objectContaining({
-              code: 'VALIDATION',
-              message: 'ID must be a valid UUID',
-              details: expect.arrayContaining([
-                expect.objectContaining({
-                  path: '/id',
-                  message: `Expected string to match '${UUID_REGEX}'`,
-                  schema: expect.objectContaining({
-                    error: 'ID must be a valid UUID',
-                    pattern: UUID_REGEX,
-                    type: 'string',
-                  }),
-                }),
-              ]),
-            }),
-          ]),
-        }),
-      })
-    )
+    expect(error).toHaveProperty('status', 422)
+    expect(error).toHaveProperty('value', {
+      data: [],
+      errors: [
+        {
+          code: 'VALIDATION',
+          message: 'ID must be a valid UUID',
+          details: [
+            {
+              path: '/id',
+              message: `Expected string to match '${UUID_REGEX}'`,
+              schema: {
+                error: 'ID must be a valid UUID',
+                pattern: UUID_REGEX,
+                type: 'string',
+              },
+            },
+          ],
+        },
+      ],
+    })
   })
 })

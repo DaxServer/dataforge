@@ -47,9 +47,9 @@ export const closeDb = async (): Promise<void> => {
 
 export const databasePlugin = new Elysia({ name: 'database' })
   .decorate('dbConfig', { path: 'openrefine.db' })
-  .onStart(async () => {
+  .onStart(async ({ decorator }) => {
     console.log('Initializing database...')
-    await initializeDb('openrefine.db')
+    await initializeDb(decorator.dbConfig.path)
     console.log('Database initialized successfully')
   })
   .decorate('db', getDb)

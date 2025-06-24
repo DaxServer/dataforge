@@ -6,7 +6,6 @@ import { initializeDb, closeDb, getDb } from '@backend/plugins/database'
 import { projectRoutes } from '@backend/api/project'
 import { UUID_REGEX_PATTERN } from '@backend/api/project/_schemas'
 
-// Create a test app with the project routes
 const createTestApi = () => {
   return treaty(new Elysia().use(projectRoutes)).api
 }
@@ -22,7 +21,6 @@ describe('POST /api/project/import', () => {
   afterEach(async () => {
     await closeDb()
 
-    // Clean up temporary files
     const tempDir = new URL('../../temp', import.meta.url).pathname
     const files = await readdir(tempDir).catch(() => [])
     await Promise.all(
@@ -37,7 +35,6 @@ describe('POST /api/project/import', () => {
 
   describe('Successful imports', () => {
     test('should create project and import JSON file with auto-generated name', async () => {
-      // Create a valid JSON file
       const testData = JSON.stringify({
         rows: [
           { name: 'John', age: 30, city: 'New York' },
@@ -51,13 +48,9 @@ describe('POST /api/project/import', () => {
 
       expect(status).toBe(201)
       expect(error).toBeNull()
-      expect(data).toEqual(
-        expect.objectContaining({
-          data: expect.objectContaining({
-            id: expect.stringMatching(UUID_REGEX_PATTERN),
-          }),
-        })
-      )
+      expect(data).toHaveProperty('data', {
+        id: expect.stringMatching(UUID_REGEX_PATTERN),
+      })
     })
 
     test('should create project and import JSON file with custom name', async () => {
@@ -75,17 +68,12 @@ describe('POST /api/project/import', () => {
 
       expect(status).toBe(201)
       expect(error).toBeNull()
-      expect(data).toEqual(
-        expect.objectContaining({
-          data: expect.objectContaining({
-            id: expect.stringMatching(UUID_REGEX_PATTERN),
-          }),
-        })
-      )
+      expect(data).toHaveProperty('data', {
+        id: expect.stringMatching(UUID_REGEX_PATTERN),
+      })
     })
 
     test('should handle large JSON files', async () => {
-      // Create a larger dataset
       const rows = Array.from({ length: 1000 }, (_, i) => ({
         id: i + 1,
         name: `User ${i + 1}`,
@@ -99,13 +87,9 @@ describe('POST /api/project/import', () => {
 
       expect(status).toBe(201)
       expect(error).toBeNull()
-      expect(data).toEqual(
-        expect.objectContaining({
-          data: expect.objectContaining({
-            id: expect.stringMatching(UUID_REGEX_PATTERN),
-          }),
-        })
-      )
+      expect(data).toHaveProperty('data', {
+        id: expect.stringMatching(UUID_REGEX_PATTERN),
+      })
     })
 
     describe('Validation errors', () => {
@@ -115,31 +99,27 @@ describe('POST /api/project/import', () => {
 
         expect(status).toBe(422)
         expect(data).toBeNull()
-        expect(error).toEqual(
-          expect.objectContaining({
-            status: 422,
-            value: expect.objectContaining({
-              data: expect.arrayContaining([]),
-              errors: expect.arrayContaining([
-                expect.objectContaining({
-                  code: 'VALIDATION',
-                  details: expect.arrayContaining([
-                    expect.objectContaining({
-                      path: '/file',
-                      message: "Expected kind 'File'",
-                      schema: expect.objectContaining({
-                        default: 'File',
-                        format: 'binary',
-                        minSize: 1,
-                        type: 'string',
-                      }),
-                    }),
-                  ]),
-                }),
-              ]),
-            }),
-          })
-        )
+        expect(error).toHaveProperty('status', 422)
+        expect(error).toHaveProperty('value', {
+          data: [],
+          errors: [
+            {
+              code: 'VALIDATION',
+              details: [
+                {
+                  message: "Expected kind 'File'",
+                  path: '/file',
+                  schema: {
+                    default: 'File',
+                    format: 'binary',
+                    minSize: 1,
+                    type: 'string',
+                  },
+                },
+              ],
+            },
+          ],
+        })
       })
 
       test('should return 422 for empty file', async () => {
@@ -149,34 +129,30 @@ describe('POST /api/project/import', () => {
 
         expect(status).toBe(422)
         expect(data).toBeNull()
-        expect(error).toEqual(
-          expect.objectContaining({
-            status: 422,
-            value: expect.objectContaining({
-              data: expect.arrayContaining([]),
-              errors: expect.arrayContaining([
-                expect.objectContaining({
-                  code: 'VALIDATION',
-                  details: expect.arrayContaining([
-                    expect.objectContaining({
-                      path: '/file',
-                      message: "Expected kind 'File'",
-                      schema: expect.objectContaining({
-                        default: 'File',
-                        format: 'binary',
-                        minSize: 1,
-                        type: 'string',
-                      }),
-                    }),
-                  ]),
-                }),
-              ]),
-            }),
-          })
-        )
+        expect(error).toHaveProperty('status', 422)
+        expect(error).toHaveProperty('value', {
+          data: [],
+          errors: [
+            {
+              code: 'VALIDATION',
+              details: [
+                {
+                  path: '/file',
+                  message: "Expected kind 'File'",
+                  schema: {
+                    default: 'File',
+                    format: 'binary',
+                    minSize: 1,
+                    type: 'string',
+                  },
+                },
+              ],
+            },
+          ],
+        })
       })
 
-      test('should return 422 for invalid name (too long)', async () => {
+      test('should return 422 for invalid name - too long', async () => {
         const testData = JSON.stringify({ rows: [], columns: [] })
         const file = new File([testData], 'test.json', { type: 'application/json' })
         const longName = 'a'.repeat(256) // Assuming 255 character limit
@@ -188,34 +164,31 @@ describe('POST /api/project/import', () => {
 
         expect(status).toBe(422)
         expect(data).toBeNull()
-        expect(error).toEqual(
-          expect.objectContaining({
-            status: 422,
-            value: expect.objectContaining({
-              data: expect.arrayContaining([]),
-              errors: expect.arrayContaining([
-                expect.objectContaining({
-                  code: 'VALIDATION',
-                  details: expect.arrayContaining([
-                    expect.objectContaining({
-                      path: '/name',
-                      message: 'Expected string length less or equal to 255',
-                      schema: expect.objectContaining({
-                        error: 'Project name must be between 1 and 255 characters long if provided',
-                        maxLength: 255,
-                        minLength: 1,
-                        type: 'string',
-                      }),
-                    }),
-                  ]),
-                }),
-              ]),
-            }),
-          })
-        )
+        expect(error).toHaveProperty('status', 422)
+        expect(error).toHaveProperty('value', {
+          data: [],
+          errors: [
+            {
+              code: 'VALIDATION',
+              message: 'Project name must be between 1 and 255 characters long if provided',
+              details: [
+                {
+                  path: '/name',
+                  message: 'Expected string length less or equal to 255',
+                  schema: {
+                    error: 'Project name must be between 1 and 255 characters long if provided',
+                    maxLength: 255,
+                    minLength: 1,
+                    type: 'string',
+                  },
+                },
+              ],
+            },
+          ],
+        })
       })
 
-      test('should return 422 for invalid name (empty string)', async () => {
+      test('should return 422 for invalid name - empty string', async () => {
         const testData = JSON.stringify({ rows: [], columns: [] })
         const file = new File([testData], 'test.json', { type: 'application/json' })
 
@@ -226,37 +199,33 @@ describe('POST /api/project/import', () => {
 
         expect(status).toBe(422)
         expect(data).toBeNull()
-        expect(error).toEqual(
-          expect.objectContaining({
-            status: 422,
-            value: expect.objectContaining({
-              data: expect.arrayContaining([]),
-              errors: expect.arrayContaining([
-                expect.objectContaining({
-                  code: 'VALIDATION',
-                  details: expect.arrayContaining([
-                    expect.objectContaining({
-                      path: '/name',
-                      message: 'Expected string length greater or equal to 1',
-                      schema: expect.objectContaining({
-                        error: 'Project name must be between 1 and 255 characters long if provided',
-                        maxLength: 255,
-                        minLength: 1,
-                        type: 'string',
-                      }),
-                    }),
-                  ]),
-                }),
-              ]),
-            }),
-          })
-        )
+        expect(error).toHaveProperty('status', 422)
+        expect(error).toHaveProperty('value', {
+          data: [],
+          errors: [
+            {
+              code: 'VALIDATION',
+              message: 'Project name must be between 1 and 255 characters long if provided',
+              details: [
+                {
+                  path: '/name',
+                  message: 'Expected string length greater or equal to 1',
+                  schema: {
+                    error: 'Project name must be between 1 and 255 characters long if provided',
+                    maxLength: 255,
+                    minLength: 1,
+                    type: 'string',
+                  },
+                },
+              ],
+            },
+          ],
+        })
       })
     })
 
     describe('Table creation', () => {
       test('should create table with autoincrement primary key', async () => {
-        // Create a valid JSON file
         const testData = JSON.stringify({
           rows: [
             { name: 'John', age: 30, city: 'New York' },
@@ -272,10 +241,7 @@ describe('POST /api/project/import', () => {
         const db = getDb()
         const projectId = data?.data?.id
 
-        // Check if the table has an autoincrement primary key using DuckDB's PRAGMA table_info
-        const result = await db.runAndReadAll(`
-        PRAGMA table_info("project_${projectId}")
-      `)
+        const result = await db.runAndReadAll(`PRAGMA table_info("project_${projectId}")`)
 
         const columns = result.getRowObjectsJson()
 
@@ -309,21 +275,17 @@ describe('POST /api/project/import', () => {
 
         expect(status).toBe(400)
         expect(data).toBeNull()
-        expect(error).toEqual(
-          expect.objectContaining({
-            status: 400,
-            value: expect.objectContaining({
-              data: expect.arrayContaining([]),
-              errors: expect.arrayContaining([
-                expect.objectContaining({
-                  code: 'INVALID_JSON',
-                  message: 'Invalid JSON format in uploaded file',
-                  details: expect.arrayContaining(['Failed to parse JSON']),
-                }),
-              ]),
-            }),
-          })
-        )
+        expect(error).toHaveProperty('status', 400)
+        expect(error).toHaveProperty('value', {
+          data: [],
+          errors: [
+            {
+              code: 'INVALID_JSON',
+              message: 'Invalid JSON format in uploaded file',
+              details: ['Failed to parse JSON'],
+            },
+          ],
+        })
       })
 
       test('should return 400 for non-JSON file content', async () => {
@@ -334,21 +296,17 @@ describe('POST /api/project/import', () => {
 
         expect(status).toBe(400)
         expect(data).toBeNull()
-        expect(error).toEqual(
-          expect.objectContaining({
-            status: 400,
-            value: expect.objectContaining({
-              data: expect.arrayContaining([]),
-              errors: expect.arrayContaining([
-                expect.objectContaining({
-                  code: 'INVALID_JSON',
-                  message: 'Invalid JSON format in uploaded file',
-                  details: expect.arrayContaining(['Failed to parse JSON']),
-                }),
-              ]),
-            }),
-          })
-        )
+        expect(error).toHaveProperty('status', 400)
+        expect(error).toHaveProperty('value', {
+          data: [],
+          errors: [
+            {
+              code: 'INVALID_JSON',
+              message: 'Invalid JSON format in uploaded file',
+              details: ['Failed to parse JSON'],
+            },
+          ],
+        })
       })
     })
 
@@ -364,21 +322,17 @@ describe('POST /api/project/import', () => {
 
         expect(status).toBe(500)
         expect(data).toBeNull()
-        expect(error).toEqual(
-          expect.objectContaining({
-            status: 500,
-            value: expect.objectContaining({
-              data: expect.arrayContaining([]),
-              errors: expect.arrayContaining([
-                expect.objectContaining({
-                  code: 'INTERNAL_SERVER_ERROR',
-                  message: 'Database not initialized. Call initializeDb() first.',
-                  details: expect.arrayContaining([]),
-                }),
-              ]),
-            }),
-          })
-        )
+        expect(error).toHaveProperty('status', 500)
+        expect(error).toHaveProperty('value', {
+          data: [],
+          errors: [
+            {
+              code: 'INTERNAL_SERVER_ERROR',
+              message: 'Database not initialized. Call initializeDb() first.',
+              details: [],
+            },
+          ],
+        })
 
         // Reinitialize for cleanup
         await initializeDb(':memory:')
@@ -394,13 +348,9 @@ describe('POST /api/project/import', () => {
 
         expect(status).toBe(201)
         expect(error).toBeNull()
-        expect(data).toEqual(
-          expect.objectContaining({
-            data: expect.objectContaining({
-              id: expect.stringMatching(UUID_REGEX_PATTERN),
-            }),
-          })
-        )
+        expect(data).toHaveProperty('data', {
+          id: expect.stringMatching(UUID_REGEX_PATTERN),
+        })
       })
 
       test('should handle special characters in project name', async () => {
@@ -415,13 +365,9 @@ describe('POST /api/project/import', () => {
 
         expect(status).toBe(201)
         expect(error).toBeNull()
-        expect(data).toEqual(
-          expect.objectContaining({
-            data: expect.objectContaining({
-              id: expect.stringMatching(UUID_REGEX_PATTERN),
-            }),
-          })
-        )
+        expect(data).toHaveProperty('data', {
+          id: expect.stringMatching(UUID_REGEX_PATTERN),
+        })
       })
 
       test('should handle Unicode content in JSON', async () => {
@@ -439,13 +385,9 @@ describe('POST /api/project/import', () => {
 
         expect(status).toBe(201)
         expect(error).toBeNull()
-        expect(data).toEqual(
-          expect.objectContaining({
-            data: expect.objectContaining({
-              id: expect.stringMatching(UUID_REGEX_PATTERN),
-            }),
-          })
-        )
+        expect(data).toHaveProperty('data', {
+          id: expect.stringMatching(UUID_REGEX_PATTERN),
+        })
       })
 
       test('should handle files with different extensions but JSON content', async () => {
@@ -454,20 +396,14 @@ describe('POST /api/project/import', () => {
 
         const { data, status, error } = await api.project.import.post({ file })
 
-        // Should still work if content is valid JSON
         expect(status).toBe(201)
         expect(error).toBeNull()
-        expect(data).toEqual(
-          expect.objectContaining({
-            data: expect.objectContaining({
-              id: expect.stringMatching(UUID_REGEX_PATTERN),
-            }),
-          })
-        )
+        expect(data).toHaveProperty('data', {
+          id: expect.stringMatching(UUID_REGEX_PATTERN),
+        })
       })
 
       test('should create table with autoincrement primary key', async () => {
-        // Create a valid JSON file
         const testData = JSON.stringify({
           rows: [
             { name: 'John', age: 30, city: 'New York' },
@@ -483,10 +419,7 @@ describe('POST /api/project/import', () => {
         const db = getDb()
         const projectId = data?.data?.id
 
-        // Check if the table has an autoincrement primary key using DuckDB's PRAGMA table_info
-        const result = await db.runAndReadAll(`
-          PRAGMA table_info("project_${projectId}")
-        `)
+        const result = await db.runAndReadAll(`PRAGMA table_info("project_${projectId}")`)
 
         const columns = result.getRowObjectsJson()
 

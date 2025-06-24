@@ -4,6 +4,7 @@ import { Elysia } from 'elysia'
 import { treaty } from '@elysiajs/eden'
 import { initializeDb, closeDb } from '@backend/plugins/database'
 import { projectRoutes } from '@backend/api/project'
+import { UUID_REGEX, UUID_REGEX_PATTERN } from '@backend/api/project/_schemas'
 
 const TEST_DATA = [
   { name: 'John', age: 30, city: 'New York' },
@@ -12,9 +13,8 @@ const TEST_DATA = [
 ]
 
 const INVALID_UUID = 'invalid-uuid'
-const NON_EXISTENT_UUID = '12345678-1234-1234-1234-123456789abc'
+const NON_EXISTENT_UUID = Bun.randomUUIDv7()
 
-// Create a test app with the project routes
 const createTestApi = () => {
   return treaty(new Elysia().use(projectRoutes)).api
 }
@@ -23,15 +23,10 @@ describe('Project API - GET /:id', () => {
   let api: ReturnType<typeof createTestApi>
   let projectId: string
 
-  // Setup and Teardown
   beforeEach(async () => {
-    // Initialize a fresh in-memory database
     await initializeDb(':memory:')
-
-    // Create a fresh app instance for each test
     api = createTestApi()
 
-    // Create a test project
     const { data, status, error } = await api.project.post({
       name: 'Test Project for getById',
     })
@@ -39,7 +34,6 @@ describe('Project API - GET /:id', () => {
     expect(status).toBe(201)
     projectId = data?.data?.id as string
 
-    // Import test data into the project
     await importTestData()
   })
 
@@ -48,28 +42,26 @@ describe('Project API - GET /:id', () => {
     await closeDb()
   })
 
-  // Test Helpers
   const cleanupTestData = async () => {
     expect(projectId).toBeDefined()
     expect(api).toBeDefined()
+
     const { error } = await api.project({ id: projectId }).delete()
     expect(error).toBeNull()
 
-    // Clean up temporary files
     const tempFilePath = './temp/test-data.json'
     const tempFile = Bun.file(tempFilePath)
     await tempFile.delete()
   }
 
   const importTestData = async () => {
-    // Write test data to a temporary file
     const tempFilePath = './temp/test-data.json'
     await Bun.write(tempFilePath, JSON.stringify(TEST_DATA))
 
-    // Import the data using the file path
     const { status, error } = await api.project({ id: projectId }).import.post({
       filePath: tempFilePath,
     })
+
     expect(error).toBeNull()
     expect(status).toBe(201)
   }
@@ -79,25 +71,26 @@ describe('Project API - GET /:id', () => {
 
     expect(status).toBe(200)
     expect(error).toBeNull()
-    expect(data).toEqual(
-      expect.objectContaining({
-        data: expect.arrayContaining(
-          TEST_DATA.map(({ name, age, city }) =>
-            expect.objectContaining({
-              name,
-              age: expect.stringMatching(age.toString()),
-              city,
-            })
-          )
-        ),
-        meta: expect.objectContaining({
-          total: TEST_DATA.length,
-          limit: 25,
-          offset: 0,
-          name: 'Test Project for getById',
-        }),
-      })
-    )
+    expect(data).toHaveProperty('data', [
+      ...TEST_DATA.map(({ name, age, city }) =>
+        expect.objectContaining({
+          name,
+          age: expect.stringMatching(age.toString()),
+          city,
+        })
+      ),
+    ])
+    expect(data).toHaveProperty('meta', {
+      total: TEST_DATA.length,
+      limit: 25,
+      offset: 0,
+      name: 'Test Project for getById',
+      schema: [
+        { name: 'name', type: 'string' },
+        { name: 'age', type: 'integer' },
+        { name: 'city', type: 'string' },
+      ],
+    })
   })
 
   it('should return 404 for non-existent project', async () => {
@@ -105,21 +98,17 @@ describe('Project API - GET /:id', () => {
 
     expect(status).toBe(404)
     expect(data).toBeNull()
-    expect(error).toEqual(
-      expect.objectContaining({
-        status: 404,
-        value: expect.objectContaining({
-          data: expect.arrayContaining([]),
-          errors: expect.arrayContaining([
-            expect.objectContaining({
-              code: 'NOT_FOUND',
-              message: 'Project not found',
-              details: [],
-            }),
-          ]),
-        }),
-      })
-    )
+    expect(error).toHaveProperty('status', 404)
+    expect(error).toHaveProperty('value', {
+      data: [],
+      errors: [
+        {
+          code: 'NOT_FOUND',
+          message: 'Project not found',
+          details: [],
+        },
+      ],
+    })
   })
 
   it('should return 422 for invalid project id format', async () => {
@@ -127,25 +116,30 @@ describe('Project API - GET /:id', () => {
 
     expect(status).toBe(422)
     expect(data).toBeNull()
-    expect(error).toEqual(
-      expect.objectContaining({
-        status: 422,
-        value: expect.objectContaining({
-          data: expect.arrayContaining([]),
-          errors: expect.arrayContaining([
-            expect.objectContaining({
-              code: 'VALIDATION',
-              message: expect.any(String),
-              details: expect.any(Array),
-            }),
-          ]),
-        }),
-      })
-    )
+    expect(error).toHaveProperty('status', 422)
+    expect(error).toHaveProperty('value', {
+      data: [],
+      errors: [
+        {
+          code: 'VALIDATION',
+          message: 'ID must be a valid UUID',
+          details: [
+            {
+              message: `Expected string to match '${UUID_REGEX}'`,
+              path: '/id',
+              schema: {
+                error: 'ID must be a valid UUID',
+                pattern: UUID_REGEX,
+                type: 'string',
+              },
+            },
+          ],
+        },
+      ],
+    })
   })
 
   it('should return project with empty data', async () => {
-    // Create a project with no data
     const { data: createData, error: createError } = await api.project.post({
       name: 'Empty Project',
     })
@@ -156,20 +150,15 @@ describe('Project API - GET /:id', () => {
 
     expect(status).toBe(200)
     expect(error).toBeNull()
-    expect(data).toMatchObject(
-      expect.objectContaining({
-        data: expect.arrayContaining([]),
-        meta: expect.objectContaining({
-          name: 'Empty Project',
-          schema: expect.arrayContaining([]),
-          total: 0,
-          limit: 25,
-          offset: 0,
-        }),
-      })
-    )
+    expect(data).toHaveProperty('data', [])
+    expect(data).toHaveProperty('meta', {
+      name: 'Empty Project',
+      schema: [],
+      total: 0,
+      limit: 25,
+      offset: 0,
+    })
 
-    // Cleanup
     await api.project({ id: emptyProjectId }).delete()
   })
 })
