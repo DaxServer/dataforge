@@ -4,9 +4,10 @@ import type {
   Project,
   ImportWithFileInput,
   GetProjectByIdInput,
-} from './schemas'
+} from '@backend/api/project/schemas'
 import { getDb } from '@backend/plugins/database'
 import { ApiErrorHandler } from '@backend/types/error-handler'
+import { enhanceSchemaWithTypes } from '@backend/utils/duckdb-types'
 
 export const getProjectById = async ({ params, set }: Context<{ params: GetProjectByIdInput }>) => {
   const db = getDb()
@@ -27,11 +28,13 @@ export const getProjectById = async ({ params, set }: Context<{ params: GetProje
     const tableName = `project_${params.id}`
     const rowsReader = await db.runAndReadAll(`SELECT * FROM "${tableName}" LIMIT 25`)
     const rows = rowsReader.getRowObjectsJson()
+    const schema = rowsReader.columnNameAndTypeObjectsJson()
 
     return {
       data: rows,
       meta: {
         name: projects?.[0]?.name ?? 'Unknown Project',
+        schema: enhanceSchemaWithTypes(schema),
         total: rows.length, // For simplicity, we're not doing a separate count query
         limit: 25,
         offset: 0,
@@ -44,6 +47,7 @@ export const getProjectById = async ({ params, set }: Context<{ params: GetProje
         data: [],
         meta: {
           name: projects?.[0]?.name ?? 'Unknown Project',
+          schema: enhanceSchemaWithTypes([]),
           total: 0,
           limit: 25,
           offset: 0,

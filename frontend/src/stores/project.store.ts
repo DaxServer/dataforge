@@ -20,7 +20,7 @@ export const useProjectStore = defineStore('project', () => {
 
     const { data: rows, error } = await api.project({ id: projectId }).get()
 
-    if (error) {
+    if (error || rows === null) {
       errorState.value = error.value?.message || 'An unknown error occurred'
       isLoading.value = false
       return
@@ -29,14 +29,14 @@ export const useProjectStore = defineStore('project', () => {
     data.value = rows.data
     meta.value = rows.meta
 
-    // Generate columns from first row if data exists
-    if (rows.data.length > 0) {
-      const firstRow = rows.data[0]
-      columns.value = Object.keys(firstRow).map((key) => ({
-        field: key,
-        header: key.charAt(0).toUpperCase() + key.slice(1),
-      }))
-    }
+    // Generate columns from schema
+    columns.value = rows.meta.schema.map((col: { name: string; type: string }) => ({
+      field: col.name,
+      header: col.name,
+      type: col.type,
+      isInteger: col.type === 'integer',
+      isDate: col.type === 'date',
+    }))
 
     isLoading.value = false
   }

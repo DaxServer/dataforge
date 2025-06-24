@@ -86,17 +86,14 @@ export const importSchema = {
 // Project types
 export type Project = typeof projectResponseSchema.static
 
-// Base project properties for creation/update
-const projectBase = {
-  name: t.String({
-    minLength: 1,
-    error: 'Project name is required and must be at least 1 character long',
-  }),
-}
-
 const projectSchema = {
   create: {
-    body: t.Object(projectBase),
+    body: t.Object({
+      name: t.String({
+        minLength: 1,
+        error: 'Project name is required and must be at least 1 character long',
+      }),
+    }),
     response: {
       201: t.Object({
         data: projectResponseSchema,
@@ -117,6 +114,12 @@ const projectSchema = {
         data: t.Array(t.Any()),
         meta: t.Object({
           name: t.String(),
+          schema: t.Array(
+            t.Object({
+              name: t.String(),
+              type: t.String(),
+            })
+          ),
           total: t.Number(),
           limit: t.Number(),
           offset: t.Number(),
