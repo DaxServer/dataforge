@@ -14,40 +14,32 @@ import { treaty } from '@elysiajs/eden'
 import { closeDb, initializeDb, getDb } from '@backend/plugins/database'
 import { projectRoutes } from '@backend/api/project'
 
-// Create a test app with the project routes
 const createTestApi = () => {
   return treaty(new Elysia().use(projectRoutes)).api
 }
 
 describe('getAllProjects', () => {
-  // Create a test app instance for each test
   let api: ReturnType<typeof createTestApi>
 
-  // Sample project data for testing
   const sampleProjects = [
     {
-      id: '550e8400-e29b-41d4-a716-446655440000',
+      id: Bun.randomUUIDv7(),
       name: 'Test Project 1',
       created_at: '2023-01-01 00:00:00',
       updated_at: '2023-01-01 00:00:00',
     },
     {
-      id: '550e8400-e29b-41d4-a716-446655440001',
+      id: Bun.randomUUIDv7(),
       name: 'Test Project 2',
       created_at: '2023-01-02 00:00:00',
       updated_at: '2023-01-02 00:00:00',
     },
   ]
 
-  // Set up and clean up database for each test
   beforeEach(async () => {
-    // Initialize a fresh in-memory database
     await initializeDb(':memory:')
-
-    // Create a fresh app instance for each test
     api = createTestApi()
 
-    // Insert sample projects
     const db = getDb()
     for (const project of sampleProjects) {
       await db.run(
@@ -57,25 +49,19 @@ describe('getAllProjects', () => {
     }
   })
 
-  // Mock system time for consistent testing
   beforeAll(() => {
-    // Set a fixed date for all tests
     setSystemTime(new Date('2023-01-03T00:00:00.000Z'))
   })
 
-  // Clean up after each test
   afterEach(async () => {
-    // Close the database connection
     await closeDb()
   })
 
-  // Restore real timers after all tests
   afterAll(() => {
-    setSystemTime() // Reset to real time
+    setSystemTime()
   })
 
   test('should return an empty array when no projects exist', async () => {
-    // Clear the test data for this specific test
     const db = getDb()
     await db.run('DELETE FROM _meta_projects')
 
@@ -101,7 +87,6 @@ describe('getAllProjects', () => {
         updated_at: project.updated_at,
       }))
 
-    // Verify the structure and exact values
     expect(status).toBe(200)
     expect(data).toEqual({
       data: expectedProjects,
