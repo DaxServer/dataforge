@@ -8,23 +8,24 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
-    Badge: typeof import('primevue/badge')['default']
     Button: typeof import('primevue/button')['default']
-    Card: typeof import('primevue/card')['default']
     Column: typeof import('primevue/column')['default']
     ConfirmDialog: typeof import('primevue/confirmdialog')['default']
     CreateProject: typeof import('./src/pages/CreateProject.vue')['default']
+    CustomPaginator: typeof import('./src/components/CustomPaginator.vue')['default']
     DataTable: typeof import('primevue/datatable')['default']
     DefaultLayout: typeof import('./src/layouts/DefaultLayout.vue')['default']
-    FileUpload: typeof import('primevue/fileupload')['default']
+    FloatLabel: typeof import('primevue/floatlabel')['default']
     Header: typeof import('./src/components/Header.vue')['default']
     MainContent: typeof import('./src/components/MainContent.vue')['default']
     Message: typeof import('primevue/message')['default']
     OpenProject: typeof import('./src/pages/OpenProject.vue')['default']
+    Paginator: typeof import('primevue/paginator')['default']
     ProgressSpinner: typeof import('primevue/progressspinner')['default']
     ProjectView: typeof import('./src/views/ProjectView.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
+    Select: typeof import('primevue/select')['default']
     Sidebar: typeof import('./src/components/Sidebar.vue')['default']
     Toast: typeof import('primevue/toast')['default']
   }

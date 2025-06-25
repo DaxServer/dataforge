@@ -25,14 +25,17 @@ export const useProjectCreationComposable = () => {
 
       if (data?.data?.id) {
         store.clearMessage()
-        // setTimeout(() => {
-        //   router.push(`/projects/${data.data.id}`)
-        // }, 1000)
+        setTimeout(() => {
+          router.push(`/project/${data.data.id}`)
+        }, 1000)
       } else {
         message.value = { text: 'Failed to create project. Please try again.', type: 'error' }
       }
-    } catch {
-      message.value = { text: 'An error occurred. Please try again.', type: 'error' }
+    } catch (error) {
+      message.value = {
+        text: `An error occurred. Please try again. Error: ${error}`,
+        type: 'error',
+      }
     } finally {
       isCreating.value = false
     }

@@ -1,4 +1,5 @@
 import { Elysia } from 'elysia'
+import cors from '@elysiajs/cors'
 import { ApiErrorHandler } from '@backend/types/error-handler'
 import { databasePlugin } from '@backend/plugins/database'
 import {
@@ -38,10 +39,12 @@ export const projectRoutes = new Elysia({ prefix: '/api/project' })
     return status(500, ApiErrorHandler.internalServerErrorWithData(errorMessage))
   })
   .use(databasePlugin)
+  .use(cors())
   .get('/', ({ db }) => getAllProjects(db), ProjectsGetAllSchema)
   .get(
     '/:id',
-    ({ db, params, status }) => getProjectById(db, params.id, status),
+    ({ db, params, query, status }) =>
+      getProjectById(db, params.id, query?.offset ?? 0, query?.limit ?? 0, status),
     GetProjectByIdSchema
   )
   .post('/', ({ db, body, status }) => createProject(db, body, status), ProjectCreateSchema)

@@ -3,21 +3,28 @@ import type { DuckDBConnection } from '@duckdb/node-api'
 import { ApiErrorHandler } from '@backend/types/error-handler'
 import { enhanceSchemaWithTypes } from '@backend/utils/duckdb-types'
 import { ErrorResponseWithDataSchema } from '@backend/types/error-schemas'
-import { DuckDBColumnSchema, ProjectUUIDParams } from '@backend/api/project/_schemas'
+import {
+  DuckDBColumnSchema,
+  ProjectUUIDParams,
+  PaginationQuery,
+} from '@backend/api/project/_schemas'
+
+const ResponseSchema = t.Object({
+  data: t.Array(t.Any()),
+  meta: t.Object({
+    name: t.String(),
+    schema: DuckDBColumnSchema,
+    total: t.Number(),
+    limit: t.Numeric(),
+    offset: t.Numeric(),
+  }),
+})
 
 export const GetProjectByIdSchema = {
   params: ProjectUUIDParams,
+  query: PaginationQuery,
   response: {
-    200: t.Object({
-      data: t.Array(t.Any()),
-      meta: t.Object({
-        name: t.String(),
-        schema: DuckDBColumnSchema,
-        total: t.Number(),
-        limit: t.Number(),
-        offset: t.Number(),
-      }),
-    }),
+    200: ResponseSchema,
     400: ErrorResponseWithDataSchema,
     404: ErrorResponseWithDataSchema,
     422: ErrorResponseWithDataSchema,
@@ -25,7 +32,15 @@ export const GetProjectByIdSchema = {
   },
 }
 
-export const getProjectById = async (db: () => DuckDBConnection, id: string, status) => {
+export type GetProjectByIdResponse = typeof ResponseSchema.static
+
+export const getProjectById = async (
+  db: () => DuckDBConnection,
+  id: string,
+  offset: number,
+  limit: number,
+  status
+) => {
   // First, check if the project exists in _meta_projects
   const projectReader = await db().runAndReadAll('SELECT * FROM _meta_projects WHERE id = ?', [id])
   const projects = projectReader.getRowObjects()
@@ -35,36 +50,35 @@ export const getProjectById = async (db: () => DuckDBConnection, id: string, sta
   }
 
   try {
-    // Get the project's data from the project table (first 25 rows)
+    // Get the project's data from the project table with pagination
     const tableName = `project_${id}`
-    const rowsReader = await db().runAndReadAll(`SELECT * FROM "${tableName}" LIMIT 25`)
+    const rowsReader = await db().runAndReadAll(`SELECT * FROM "${tableName}" LIMIT ? OFFSET ?`, [
+      limit,
+      offset,
+    ])
     const rows = rowsReader.getRowObjectsJson()
     const schema = rowsReader.columnNameAndTypeObjectsJson()
     const projectName = projects?.[0]?.name?.toString() ?? 'Unknown Project'
+
+    // Get the total count with a separate query
+    const countReader = await db().runAndReadAll(`SELECT COUNT(*) as total FROM "${tableName}"`)
+    const countResult = countReader.getRowObjectsJson()
+    const total = Number(countResult[0]?.total ?? 0)
 
     return {
       data: rows,
       meta: {
         name: projectName,
         schema: enhanceSchemaWithTypes(schema),
-        total: rows.length, // For simplicity, we're not doing a separate count query
-        limit: 25,
-        offset: 0,
+        total,
+        limit,
+        offset,
       },
     }
   } catch (error) {
-    // If the table doesn't exist, return empty data
+    // If the table doesn't exist, return API error
     if (error instanceof Error && error.message.includes('does not exist')) {
-      return {
-        data: [],
-        meta: {
-          name: 'Unknown Project',
-          schema: enhanceSchemaWithTypes([]),
-          total: 0,
-          limit: 25,
-          offset: 0,
-        },
-      }
+      return status(404, ApiErrorHandler.notFoundErrorWithData('Project'))
     }
 
     // Re-throw other errors

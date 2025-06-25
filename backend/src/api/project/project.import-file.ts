@@ -4,7 +4,11 @@ import { ApiErrorHandler } from '@backend/types/error-handler'
 import { ErrorResponseWithDataSchema } from '@backend/types/error-schemas'
 import type { Project } from '@backend/api/project/_schemas'
 
-const cleanupProject = async (db: () => DuckDBConnection, projectId: string, tempFilePath?: string) => {
+const cleanupProject = async (
+  db: () => DuckDBConnection,
+  projectId: string,
+  tempFilePath?: string
+) => {
   await db().run('DELETE FROM _meta_projects WHERE id = ?', [projectId])
 
   if (tempFilePath) {
@@ -96,7 +100,7 @@ export const importWithFile = async (
 
   await Bun.write(tempFilePath, uint8Array)
 
-  // Parse JSON and handle syntax errors
+  // Check if JSON is parsable
   try {
     await Bun.file(tempFilePath).json()
   } catch (parseError) {

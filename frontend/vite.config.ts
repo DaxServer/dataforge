@@ -34,6 +34,11 @@ export default defineConfig({
           type: true,
         },
         {
+          from: 'primevue/paginator',
+          imports: ['PageState'],
+          type: true,
+        },
+        {
           from: 'primevue/useconfirm',
           imports: ['useConfirm'],
         },

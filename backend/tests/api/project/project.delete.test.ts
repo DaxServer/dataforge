@@ -1,6 +1,6 @@
 /// <reference types="bun-types" />
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test'
-import { Elysia } from 'elysia'
+import { Elysia, InvertedStatusMap } from 'elysia'
 import { treaty } from '@elysiajs/eden'
 import { closeDb, initializeDb, getDb } from '@backend/plugins/database'
 import { projectRoutes } from '@backend/api/project'
@@ -35,7 +35,7 @@ describe('deleteProject', () => {
     const result = insertReader.getRowObjectsJson() as Array<{ id: string }>
     expect(result[0]).toBeDefined()
     expect(result[0]).toHaveProperty('id')
-    const testProjectId = result[0].id
+    const testProjectId = result[0]?.id as string
 
     const { data, status, error } = await api.project({ id: testProjectId }).delete()
 

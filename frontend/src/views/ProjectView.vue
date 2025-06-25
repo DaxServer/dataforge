@@ -1,16 +1,18 @@
 <script setup lang="ts">
+const projectId = useRouteParams('id')
 const projectStore = useProjectStore()
-const { meta, isLoading, data, columns } = storeToRefs(projectStore)
+const { meta, isLoading, data, columns, errorState } = storeToRefs(projectStore)
 const { fetchProject } = projectStore
 const { goBack } = useProjectActions()
-const { linkifyText } = useLinkify()
-const { replaceLineBreaks } = useLineBreak()
+const { processHtml } = useHtml()
 
-const projectId = useRouteParams('id')
+// Computed properties for template calculations
+const totalRecords = computed(() => meta.value.total)
 
-onMounted(async () => {
-  await fetchProject(projectId.value as string)
-})
+// Handle fetch requests from paginator
+const handlePaginate = async (event: { offset: number; limit: number }) => {
+  await fetchProject(projectId.value as string, event.offset, event.limit)
+}
 </script>
 
 <template>
@@ -19,7 +21,7 @@ onMounted(async () => {
       <div class="flex items-center justify-between mb-6">
         <div>
           <h1 class="text-2xl font-bold text-gray-900">{{ meta?.name || 'Loading Project...' }}</h1>
-          <p class="text-gray-600 mt-1">{{ meta?.total || 0 }} rows loaded</p>
+          <p class="text-gray-600 mt-1">{{ totalRecords }} rows</p>
         </div>
         <div class="flex gap-2">
           <Button
@@ -33,25 +35,35 @@ onMounted(async () => {
       </div>
     </div>
 
-    <!-- Loading State -->
+    <!-- Error State -->
     <div
-      v-if="isLoading"
+      v-if="errorState && !isLoading"
       class="flex items-center justify-center py-12"
     >
-      <ProgressSpinner />
+      <div class="text-center">
+        <i class="pi pi-exclamation-triangle text-4xl text-red-500 mb-4"></i>
+        <h3 class="text-lg font-semibold text-gray-900 mb-2">Error Loading Project</h3>
+        <p class="text-gray-600 mb-4">{{ errorState }}</p>
+      </div>
     </div>
 
     <!-- Project Data -->
-    <div class="-m-6">
+    <div
+      v-if="!errorState"
+      class="-m-6"
+    >
+      <!-- Custom Pagination Controls -->
+      <CustomPaginator
+        :total-records="totalRecords"
+        :initial-rows="5"
+        @paginate="handlePaginate"
+      />
+
       <DataTable
         :value="data"
-        :paginator="true"
-        :rows="10"
-        :rows-per-page-options="[5, 10, 25, 50]"
+        :paginator="false"
+        :loading="isLoading"
         table-class="text-sm"
-        paginator-template="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
-        paginator-position="top"
-        current-page-report-template="Showing {first} to {last} of {totalRecords} rows"
         striped-rows
         show-gridlines
         scrollable
@@ -83,7 +95,7 @@ onMounted(async () => {
               :class="{
                 'text-green-600 font-medium': col.isInteger,
               }"
-              v-html="replaceLineBreaks(linkifyText(slotProps.data[col.field]))"
+              v-html="processHtml(slotProps.data[col.field])"
             ></span>
           </template>
         </Column>
