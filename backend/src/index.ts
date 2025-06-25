@@ -9,7 +9,7 @@ import { projectRoutes } from '@backend/api/project'
 
 export const elysiaApp = new Elysia({
   serve: {
-    maxRequestBodySize: 1024 * 1024 * 1024, // 1GB
+    maxRequestBodySize: 1024 * 1024 * 1024 * 10, // 10GB
   },
 })
   .onError(({ code, error, set }) => {

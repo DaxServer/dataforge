@@ -39,5 +39,5 @@ export const enhanceSchemaWithTypes = (schema: Json): DuckDBColumnSchema => {
   return schema.map(col => ({
     name: col.columnName,
     type: getTypeFromTypeId(col.columnType.typeId),
-  })) as DuckDBColumnSchema
+  }))
 }

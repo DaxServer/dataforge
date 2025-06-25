@@ -10,7 +10,40 @@ const TEST_DATA = [
   { name: 'John', age: 30, city: 'New York' },
   { name: 'Jane', age: 25, city: 'Los Angeles' },
   { name: 'Bob', age: 35, city: 'Chicago' },
+  { name: 'Alice', age: 28, city: 'Boston' },
+  { name: 'Charlie', age: 32, city: 'Seattle' },
+  { name: 'Diana', age: 27, city: 'Miami' },
+  { name: 'Eve', age: 31, city: 'Denver' },
+  { name: 'Frank', age: 29, city: 'Austin' },
 ]
+
+// Helper function to convert TEST_DATA to expected API response format (with string ages)
+const getExpectedData = (offset = 0, limit = TEST_DATA.length) => {
+  return TEST_DATA.slice(offset, offset + limit).map(item => ({
+    ...item,
+    age: item.age.toString(), // API returns age as string
+  }))
+}
+
+// Helper function to generate schema from data
+const generateSchema = (data: any[]) => {
+  if (data.length === 0) return []
+
+  const sampleItem = data[0]
+  return Object.keys(sampleItem).map(key => ({
+    name: key,
+    type: typeof sampleItem[key] === 'number' ? 'integer' : 'string',
+  }))
+}
+
+// Helper function to generate expected meta object
+const getExpectedMeta = (offset = 0, limit = 25) => ({
+  name: 'Test Project for getById',
+  schema: generateSchema(TEST_DATA),
+  total: TEST_DATA.length,
+  limit,
+  offset,
+})
 
 const INVALID_UUID = 'invalid-uuid'
 const NON_EXISTENT_UUID = Bun.randomUUIDv7()
@@ -80,17 +113,7 @@ describe('Project API - GET /:id', () => {
         })
       ),
     ])
-    expect(data).toHaveProperty('meta', {
-      total: TEST_DATA.length,
-      limit: 25,
-      offset: 0,
-      name: 'Test Project for getById',
-      schema: [
-        { name: 'name', type: 'string' },
-        { name: 'age', type: 'integer' },
-        { name: 'city', type: 'string' },
-      ],
-    })
+    expect(data).toHaveProperty('meta', getExpectedMeta())
   })
 
   it('should return 404 for non-existent project', async () => {
@@ -139,7 +162,7 @@ describe('Project API - GET /:id', () => {
     })
   })
 
-  it('should return project with empty data', async () => {
+  it('should return 404 for project with no data table', async () => {
     const { data: createData, error: createError } = await api.project.post({
       name: 'Empty Project',
     })
@@ -148,17 +171,130 @@ describe('Project API - GET /:id', () => {
 
     const { data, status, error } = await api.project({ id: emptyProjectId }).get()
 
-    expect(status).toBe(200)
-    expect(error).toBeNull()
-    expect(data).toHaveProperty('data', [])
-    expect(data).toHaveProperty('meta', {
-      name: 'Unknown Project',
-      schema: [],
-      total: 0,
-      limit: 25,
-      offset: 0,
+    expect(status).toBe(404)
+    expect(data).toBeNull()
+    expect(error).toHaveProperty('status', 404)
+    expect(error).toHaveProperty('value', {
+      data: [],
+      errors: [
+        {
+          code: 'NOT_FOUND',
+          message: 'Project not found',
+          details: [],
+        },
+      ],
     })
 
     await api.project({ id: emptyProjectId }).delete()
+  })
+
+  describe('Pagination', () => {
+    it('should return first page with default limit', async () => {
+      const { data, status, error } = await api.project({ id: projectId }).get()
+
+      expect(status).toBe(200)
+      expect(error).toBeNull()
+      expect(data).toHaveProperty('data', getExpectedData())
+      expect(data).toHaveProperty('meta', getExpectedMeta())
+    })
+
+    it('should return first page with custom limit', async () => {
+      const { data, status, error } = await api.project({ id: projectId }).get({
+        query: { limit: 3 },
+      })
+
+      expect(status).toBe(200)
+      expect(error).toBeNull()
+      expect(data).toHaveProperty('data', getExpectedData(0, 3))
+      expect(data).toHaveProperty('meta', getExpectedMeta(0, 3))
+    })
+
+    it('should return second page with offset', async () => {
+      const { data, status, error } = await api.project({ id: projectId }).get({
+        query: { limit: 3, offset: 3 },
+      })
+
+      expect(status).toBe(200)
+      expect(error).toBeNull()
+      expect(data).toHaveProperty('data', getExpectedData(3, 3))
+      expect(data).toHaveProperty('meta', getExpectedMeta(3, 3))
+    })
+
+    it('should return partial page when offset near end', async () => {
+      const { data, status, error } = await api.project({ id: projectId }).get({
+        query: { limit: 5, offset: 6 },
+      })
+
+      expect(status).toBe(200)
+      expect(error).toBeNull()
+      expect(data).toHaveProperty('data', getExpectedData(6, 5))
+      expect(data).toHaveProperty('meta', getExpectedMeta(6, 5))
+    })
+
+    it('should return empty data when offset exceeds total', async () => {
+      const { data, status, error } = await api.project({ id: projectId }).get({
+        query: { limit: 5, offset: 20 },
+      })
+
+      expect(status).toBe(200)
+      expect(error).toBeNull()
+      expect(data).toHaveProperty('data', [])
+      expect(data).toHaveProperty('meta', getExpectedMeta(20, 5))
+    })
+
+    it('should handle limit of 1', async () => {
+      const { data, status, error } = await api.project({ id: projectId }).get({
+        query: { limit: 1, offset: 0 },
+      })
+
+      expect(status).toBe(200)
+      expect(error).toBeNull()
+      expect(data).toHaveProperty('data', getExpectedData(0, 1))
+      expect(data).toHaveProperty('meta', getExpectedMeta(0, 1))
+    })
+
+    it('should handle maximum limit', async () => {
+      const { data, status, error } = await api.project({ id: projectId }).get({
+        query: { limit: 1000 },
+      })
+
+      expect(status).toBe(200)
+      expect(error).toBeNull()
+      expect(data).toHaveProperty('data', getExpectedData())
+      expect(data).toHaveProperty('meta', getExpectedMeta(0, 1000))
+    })
+
+    // TODO: Uncomment these tests when https://github.com/elysiajs/elysia/issues/1268 is fixed
+    // These tests fail due to incorrect validation error messages for numeric query parameters outside min/max bounds
+
+    // it('should return 422 for invalid limit (too high)', async () => {
+    //   const { data, status, error } = await api.project({ id: projectId }).get({
+    //     query: { limit: 1001 }
+    //   })
+
+    //   expect(status).toBe(422)
+    //   expect(data).toBeNull()
+    //   expect(error).toHaveProperty('value.errors.0.code', 'VALIDATION')
+    // })
+
+    // it('should return 422 for invalid limit (zero)', async () => {
+    //   const { data, status, error } = await api.project({ id: projectId }).get({
+    //     query: { limit: 0 }
+    //   })
+
+    //   expect(status).toBe(422)
+    //   expect(data).toBeNull()
+    //   expect(error).toHaveProperty('value.errors.0.code', 'VALIDATION')
+    // })
+
+    // it('should return 422 for negative offset', async () => {
+    //   const { data, status, error } = await api.project({ id: projectId }).get({
+    //     query: { offset: -1 }
+    //   })
+
+    //   expect(status).toBe(422)
+    //   expect(data).toBeNull()
+    //   expect(error).toHaveProperty('value.errors.0.code', 'VALIDATION')
+    // })
   })
 })

@@ -1,56 +1,57 @@
-import type { GetProjectByIdSchema } from '@backend/api/project/schemas'
+import { ErrorResponseWithData } from '@backend/types/error-schemas'
+import type { GetProjectByIdResponse } from '@backend/api/project/project.get'
+import { DuckDBColumnSchema } from '@backend/api/project/_schemas'
 
 export const useProjectStore = defineStore('project', () => {
   const api = useApi()
 
   // State
-  const data = ref<(typeof GetProjectByIdSchema.response)['200']['data'] | null>(null)
-  const meta = ref<(typeof GetProjectByIdSchema.response)['200']['meta'] | {}>({})
+  const data = ref<GetProjectByIdResponse['data']>([])
+  const meta = ref<GetProjectByIdResponse['meta']>({
+    name: '',
+    schema: [],
+    total: 0,
+    limit: 0,
+    offset: 0,
+  })
   const isLoading = ref(false)
   const columns = ref<any[]>([])
   const errorState = ref<string | null>(null)
 
-  // Actions
-  const fetchProject = async (projectId: string) => {
-    errorState.value = null
-    isLoading.value = true
+  // Helper functions
+  const handleApiError = (error: ErrorResponseWithData) => {
+    errorState.value = error.errors.map((err) => err.message).join(', ')
+    isLoading.value = false
+  }
 
-    data.value = []
-    columns.value = []
-
-    const { data: rows, error } = await api.project({ id: projectId }).get()
-
-    if (error || rows === null) {
-      errorState.value = error.value?.message || 'An unknown error occurred'
-      isLoading.value = false
-      return
-    }
-
-    data.value = rows.data
-    meta.value = rows.meta
-
-    // Generate columns from schema
-    columns.value = rows.meta.schema.map((col: { name: string; type: string }) => ({
+  const generateColumns = (schema: DuckDBColumnSchema) => {
+    return schema.map((col) => ({
       field: col.name,
       header: col.name,
       type: col.type,
       isInteger: col.type === 'integer',
       isDate: col.type === 'date',
     }))
-
-    isLoading.value = false
   }
 
-  const resetState = () => {
-    data.value = []
-    meta.value = {}
-    isLoading.value = false
-    columns.value = []
+  // Actions
+  const fetchProject = async (projectId: string, offset: number = 0, limit: number = 25) => {
     errorState.value = null
-  }
+    isLoading.value = true
 
-  const clearProject = () => {
-    resetState()
+    const { data: rows, error } = await api.project({ id: projectId }).get({
+      query: { offset, limit },
+    })
+
+    if (error || rows === null) {
+      handleApiError(error.value)
+      return
+    }
+
+    data.value = rows.data
+    meta.value = rows.meta
+    columns.value = generateColumns(rows.meta.schema)
+    isLoading.value = false
   }
 
   return {
@@ -63,7 +64,5 @@ export const useProjectStore = defineStore('project', () => {
 
     // Actions
     fetchProject,
-    resetState,
-    clearProject,
   }
 })

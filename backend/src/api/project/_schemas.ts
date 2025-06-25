@@ -25,6 +25,11 @@ export const ProjectUUIDParams = t.Object({
   }),
 })
 
+export const PaginationQuery = t.Object({
+  offset: t.Optional(t.Numeric({ minimum: 0, default: 0 })),
+  limit: t.Optional(t.Numeric({ minimum: 1, maximum: 1000, default: 25 })),
+})
+
 export const DuckDBColumnSchema = t.Array(
   t.Object({
     name: t.String(),

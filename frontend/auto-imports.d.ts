@@ -9,7 +9,6 @@ declare global {
   const ApiKey: (typeof import('./src/plugins/api'))['ApiKey']
   const ApiPlugin: (typeof import('./src/plugins/api'))['ApiPlugin']
   const EffectScope: (typeof import('vue'))['EffectScope']
-  const FileUploadUploaderEvent: (typeof import('primevue/fileupload'))['FileUploadUploaderEvent']
   const acceptHMRUpdate: (typeof import('pinia'))['acceptHMRUpdate']
   const api: (typeof import('./src/plugins/api'))['api']
   const computed: (typeof import('vue'))['computed']
@@ -76,11 +75,9 @@ declare global {
   const useCreateProjectStore: (typeof import('./src/stores/create-project.store'))['useCreateProjectStore']
   const useCssModule: (typeof import('vue'))['useCssModule']
   const useCssVars: (typeof import('vue'))['useCssVars']
-  const useFileManager: (typeof import('./src/composables/useFileManager'))['useFileManager']
+  const useHtml: (typeof import('./src/composables/useHtml'))['useHtml']
   const useId: (typeof import('vue'))['useId']
-  const useLineBreak: (typeof import('./src/composables/useLineBreak'))['useLineBreak']
   const useLink: (typeof import('vue-router'))['useLink']
-  const useLinkify: (typeof import('./src/composables/useLinkify'))['useLinkify']
   const useModel: (typeof import('vue'))['useModel']
   const useProjectActions: (typeof import('./src/composables/useProjectActions'))['useProjectActions']
   const useProjectCreationComposable: (typeof import('./src/composables/useProjectCreationComposable'))['useProjectCreationComposable']
@@ -106,6 +103,9 @@ declare global {
   // @ts-ignore
   export type { FileUploadUploaderEvent } from 'primevue/fileupload'
   import('primevue/fileupload')
+  // @ts-ignore
+  export type { PageState } from 'primevue/paginator'
+  import('primevue/paginator')
   // @ts-ignore
   export type { ProjectFile, FileSelectEvent, FileRemoveEvent, ApiClient } from './src/types/index'
   import('./src/types/index')
@@ -185,10 +185,9 @@ declare module 'vue' {
     readonly useCreateProjectStore: UnwrapRef<(typeof import('./src/stores/create-project.store'))['useCreateProjectStore']>
     readonly useCssModule: UnwrapRef<(typeof import('vue'))['useCssModule']>
     readonly useCssVars: UnwrapRef<(typeof import('vue'))['useCssVars']>
+    readonly useHtml: UnwrapRef<(typeof import('./src/composables/useHtml'))['useHtml']>
     readonly useId: UnwrapRef<(typeof import('vue'))['useId']>
-    readonly useLineBreak: UnwrapRef<(typeof import('./src/composables/useLineBreak'))['useLineBreak']>
     readonly useLink: UnwrapRef<(typeof import('vue-router'))['useLink']>
-    readonly useLinkify: UnwrapRef<(typeof import('./src/composables/useLinkify'))['useLinkify']>
     readonly useModel: UnwrapRef<(typeof import('vue'))['useModel']>
     readonly useProjectActions: UnwrapRef<(typeof import('./src/composables/useProjectActions'))['useProjectActions']>
     readonly useProjectCreationComposable: UnwrapRef<(typeof import('./src/composables/useProjectCreationComposable'))['useProjectCreationComposable']>
