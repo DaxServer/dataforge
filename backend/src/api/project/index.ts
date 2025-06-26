@@ -1,6 +1,6 @@
 import { Elysia } from 'elysia'
 import cors from '@elysiajs/cors'
-import { ApiErrorHandler } from '@backend/types/error-handler'
+import { errorHandlerPlugin } from '@backend/plugins/error-handler'
 import { databasePlugin } from '@backend/plugins/database'
 import {
   importProject,
@@ -15,29 +15,7 @@ import { getAllProjects, ProjectsGetAllSchema } from '@backend/api/project/proje
 import { importWithFile, ProjectImportFileSchema } from '@backend/api/project/project.import-file'
 
 export const projectRoutes = new Elysia({ prefix: '/api/project' })
-  .onError(({ code, error, status }) => {
-    // Handle validation errors
-    if (code === 'VALIDATION') {
-      return status(422, {
-        data: [],
-        errors: [
-          {
-            code,
-            message: error.validator.Errors(error.value).First().schema.error,
-            details: Array.from(error.validator.Errors(error.value)).map(e => ({
-              path: (e as { path: string }).path,
-              message: (e as { message: string }).message,
-              schema: (e as { schema: object }).schema,
-            })),
-          },
-        ],
-      })
-    }
-
-    // Handle other errors
-    const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred'
-    return status(500, ApiErrorHandler.internalServerErrorWithData(errorMessage))
-  })
+  .use(errorHandlerPlugin)
   .use(databasePlugin)
   .use(cors())
   .get('/', ({ db }) => getAllProjects(db), ProjectsGetAllSchema)
