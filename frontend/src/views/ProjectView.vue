@@ -3,7 +3,6 @@ const projectId = useRouteParams('id')
 const projectStore = useProjectStore()
 const { meta, isLoading, data, columns, errorState } = storeToRefs(projectStore)
 const { fetchProject } = projectStore
-const { goBack } = useProjectActions()
 const { processHtml } = useHtml()
 
 // Computed properties for template calculations
@@ -13,28 +12,14 @@ const totalRecords = computed(() => meta.value.total)
 const handlePaginate = async (event: { offset: number; limit: number }) => {
   await fetchProject(projectId.value as string, event.offset, event.limit)
 }
+
+onUnmounted(async () => {
+  projectStore.clearProject()
+})
 </script>
 
 <template>
   <div>
-    <div class="header border-b border-gray-200 -mx-6 px-6 pb-4 mb-6">
-      <div class="flex items-center justify-between mb-6">
-        <div>
-          <h1 class="text-2xl font-bold text-gray-900">{{ meta?.name || 'Loading Project...' }}</h1>
-          <p class="text-gray-600 mt-1">{{ totalRecords }} rows</p>
-        </div>
-        <div class="flex gap-2">
-          <Button
-            label="Back to Projects"
-            icon="pi pi-arrow-left"
-            severity="secondary"
-            outlined
-            @click="goBack"
-          />
-        </div>
-      </div>
-    </div>
-
     <!-- Error State -->
     <div
       v-if="errorState && !isLoading"
