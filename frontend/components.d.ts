@@ -15,7 +15,6 @@ declare module 'vue' {
     CustomPaginator: typeof import('./src/components/CustomPaginator.vue')['default']
     DataTable: typeof import('primevue/datatable')['default']
     DefaultLayout: typeof import('./src/layouts/DefaultLayout.vue')['default']
-    FloatLabel: typeof import('primevue/floatlabel')['default']
     Header: typeof import('./src/components/Header.vue')['default']
     MainContent: typeof import('./src/components/MainContent.vue')['default']
     Message: typeof import('primevue/message')['default']
@@ -25,7 +24,6 @@ declare module 'vue' {
     ProjectView: typeof import('./src/views/ProjectView.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
-    Select: typeof import('primevue/select')['default']
     Sidebar: typeof import('./src/components/Sidebar.vue')['default']
     Toast: typeof import('primevue/toast')['default']
   }

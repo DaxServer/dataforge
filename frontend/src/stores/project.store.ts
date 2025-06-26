@@ -54,6 +54,20 @@ export const useProjectStore = defineStore('project', () => {
     isLoading.value = false
   }
 
+  const clearProject = () => {
+    data.value = []
+    meta.value = {
+      name: '',
+      schema: [],
+      total: 0,
+      limit: 0,
+      offset: 0,
+    }
+    columns.value = []
+    isLoading.value = false
+    errorState.value = null
+  }
+
   return {
     // State
     data,
@@ -64,5 +78,6 @@ export const useProjectStore = defineStore('project', () => {
 
     // Actions
     fetchProject,
+    clearProject,
   }
 })
