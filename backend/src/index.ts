@@ -2,8 +2,7 @@ import { Elysia } from 'elysia'
 import { cors } from '@elysiajs/cors'
 import swagger from '@elysiajs/swagger'
 import { logger } from '@bogeychan/elysia-logger'
-import { ApiErrorHandler } from '@backend/types/error-handler'
-import { databasePlugin } from '@backend/plugins/database'
+import { errorHandlerPlugin } from '@backend/plugins/error-handler'
 import { healthRoutes } from '@backend/api/health'
 import { projectRoutes } from '@backend/api/project'
 
@@ -12,33 +11,8 @@ export const elysiaApp = new Elysia({
     maxRequestBodySize: 1024 * 1024 * 1024 * 10, // 10GB
   },
 })
-  .onError(({ code, error, set }) => {
-    // Handle validation errors
-    if (code === 'VALIDATION') {
-      set.status = 422
-      return {
-        data: [],
-        errors: [
-          {
-            code,
-            message: error.validator.Errors(error.value).First().schema.error,
-            details: Array.from(error.validator.Errors(error.value)).map(e => ({
-              path: (e as { path: string }).path,
-              message: (e as { message: string }).message,
-              schema: (e as { schema: object }).schema,
-            })),
-          },
-        ],
-      }
-    }
-
-    // Handle other errors
-    set.status = 500
-    const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred'
-    return ApiErrorHandler.internalServerErrorWithData(errorMessage)
-  })
+  .use(errorHandlerPlugin)
   .use(cors())
-  .use(databasePlugin)
   .use(
     swagger({
       path: '/docs',
