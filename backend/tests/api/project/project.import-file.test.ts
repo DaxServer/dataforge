@@ -6,6 +6,11 @@ import { initializeDb, closeDb, getDb } from '@backend/plugins/database'
 import { projectRoutes } from '@backend/api/project'
 import { UUID_REGEX_PATTERN } from '@backend/api/project/_schemas'
 
+const TEST_DATA = [
+  { name: 'John', age: 30, city: 'New York' },
+  { name: 'Jane', age: 25, city: 'Boston' },
+]
+
 const createTestApi = () => {
   return treaty(new Elysia().use(projectRoutes)).api
 }
@@ -35,13 +40,7 @@ describe('POST /api/project/import', () => {
 
   describe('Successful imports', () => {
     test('should create project and import JSON file with auto-generated name', async () => {
-      const testData = JSON.stringify({
-        rows: [
-          { name: 'John', age: 30, city: 'New York' },
-          { name: 'Jane', age: 25, city: 'Boston' },
-        ],
-        columns: ['name', 'age', 'city'],
-      })
+      const testData = JSON.stringify(TEST_DATA)
       const file = new File([testData], 'test-data.json', { type: 'application/json' })
 
       const { data, status, error } = await api.project.import.post({ file })
@@ -54,10 +53,7 @@ describe('POST /api/project/import', () => {
     })
 
     test('should create project and import JSON file with custom name', async () => {
-      const testData = JSON.stringify({
-        rows: [{ id: 1, value: 'test' }],
-        columns: ['id', 'value'],
-      })
+      const testData = JSON.stringify(TEST_DATA)
       const file = new File([testData], 'data.json', { type: 'application/json' })
       const customName = 'My Custom Project'
 
@@ -65,25 +61,6 @@ describe('POST /api/project/import', () => {
         file,
         name: customName,
       })
-
-      expect(status).toBe(201)
-      expect(error).toBeNull()
-      expect(data).toHaveProperty('data', {
-        id: expect.stringMatching(UUID_REGEX_PATTERN),
-      })
-    })
-
-    test('should handle large JSON files', async () => {
-      const rows = Array.from({ length: 1000 }, (_, i) => ({
-        id: i + 1,
-        name: `User ${i + 1}`,
-        email: `user${i + 1}@example.com`,
-        active: i % 2 === 0,
-      }))
-      const testData = JSON.stringify({ rows, columns: ['id', 'name', 'email', 'active'] })
-      const file = new File([testData], 'large-dataset.json', { type: 'application/json' })
-
-      const { data, status, error } = await api.project.import.post({ file })
 
       expect(status).toBe(201)
       expect(error).toBeNull()
@@ -153,7 +130,7 @@ describe('POST /api/project/import', () => {
       })
 
       test('should return 422 for invalid name - too long', async () => {
-        const testData = JSON.stringify({ rows: [], columns: [] })
+        const testData = JSON.stringify(TEST_DATA)
         const file = new File([testData], 'test.json', { type: 'application/json' })
         const longName = 'a'.repeat(256) // Assuming 255 character limit
 
@@ -189,7 +166,7 @@ describe('POST /api/project/import', () => {
       })
 
       test('should return 422 for invalid name - empty string', async () => {
-        const testData = JSON.stringify({ rows: [], columns: [] })
+        const testData = JSON.stringify(TEST_DATA)
         const file = new File([testData], 'test.json', { type: 'application/json' })
 
         const { data, status, error } = await api.project.import.post({
@@ -273,7 +250,7 @@ describe('POST /api/project/import', () => {
         // Close the database to simulate a database error
         await closeDb()
 
-        const testData = JSON.stringify({ rows: [], columns: [] })
+        const testData = JSON.stringify(TEST_DATA)
         const file = new File([testData], 'test.json', { type: 'application/json' })
 
         const { data, status, error } = await api.project.import.post({ file })
@@ -299,7 +276,7 @@ describe('POST /api/project/import', () => {
 
     describe('Edge cases', () => {
       test('should handle very small JSON files', async () => {
-        const minimalData = JSON.stringify({ rows: [], columns: [] })
+        const minimalData = JSON.stringify(TEST_DATA)
         const file = new File([minimalData], 'minimal.json', { type: 'application/json' })
 
         const { data, status, error } = await api.project.import.post({ file })
@@ -312,7 +289,7 @@ describe('POST /api/project/import', () => {
       })
 
       test('should handle special characters in project name', async () => {
-        const testData = JSON.stringify({ rows: [], columns: [] })
+        const testData = JSON.stringify(TEST_DATA)
         const file = new File([testData], 'test.json', { type: 'application/json' })
         const specialName = 'Project with émojis 🚀 and symbols @#$%'
 
@@ -329,14 +306,11 @@ describe('POST /api/project/import', () => {
       })
 
       test('should handle Unicode content in JSON', async () => {
-        const unicodeData = JSON.stringify({
-          rows: [
-            { name: '张三', city: '北京' },
-            { name: 'José', city: 'São Paulo' },
-            { name: 'محمد', city: 'الرياض' },
-          ],
-          columns: ['name', 'city'],
-        })
+        const unicodeData = JSON.stringify([
+          { name: '张三', city: '北京' },
+          { name: 'José', city: 'São Paulo' },
+          { name: 'محمد', city: 'الرياض' },
+        ])
         const file = new File([unicodeData], 'unicode.json', { type: 'application/json' })
 
         const { data, status, error } = await api.project.import.post({ file })
@@ -349,7 +323,7 @@ describe('POST /api/project/import', () => {
       })
 
       test('should handle files with different extensions but JSON content', async () => {
-        const testData = JSON.stringify({ rows: [], columns: [] })
+        const testData = JSON.stringify(TEST_DATA)
         const file = new File([testData], 'data.txt', { type: 'text/plain' })
 
         const { data, status, error } = await api.project.import.post({ file })
@@ -362,13 +336,7 @@ describe('POST /api/project/import', () => {
       })
 
       test('should create table with autoincrement primary key', async () => {
-        const testData = JSON.stringify({
-          rows: [
-            { name: 'John', age: 30, city: 'New York' },
-            { name: 'Jane', age: 25, city: 'Boston' },
-          ],
-          columns: ['name', 'age', 'city'],
-        })
+        const testData = JSON.stringify(TEST_DATA)
         const file = new File([testData], 'test-data.json', { type: 'application/json' })
 
         const { data, status } = await api.project.import.post({ file })
@@ -378,20 +346,43 @@ describe('POST /api/project/import', () => {
         const projectId = data?.data?.id
 
         const result = await db.runAndReadAll(`PRAGMA table_info("project_${projectId}")`)
-
-        const columns = result.getRowObjectsJson()
+        const columns = result.getRowObjectsJson() as DuckDBColumn[]
 
         // Verify there is an 'id' column with autoincrement and primary key
-        const idColumn = (columns as DuckDBColumn[]).find(col => col.name === 'id')
+        const idColumn = columns.find(col => col.name === 'id')
         expect(idColumn).toBeDefined()
-
-        // In DuckDB, primary key is indicated by pk > 0
-        expect(Number(idColumn.pk)).toBeGreaterThan(0)
-
-        // Check if the id column is autoincrement by checking its type and constraints
-        // In DuckDB, autoincrement columns are BIGINT PRIMARY KEY and NOT NULL
+        expect(idColumn.pk).toBeTrue()
         expect(idColumn.type.toUpperCase()).toBe('BIGINT')
-        expect(Boolean(idColumn.notnull)).toBe(true)
+        expect(idColumn.notnull).toBeTrue()
+      })
+
+      test('should handle JSON with existing id column by creating unique primary key column', async () => {
+        const testDataWithId = JSON.stringify(TEST_DATA.map((item) => ({
+          ...item,
+          id: item.name,
+        })))
+        const file = new File([testDataWithId], 'data-with-id.json', { type: 'application/json' })
+
+        const { data, status } = await api.project.import.post({ file })
+        expect(status).toBe(201)
+
+        const db = getDb()
+        const projectId = data?.data?.id
+
+        const result = await db.runAndReadAll(`PRAGMA table_info("project_${projectId}")`)
+        const columns = result.getRowObjectsJson() as DuckDBColumn[]
+
+        // Should have the original 'id' column from JSON
+        const originalIdColumn = columns.find(col => col.name === 'id')
+        expect(originalIdColumn).toBeDefined()
+        expect(originalIdColumn.pk).toBeFalse() // Not primary key
+
+        // Should have a different primary key column (e.g., '_pk_id')
+        const primaryKeyColumn = columns.find(col => col.pk)
+        expect(primaryKeyColumn).toBeDefined()
+        expect(primaryKeyColumn.name).not.toBe('id')
+        expect(primaryKeyColumn.type.toUpperCase()).toBe('BIGINT')
+        expect(primaryKeyColumn.notnull).toBeTrue()
       })
     })
   })

@@ -1,4 +1,5 @@
 import { describe, expect, test, beforeEach, afterEach } from 'bun:test'
+import { readdir } from 'node:fs/promises'
 import { Elysia } from 'elysia'
 import { treaty } from '@elysiajs/eden'
 import { initializeDb, closeDb, getDb } from '@backend/plugins/database'
@@ -18,10 +19,24 @@ describe('POST /project/:projectId/import-file', () => {
 
   afterEach(async () => {
     await closeDb()
+
+    // Clean up temp files
+    const tempDir = './temp'
+    const files = await readdir(tempDir).catch(() => [])
+    await Promise.all(
+      files
+        .filter(file => file.startsWith('temp_') && file.endsWith('.json'))
+        .map(async file => {
+          const filePath = `${tempDir}/${file}`
+          await Bun.file(filePath)
+            .delete()
+            .catch(() => {})
+        })
+    )
   })
 
   test('should accept non-JSON file type (type validation disabled)', async () => {
-    const projectId = '550e8400-e29b-41d4-a716-446655440005'
+    const projectId = Bun.randomUUIDv7()
 
     // Create a test file with non-JSON mime type
     // Note: File type validation is currently disabled due to Elysia 1.3.x issues
@@ -35,9 +50,6 @@ describe('POST /project/:projectId/import-file', () => {
     expect(status).toBe(201)
     expect(data).toHaveProperty('tempFilePath', expect.stringMatching(/\.json$/))
     expect(error).toBeNull()
-
-    const tempFile = Bun.file(data.tempFilePath)
-    await tempFile.delete()
   })
 
   test('should return 422 for empty file', async () => {
@@ -92,8 +104,6 @@ describe('POST /project/:projectId/import-file', () => {
 
     const savedContent = await tempFile.text()
     expect(savedContent).toBe(testData)
-
-    await tempFile.delete()
   })
 
   test('should successfully import uploaded file into DuckDB', async () => {
@@ -149,8 +159,5 @@ describe('POST /project/:projectId/import-file', () => {
         }))
       )
     )
-
-    const tempFile = Bun.file(uploadData.tempFilePath)
-    await tempFile.delete()
   })
 })

@@ -4,6 +4,19 @@ import { ApiErrorHandler } from '@backend/types/error-handler'
 import { ApiError } from '@backend/types/error-schemas'
 import type { Project } from '@backend/api/project/_schemas'
 
+const generateProjectName = (fileName: string) => {
+      const now = new Date()
+      const year = now.getFullYear()
+      const month = String(now.getMonth() + 1).padStart(2, '0')
+      const day = String(now.getDate()).padStart(2, '0')
+      const hours = String(now.getHours()).padStart(2, '0')
+      const minutes = String(now.getMinutes()).padStart(2, '0')
+      const seconds = String(now.getSeconds()).padStart(2, '0')
+      const timestamp = `${year}-${month}-${day}-${hours}-${minutes}-${seconds}`
+      const baseName = fileName.replace(/\.[^/.]+$/, '') // Remove extension
+      return `${baseName}-${timestamp}`
+    }
+
 const cleanupProject = async (
   db: () => DuckDBConnection,
   projectId: string,
@@ -54,20 +67,7 @@ export const importWithFile = async (
   const { file, name } = body
 
   // Generate project name if not provided
-  const projectName =
-    name ||
-    (() => {
-      const now = new Date()
-      const year = now.getFullYear()
-      const month = String(now.getMonth() + 1).padStart(2, '0')
-      const day = String(now.getDate()).padStart(2, '0')
-      const hours = String(now.getHours()).padStart(2, '0')
-      const minutes = String(now.getMinutes()).padStart(2, '0')
-      const seconds = String(now.getSeconds()).padStart(2, '0')
-      const timestamp = `${year}-${month}-${day}-${hours}-${minutes}-${seconds}`
-      const baseName = file.name.replace(/\.[^/.]+$/, '') // Remove extension
-      return `${baseName}-${timestamp}`
-    })()
+  const projectName = name || generateProjectName(file.name)
 
   // Create the project
   const reader = await db().runAndReadAll(
@@ -137,25 +137,36 @@ export const importWithFile = async (
     )
   }
 
-  // Create table with autoincrement primary key and import data using DuckDB's JSON functions
+  // First, import the JSON data into the table
   await db().run(`
-    -- Create the table with an autoincrement primary key
     CREATE TABLE "project_${project.id}" AS
-    SELECT
-      row_number() OVER () AS id,
-      *
-    FROM (
-      SELECT * FROM read_json_auto('${tempFilePath}')
-    ) t
+    SELECT * FROM read_json_auto('${tempFilePath}')
   `)
 
-  // Add primary key constraint
-  await db().run(`
-    ALTER TABLE "project_${project.id}"
-    ALTER COLUMN id SET NOT NULL;
+  // Check if 'id' column already exists and generate unique primary key column name
+  const tableInfo = await db().runAndReadAll(`PRAGMA table_info("project_${project.id}")`)
+  const columns = tableInfo.getRowObjectsJson() as Array<{ name: string }>
+  const existingColumnNames = columns.map(col => col.name)
+  
+  let primaryKeyColumnName = 'id'
+  let counter = 1
+  while (existingColumnNames.includes(primaryKeyColumnName)) {
+    primaryKeyColumnName = `_pk_id_${counter}`
+    counter++
+  }
 
+  // Then add the auto-increment primary key column with unique name
+  await db().run(`
+    -- Create the sequence
+    CREATE SEQUENCE "project_${project.id}_${primaryKeyColumnName}_seq" START 1;
+
+    -- Add the column with the sequence as the default value
     ALTER TABLE "project_${project.id}"
-    ADD PRIMARY KEY (id);
+    ADD COLUMN "${primaryKeyColumnName}" BIGINT DEFAULT nextval('project_${project.id}_${primaryKeyColumnName}_seq');
+
+    -- Add the primary key constraint
+    ALTER TABLE "project_${project.id}"
+    ADD CONSTRAINT "project_${project.id}_pkey" PRIMARY KEY ("${primaryKeyColumnName}");
   `)
 
   // Clean up temporary file
