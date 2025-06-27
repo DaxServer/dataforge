@@ -2,7 +2,7 @@ import { t } from 'elysia'
 import type { DuckDBConnection } from '@duckdb/node-api'
 import { ApiErrorHandler } from '@backend/types/error-handler'
 import { enhanceSchemaWithTypes } from '@backend/utils/duckdb-types'
-import { ErrorResponseWithDataSchema } from '@backend/types/error-schemas'
+import { ApiError } from '@backend/types/error-schemas'
 import {
   DuckDBColumnSchema,
   ProjectUUIDParams,
@@ -25,10 +25,10 @@ export const GetProjectByIdSchema = {
   query: PaginationQuery,
   response: {
     200: ResponseSchema,
-    400: ErrorResponseWithDataSchema,
-    404: ErrorResponseWithDataSchema,
-    422: ErrorResponseWithDataSchema,
-    500: ErrorResponseWithDataSchema,
+    400: ApiError,
+    404: ApiError,
+    422: ApiError,
+    500: ApiError,
   },
 }
 

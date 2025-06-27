@@ -2,7 +2,7 @@ import { t } from 'elysia'
 import type { DuckDBConnection } from '@duckdb/node-api'
 import { ApiErrorHandler } from '@backend/types/error-handler'
 import { ProjectUUIDParams } from '@backend/api/project/_schemas'
-import { ErrorResponseWithDataSchema } from '@backend/types/error-schemas'
+import { ApiError } from '@backend/types/error-schemas'
 
 export const ProjectImportSchema = {
   params: ProjectUUIDParams,
@@ -11,10 +11,10 @@ export const ProjectImportSchema = {
   }),
   response: {
     201: t.Null(),
-    400: ErrorResponseWithDataSchema,
-    409: ErrorResponseWithDataSchema,
-    422: ErrorResponseWithDataSchema,
-    500: ErrorResponseWithDataSchema,
+    400: ApiError,
+    409: ApiError,
+    422: ApiError,
+    500: ApiError,
   },
 }
 
@@ -104,10 +104,10 @@ export const ProjectImportFileAltSchema = {
     201: t.Object({
       tempFilePath: t.String(),
     }),
-    400: ErrorResponseWithDataSchema,
-    409: ErrorResponseWithDataSchema,
-    422: ErrorResponseWithDataSchema,
-    500: ErrorResponseWithDataSchema,
+    400: ApiError,
+    409: ApiError,
+    422: ApiError,
+    500: ApiError,
   },
 }
 

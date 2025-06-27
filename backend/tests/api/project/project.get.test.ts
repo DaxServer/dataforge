@@ -100,7 +100,12 @@ describe('Project API - GET /:id', () => {
   }
 
   it('should return project by id', async () => {
-    const { data, status, error } = await api.project({ id: projectId }).get()
+    const { data, status, error } = await api.project({ id: projectId }).get({
+      query: {
+        offset: 0,
+        limit: 25,
+      },
+    })
 
     expect(status).toBe(200)
     expect(error).toBeNull()
@@ -117,7 +122,12 @@ describe('Project API - GET /:id', () => {
   })
 
   it('should return 404 for non-existent project', async () => {
-    const { data, status, error } = await api.project({ id: NON_EXISTENT_UUID }).get()
+    const { data, status, error } = await api.project({ id: NON_EXISTENT_UUID }).get({
+      query: {
+        offset: 0,
+        limit: 25,
+      },
+    })
 
     expect(status).toBe(404)
     expect(data).toBeNull()
@@ -135,7 +145,12 @@ describe('Project API - GET /:id', () => {
   })
 
   it('should return 422 for invalid project id format', async () => {
-    const { data, status, error } = await api.project({ id: INVALID_UUID }).get()
+    const { data, status, error } = await api.project({ id: INVALID_UUID }).get({
+      query: {
+        offset: 0,
+        limit: 25,
+      },
+    })
 
     expect(status).toBe(422)
     expect(data).toBeNull()
@@ -169,7 +184,12 @@ describe('Project API - GET /:id', () => {
     expect(createError).toBeNull()
     const emptyProjectId = createData?.data?.id as string
 
-    const { data, status, error } = await api.project({ id: emptyProjectId }).get()
+    const { data, status, error } = await api.project({ id: emptyProjectId }).get({
+      query: {
+        offset: 0,
+        limit: 25,
+      },
+    })
 
     expect(status).toBe(404)
     expect(data).toBeNull()
@@ -190,7 +210,12 @@ describe('Project API - GET /:id', () => {
 
   describe('Pagination', () => {
     it('should return first page with default limit', async () => {
-      const { data, status, error } = await api.project({ id: projectId }).get()
+      const { data, status, error } = await api.project({ id: projectId }).get({
+        query: {
+          offset: 0,
+          limit: 25,
+        },
+      })
 
       expect(status).toBe(200)
       expect(error).toBeNull()

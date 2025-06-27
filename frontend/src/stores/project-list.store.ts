@@ -1,12 +1,12 @@
-import type { Project } from '@backend/api/project/schemas'
+import type { Project } from '@backend/api/project/_schemas'
 
 export const useProjectListStore = defineStore('projectList', () => {
   const api = useApi()
+  const { showError } = useErrorHandling()
 
   // State
   const projects = ref<Project[]>([])
   const isLoading = ref(false)
-  const error = ref<string | null>(null)
 
   // Getters
   const hasProjects = ref(false)
@@ -25,11 +25,10 @@ export const useProjectListStore = defineStore('projectList', () => {
   // Actions
   const fetchProjects = async () => {
     isLoading.value = true
-    error.value = null
 
     const { data, error: apiError } = await api.project.get()
     if (apiError) {
-      error.value = 'Failed to fetch projects'
+      showError(apiError.value)
       projects.value = []
     } else {
       projects.value = data.data
@@ -40,31 +39,22 @@ export const useProjectListStore = defineStore('projectList', () => {
   const deleteProject = async (projectId: string) => {
     const { error: apiError } = await api.project({ id: projectId }).delete()
     if (apiError) {
-      error.value =
-        (apiError.value && 'message' in apiError.value
-          ? apiError.value.message
-          : apiError.value?.errors?.[0]?.message) || 'Failed to delete project'
+      showError(apiError.value)
       return
     }
     // Remove from local state
     projects.value = projects.value.filter((p) => p.id !== projectId)
   }
 
-  const clearError = () => {
-    error.value = null
-  }
-
   const resetState = () => {
     projects.value = []
     isLoading.value = false
-    error.value = null
   }
 
   return {
     // State
     projects,
     isLoading,
-    error,
 
     // Getters
     hasProjects,
@@ -73,7 +63,6 @@ export const useProjectListStore = defineStore('projectList', () => {
     // Actions
     fetchProjects,
     deleteProject,
-    clearError,
     resetState,
   }
 })

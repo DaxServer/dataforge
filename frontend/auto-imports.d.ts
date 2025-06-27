@@ -75,6 +75,7 @@ declare global {
   const useCreateProjectStore: (typeof import('./src/stores/create-project.store'))['useCreateProjectStore']
   const useCssModule: (typeof import('vue'))['useCssModule']
   const useCssVars: (typeof import('vue'))['useCssVars']
+  const useErrorHandling: (typeof import('./src/composables/useErrorHandling'))['useErrorHandling']
   const useHtml: (typeof import('./src/composables/useHtml'))['useHtml']
   const useId: (typeof import('vue'))['useId']
   const useLink: (typeof import('vue-router'))['useLink']
@@ -185,6 +186,7 @@ declare module 'vue' {
     readonly useCreateProjectStore: UnwrapRef<(typeof import('./src/stores/create-project.store'))['useCreateProjectStore']>
     readonly useCssModule: UnwrapRef<(typeof import('vue'))['useCssModule']>
     readonly useCssVars: UnwrapRef<(typeof import('vue'))['useCssVars']>
+    readonly useErrorHandling: UnwrapRef<(typeof import('./src/composables/useErrorHandling'))['useErrorHandling']>
     readonly useHtml: UnwrapRef<(typeof import('./src/composables/useHtml'))['useHtml']>
     readonly useId: UnwrapRef<(typeof import('vue'))['useId']>
     readonly useLink: UnwrapRef<(typeof import('vue-router'))['useLink']>

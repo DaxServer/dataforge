@@ -1,8 +1,7 @@
 <script setup lang="ts">
 const projectId = useRouteParams('id')
-const projectStore = useProjectStore()
-const { meta } = storeToRefs(projectStore)
-const { goBack } = useProjectActions()
+const { meta } = storeToRefs(useProjectStore())
+const { goToProjectsList } = useProjectActions()
 
 const isProjectView = computed(() => !!projectId.value)
 const projectName = computed(() => meta.value?.name)
@@ -28,7 +27,7 @@ const totalRecords = computed(() => meta.value?.total || 0)
           icon="pi pi-arrow-left"
           severity="secondary"
           outlined
-          @click="goBack"
+          @click="goToProjectsList"
         />
       </div>
     </div>

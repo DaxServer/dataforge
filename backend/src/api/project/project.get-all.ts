@@ -1,6 +1,6 @@
 import { t } from 'elysia'
 import type { DuckDBConnection } from '@duckdb/node-api'
-import { ErrorResponseWithDataSchema } from '@backend/types/error-schemas'
+import { ApiError } from '@backend/types/error-schemas'
 import { ProjectResponseSchema, type Project } from '@backend/api/project/_schemas'
 
 export const ProjectsGetAllSchema = {
@@ -8,7 +8,8 @@ export const ProjectsGetAllSchema = {
     200: t.Object({
       data: t.Array(ProjectResponseSchema),
     }),
-    500: ErrorResponseWithDataSchema,
+    422: ApiError,
+    500: ApiError,
   },
 }
 

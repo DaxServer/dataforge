@@ -1,4 +1,4 @@
-import type { ErrorCode, ErrorResponseWithData } from '@backend/types/error-schemas'
+import type { ErrorCode, ApiError } from '@backend/types/error-schemas'
 
 /**
  * Centralized error handler for creating consistent API error responses
@@ -7,10 +7,7 @@ export class ApiErrorHandler {
   /**
    * Create a validation error response with data array
    */
-  static validationError(
-    message: string = 'Validation failed',
-    details: unknown[] = []
-  ): ErrorResponseWithData {
+  static validationError(message: string = 'Validation failed', details: unknown[] = []): ApiError {
     return this.createErrorWithData('VALIDATION', message, details)
   }
 
@@ -20,14 +17,14 @@ export class ApiErrorHandler {
   static validationErrorWithData(
     message: string = 'Validation failed',
     details: unknown[] = []
-  ): ErrorResponseWithData {
+  ): ApiError {
     return this.createErrorWithData('VALIDATION', message, details)
   }
 
   /**
    * Create a not found error response
    */
-  static notFoundError(resource: string = 'Resource', identifier?: string): ErrorResponseWithData {
+  static notFoundError(resource: string = 'Resource', identifier?: string): ApiError {
     const message = identifier
       ? `${resource} with identifier '${identifier}' not found`
       : `${resource} not found`
@@ -37,10 +34,7 @@ export class ApiErrorHandler {
   /**
    * Create a not found error response with data array (for compatibility)
    */
-  static notFoundErrorWithData(
-    resource: string = 'Resource',
-    identifier?: string
-  ): ErrorResponseWithData {
+  static notFoundErrorWithData(resource: string = 'Resource', identifier?: string): ApiError {
     const message = identifier
       ? `${resource} with identifier '${identifier}' not found`
       : `${resource} not found`
@@ -50,14 +44,14 @@ export class ApiErrorHandler {
   /**
    * Create a missing file path error response with data array
    */
-  static missingFilePathError(message: string = 'File path is required'): ErrorResponseWithData {
+  static missingFilePathError(message: string = 'File path is required'): ApiError {
     return this.createErrorWithData('MISSING_FILE_PATH', message, [])
   }
 
   /**
    * Create a file not found error response with data array
    */
-  static fileNotFoundError(filePath?: string): ErrorResponseWithData {
+  static fileNotFoundError(filePath?: string): ApiError {
     const message = 'File not found'
     const details = filePath ? [filePath] : []
     return this.createErrorWithData('FILE_NOT_FOUND', message, details)
@@ -66,7 +60,7 @@ export class ApiErrorHandler {
   /**
    * Create a table already exists error response with data array
    */
-  static tableExistsErrorWithData(tableName: string): ErrorResponseWithData {
+  static tableExistsErrorWithData(tableName: string): ApiError {
     return this.createErrorWithData(
       'TABLE_ALREADY_EXISTS',
       `Table with name '${tableName}' already exists`
@@ -79,7 +73,7 @@ export class ApiErrorHandler {
   static internalServerErrorWithData(
     message: string = 'An error occurred while processing the request',
     details: unknown[] = []
-  ): ErrorResponseWithData {
+  ): ApiError {
     return this.createErrorWithData('INTERNAL_SERVER_ERROR', message, details)
   }
 
@@ -89,7 +83,7 @@ export class ApiErrorHandler {
   static databaseError(
     message: string = 'Database error occurred',
     details: unknown[] = []
-  ): ErrorResponseWithData {
+  ): ApiError {
     return this.createErrorWithData('DATABASE_ERROR', message, details)
   }
 
@@ -99,7 +93,7 @@ export class ApiErrorHandler {
   static databaseErrorWithData(
     message: string = 'Database error occurred',
     details: unknown[] = []
-  ): ErrorResponseWithData {
+  ): ApiError {
     return this.createErrorWithData('DATABASE_ERROR', message, details)
   }
 
@@ -110,7 +104,7 @@ export class ApiErrorHandler {
     type: 'MISSING_FILE' | 'INVALID_FILE_TYPE' | 'EMPTY_FILE' | 'FILE_NOT_FOUND',
     message: string,
     details: unknown[] = []
-  ): ErrorResponseWithData {
+  ): ApiError {
     return this.createErrorWithData(type, message, details)
   }
 
@@ -120,7 +114,7 @@ export class ApiErrorHandler {
   static projectCreationError(
     message: string = 'Failed to create project',
     details: unknown[] = []
-  ): ErrorResponseWithData {
+  ): ApiError {
     return this.createErrorWithData('PROJECT_CREATION_FAILED', message, details)
   }
 
@@ -130,7 +124,7 @@ export class ApiErrorHandler {
   static projectCreationErrorWithData(
     message: string = 'Failed to create project',
     details: unknown[] = []
-  ): ErrorResponseWithData {
+  ): ApiError {
     return this.createErrorWithData('PROJECT_CREATION_FAILED', message, details)
   }
 
@@ -140,7 +134,7 @@ export class ApiErrorHandler {
   static dataImportError(
     message: string = 'Failed to import data',
     details: unknown[] = []
-  ): ErrorResponseWithData {
+  ): ApiError {
     return this.createErrorWithData('DATA_IMPORT_FAILED', message, details)
   }
 
@@ -150,7 +144,7 @@ export class ApiErrorHandler {
   static dataImportErrorWithData(
     message: string = 'Failed to import data',
     details: unknown[] = []
-  ): ErrorResponseWithData {
+  ): ApiError {
     return this.createErrorWithData('DATA_IMPORT_FAILED', message, details)
   }
 
@@ -160,7 +154,7 @@ export class ApiErrorHandler {
   static invalidJsonError(
     message: string = 'Invalid JSON format',
     details: unknown[] = []
-  ): ErrorResponseWithData {
+  ): ApiError {
     return this.createErrorWithData('INVALID_JSON', message, details)
   }
 
@@ -170,7 +164,7 @@ export class ApiErrorHandler {
   static invalidJsonErrorWithData(
     message: string = 'Invalid JSON format',
     details: unknown[] = []
-  ): ErrorResponseWithData {
+  ): ApiError {
     return this.createErrorWithData('INVALID_JSON', message, details)
   }
 
@@ -180,14 +174,14 @@ export class ApiErrorHandler {
   static internalServerError(
     message: string = 'Internal server error',
     details: unknown[] = []
-  ): ErrorResponseWithData {
+  ): ApiError {
     return this.createErrorWithData('INTERNAL_SERVER_ERROR', message, details)
   }
 
   /**
    * Create a table already exists error response
    */
-  static tableExistsError(tableName: string): ErrorResponseWithData {
+  static tableExistsError(tableName: string): ApiError {
     return this.createErrorWithData(
       'TABLE_ALREADY_EXISTS',
       `Table with name '${tableName}' already exists`
@@ -202,7 +196,7 @@ export class ApiErrorHandler {
     code: ErrorCode,
     message: string,
     details: unknown[] = []
-  ): ErrorResponseWithData {
+  ): ApiError {
     return {
       data: [],
       errors: [
