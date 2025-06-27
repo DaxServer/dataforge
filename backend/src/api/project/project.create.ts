@@ -2,7 +2,7 @@ import { t } from 'elysia'
 import type { DuckDBConnection } from '@duckdb/node-api'
 import { ApiErrorHandler } from '@backend/types/error-handler'
 import { ProjectResponseSchema, type Project } from '@backend/api/project/_schemas'
-import { ErrorResponseWithDataSchema } from '@backend/types/error-schemas'
+import { ApiError } from '@backend/types/error-schemas'
 
 export const ProjectCreateSchema = {
   body: t.Object({
@@ -15,8 +15,8 @@ export const ProjectCreateSchema = {
     201: t.Object({
       data: ProjectResponseSchema,
     }),
-    422: ErrorResponseWithDataSchema,
-    500: ErrorResponseWithDataSchema,
+    422: ApiError,
+    500: ApiError,
   },
 }
 

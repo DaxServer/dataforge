@@ -91,6 +91,7 @@
     "useCreateProjectStore": true,
     "useCssModule": true,
     "useCssVars": true,
+    "useErrorHandling": true,
     "useHtml": true,
     "useId": true,
     "useLink": true,

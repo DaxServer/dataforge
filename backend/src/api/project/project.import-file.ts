@@ -1,7 +1,7 @@
 import { t } from 'elysia'
 import type { DuckDBConnection } from '@duckdb/node-api'
 import { ApiErrorHandler } from '@backend/types/error-handler'
-import { ErrorResponseWithDataSchema } from '@backend/types/error-schemas'
+import { ApiError } from '@backend/types/error-schemas'
 import type { Project } from '@backend/api/project/_schemas'
 
 const cleanupProject = async (
@@ -38,9 +38,9 @@ export const ProjectImportFileSchema = {
         id: t.String(),
       }),
     }),
-    400: ErrorResponseWithDataSchema,
-    422: ErrorResponseWithDataSchema,
-    500: ErrorResponseWithDataSchema,
+    400: ApiError,
+    422: ApiError,
+    500: ApiError,
   },
 }
 

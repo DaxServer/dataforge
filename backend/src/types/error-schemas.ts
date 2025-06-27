@@ -38,7 +38,7 @@ export const ErrorResponseSchema = t.Object({
 /**
  * Error response with data array (for compatibility with existing schemas)
  */
-export const ErrorResponseWithDataSchema = t.Object({
+export const ApiError = t.Object({
   data: t.Array(t.Any()),
   errors: t.Array(ErrorSchema),
 })
@@ -47,6 +47,4 @@ export const ErrorResponseWithDataSchema = t.Object({
  * Type definitions derived from schemas
  */
 export type ErrorCode = typeof ErrorCodeSchema.static
-export type ApiError = typeof ErrorSchema.static
-export type ErrorResponse = typeof ErrorResponseSchema.static
-export type ErrorResponseWithData = typeof ErrorResponseWithDataSchema.static
+export type ApiError = typeof ApiError.static

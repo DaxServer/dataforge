@@ -1,43 +1,55 @@
 export const useProjectCreationComposable = () => {
-  const store = useCreateProjectStore()
-  const { message, isCreating } = storeToRefs(store)
+  const router = useRouter()
+  const { setIsCreating } = useCreateProjectStore()
+  const { showError } = useErrorHandling()
 
   const createProject = async (event: FileUploadUploaderEvent) => {
     const eventFiles = Array.isArray(event.files) ? event.files : [event.files]
 
     if (eventFiles.length === 0) {
-      message.value = { text: 'Please add files first.', type: 'error' }
+      showError({
+        data: [],
+        errors: [{ code: 'VALIDATION', message: 'Please add files first.' }],
+      })
       return
     }
 
-    isCreating.value = true
-    message.value = { text: 'Uploading...', type: 'info' }
-
-    try {
-      const fileToUpload = eventFiles[0]
-      if (!fileToUpload) {
-        throw new Error('No file selected for upload')
-      }
-
-      const { data } = await api().project.import.post({
-        file: fileToUpload,
+    const fileToUpload = eventFiles[0]
+    if (!fileToUpload) {
+      showError({
+        data: [],
+        errors: [{ code: 'VALIDATION', message: 'No file selected for upload' }],
       })
+      return
+    }
 
-      if (data?.data?.id) {
-        store.clearMessage()
-        setTimeout(() => {
-          router.push(`/project/${data.data.id}`)
-        }, 1000)
-      } else {
-        message.value = { text: 'Failed to create project. Please try again.', type: 'error' }
-      }
-    } catch (error) {
-      message.value = {
-        text: `An error occurred. Please try again. Error: ${error}`,
-        type: 'error',
-      }
-    } finally {
-      isCreating.value = false
+    setIsCreating(true)
+
+    const { data, error } = await api().project.import.post({
+      file: fileToUpload,
+    })
+
+    setIsCreating(false)
+
+    if (error) {
+      showError(error.value)
+      return
+    }
+
+    if (data?.data?.id) {
+      setTimeout(() => {
+        router.push(`/project/${data.data.id}`)
+      }, 1000)
+    } else {
+      showError({
+        data: [],
+        errors: [
+          {
+            code: 'PROJECT_CREATION_FAILED',
+            message: 'Failed to create project. Please try again.',
+          },
+        ],
+      })
     }
   }
 

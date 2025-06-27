@@ -1,9 +1,9 @@
-import { ErrorResponseWithData } from '@backend/types/error-schemas'
 import type { GetProjectByIdResponse } from '@backend/api/project/project.get'
 import { DuckDBColumnSchema } from '@backend/api/project/_schemas'
 
 export const useProjectStore = defineStore('project', () => {
   const api = useApi()
+  const { showError } = useErrorHandling()
 
   // State
   const data = ref<GetProjectByIdResponse['data']>([])
@@ -16,13 +16,6 @@ export const useProjectStore = defineStore('project', () => {
   })
   const isLoading = ref(false)
   const columns = ref<any[]>([])
-  const errorState = ref<string | null>(null)
-
-  // Helper functions
-  const handleApiError = (error: ErrorResponseWithData) => {
-    errorState.value = error.errors.map((err) => err.message).join(', ')
-    isLoading.value = false
-  }
 
   const generateColumns = (schema: DuckDBColumnSchema) => {
     return schema.map((col) => ({
@@ -36,15 +29,15 @@ export const useProjectStore = defineStore('project', () => {
 
   // Actions
   const fetchProject = async (projectId: string, offset: number = 0, limit: number = 25) => {
-    errorState.value = null
     isLoading.value = true
 
-    const { data: rows, error } = await api.project({ id: projectId }).get({
-      query: { offset, limit },
-    })
+    const { data: rows, error } = await api
+      .project({ id: projectId })
+      .get({ query: { offset, limit } })
 
-    if (error || rows === null) {
-      handleApiError(error.value)
+    if (error) {
+      showError(error.value)
+      isLoading.value = false
       return
     }
 
@@ -65,7 +58,6 @@ export const useProjectStore = defineStore('project', () => {
     }
     columns.value = []
     isLoading.value = false
-    errorState.value = null
   }
 
   return {
@@ -74,7 +66,6 @@ export const useProjectStore = defineStore('project', () => {
     meta,
     isLoading,
     columns,
-    errorState,
 
     // Actions
     fetchProject,

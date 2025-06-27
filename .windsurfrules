@@ -1,5 +1,0 @@
-This project will re-implement the OpenRefine project (https://github.com/OpenRefine/OpenRefine) (https://openrefine.org/).
-
-Project guidelines in the directory `guidelines` must always be followed.
-
-At the end of each task, tests must be passed.

@@ -2,11 +2,6 @@
 const { createProject } = useProjectCreationComposable()
 const store = useCreateProjectStore()
 const { isCreating } = storeToRefs(store)
-
-// Cleanup store state when component is unmounted
-onUnmounted(() => {
-  store.resetState()
-})
 </script>
 
 <template>

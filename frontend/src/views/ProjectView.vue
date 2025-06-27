@@ -1,7 +1,7 @@
 <script setup lang="ts">
 const projectId = useRouteParams('id')
 const projectStore = useProjectStore()
-const { meta, isLoading, data, columns, errorState } = storeToRefs(projectStore)
+const { meta, isLoading, data, columns } = storeToRefs(projectStore)
 const { fetchProject } = projectStore
 const { processHtml } = useHtml()
 
@@ -13,30 +13,15 @@ const handlePaginate = async (event: { offset: number; limit: number }) => {
   await fetchProject(projectId.value as string, event.offset, event.limit)
 }
 
-onUnmounted(async () => {
+onUnmounted(() => {
   projectStore.clearProject()
 })
 </script>
 
 <template>
   <div>
-    <!-- Error State -->
-    <div
-      v-if="errorState && !isLoading"
-      class="flex items-center justify-center py-12"
-    >
-      <div class="text-center">
-        <i class="pi pi-exclamation-triangle text-4xl text-red-500 mb-4"></i>
-        <h3 class="text-lg font-semibold text-gray-900 mb-2">Error Loading Project</h3>
-        <p class="text-gray-600 mb-4">{{ errorState }}</p>
-      </div>
-    </div>
-
     <!-- Project Data -->
-    <div
-      v-if="!errorState"
-      class="-m-6"
-    >
+    <div class="-m-6">
       <!-- Custom Pagination Controls -->
       <CustomPaginator
         :total-records="totalRecords"

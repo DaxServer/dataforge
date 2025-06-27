@@ -1,16 +1,6 @@
 <script setup lang="ts">
-const {
-  projects,
-  isLoading,
-  error,
-  hasProjects,
-  projectCount,
-  loadProjects,
-  openProject,
-  deleteProject,
-  formatDate,
-  clearError,
-} = useProjectListComposable()
+const { loadProjects, openProject, deleteProject, formatDate } = useProjectListComposable()
+const { hasProjects, projectCount, isLoading, projects } = storeToRefs(useProjectListStore())
 
 // Load projects when component mounts
 onMounted(() => {
@@ -52,15 +42,6 @@ onMounted(() => {
         </div>
       </div>
     </div>
-
-    <!-- Error Message -->
-    <Message
-      v-if="error"
-      severity="error"
-      @close="clearError"
-    >
-      {{ error }}
-    </Message>
 
     <!-- Loading State -->
     <div

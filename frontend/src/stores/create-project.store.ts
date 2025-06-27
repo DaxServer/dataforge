@@ -1,8 +1,6 @@
 export const useCreateProjectStore = defineStore('createProject', () => {
   const isCreating = ref(false)
-  const message = ref<{ text: string; type: 'success' | 'error' | 'info' } | null>(null)
 
-  // Simple getter functions for file display properties
   const getFileKey = (file: ProjectFile) => `${file.status}-${file.name}-${file.type}-${file.size}`
 
   const getContainerClass = (file: ProjectFile) =>
@@ -21,31 +19,20 @@ export const useCreateProjectStore = defineStore('createProject', () => {
   const getBadgeSeverity = (file: ProjectFile) =>
     file.status === 'pending' ? (isCreating.value ? 'info' : 'secondary') : 'success'
 
-  const handleFileSelect = (event: FileSelectEvent) => {
-    if (event.files?.length) {
-      message.value = null
-    }
-  }
-
-  const clearMessage = () => {
-    message.value = null
-  }
-
-  const resetState = () => {
-    isCreating.value = false
-    message.value = null
+  const setIsCreating = (value: boolean) => {
+    isCreating.value = value
   }
 
   return {
+    // State
     isCreating,
-    message,
+
+    // Actions
     getFileKey,
     getContainerClass,
     getIconClass,
     getBadgeValue,
     getBadgeSeverity,
-    handleFileSelect,
-    clearMessage,
-    resetState,
+    setIsCreating,
   }
 })

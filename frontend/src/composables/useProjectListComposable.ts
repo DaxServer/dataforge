@@ -2,22 +2,11 @@ export const useProjectListComposable = () => {
   const store = useProjectListStore()
   const router = useRouter()
   const confirm = useConfirm()
-  const toast = useToast()
-
-  const { projects, isLoading, error, hasProjects, projectCount } = storeToRefs(store)
+  const { showSuccess } = useErrorHandling()
 
   // Load projects when composable is used
   const loadProjects = async () => {
     await store.fetchProjects()
-
-    if (error.value) {
-      toast.add({
-        severity: 'error',
-        summary: 'Error',
-        detail: error.value,
-        life: 5000,
-      })
-    }
   }
 
   // Open a project (navigate to project view)
@@ -41,22 +30,8 @@ export const useProjectListComposable = () => {
         severity: 'danger',
       },
       accept: async () => {
-        try {
-          await store.deleteProject(project.id)
-          toast.add({
-            severity: 'success',
-            summary: 'Success',
-            detail: `Project "${project.name}" has been deleted`,
-            life: 3000,
-          })
-        } catch (err) {
-          toast.add({
-            severity: 'error',
-            summary: 'Error',
-            detail: 'Failed to delete project',
-            life: 5000,
-          })
-        }
+        await store.deleteProject(project.id)
+        showSuccess(`Project "${project.name}" has been deleted`)
       },
     })
   }
@@ -72,24 +47,11 @@ export const useProjectListComposable = () => {
     })
   }
 
-  // Clear any errors
-  const clearError = () => {
-    store.clearError()
-  }
-
   return {
-    // State
-    projects,
-    isLoading,
-    error,
-    hasProjects,
-    projectCount,
-
     // Actions
     loadProjects,
     openProject,
     deleteProject,
     formatDate,
-    clearError,
   }
 }

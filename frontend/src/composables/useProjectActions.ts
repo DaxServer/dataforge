@@ -1,11 +1,11 @@
 export const useProjectActions = () => {
   const router = useRouter()
 
-  const goBack = () => {
-    router.back()
+  const goToProjectsList = () => {
+    router.push({ name: 'open' })
   }
 
   return {
-    goBack,
+    goToProjectsList,
   }
 }
