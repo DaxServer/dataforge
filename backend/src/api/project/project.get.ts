@@ -1,7 +1,7 @@
 import { t } from 'elysia'
 import type { DuckDBConnection } from '@duckdb/node-api'
 import { ApiErrorHandler } from '@backend/types/error-handler'
-import { enhanceSchemaWithTypes } from '@backend/utils/duckdb-types'
+import { enhanceSchemaWithTypes, type DuckDBTablePragma } from '@backend/utils/duckdb-types'
 import { ApiError } from '@backend/types/error-schemas'
 import {
   DuckDBColumnSchema,
@@ -57,8 +57,10 @@ export const getProjectById = async (
       offset,
     ])
     const rows = rowsReader.getRowObjectsJson()
-    const schema = rowsReader.columnNameAndTypeObjectsJson()
     const projectName = projects?.[0]?.name?.toString() ?? 'Unknown Project'
+
+    const schemaReader = await db().runAndReadAll(`PRAGMA table_info("${tableName}")`)
+    const schemaResult = schemaReader.getRowObjectsJson() as DuckDBTablePragma[]
 
     // Get the total count with a separate query
     const countReader = await db().runAndReadAll(`SELECT COUNT(*) as total FROM "${tableName}"`)
@@ -69,7 +71,7 @@ export const getProjectById = async (
       data: rows,
       meta: {
         name: projectName,
-        schema: enhanceSchemaWithTypes(schema),
+        schema: enhanceSchemaWithTypes(schemaResult),
         total,
         limit,
         offset,

@@ -1,10 +1,12 @@
 <script setup lang="ts">
-const { loadProjects, openProject, deleteProject, formatDate } = useProjectListComposable()
-const { hasProjects, projectCount, isLoading, projects } = storeToRefs(useProjectListStore())
+const projectsListStore = useProjectListStore()
+const { deleteProject, formatDate } = useProjectListComposable()
+const { hasProjects, projectCount, isLoading, projects } = storeToRefs(projectsListStore)
+const { fetchProjects } = projectsListStore
 
 // Load projects when component mounts
 onMounted(() => {
-  loadProjects()
+  fetchProjects()
 })
 </script>
 
@@ -31,14 +33,15 @@ onMounted(() => {
             label="Refresh"
             severity="secondary"
             outlined
-            @click="loadProjects"
+            @click="fetchProjects"
             :loading="isLoading"
           />
-          <Button
-            icon="pi pi-plus"
-            label="Create New"
-            @click="$router.push('/create')"
-          />
+          <router-link :to="{ name: 'create' }">
+            <Button
+              icon="pi pi-plus"
+              label="Create New"
+            />
+          </router-link>
         </div>
       </div>
     </div>
@@ -62,11 +65,12 @@ onMounted(() => {
       <h3 class="mt-2 text-sm font-medium text-gray-900">No projects found</h3>
       <p class="mt-1 text-sm text-gray-500">Get started by creating your first project.</p>
       <div class="mt-6">
-        <Button
-          icon="pi pi-plus"
-          label="Create New Project"
-          @click="$router.push('/create')"
-        />
+        <router-link :to="{ name: 'create' }">
+          <Button
+            icon="pi pi-plus"
+            label="Create New Project"
+          />
+        </router-link>
       </div>
     </div>
 
@@ -94,17 +98,16 @@ onMounted(() => {
           sortable
         >
           <template #body="{ data }">
-            <div
-              class="flex items-center space-x-3 hover:text-blue-600 transition-colors"
-              @click="openProject(data.id)"
-            >
-              <i class="pi pi-file text-lg text-blue-600"></i>
-              <span
-                class="font-medium text-gray-900 cursor-pointer hover:text-blue-600 hover:underline transition-all"
-              >
-                {{ data.name }}
-              </span>
-            </div>
+            <router-link :to="{ name: 'ProjectView', params: { id: data.id } }">
+              <div class="flex items-center space-x-3 group">
+                <i class="pi pi-file text-lg text-blue-600"></i>
+                <span
+                  class="font-medium text-gray-900 cursor-pointer group-hover:text-blue-600 group-hover:underline"
+                >
+                  {{ data.name }}
+                </span>
+              </div>
+            </router-link>
           </template>
         </Column>
 

@@ -19,7 +19,6 @@ declare module 'vue' {
     FileUpload: typeof import('primevue/fileupload')['default']
     Header: typeof import('./src/components/Header.vue')['default']
     MainContent: typeof import('./src/components/MainContent.vue')['default']
-    Message: typeof import('primevue/message')['default']
     OpenProject: typeof import('./src/pages/OpenProject.vue')['default']
     Paginator: typeof import('primevue/paginator')['default']
     ProgressSpinner: typeof import('primevue/progressspinner')['default']

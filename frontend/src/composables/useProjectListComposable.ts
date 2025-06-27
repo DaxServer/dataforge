@@ -1,18 +1,7 @@
 export const useProjectListComposable = () => {
   const store = useProjectListStore()
-  const router = useRouter()
   const confirm = useConfirm()
   const { showSuccess } = useErrorHandling()
-
-  // Load projects when composable is used
-  const loadProjects = async () => {
-    await store.fetchProjects()
-  }
-
-  // Open a project (navigate to project view)
-  const openProject = (projectId: string) => {
-    router.push({ name: 'ProjectView', params: { id: projectId } })
-  }
 
   // Delete a project with confirmation
   const deleteProject = (project: { id: string; name: string }) => {
@@ -49,8 +38,6 @@ export const useProjectListComposable = () => {
 
   return {
     // Actions
-    loadProjects,
-    openProject,
     deleteProject,
     formatDate,
   }
