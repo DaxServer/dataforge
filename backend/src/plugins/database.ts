@@ -4,7 +4,7 @@ import { DuckDBConnection, DuckDBInstance } from '@duckdb/node-api'
 let connection: DuckDBConnection | null = null
 let instance: DuckDBInstance | null = null
 
-export const initializeDb = async (dbPath: string = 'openrefine.db'): Promise<DuckDBConnection> => {
+export const initializeDb = async (dbPath: string): Promise<DuckDBConnection> => {
   // Close existing connection if it exists
   if (connection) {
     connection.closeSync()

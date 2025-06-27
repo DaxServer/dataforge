@@ -346,21 +346,22 @@ describe('POST /api/project/import', () => {
         const projectId = data?.data?.id
 
         const result = await db.runAndReadAll(`PRAGMA table_info("project_${projectId}")`)
-        const columns = result.getRowObjectsJson() as DuckDBColumn[]
+        const columns = result.getRowObjectsJson()
 
         // Verify there is an 'id' column with autoincrement and primary key
         const idColumn = columns.find(col => col.name === 'id')
-        expect(idColumn).toBeDefined()
-        expect(idColumn.pk).toBeTrue()
-        expect(idColumn.type.toUpperCase()).toBe('BIGINT')
-        expect(idColumn.notnull).toBeTrue()
+        expect(idColumn).toHaveProperty('pk', true)
+        expect(idColumn).toHaveProperty('type', 'BIGINT')
+        expect(idColumn).toHaveProperty('notnull', true)
       })
 
       test('should handle JSON with existing id column by creating unique primary key column', async () => {
-        const testDataWithId = JSON.stringify(TEST_DATA.map((item) => ({
-          ...item,
-          id: item.name,
-        })))
+        const testDataWithId = JSON.stringify(
+          TEST_DATA.map(item => ({
+            ...item,
+            id: item.name,
+          }))
+        )
         const file = new File([testDataWithId], 'data-with-id.json', { type: 'application/json' })
 
         const { data, status } = await api.project.import.post({ file })
@@ -370,19 +371,18 @@ describe('POST /api/project/import', () => {
         const projectId = data?.data?.id
 
         const result = await db.runAndReadAll(`PRAGMA table_info("project_${projectId}")`)
-        const columns = result.getRowObjectsJson() as DuckDBColumn[]
+        const columns = result.getRowObjectsJson()
 
         // Should have the original 'id' column from JSON
         const originalIdColumn = columns.find(col => col.name === 'id')
-        expect(originalIdColumn).toBeDefined()
-        expect(originalIdColumn.pk).toBeFalse() // Not primary key
+        expect(originalIdColumn).toHaveProperty('pk', false)
 
         // Should have a different primary key column (e.g., '_pk_id')
         const primaryKeyColumn = columns.find(col => col.pk)
-        expect(primaryKeyColumn).toBeDefined()
-        expect(primaryKeyColumn.name).not.toBe('id')
-        expect(primaryKeyColumn.type.toUpperCase()).toBe('BIGINT')
-        expect(primaryKeyColumn.notnull).toBeTrue()
+        expect(primaryKeyColumn).toHaveProperty('name', expect.not.stringMatching('^id$'))
+        expect(primaryKeyColumn).toHaveProperty('pk', true)
+        expect(primaryKeyColumn).toHaveProperty('type', 'BIGINT')
+        expect(primaryKeyColumn).toHaveProperty('notnull', true)
       })
     })
   })

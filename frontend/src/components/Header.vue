@@ -1,7 +1,6 @@
 <script setup lang="ts">
 const projectId = useRouteParams('id')
 const { meta } = storeToRefs(useProjectStore())
-const { goToProjectsList } = useProjectActions()
 
 const isProjectView = computed(() => !!projectId.value)
 const projectName = computed(() => meta.value?.name)
@@ -22,13 +21,14 @@ const totalRecords = computed(() => meta.value?.total || 0)
         <p class="text-sm text-gray-600">{{ totalRecords }} rows</p>
       </div>
       <div class="flex gap-2">
-        <Button
-          label="Back to Projects"
-          icon="pi pi-arrow-left"
-          severity="secondary"
-          outlined
-          @click="goToProjectsList"
-        />
+        <router-link :to="{ name: 'open' }">
+          <Button
+            label="Back to Projects"
+            icon="pi pi-arrow-left"
+            severity="secondary"
+            outlined
+          />
+        </router-link>
       </div>
     </div>
 

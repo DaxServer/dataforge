@@ -34,6 +34,7 @@ export const DuckDBColumnSchema = t.Array(
   t.Object({
     name: t.String(),
     type: t.String(),
+    pk: t.Boolean(),
   })
 )
 

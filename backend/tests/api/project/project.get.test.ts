@@ -32,7 +32,8 @@ const generateSchema = (data: any[]) => {
   const sampleItem = data[0]
   return Object.keys(sampleItem).map(key => ({
     name: key,
-    type: typeof sampleItem[key] === 'number' ? 'integer' : 'string',
+    pk: false,
+    type: typeof sampleItem[key] === 'number' ? 'BIGINT' : 'VARCHAR',
   }))
 }
 

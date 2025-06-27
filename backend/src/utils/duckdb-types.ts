@@ -1,5 +1,14 @@
-import { DuckDBTypeId, type Json } from '@duckdb/node-api'
+import { DuckDBTypeId } from '@duckdb/node-api'
 import type { DuckDBColumnSchema } from '@backend/api/project/_schemas'
+
+export type DuckDBTablePragma = {
+  cid: number
+  name: string
+  type: string
+  pk: boolean
+  notnull: boolean
+  dflt_value: string | null
+}
 
 export const getTypeFromTypeId = (typeId: number): string => {
   switch (typeId) {
@@ -35,9 +44,10 @@ export const getTypeFromTypeId = (typeId: number): string => {
   }
 }
 
-export const enhanceSchemaWithTypes = (schema: Json): DuckDBColumnSchema => {
+export const enhanceSchemaWithTypes = (schema: DuckDBTablePragma[]): DuckDBColumnSchema => {
   return schema.map(col => ({
-    name: col.columnName,
-    type: getTypeFromTypeId(col.columnType.typeId),
+    name: col.name,
+    type: col.type,
+    pk: col.pk,
   }))
 }

@@ -71,6 +71,7 @@ declare global {
   const unref: (typeof import('vue'))['unref']
   const useApi: (typeof import('./src/plugins/api'))['useApi']
   const useAttrs: (typeof import('vue'))['useAttrs']
+  const useColumnGeneration: (typeof import('./src/composables/useColumnGeneration'))['useColumnGeneration']
   const useConfirm: (typeof import('primevue/useconfirm'))['useConfirm']
   const useCreateProjectStore: (typeof import('./src/stores/create-project.store'))['useCreateProjectStore']
   const useCssModule: (typeof import('vue'))['useCssModule']
@@ -82,6 +83,7 @@ declare global {
   const useModel: (typeof import('vue'))['useModel']
   const useProjectActions: (typeof import('./src/composables/useProjectActions'))['useProjectActions']
   const useProjectCreationComposable: (typeof import('./src/composables/useProjectCreationComposable'))['useProjectCreationComposable']
+  const useProjectData: (typeof import('./src/composables/useProjectData'))['useProjectData']
   const useProjectListComposable: (typeof import('./src/composables/useProjectListComposable'))['useProjectListComposable']
   const useProjectListStore: (typeof import('./src/stores/project-list.store'))['useProjectListStore']
   const useProjectStore: (typeof import('./src/stores/project.store'))['useProjectStore']
@@ -107,6 +109,9 @@ declare global {
   // @ts-ignore
   export type { PageState } from 'primevue/paginator'
   import('primevue/paginator')
+  // @ts-ignore
+  export type { ProjectColumn } from './src/composables/useColumnGeneration'
+  import('./src/composables/useColumnGeneration')
   // @ts-ignore
   export type { ProjectFile, FileSelectEvent, FileRemoveEvent, ApiClient } from './src/types/index'
   import('./src/types/index')
@@ -182,6 +187,7 @@ declare module 'vue' {
     readonly unref: UnwrapRef<(typeof import('vue'))['unref']>
     readonly useApi: UnwrapRef<(typeof import('./src/plugins/api'))['useApi']>
     readonly useAttrs: UnwrapRef<(typeof import('vue'))['useAttrs']>
+    readonly useColumnGeneration: UnwrapRef<(typeof import('./src/composables/useColumnGeneration'))['useColumnGeneration']>
     readonly useConfirm: UnwrapRef<(typeof import('primevue/useconfirm'))['useConfirm']>
     readonly useCreateProjectStore: UnwrapRef<(typeof import('./src/stores/create-project.store'))['useCreateProjectStore']>
     readonly useCssModule: UnwrapRef<(typeof import('vue'))['useCssModule']>
@@ -191,7 +197,6 @@ declare module 'vue' {
     readonly useId: UnwrapRef<(typeof import('vue'))['useId']>
     readonly useLink: UnwrapRef<(typeof import('vue-router'))['useLink']>
     readonly useModel: UnwrapRef<(typeof import('vue'))['useModel']>
-    readonly useProjectActions: UnwrapRef<(typeof import('./src/composables/useProjectActions'))['useProjectActions']>
     readonly useProjectCreationComposable: UnwrapRef<(typeof import('./src/composables/useProjectCreationComposable'))['useProjectCreationComposable']>
     readonly useProjectListComposable: UnwrapRef<(typeof import('./src/composables/useProjectListComposable'))['useProjectListComposable']>
     readonly useProjectListStore: UnwrapRef<(typeof import('./src/stores/project-list.store'))['useProjectListStore']>

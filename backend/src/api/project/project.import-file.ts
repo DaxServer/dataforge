@@ -5,17 +5,17 @@ import { ApiError } from '@backend/types/error-schemas'
 import type { Project } from '@backend/api/project/_schemas'
 
 const generateProjectName = (fileName: string) => {
-      const now = new Date()
-      const year = now.getFullYear()
-      const month = String(now.getMonth() + 1).padStart(2, '0')
-      const day = String(now.getDate()).padStart(2, '0')
-      const hours = String(now.getHours()).padStart(2, '0')
-      const minutes = String(now.getMinutes()).padStart(2, '0')
-      const seconds = String(now.getSeconds()).padStart(2, '0')
-      const timestamp = `${year}-${month}-${day}-${hours}-${minutes}-${seconds}`
-      const baseName = fileName.replace(/\.[^/.]+$/, '') // Remove extension
-      return `${baseName}-${timestamp}`
-    }
+  const now = new Date()
+  const year = now.getFullYear()
+  const month = String(now.getMonth() + 1).padStart(2, '0')
+  const day = String(now.getDate()).padStart(2, '0')
+  const hours = String(now.getHours()).padStart(2, '0')
+  const minutes = String(now.getMinutes()).padStart(2, '0')
+  const seconds = String(now.getSeconds()).padStart(2, '0')
+  const timestamp = `${year}-${month}-${day}-${hours}-${minutes}-${seconds}`
+  const baseName = fileName.replace(/\.[^/.]+$/, '') // Remove extension
+  return `${baseName}-${timestamp}`
+}
 
 const cleanupProject = async (
   db: () => DuckDBConnection,
@@ -147,7 +147,7 @@ export const importWithFile = async (
   const tableInfo = await db().runAndReadAll(`PRAGMA table_info("project_${project.id}")`)
   const columns = tableInfo.getRowObjectsJson() as Array<{ name: string }>
   const existingColumnNames = columns.map(col => col.name)
-  
+
   let primaryKeyColumnName = 'id'
   let counter = 1
   while (existingColumnNames.includes(primaryKeyColumnName)) {

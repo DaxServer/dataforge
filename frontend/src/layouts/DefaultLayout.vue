@@ -6,10 +6,11 @@
     <div class="flex-1 flex flex-col min-w-0">
       <Header />
       <MainContent>
-        <router-view v-slot="{ Component }">
+        <router-view v-slot="{ Component, route }">
           <transition
             name="fade"
             mode="out-in"
+            :key="route.name"
           >
             <component :is="Component" />
           </transition>
