@@ -101,7 +101,24 @@ declare global {
 // for type re-export
 declare global {
   // @ts-ignore
-  export type { Component, Slot, Slots, ComponentPublicInstance, ComputedRef, DirectiveBinding, ExtractDefaultPropTypes, ExtractPropTypes, ExtractPublicPropTypes, InjectionKey, PropType, Ref, MaybeRef, MaybeRefOrGetter, VNode, WritableComputedRef } from 'vue'
+  export type {
+    Component,
+    Slot,
+    Slots,
+    ComponentPublicInstance,
+    ComputedRef,
+    DirectiveBinding,
+    ExtractDefaultPropTypes,
+    ExtractPropTypes,
+    ExtractPublicPropTypes,
+    InjectionKey,
+    PropType,
+    Ref,
+    MaybeRef,
+    MaybeRefOrGetter,
+    VNode,
+    WritableComputedRef,
+  } from 'vue'
   import('vue')
   // @ts-ignore
   export type { FileUploadUploaderEvent } from 'primevue/fileupload'
@@ -187,20 +204,34 @@ declare module 'vue' {
     readonly unref: UnwrapRef<(typeof import('vue'))['unref']>
     readonly useApi: UnwrapRef<(typeof import('./src/plugins/api'))['useApi']>
     readonly useAttrs: UnwrapRef<(typeof import('vue'))['useAttrs']>
-    readonly useColumnGeneration: UnwrapRef<(typeof import('./src/composables/useColumnGeneration'))['useColumnGeneration']>
+    readonly useColumnGeneration: UnwrapRef<
+      (typeof import('./src/composables/useColumnGeneration'))['useColumnGeneration']
+    >
     readonly useConfirm: UnwrapRef<(typeof import('primevue/useconfirm'))['useConfirm']>
-    readonly useCreateProjectStore: UnwrapRef<(typeof import('./src/stores/create-project.store'))['useCreateProjectStore']>
+    readonly useCreateProjectStore: UnwrapRef<
+      (typeof import('./src/stores/create-project.store'))['useCreateProjectStore']
+    >
     readonly useCssModule: UnwrapRef<(typeof import('vue'))['useCssModule']>
     readonly useCssVars: UnwrapRef<(typeof import('vue'))['useCssVars']>
-    readonly useErrorHandling: UnwrapRef<(typeof import('./src/composables/useErrorHandling'))['useErrorHandling']>
+    readonly useErrorHandling: UnwrapRef<
+      (typeof import('./src/composables/useErrorHandling'))['useErrorHandling']
+    >
     readonly useHtml: UnwrapRef<(typeof import('./src/composables/useHtml'))['useHtml']>
     readonly useId: UnwrapRef<(typeof import('vue'))['useId']>
     readonly useLink: UnwrapRef<(typeof import('vue-router'))['useLink']>
     readonly useModel: UnwrapRef<(typeof import('vue'))['useModel']>
-    readonly useProjectCreationComposable: UnwrapRef<(typeof import('./src/composables/useProjectCreationComposable'))['useProjectCreationComposable']>
-    readonly useProjectListComposable: UnwrapRef<(typeof import('./src/composables/useProjectListComposable'))['useProjectListComposable']>
-    readonly useProjectListStore: UnwrapRef<(typeof import('./src/stores/project-list.store'))['useProjectListStore']>
-    readonly useProjectStore: UnwrapRef<(typeof import('./src/stores/project.store'))['useProjectStore']>
+    readonly useProjectCreationComposable: UnwrapRef<
+      (typeof import('./src/composables/useProjectCreationComposable'))['useProjectCreationComposable']
+    >
+    readonly useProjectListComposable: UnwrapRef<
+      (typeof import('./src/composables/useProjectListComposable'))['useProjectListComposable']
+    >
+    readonly useProjectListStore: UnwrapRef<
+      (typeof import('./src/stores/project-list.store'))['useProjectListStore']
+    >
+    readonly useProjectStore: UnwrapRef<
+      (typeof import('./src/stores/project.store'))['useProjectStore']
+    >
     readonly useRoute: UnwrapRef<(typeof import('vue-router'))['useRoute']>
     readonly useRouteParams: UnwrapRef<(typeof import('@vueuse/router'))['useRouteParams']>
     readonly useRouter: UnwrapRef<(typeof import('vue-router'))['useRouter']>

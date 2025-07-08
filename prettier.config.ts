@@ -28,12 +28,6 @@ const config: Config = {
         parser: 'vue',
       },
     },
-    {
-      files: ['*.d.ts'],
-      options: {
-        printWidth: Infinity,
-      },
-    },
   ],
 }
 

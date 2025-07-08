@@ -13,14 +13,13 @@ const autoImportGlobals = JSON.parse(readFileSync(join(__dirname, '.eslintrc-aut
 export default tseslint.config(
   {
     ignores: [
-      '*.config.js',
-      '*.config.ts',
+      '*.config.*',
       '*.d.ts',
       '*.json',
-      'bun.lockb',
+      'bun.lock',
       'dist/**',
-      'node_modules/**'
-    ]
+      'node_modules/**',
+    ],
   },
   js.configs.recommended,
   ...pluginVue.configs['flat/recommended'],
@@ -35,7 +34,7 @@ export default tseslint.config(
         sourceType: 'module',
         projectService: true,
         tsconfigRootDir: import.meta.dirname,
-        extraFileExtensions: ['.vue']
+        extraFileExtensions: ['.vue'],
       },
       globals: {
         ...autoImportGlobals.globals,
@@ -51,19 +50,14 @@ export default tseslint.config(
         window: 'readonly',
         document: 'readonly',
         navigator: 'readonly',
-        location: 'readonly'
-      }
+        location: 'readonly',
+      },
     },
     plugins: {
-      '@typescript-eslint': tseslint.plugin
+      '@typescript-eslint': tseslint.plugin,
     },
     rules: {
-      'vue/multi-word-component-names': 'off'
-    }
+      'vue/multi-word-component-names': 'off',
+    },
   },
-  {
-    // Disable type-aware linting on JS files
-    files: ['**/*.js'],
-    ...tseslint.configs.disableTypeChecked
-  }
 )
