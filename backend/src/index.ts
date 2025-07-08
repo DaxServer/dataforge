@@ -43,7 +43,7 @@ process.on('SIGINT', () => gracefulShutdown('SIGINT'))
 process.on('SIGTERM', () => gracefulShutdown('SIGTERM'))
 
 // Listen for process exit event
-process.on('exit', (code) => {
+process.on('exit', code => {
   console.log(`Process exiting with code ${code}`)
 })
 

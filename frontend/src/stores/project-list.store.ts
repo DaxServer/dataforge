@@ -1,6 +1,6 @@
 import type { Project } from '@backend/api/project/_schemas'
 
-export const useProjectListStore = defineStore('projectList', () => {
+export const useProjectListStore = defineStore('project.list', () => {
   const api = useApi()
   const { showError } = useErrorHandling()
 
@@ -8,42 +8,35 @@ export const useProjectListStore = defineStore('projectList', () => {
   const projects = ref<Project[]>([])
   const isLoading = ref(false)
 
-  // Getters
-  const hasProjects = ref(false)
-  const projectCount = ref(0)
-
-  // Update reactive getters when projects change
-  watch(
-    projects,
-    (newProjects) => {
-      hasProjects.value = newProjects.length > 0
-      projectCount.value = newProjects.length
-    },
-    { immediate: true }
-  )
-
   // Actions
   const fetchProjects = async () => {
     isLoading.value = true
 
     const { data, error: apiError } = await api.project.get()
+
     if (apiError) {
       showError(apiError.value)
-      projects.value = []
     } else {
       projects.value = data.data
     }
+
     isLoading.value = false
   }
 
   const deleteProject = async (projectId: string) => {
+    isLoading.value = true
+
     const { error: apiError } = await api.project({ id: projectId }).delete()
+
     if (apiError) {
       showError(apiError.value)
+      isLoading.value = false
       return
     }
+
     // Remove from local state
     projects.value = projects.value.filter((p) => p.id !== projectId)
+    isLoading.value = false
   }
 
   const resetState = () => {
@@ -57,8 +50,8 @@ export const useProjectListStore = defineStore('projectList', () => {
     isLoading,
 
     // Getters
-    hasProjects,
-    projectCount,
+    hasProjects: computed(() => projects.value.length > 0),
+    projectCount: computed(() => projects.value.length),
 
     // Actions
     fetchProjects,
