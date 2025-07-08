@@ -5,6 +5,7 @@ import { logger } from '@bogeychan/elysia-logger'
 import { errorHandlerPlugin } from '@backend/plugins/error-handler'
 import { healthRoutes } from '@backend/api/health'
 import { projectRoutes } from '@backend/api/project'
+import { closeDb } from '@backend/plugins/database'
 
 export const elysiaApp = new Elysia({
   serve: {
@@ -24,5 +25,26 @@ export const elysiaApp = new Elysia({
   .listen(3000, () => {
     console.log('🦊 Elysia is running at http://localhost:3000')
   })
+
+// Setup termination listeners for graceful shutdown
+const gracefulShutdown = async (signal: string) => {
+  console.log(`\n${signal} received. Shutting down gracefully...`)
+  try {
+    await closeDb()
+    console.log('Database connection closed successfully')
+  } catch (error) {
+    console.error('Error closing database:', error)
+  }
+  process.exit(0)
+}
+
+// Listen for termination signals
+process.on('SIGINT', () => gracefulShutdown('SIGINT'))
+process.on('SIGTERM', () => gracefulShutdown('SIGTERM'))
+
+// Listen for process exit event
+process.on('exit', (code) => {
+  console.log(`Process exiting with code ${code}`)
+})
 
 export type App = typeof elysiaApp

@@ -1,5 +1,6 @@
 import { Elysia } from 'elysia'
 import { DuckDBConnection, DuckDBInstance } from '@duckdb/node-api'
+import path from 'node:path'
 
 let connection: DuckDBConnection | null = null
 let instance: DuckDBInstance | null = null
@@ -46,10 +47,10 @@ export const closeDb = async (): Promise<void> => {
 }
 
 export const databasePlugin = new Elysia({ name: 'database', seed: 'database-plugin' })
-  .decorate('dbConfig', { path: 'openrefine.db' })
-  .onStart(async ({ decorator }) => {
+  .onStart(async () => {
     console.log('Initializing database...')
-    await initializeDb(decorator.dbConfig.path)
+    const dbPath = process.env.DB_PATH || path.join(Bun.main, '../../openrefine.db')
+    await initializeDb(dbPath)
     console.log('Database initialized successfully')
   })
   .decorate('db', getDb)
