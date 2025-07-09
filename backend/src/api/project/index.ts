@@ -1,14 +1,16 @@
 import { Elysia } from 'elysia'
 import cors from '@elysiajs/cors'
 import { errorHandlerPlugin } from '@backend/plugins/error-handler'
+import { ApiErrorHandler } from '@backend/types/error-handler'
 import { databasePlugin } from '@backend/plugins/database'
+import { ProjectResponseSchema } from '@backend/api/project/_schemas'
 import {
   importProject,
   importProjectFile,
   ProjectImportFileAltSchema,
   ProjectImportSchema,
 } from '@backend/api/project/import'
-import { createProject, ProjectCreateSchema } from '@backend/api/project/project.create'
+import { ProjectCreateSchema } from '@backend/api/project/project.create'
 import { deleteProject, ProjectDeleteSchema } from '@backend/api/project/project.delete'
 import { getProjectById, GetProjectByIdSchema } from '@backend/api/project/project.get'
 import { getAllProjects, ProjectsGetAllSchema } from '@backend/api/project/project.get-all'
@@ -25,7 +27,34 @@ export const projectRoutes = new Elysia({ prefix: '/api/project' })
       getProjectById(db, params.id, query?.offset ?? 0, query?.limit ?? 0, status),
     GetProjectByIdSchema
   )
-  .post('/', ({ db, body, status }) => createProject(db, body, status), ProjectCreateSchema)
+  .post(
+    '/',
+    async ({ db, body: { name }, status }) => {
+      // Insert the new project and get the inserted row in one operation
+      const reader = await db().runAndReadAll(
+        `INSERT INTO _meta_projects (name)
+         VALUES (?)
+         RETURNING *`,
+        [name]
+      )
+
+      const projects = reader.getRowObjectsJson()
+
+      if (projects.length === 0) {
+        return status(
+          500,
+          ApiErrorHandler.databaseErrorWithData(
+            'Failed to create project: No project returned from database'
+          )
+        )
+      }
+
+      return status(201, {
+        data: projects[0] as typeof ProjectResponseSchema.static,
+      })
+    },
+    ProjectCreateSchema
+  )
   .delete(
     '/:id',
     ({ db, params, status }) => deleteProject(db, params.id, status),
