@@ -13,14 +13,26 @@ import {
 import { ProjectCreateSchema } from '@backend/api/project/project.create'
 import { deleteProject, ProjectDeleteSchema } from '@backend/api/project/project.delete'
 import { getProjectById, GetProjectByIdSchema } from '@backend/api/project/project.get'
-import { getAllProjects, ProjectsGetAllSchema } from '@backend/api/project/project.get-all'
+import { ProjectsGetAllSchema } from '@backend/api/project/project.get-all'
 import { importWithFile, ProjectImportFileSchema } from '@backend/api/project/project.import-file'
 
 export const projectRoutes = new Elysia({ prefix: '/api/project' })
   .use(errorHandlerPlugin)
   .use(databasePlugin)
   .use(cors())
-  .get('/', ({ db }) => getAllProjects(db), ProjectsGetAllSchema)
+  .get(
+    '/',
+    async ({ db }) => {
+      const reader = await db().runAndReadAll(
+        'SELECT * FROM _meta_projects ORDER BY created_at DESC'
+      )
+      const projects = reader.getRowObjectsJson()
+      return {
+        data: projects as (typeof ProjectResponseSchema.static)[],
+      }
+    },
+    ProjectsGetAllSchema
+  )
   .get(
     '/:id',
     ({ db, params, query, status }) =>
