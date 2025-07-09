@@ -17,6 +17,13 @@ export const elysiaApp = new Elysia({
   .use(
     swagger({
       path: '/docs',
+      scalarConfig: {
+        servers: [
+          {
+            url: 'http://localhost:3000',
+          },
+        ],
+      },
     })
   )
   .use(logger())
