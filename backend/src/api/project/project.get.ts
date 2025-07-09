@@ -1,7 +1,4 @@
 import { t } from 'elysia'
-import type { DuckDBConnection } from '@duckdb/node-api'
-import { ApiErrorHandler } from '@backend/types/error-handler'
-import { enhanceSchemaWithTypes, type DuckDBTablePragma } from '@backend/utils/duckdb-types'
 import { ApiError } from '@backend/types/error-schemas'
 import {
   DuckDBColumnSchema,
@@ -33,57 +30,3 @@ export const GetProjectByIdSchema = {
 }
 
 export type GetProjectByIdResponse = typeof ResponseSchema.static
-
-export const getProjectById = async (
-  db: () => DuckDBConnection,
-  id: string,
-  offset: number,
-  limit: number,
-  status
-) => {
-  // First, check if the project exists in _meta_projects
-  const projectReader = await db().runAndReadAll('SELECT * FROM _meta_projects WHERE id = ?', [id])
-  const projects = projectReader.getRowObjects()
-
-  if (projects.length === 0) {
-    return status(404, ApiErrorHandler.notFoundErrorWithData('Project'))
-  }
-
-  try {
-    // Get the project's data from the project table with pagination
-    const tableName = `project_${id}`
-    const rowsReader = await db().runAndReadAll(`SELECT * FROM "${tableName}" LIMIT ? OFFSET ?`, [
-      limit,
-      offset,
-    ])
-    const rows = rowsReader.getRowObjectsJson()
-    const projectName = projects?.[0]?.name?.toString() ?? 'Unknown Project'
-
-    const schemaReader = await db().runAndReadAll(`PRAGMA table_info("${tableName}")`)
-    const schemaResult = schemaReader.getRowObjectsJson() as DuckDBTablePragma[]
-
-    // Get the total count with a separate query
-    const countReader = await db().runAndReadAll(`SELECT COUNT(*) as total FROM "${tableName}"`)
-    const countResult = countReader.getRowObjectsJson()
-    const total = Number(countResult[0]?.total ?? 0)
-
-    return {
-      data: rows,
-      meta: {
-        name: projectName,
-        schema: enhanceSchemaWithTypes(schemaResult),
-        total,
-        limit,
-        offset,
-      },
-    }
-  } catch (error) {
-    // If the table doesn't exist, return API error
-    if (error instanceof Error && error.message.includes('does not exist')) {
-      return status(404, ApiErrorHandler.notFoundErrorWithData('Project'))
-    }
-
-    // Re-throw other errors
-    throw error
-  }
-}

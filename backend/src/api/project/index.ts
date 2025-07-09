@@ -4,6 +4,7 @@ import { errorHandlerPlugin } from '@backend/plugins/error-handler'
 import { ApiErrorHandler } from '@backend/types/error-handler'
 import { databasePlugin } from '@backend/plugins/database'
 import { ProjectResponseSchema } from '@backend/api/project/_schemas'
+import { enhanceSchemaWithTypes, type DuckDBTablePragma } from '@backend/utils/duckdb-types'
 import {
   importProject,
   importProjectFile,
@@ -12,7 +13,7 @@ import {
 } from '@backend/api/project/import'
 import { ProjectCreateSchema } from '@backend/api/project/project.create'
 import { deleteProject, ProjectDeleteSchema } from '@backend/api/project/project.delete'
-import { getProjectById, GetProjectByIdSchema } from '@backend/api/project/project.get'
+import { GetProjectByIdSchema } from '@backend/api/project/project.get'
 import { ProjectsGetAllSchema } from '@backend/api/project/project.get-all'
 import { importWithFile, ProjectImportFileSchema } from '@backend/api/project/project.import-file'
 
@@ -35,8 +36,51 @@ export const projectRoutes = new Elysia({ prefix: '/api/project' })
   )
   .get(
     '/:id',
-    ({ db, params, query, status }) =>
-      getProjectById(db, params.id, query?.offset ?? 0, query?.limit ?? 0, status),
+    async ({ db, params: { id }, query: { limit = 0, offset = 0 }, status }) => {
+      // First, check if the project exists in _meta_projects
+      const projectReader = await db().runAndReadAll('SELECT * FROM _meta_projects WHERE id = ?', [
+        id,
+      ])
+      const projects = projectReader.getRowObjects()
+
+      if (projects.length === 0) {
+        return status(404, ApiErrorHandler.notFoundErrorWithData('Project'))
+      }
+
+      try {
+        // Get the project's data from the project table with pagination
+        const tableName = `project_${id}`
+        const rowsReader = await db().runAndReadAll(
+          `SELECT * FROM "${tableName}" LIMIT ? OFFSET ?`,
+          [limit, offset]
+        )
+        const rows = rowsReader.getRowObjectsJson()
+        const projectName = projects?.[0]?.name?.toString() ?? 'Unknown Project'
+
+        const schemaReader = await db().runAndReadAll(`PRAGMA table_info("${tableName}")`)
+        const schemaResult = schemaReader.getRowObjectsJson()
+
+        const countReader = await db().runAndReadAll(`SELECT COUNT(*) as total FROM "${tableName}"`)
+        const countResult = countReader.getRowObjectsJson()
+        const total = Number(countResult[0]?.total ?? 0)
+
+        return {
+          data: rows,
+          meta: {
+            name: projectName,
+            schema: enhanceSchemaWithTypes(schemaResult as DuckDBTablePragma[]),
+            total,
+            limit,
+            offset,
+          },
+        }
+      } catch (error) {
+        if (error instanceof Error && error.message.includes('does not exist')) {
+          return status(404, ApiErrorHandler.notFoundErrorWithData('Project'))
+        }
+        throw error
+      }
+    },
     GetProjectByIdSchema
   )
   .post(
