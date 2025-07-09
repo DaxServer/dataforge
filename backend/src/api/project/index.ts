@@ -164,9 +164,9 @@ export const projectRoutes = new Elysia({ prefix: '/api/project' })
 
       // Try to create the table directly
       try {
-        await db().run(
-          `CREATE TABLE "project_${id}" AS SELECT * FROM read_json_auto('${filePath}')`
-        )
+        await db().run(`CREATE TABLE "project_${id}" AS SELECT * FROM read_json_auto(?)`, [
+          filePath,
+        ])
 
         // @ts-expect-error
         return status(201, new Response(null))
@@ -302,10 +302,13 @@ export const projectRoutes = new Elysia({ prefix: '/api/project' })
       }
 
       // First, import the JSON data into the table
-      await db().run(`
+      await db().run(
+        `
         CREATE TABLE "project_${project.id}" AS
-        SELECT * FROM read_json_auto('${tempFilePath}')
-      `)
+        SELECT * FROM read_json_auto(?)
+        `,
+        [tempFilePath]
+      )
 
       // Check if 'id' column already exists and generate unique primary key column name
       const tableInfo = await db().runAndReadAll(`PRAGMA table_info("project_${project.id}")`)
