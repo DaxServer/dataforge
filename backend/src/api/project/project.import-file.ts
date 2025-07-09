@@ -157,6 +157,9 @@ export const importWithFile = async (
 
   // Then add the auto-increment primary key column with unique name
   await db().run(`
+    -- Start the transaction
+    BEGIN;
+
     -- Create the sequence
     CREATE SEQUENCE "project_${project.id}_${primaryKeyColumnName}_seq" START 1;
 
@@ -167,6 +170,12 @@ export const importWithFile = async (
     -- Add the primary key constraint
     ALTER TABLE "project_${project.id}"
     ADD CONSTRAINT "project_${project.id}_pkey" PRIMARY KEY ("${primaryKeyColumnName}");
+
+    -- Commit the transaction
+    COMMIT;
+
+    -- Force a checkpoint to flush WAL
+    CHECKPOINT;
   `)
 
   // Clean up temporary file
