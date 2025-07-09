@@ -5,11 +5,7 @@ import { ApiErrorHandler } from '@backend/types/error-handler'
 import { databasePlugin } from '@backend/plugins/database'
 import { ProjectResponseSchema } from '@backend/api/project/_schemas'
 import { enhanceSchemaWithTypes, type DuckDBTablePragma } from '@backend/utils/duckdb-types'
-import {
-  importProjectFile,
-  ProjectImportFileAltSchema,
-  ProjectImportSchema,
-} from '@backend/api/project/import'
+import { ProjectImportFileAltSchema, ProjectImportSchema } from '@backend/api/project/import'
 import { ProjectCreateSchema } from '@backend/api/project/project.create'
 import { ProjectDeleteSchema } from '@backend/api/project/project.delete'
 import { GetProjectByIdSchema } from '@backend/api/project/project.get'
@@ -196,7 +192,33 @@ export const projectRoutes = new Elysia({ prefix: '/api/project' })
   )
   .post(
     '/:id/import/file',
-    ({ body, status }) => importProjectFile(body, status),
+    async ({ body: { file }, status }) => {
+      try {
+        // Generate a unique temporary file name
+        const timestamp = Date.now()
+        const randomSuffix = Math.random().toString(36).substring(2, 8)
+        const tempFileName = `temp_${timestamp}_${randomSuffix}.json`
+        const tempFilePath = `./temp/${tempFileName}`
+
+        // Convert file to buffer and save to temporary location
+        const fileBuffer = await file.arrayBuffer()
+        const uint8Array = new Uint8Array(fileBuffer)
+
+        // Write the file to temporary location using Bun.write
+        await Bun.write(tempFilePath, uint8Array)
+
+        return status(201, {
+          tempFilePath,
+        })
+      } catch (error) {
+        return status(
+          500,
+          ApiErrorHandler.internalServerErrorWithData('Failed to save uploaded file', [
+            (error as Error).message,
+          ])
+        )
+      }
+    },
     ProjectImportFileAltSchema
   )
   .post(
