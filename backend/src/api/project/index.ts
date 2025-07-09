@@ -12,7 +12,7 @@ import {
   ProjectImportSchema,
 } from '@backend/api/project/import'
 import { ProjectCreateSchema } from '@backend/api/project/project.create'
-import { deleteProject, ProjectDeleteSchema } from '@backend/api/project/project.delete'
+import { ProjectDeleteSchema } from '@backend/api/project/project.delete'
 import { GetProjectByIdSchema } from '@backend/api/project/project.get'
 import { ProjectsGetAllSchema } from '@backend/api/project/project.get-all'
 import { importWithFile, ProjectImportFileSchema } from '@backend/api/project/project.import-file'
@@ -113,7 +113,22 @@ export const projectRoutes = new Elysia({ prefix: '/api/project' })
   )
   .delete(
     '/:id',
-    ({ db, params, status }) => deleteProject(db, params.id, status),
+    async ({ db, params: { id }, status }) => {
+      // Delete the project and return the deleted row if it exists
+      const reader = await db().runAndReadAll(
+        'DELETE FROM _meta_projects WHERE id = ? RETURNING id',
+        [id]
+      )
+
+      const deleted = reader.getRowObjectsJson()
+
+      if (deleted.length === 0) {
+        return status(404, ApiErrorHandler.notFoundErrorWithData('Project'))
+      }
+
+      // @ts-expect-error
+      return status(204, new Response(null))
+    },
     ProjectDeleteSchema
   )
   .post(
