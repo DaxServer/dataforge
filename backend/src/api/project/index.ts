@@ -6,7 +6,6 @@ import { databasePlugin } from '@backend/plugins/database'
 import { ProjectResponseSchema } from '@backend/api/project/_schemas'
 import { enhanceSchemaWithTypes, type DuckDBTablePragma } from '@backend/utils/duckdb-types'
 import {
-  importProject,
   importProjectFile,
   ProjectImportFileAltSchema,
   ProjectImportSchema,
@@ -133,7 +132,66 @@ export const projectRoutes = new Elysia({ prefix: '/api/project' })
   )
   .post(
     '/:id/import',
-    ({ db, params, body, status }) => importProject(db, params.id, body, status),
+    async ({ db, params: { id }, body: { filePath }, status }) => {
+      const fileExists = await Bun.file(filePath).exists()
+
+      if (!fileExists) {
+        return status(400, ApiErrorHandler.fileNotFoundError(filePath))
+      }
+
+      // We'll check if the file exists but won't parse it
+      // DuckDB's read_json_auto will handle the parsing
+
+      // Check if a table with the same project ID already exists
+      let tableExistsReader
+      try {
+        tableExistsReader = await db().runAndReadAll(
+          `SELECT 1 FROM duckdb_tables() WHERE table_name = 'project_${id}'`
+        )
+      } catch (error) {
+        return status(
+          500,
+          ApiErrorHandler.internalServerErrorWithData(
+            'An error occurred while importing the project',
+            [(error as Error).message]
+          )
+        )
+      }
+
+      if (tableExistsReader.getRows().length > 0) {
+        return status(409, ApiErrorHandler.tableExistsErrorWithData(`project_${id}`))
+      }
+
+      // Try to create the table directly
+      try {
+        await db().run(
+          `CREATE TABLE "project_${id}" AS SELECT * FROM read_json_auto('${filePath}')`
+        )
+
+        // @ts-expect-error
+        return status(201, new Response(null))
+      } catch (error) {
+        // Check if the error is related to JSON parsing
+        const errorMessage = String(error)
+        if (errorMessage.toLowerCase().includes('parse')) {
+          return status(
+            400,
+            ApiErrorHandler.invalidJsonErrorWithData('Invalid JSON format in uploaded file', [
+              (error as Error).message,
+            ])
+          )
+        }
+
+        // Handle any other errors
+        return status(
+          500,
+          ApiErrorHandler.internalServerErrorWithData(
+            'An error occurred while importing the project',
+            [(error as Error).message]
+          )
+        )
+      }
+    },
     ProjectImportSchema
   )
   .post(
