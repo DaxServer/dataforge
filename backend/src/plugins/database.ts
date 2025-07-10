@@ -29,7 +29,16 @@ export const initializeDb = async (dbPath: string): Promise<DuckDBConnection> =>
       schema JSON NOT NULL DEFAULT '{}',
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
       updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    );`)
+    );
+    CREATE TABLE IF NOT EXISTS _meta_wikibase_schema (
+      id UUID PRIMARY KEY DEFAULT uuid(),
+      project_id UUID NOT NULL,
+      wikibase TEXT NOT NULL,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (project_id) REFERENCES _meta_projects(id)
+    );
+  `)
 
   return connection
 }

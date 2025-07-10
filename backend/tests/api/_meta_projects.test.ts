@@ -4,30 +4,42 @@ import { treaty } from '@elysiajs/eden'
 import { metaProjectsRoutes } from '@backend/api/_meta_projects'
 import { databasePlugin, initializeDb, closeDb, getDb } from '@backend/plugins/database'
 
-const TEST_DB_PATH = ':memory:'
+const TEST_PROJECT_ID = Bun.randomUUIDv7()
 
 const createTestApi = () => {
   return treaty(new Elysia().use(databasePlugin).use(metaProjectsRoutes)).api
 }
 
-const insertMetaProject = async (row: Record<string, unknown>) => {
+const insertMetaProject = async (project: Record<string, unknown>) => {
   const db = getDb()
   await db.run(
     `INSERT INTO _meta_projects (id, name, schema_for, schema)
      VALUES (?, ?, ?, ?)`,
-    [row.id, row.name, row.schema_for, JSON.stringify(row.schema)] as any[]
+    [project.id, project.name, project.schema_for, JSON.stringify(project.schema)] as any[]
   )
+}
+
+type WikibaseRow = { id: string; wikibase: string }
+
+const createAndInsertWikibaseRows = async (wikibaseRows: WikibaseRow[]) => {
+  const db = getDb()
+  for (const w of wikibaseRows) {
+    await db.run(`INSERT INTO _meta_wikibase_schema (id, project_id, wikibase) VALUES (?, ?, ?)`, [
+      w.id,
+      TEST_PROJECT_ID,
+      w.wikibase,
+    ])
+  }
 }
 
 describe('GET /api/_meta_projects', () => {
   let api: ReturnType<typeof createTestApi>
-  let uuid: string
 
   beforeEach(async () => {
-    await initializeDb(TEST_DB_PATH)
+    await initializeDb(':memory:')
     api = createTestApi()
-    uuid = Bun.randomUUIDv7()
   })
+
   afterEach(async () => {
     await closeDb()
   })
@@ -39,42 +51,88 @@ describe('GET /api/_meta_projects', () => {
     expect(data).toHaveProperty('data', [])
   })
 
-  test('parses JSON columns as objects', async () => {
-    const row = {
-      id: uuid,
-      name: 'test',
-      schema_for: null,
-      schema: { foo: 42, bar: [1, 2, 3] },
-    }
-    await insertMetaProject(row)
-    const { data, status, error } = await api._meta_projects.get()
-    expect(status).toBe(200)
-    expect(error).toBeNull()
-    expect(data).toHaveProperty('data')
-    expect(data).not.toBeNull()
-    expect(data!.data).toContainEqual({
-      ...row,
-      created_at: expect.any(String),
-      updated_at: expect.any(String),
-    })
-  })
-
-  test('does not change non-JSON columns', async () => {
-    const row = {
-      id: uuid,
+  test('does not change non-JSON columns and includes empty wikibase schema', async () => {
+    const project = {
+      id: TEST_PROJECT_ID,
       name: 'test',
       schema_for: 'something',
       schema: {},
     }
-    await insertMetaProject(row)
+    await insertMetaProject(project)
     const { data, status, error } = await api._meta_projects.get()
     expect(status).toBe(200)
     expect(error).toBeNull()
     expect(data).toHaveProperty('data')
     expect(data!.data).toContainEqual({
-      ...row,
+      ...project,
       created_at: expect.any(String),
       updated_at: expect.any(String),
+      wikibase_schema: [],
+    })
+  })
+
+  describe('parses JSON columns as objects', () => {
+    const project = {
+      id: TEST_PROJECT_ID,
+      name: 'test',
+      schema_for: null,
+      schema: { foo: 42, bar: [1, 2, 3] },
+    }
+
+    let data: any, status: number, error: any, wikibaseRows: WikibaseRow[]
+
+    beforeEach(async () => {
+      await insertMetaProject(project)
+      data = null
+      status = 0
+      error = null
+      wikibaseRows = []
+    })
+
+    afterEach(async () => {
+      expect(status).toBe(200)
+      expect(error).toBeNull()
+      expect(data).toHaveProperty('data')
+      expect(data).not.toBeNull()
+      expect(data!.data).toContainEqual({
+        ...project,
+        created_at: expect.any(String),
+        updated_at: expect.any(String),
+        wikibase_schema: wikibaseRows.map(w => ({
+          ...w,
+          created_at: expect.any(String),
+          updated_at: expect.any(String),
+        })),
+      })
+    })
+
+    test('parses JSON columns as objects and includes no wikibase schema', async () => {
+      ;({ data, status, error } = await api._meta_projects.get())
+      wikibaseRows = []
+    })
+
+    test('parses JSON columns as objects with one linked wikibase schema', async () => {
+      wikibaseRows = [{ id: Bun.randomUUIDv7(), wikibase: 'wikibase1' }]
+      await createAndInsertWikibaseRows(wikibaseRows)
+      ;({ data, status, error } = await api._meta_projects.get())
+    })
+
+    test('parses JSON columns as objects with multiple linked wikibase schemas', async () => {
+      wikibaseRows = [
+        { id: Bun.randomUUIDv7(), wikibase: 'wikibase1' },
+        { id: Bun.randomUUIDv7(), wikibase: 'wikibase2' },
+      ]
+      await createAndInsertWikibaseRows(wikibaseRows)
+      ;({ data, status, error } = await api._meta_projects.get())
+    })
+
+    test('parses JSON columns as objects with and without linked wikibase schemas', async () => {
+      wikibaseRows = [
+        { id: Bun.randomUUIDv7(), wikibase: 'wikibase1' },
+        { id: Bun.randomUUIDv7(), wikibase: 'wikibase2' },
+      ]
+      await createAndInsertWikibaseRows(wikibaseRows)
+      ;({ data, status, error } = await api._meta_projects.get())
     })
   })
 })
