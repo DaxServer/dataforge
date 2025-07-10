@@ -10,6 +10,14 @@ export type DuckDBTablePragma = {
   dflt_value: string | null
 }
 
+export type DuckDBColumnNameAndType = {
+  columnName: string
+  columnType: {
+    typeId: number
+    alias?: string
+  }
+}
+
 export const getTypeFromTypeId = (typeId: number): string => {
   switch (typeId) {
     case DuckDBTypeId.TINYINT:
