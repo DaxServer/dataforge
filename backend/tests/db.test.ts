@@ -68,3 +68,34 @@ describe('Database', () => {
     })
   })
 })
+
+describe('Meta Wikibase Schema Table', () => {
+  const TEST_PROJECT_ID = Bun.randomUUIDv7()
+
+  beforeEach(async () => {
+    await initializeDb(':memory:')
+    const db = getDb()
+    await db.run(`INSERT INTO _meta_projects (id, name, schema_for, schema) VALUES (?, ?, ?, ?)`, [
+      TEST_PROJECT_ID,
+      'Test Project',
+      null,
+      '{}',
+    ])
+  })
+
+  afterEach(async () => {
+    await closeDb()
+  })
+
+  test('should enforce foreign key constraint on project_id', async () => {
+    const db = getDb()
+    // Try to insert with a non-existent project_id
+    await expect(
+      db.run(`INSERT INTO _meta_wikibase_schema (id, project_id, wikibase) VALUES (?, ?, ?)`, [
+        Bun.randomUUIDv7(),
+        '22222222-2222-4222-8222-222222222222',
+        'wikibase',
+      ])
+    ).rejects.toThrow()
+  })
+})
