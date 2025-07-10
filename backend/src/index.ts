@@ -5,6 +5,7 @@ import { logger } from '@bogeychan/elysia-logger'
 import { errorHandlerPlugin } from '@backend/plugins/error-handler'
 import { healthRoutes } from '@backend/api/health'
 import { projectRoutes } from '@backend/api/project'
+import { metaProjectsRoutes } from '@backend/api/_meta_projects'
 import { closeDb } from '@backend/plugins/database'
 
 export const elysiaApp = new Elysia({
@@ -28,6 +29,7 @@ export const elysiaApp = new Elysia({
   )
   .use(logger())
   .use(healthRoutes)
+  .use(metaProjectsRoutes)
   .use(projectRoutes)
   .listen(3000, () => {
     console.log('🦊 Elysia is running at http://localhost:3000')

@@ -21,12 +21,15 @@ export const initializeDb = async (dbPath: string): Promise<DuckDBConnection> =>
   // Connect to the database
   connection = await instance.connect()
 
-  await connection.run(`CREATE TABLE IF NOT EXISTS _meta_projects (
-  id UUID PRIMARY KEY DEFAULT uuid(),
-  name TEXT NOT NULL,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);`)
+  await connection.run(`
+    CREATE TABLE IF NOT EXISTS _meta_projects (
+      id UUID PRIMARY KEY DEFAULT uuid(),
+      name TEXT NOT NULL,
+      schema_for TEXT DEFAULT NULL,
+      schema JSON NOT NULL DEFAULT '{}',
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );`)
 
   return connection
 }
