@@ -18,7 +18,7 @@ export const generateProjectName = (fileName: string) => {
 export const cleanupProject = async (
   db: () => DuckDBConnection,
   projectId: string,
-  tempFilePath?: string
+  tempFilePath?: string,
 ) => {
   await db().run('DELETE FROM _meta_projects WHERE id = ?', [projectId])
 
@@ -40,7 +40,7 @@ export const ProjectImportFileSchema = {
         minLength: 1,
         maxLength: 255,
         error: 'Project name must be between 1 and 255 characters long if provided',
-      })
+      }),
     ),
   }),
   response: {

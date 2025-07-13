@@ -44,7 +44,7 @@ describe('getAllProjects', () => {
     for (const project of sampleProjects) {
       await db.run(
         'INSERT INTO _meta_projects (id, name, created_at, updated_at) VALUES (?, ?, ?, ?)',
-        [project.id, project.name, project.created_at, project.updated_at]
+        [project.id, project.name, project.created_at, project.updated_at],
       )
     }
   })

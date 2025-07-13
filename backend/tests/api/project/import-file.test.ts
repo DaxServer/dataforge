@@ -11,10 +11,14 @@ const createTestApi = () => {
 
 describe('POST /project/:projectId/import-file', () => {
   let api: ReturnType<typeof createTestApi>
+  let projectId: string
 
   beforeEach(async () => {
     await initializeDb(':memory:')
     api = createTestApi()
+
+    const { data } = await api.project.post({ name: 'Test Project' })
+    projectId = data!.data!.id as string
   })
 
   afterEach(async () => {
@@ -31,13 +35,11 @@ describe('POST /project/:projectId/import-file', () => {
           await Bun.file(filePath)
             .delete()
             .catch(() => {})
-        })
+        }),
     )
   })
 
-  test('should accept non-JSON file type (type validation disabled)', async () => {
-    const projectId = Bun.randomUUIDv7()
-
+  test('should accept non-JSON file type - type validation disabled', async () => {
     // Create a test file with non-JSON mime type
     // Note: File type validation is currently disabled due to Elysia 1.3.x issues
     const testData = 'This is not JSON data'
@@ -53,7 +55,6 @@ describe('POST /project/:projectId/import-file', () => {
   })
 
   test('should return 422 for empty file', async () => {
-    const projectId = Bun.randomUUIDv7()
     const file = new File([], 'empty-file.json', { type: 'application/json' })
 
     const { data, status, error } = await api.project({ id: projectId }).import.file.post({
@@ -86,8 +87,6 @@ describe('POST /project/:projectId/import-file', () => {
   })
 
   test('should save uploaded file to temporary location', async () => {
-    const projectId = Bun.randomUUIDv7()
-
     const testData = JSON.stringify({ name: 'John', age: 30, city: 'New York' })
     const file = new File([testData], 'test-data.json', { type: 'application/json' })
 
@@ -107,8 +106,6 @@ describe('POST /project/:projectId/import-file', () => {
   })
 
   test('should successfully import uploaded file into DuckDB', async () => {
-    const projectId = Bun.randomUUIDv7()
-
     const TEST_DATA = [
       { id: 1, name: 'John', age: 30 },
       { id: 2, name: 'Jane', age: 25 },
@@ -156,8 +153,8 @@ describe('POST /project/:projectId/import-file', () => {
           id: expect.stringMatching(id.toString()),
           name,
           age: expect.stringMatching(age.toString()),
-        }))
-      )
+        })),
+      ),
     )
   })
 })

@@ -1,10 +1,6 @@
 import { t } from 'elysia'
 import { ApiError } from '@backend/types/error-schemas'
-import {
-  DuckDBColumnSchema,
-  ProjectUUIDParams,
-  PaginationQuery,
-} from '@backend/api/project/_schemas'
+import { DuckDBColumnSchema, PaginationQuery } from '@backend/api/project/_schemas'
 
 const ResponseSchema = t.Object({
   data: t.Array(t.Any()),
@@ -18,7 +14,6 @@ const ResponseSchema = t.Object({
 })
 
 export const GetProjectByIdSchema = {
-  params: ProjectUUIDParams,
   query: PaginationQuery,
   response: {
     200: ResponseSchema,

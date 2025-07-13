@@ -34,7 +34,7 @@ describe('POST /api/project/import', () => {
         await Bun.file(filePath)
           .delete()
           .catch(() => {})
-      })
+      }),
     )
   })
 
@@ -360,7 +360,7 @@ describe('POST /api/project/import', () => {
           TEST_DATA.map(item => ({
             ...item,
             id: item.name,
-          }))
+          })),
         )
         const file = new File([testDataWithId], 'data-with-id.json', { type: 'application/json' })
 

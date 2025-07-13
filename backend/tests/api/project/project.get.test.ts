@@ -57,25 +57,6 @@ describe('Project API - GET /:id', () => {
   let api: ReturnType<typeof createTestApi>
   let projectId: string
 
-  beforeEach(async () => {
-    await initializeDb(':memory:')
-    api = createTestApi()
-
-    const { data, status, error } = await api.project.post({
-      name: 'Test Project for getById',
-    })
-    expect(error).toBeNull()
-    expect(status).toBe(201)
-    projectId = data?.data?.id as string
-
-    await importTestData()
-  })
-
-  afterEach(async () => {
-    await cleanupTestData()
-    await closeDb()
-  })
-
   const cleanupTestData = async () => {
     expect(projectId).toBeDefined()
     expect(api).toBeDefined()
@@ -100,6 +81,25 @@ describe('Project API - GET /:id', () => {
     expect(status).toBe(201)
   }
 
+  beforeEach(async () => {
+    await initializeDb(':memory:')
+    api = createTestApi()
+
+    const { data, status, error } = await api.project.post({
+      name: 'Test Project for getById',
+    })
+    expect(error).toBeNull()
+    expect(status).toBe(201)
+    projectId = data!.data!.id as string
+
+    await importTestData()
+  })
+
+  afterEach(async () => {
+    await cleanupTestData()
+    await closeDb()
+  })
+
   it('should return project by id', async () => {
     const { data, status, error } = await api.project({ id: projectId }).get({
       query: {
@@ -116,7 +116,7 @@ describe('Project API - GET /:id', () => {
           name,
           age: expect.stringMatching(age.toString()),
           city,
-        })
+        }),
       ),
     ])
     expect(data).toHaveProperty('meta', getExpectedMeta())
@@ -138,7 +138,7 @@ describe('Project API - GET /:id', () => {
       errors: [
         {
           code: 'NOT_FOUND',
-          message: 'Project not found',
+          message: `Project with identifier '${NON_EXISTENT_UUID}' not found`,
           details: [],
         },
       ],
@@ -183,7 +183,7 @@ describe('Project API - GET /:id', () => {
       name: 'Empty Project',
     })
     expect(createError).toBeNull()
-    const emptyProjectId = createData?.data?.id as string
+    const emptyProjectId = createData!.data!.id as string
 
     const { data, status, error } = await api.project({ id: emptyProjectId }).get({
       query: {
@@ -200,7 +200,7 @@ describe('Project API - GET /:id', () => {
       errors: [
         {
           code: 'NOT_FOUND',
-          message: 'Project not found',
+          message: `Project with identifier '${emptyProjectId}' not found`,
           details: [],
         },
       ],

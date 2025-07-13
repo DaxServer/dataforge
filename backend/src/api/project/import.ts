@@ -1,9 +1,7 @@
 import { t } from 'elysia'
-import { ProjectUUIDParams } from '@backend/api/project/_schemas'
 import { ApiError } from '@backend/types/error-schemas'
 
 export const ProjectImportSchema = {
-  params: ProjectUUIDParams,
   body: t.Object({
     filePath: t.String(),
   }),

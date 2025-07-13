@@ -10,10 +10,14 @@ const createTestApi = () => {
 
 describe('POST /project/:projectId/import', () => {
   let api: ReturnType<typeof createTestApi>
+  let projectId: string
 
   beforeEach(async () => {
     await initializeDb(':memory:')
     api = createTestApi()
+
+    const { data } = await api.project.post({ name: 'Test Project' })
+    projectId = data!.data!.id as string
   })
 
   afterEach(async () => {
@@ -26,12 +30,11 @@ describe('POST /project/:projectId/import', () => {
         await Bun.file(filePath)
           .delete()
           .catch(() => {})
-      })
+      }),
     )
   })
 
   test('should return 201 for a valid import', async () => {
-    const projectId = Bun.randomUUIDv7()
     const tempFilePath = './temp-test-file.json'
     await Bun.write(tempFilePath, JSON.stringify({ test: 'data' }))
 
@@ -45,7 +48,6 @@ describe('POST /project/:projectId/import', () => {
   })
 
   test('should return 400 for a missing JSON file', async () => {
-    const projectId = Bun.randomUUIDv7()
     const nonExistentFilePath = './non-existent-file.json'
 
     const { data, status, error } = await api.project({ id: projectId }).import.post({
@@ -68,7 +70,6 @@ describe('POST /project/:projectId/import', () => {
   })
 
   test('should return 500 for invalid JSON content in file', async () => {
-    const projectId = Bun.randomUUIDv7()
     const tempFilePath = './temp-invalid-json-file.json'
     await Bun.write(tempFilePath, 'this is not valid json')
 
@@ -94,7 +95,6 @@ describe('POST /project/:projectId/import', () => {
   })
 
   test('should create a DuckDB table after successful import', async () => {
-    const projectId = Bun.randomUUIDv7()
     const tempFilePath = './temp-test-file.json'
     const testData = [{ id: 1, name: 'test' }]
     await Bun.write(tempFilePath, JSON.stringify(testData))
@@ -115,7 +115,6 @@ describe('POST /project/:projectId/import', () => {
   })
 
   test('should return 409 when importing to an existing table', async () => {
-    const projectId = Bun.randomUUIDv7()
     const tempFilePath = './temp-test-file.json'
     const testData = [{ id: 1, name: 'test' }]
     await Bun.write(tempFilePath, JSON.stringify(testData))

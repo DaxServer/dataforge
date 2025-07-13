@@ -3,7 +3,7 @@ import cors from '@elysiajs/cors'
 import { errorHandlerPlugin } from '@backend/plugins/error-handler'
 import { ApiErrorHandler } from '@backend/types/error-handler'
 import { databasePlugin } from '@backend/plugins/database'
-import { ProjectResponseSchema, type Project } from '@backend/api/project/_schemas'
+import { ProjectResponseSchema, type Project, UUIDParam } from '@backend/api/project/_schemas'
 import { enhanceSchemaWithTypes, type DuckDBTablePragma } from '@backend/utils/duckdb-types'
 import { ProjectImportFileAltSchema, ProjectImportSchema } from '@backend/api/project/import'
 import { ProjectCreateSchema } from '@backend/api/project/project.create'
@@ -21,68 +21,22 @@ export const projectRoutes = new Elysia({ prefix: '/api/project' })
   .use(errorHandlerPlugin)
   .use(databasePlugin)
   .use(cors())
+  .use(wikibaseRoutes)
+
   .get(
     '/',
     async ({ db }) => {
       const reader = await db().runAndReadAll(
-        'SELECT * FROM _meta_projects ORDER BY created_at DESC'
+        'SELECT * FROM _meta_projects ORDER BY created_at DESC',
       )
       const projects = reader.getRowObjectsJson()
       return {
         data: projects as (typeof ProjectResponseSchema.static)[],
       }
     },
-    ProjectsGetAllSchema
+    ProjectsGetAllSchema,
   )
-  .get(
-    '/:id',
-    async ({ db, params: { id }, query: { limit = 0, offset = 0 }, status }) => {
-      // First, check if the project exists in _meta_projects
-      const projectReader = await db().runAndReadAll('SELECT * FROM _meta_projects WHERE id = ?', [
-        id,
-      ])
-      const projects = projectReader.getRowObjects()
 
-      if (projects.length === 0) {
-        return status(404, ApiErrorHandler.notFoundErrorWithData('Project'))
-      }
-
-      try {
-        // Get the project's data from the project table with pagination
-        const tableName = `project_${id}`
-        const rowsReader = await db().runAndReadAll(
-          `SELECT * FROM "${tableName}" LIMIT ? OFFSET ?`,
-          [limit, offset]
-        )
-        const rows = rowsReader.getRowObjectsJson()
-        const projectName = projects?.[0]?.name?.toString() ?? 'Unknown Project'
-
-        const schemaReader = await db().runAndReadAll(`PRAGMA table_info("${tableName}")`)
-        const schemaResult = schemaReader.getRowObjectsJson()
-
-        const countReader = await db().runAndReadAll(`SELECT COUNT(*) as total FROM "${tableName}"`)
-        const countResult = countReader.getRowObjectsJson()
-        const total = Number(countResult[0]?.total ?? 0)
-
-        return {
-          data: rows,
-          meta: {
-            name: projectName,
-            schema: enhanceSchemaWithTypes(schemaResult as DuckDBTablePragma[]),
-            total,
-            limit,
-            offset,
-          },
-        }
-      } catch (error) {
-        if (error instanceof Error && error.message.includes('does not exist')) {
-          return status(404, ApiErrorHandler.notFoundErrorWithData('Project'))
-        }
-        throw error
-      }
-    },
-    GetProjectByIdSchema
-  )
   .post(
     '/',
     async ({ db, body: { name }, status }) => {
@@ -91,7 +45,7 @@ export const projectRoutes = new Elysia({ prefix: '/api/project' })
         `INSERT INTO _meta_projects (name)
          VALUES (?)
          RETURNING *`,
-        [name]
+        [name],
       )
 
       const projects = reader.getRowObjectsJson()
@@ -100,8 +54,8 @@ export const projectRoutes = new Elysia({ prefix: '/api/project' })
         return status(
           500,
           ApiErrorHandler.databaseErrorWithData(
-            'Failed to create project: No project returned from database'
-          )
+            'Failed to create project: No project returned from database',
+          ),
         )
       }
 
@@ -109,123 +63,9 @@ export const projectRoutes = new Elysia({ prefix: '/api/project' })
         data: projects[0] as typeof ProjectResponseSchema.static,
       })
     },
-    ProjectCreateSchema
+    ProjectCreateSchema,
   )
-  .delete(
-    '/:id',
-    async ({ db, params: { id }, status }) => {
-      // Delete the project and return the deleted row if it exists
-      const reader = await db().runAndReadAll(
-        'DELETE FROM _meta_projects WHERE id = ? RETURNING id',
-        [id]
-      )
 
-      const deleted = reader.getRowObjectsJson()
-
-      if (deleted.length === 0) {
-        return status(404, ApiErrorHandler.notFoundErrorWithData('Project'))
-      }
-
-      // @ts-expect-error
-      return status(204, new Response(null))
-    },
-    ProjectDeleteSchema
-  )
-  .post(
-    '/:id/import',
-    async ({ db, params: { id }, body: { filePath }, status }) => {
-      const fileExists = await Bun.file(filePath).exists()
-
-      if (!fileExists) {
-        return status(400, ApiErrorHandler.fileNotFoundError(filePath))
-      }
-
-      // We'll check if the file exists but won't parse it
-      // DuckDB's read_json_auto will handle the parsing
-
-      // Check if a table with the same project ID already exists
-      let tableExistsReader
-      try {
-        tableExistsReader = await db().runAndReadAll(
-          `SELECT 1 FROM duckdb_tables() WHERE table_name = 'project_${id}'`
-        )
-      } catch (error) {
-        return status(
-          500,
-          ApiErrorHandler.internalServerErrorWithData(
-            'An error occurred while importing the project',
-            [(error as Error).message]
-          )
-        )
-      }
-
-      if (tableExistsReader.getRows().length > 0) {
-        return status(409, ApiErrorHandler.tableExistsErrorWithData(`project_${id}`))
-      }
-
-      // Try to create the table directly
-      try {
-        await db().run(`CREATE TABLE "project_${id}" AS SELECT * FROM read_json_auto(?)`, [
-          filePath,
-        ])
-
-        // @ts-expect-error
-        return status(201, new Response(null))
-      } catch (error) {
-        // Check if the error is related to JSON parsing
-        const errorMessage = String(error)
-        if (errorMessage.toLowerCase().includes('parse')) {
-          return status(
-            400,
-            ApiErrorHandler.invalidJsonErrorWithData('Invalid JSON format in uploaded file', [
-              (error as Error).message,
-            ])
-          )
-        }
-
-        // Handle any other errors
-        return status(
-          500,
-          ApiErrorHandler.internalServerErrorWithData(
-            'An error occurred while importing the project',
-            [(error as Error).message]
-          )
-        )
-      }
-    },
-    ProjectImportSchema
-  )
-  .post(
-    '/:id/import/file',
-    async ({ body: { file }, status }) => {
-      try {
-        // Generate a unique temporary file name
-        const timestamp = Date.now()
-        const randomSuffix = Math.random().toString(36).substring(2, 8)
-        const tempFileName = `temp_${timestamp}_${randomSuffix}.json`
-        const tempFilePath = `./temp/${tempFileName}`
-
-        // Convert file to buffer and save to temporary location
-        const fileBuffer = await file.arrayBuffer()
-        const uint8Array = new Uint8Array(fileBuffer)
-
-        // Write the file to temporary location using Bun.write
-        await Bun.write(tempFilePath, uint8Array)
-
-        return status(201, {
-          tempFilePath,
-        })
-      } catch (error) {
-        return status(
-          500,
-          ApiErrorHandler.internalServerErrorWithData('Failed to save uploaded file', [
-            (error as Error).message,
-          ])
-        )
-      }
-    },
-    ProjectImportFileAltSchema
-  )
   .post(
     '/import',
     async ({ db, body: { name, file }, status }) => {
@@ -238,7 +78,7 @@ export const projectRoutes = new Elysia({ prefix: '/api/project' })
         INSERT INTO _meta_projects (name)
         VALUES (?)
         RETURNING *`,
-        [projectName]
+        [projectName],
       )
 
       const projects = reader.getRowObjectsJson()
@@ -246,8 +86,8 @@ export const projectRoutes = new Elysia({ prefix: '/api/project' })
         return status(
           500,
           ApiErrorHandler.projectCreationErrorWithData(
-            'Failed to create project: No project returned from database'
-          )
+            'Failed to create project: No project returned from database',
+          ),
         )
       }
 
@@ -282,13 +122,13 @@ export const projectRoutes = new Elysia({ prefix: '/api/project' })
           400,
           ApiErrorHandler.invalidJsonErrorWithData('Invalid JSON format in uploaded file', [
             errorDetail,
-          ])
+          ]),
         )
       }
 
       // Check if table already exists
       const tableExistsReader = await db().runAndReadAll(
-        `SELECT 1 FROM duckdb_tables() WHERE table_name = 'project_${project.id}'`
+        `SELECT 1 FROM duckdb_tables() WHERE table_name = 'project_${project.id}'`,
       )
 
       if (tableExistsReader.getRows().length > 0) {
@@ -297,8 +137,8 @@ export const projectRoutes = new Elysia({ prefix: '/api/project' })
         return status(
           500,
           ApiErrorHandler.dataImportErrorWithData(
-            `Table with name 'project_${project.id}' already exists`
-          )
+            `Table with name 'project_${project.id}' already exists`,
+          ),
         )
       }
 
@@ -308,7 +148,7 @@ export const projectRoutes = new Elysia({ prefix: '/api/project' })
         CREATE TABLE "project_${project.id}" AS
         SELECT * FROM read_json_auto(?)
         `,
-        [tempFilePath]
+        [tempFilePath],
       )
 
       // Check if 'id' column already exists and generate unique primary key column name
@@ -353,6 +193,183 @@ export const projectRoutes = new Elysia({ prefix: '/api/project' })
         data: { id: project.id },
       })
     },
-    ProjectImportFileSchema
+    ProjectImportFileSchema,
   )
-  .use(wikibaseRoutes)
+
+  .guard({
+    schema: 'standalone',
+    params: UUIDParam,
+  })
+
+  .resolve(async ({ db, params: { id } }) => {
+    const reader = await db().runAndReadAll('SELECT * FROM _meta_projects WHERE id = ?', [id])
+    const projects = reader.getRowObjectsJson()
+
+    return {
+      projects,
+    }
+  })
+
+  .onBeforeHandle(async ({ params: { id }, projects, status }) => {
+    if (projects.length === 0) {
+      return status(404, ApiErrorHandler.notFoundErrorWithData('Project', id))
+    }
+  })
+
+  .get(
+    '/:id',
+    async ({ db, params: { id }, query: { limit = 0, offset = 0 }, projects, status }) => {
+      try {
+        // Get the project's data from the project table with pagination
+        const tableName = `project_${id}`
+        const rowsReader = await db().runAndReadAll(
+          `SELECT * FROM "${tableName}" LIMIT ? OFFSET ?`,
+          [limit, offset],
+        )
+        const rows = rowsReader.getRowObjectsJson()
+        const projectName = projects[0]?.name?.toString() ?? 'Unknown Project'
+
+        const schemaReader = await db().runAndReadAll(`PRAGMA table_info("${tableName}")`)
+        const schemaResult = schemaReader.getRowObjectsJson()
+
+        const countReader = await db().runAndReadAll(`SELECT COUNT(*) as total FROM "${tableName}"`)
+        const countResult = countReader.getRowObjectsJson()
+        const total = Number(countResult[0]?.total ?? 0)
+
+        return {
+          data: rows,
+          meta: {
+            name: projectName,
+            schema: enhanceSchemaWithTypes(schemaResult as DuckDBTablePragma[]),
+            total,
+            limit,
+            offset,
+          },
+        }
+      } catch (error) {
+        if (error instanceof Error && error.message.includes('does not exist')) {
+          return status(404, ApiErrorHandler.notFoundErrorWithData('Project', id))
+        }
+        throw error
+      }
+    },
+    GetProjectByIdSchema,
+  )
+
+  .delete(
+    '/:id',
+    async ({ db, params: { id }, status }) => {
+      // Delete the project and return the deleted row if it exists
+      const reader = await db().runAndReadAll(
+        'DELETE FROM _meta_projects WHERE id = ? RETURNING id',
+        [id],
+      )
+
+      const deleted = reader.getRowObjectsJson()
+
+      if (deleted.length === 0) {
+        return status(404, ApiErrorHandler.notFoundErrorWithData('Project', id))
+      }
+
+      // @ts-expect-error
+      return status(204, new Response(null))
+    },
+    ProjectDeleteSchema,
+  )
+
+  .post(
+    '/:id/import',
+    async ({ db, params: { id }, body: { filePath }, status }) => {
+      const fileExists = await Bun.file(filePath).exists()
+
+      if (!fileExists) {
+        return status(400, ApiErrorHandler.fileNotFoundError(filePath))
+      }
+
+      // We'll check if the file exists but won't parse it
+      // DuckDB's read_json_auto will handle the parsing
+
+      // Check if a table with the same project ID already exists
+      let tableExistsReader
+      try {
+        tableExistsReader = await db().runAndReadAll(
+          `SELECT 1 FROM duckdb_tables() WHERE table_name = 'project_${id}'`,
+        )
+      } catch (error) {
+        return status(
+          500,
+          ApiErrorHandler.internalServerErrorWithData(
+            'An error occurred while importing the project',
+            [(error as Error).message],
+          ),
+        )
+      }
+
+      if (tableExistsReader.getRows().length > 0) {
+        return status(409, ApiErrorHandler.tableExistsErrorWithData(`project_${id}`))
+      }
+
+      // Try to create the table directly
+      try {
+        await db().run(`CREATE TABLE "project_${id}" AS SELECT * FROM read_json_auto(?)`, [
+          filePath,
+        ])
+
+        // @ts-expect-error
+        return status(201, new Response(null))
+      } catch (error) {
+        // Check if the error is related to JSON parsing
+        const errorMessage = String(error)
+        if (errorMessage.toLowerCase().includes('parse')) {
+          return status(
+            400,
+            ApiErrorHandler.invalidJsonErrorWithData('Invalid JSON format in uploaded file', [
+              (error as Error).message,
+            ]),
+          )
+        }
+
+        // Handle any other errors
+        return status(
+          500,
+          ApiErrorHandler.internalServerErrorWithData(
+            'An error occurred while importing the project',
+            [(error as Error).message],
+          ),
+        )
+      }
+    },
+    ProjectImportSchema,
+  )
+
+  .post(
+    '/:id/import/file',
+    async ({ body: { file }, status }) => {
+      try {
+        // Generate a unique temporary file name
+        const timestamp = Date.now()
+        const randomSuffix = Math.random().toString(36).substring(2, 8)
+        const tempFileName = `temp_${timestamp}_${randomSuffix}.json`
+        const tempFilePath = `./temp/${tempFileName}`
+
+        // Convert file to buffer and save to temporary location
+        const fileBuffer = await file.arrayBuffer()
+        const uint8Array = new Uint8Array(fileBuffer)
+
+        // Write the file to temporary location using Bun.write
+        await Bun.write(tempFilePath, uint8Array)
+
+        return status(201, {
+          tempFilePath,
+        })
+      } catch (error) {
+        return status(
+          500,
+          ApiErrorHandler.internalServerErrorWithData('Failed to save uploaded file', [
+            (error as Error).message,
+          ]),
+        )
+      }
+    },
+    ProjectImportFileAltSchema,
+  )
