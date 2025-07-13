@@ -18,7 +18,7 @@ const MetaProject = t.Object({
       name: t.String(),
       created_at: t.String(),
       updated_at: t.String(),
-    })
+    }),
   ),
 })
 
@@ -81,5 +81,5 @@ export const metaProjectsRoutes = new Elysia({ prefix: '/api' })
         }),
         500: ApiError,
       },
-    }
+    },
   )

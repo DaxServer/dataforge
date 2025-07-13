@@ -115,47 +115,6 @@ export const EntityPageTitle = Type.Union([NamespacedEntityId, ItemId])
 export type Entities = Static<typeof Entities>
 export const Entities = Type.Record(EntityId, Type.Any()) // TODO: Replace Type.Any() with Entity if defined
 
-// --- Commented out unresolved types ---
-// TODO: Define or import DataType, Labels, Descriptions, Aliases, Claims, Sitelinks, Lemmas, Form, Sense
-// export type Property = Static<typeof Property>
-// export const Property = Type.Composite([EntityInfo(PropertyId), Type.Object({
-//   type: Type.Literal('property'),
-//   datatype: Type.Optional(DataType),
-//   labels: Type.Optional(Labels),
-//   descriptions: Type.Optional(Descriptions),
-//   aliases: Type.Optional(Aliases),
-//   claims: Type.Optional(Claims)
-// })])
-
-// export type Item = Static<typeof Item>
-// export const Item = Type.Composite([EntityInfo(ItemId), Type.Object({
-//   type: Type.Literal('item'),
-//   labels: Type.Optional(Labels),
-//   descriptions: Type.Optional(Descriptions),
-//   aliases: Type.Optional(Aliases),
-//   claims: Type.Optional(Claims),
-//   sitelinks: Type.Optional(Sitelinks)
-// })])
-
-// export type Lexeme = Static<typeof Lexeme>
-// export const Lexeme = Type.Composite([EntityInfo(LexemeId), Type.Object({
-//   type: Type.Literal('lexeme'),
-//   lexicalCategory: ItemId,
-//   language: ItemId,
-//   claims: Type.Optional(Claims),
-//   lemmas: Type.Optional(Lemmas),
-//   forms: Type.Optional(Type.Array(Form)),
-//   senses: Type.Optional(Type.Array(Sense))
-// })])
-
-// export type MediaInfo = Static<typeof MediaInfo>
-// export const MediaInfo = Type.Composite([EntityInfo(MediaInfoId), Type.Object({
-//   type: Type.Literal('mediainfo'),
-//   labels: Type.Optional(Labels),
-//   descriptions: Type.Optional(Descriptions),
-//   statements: Type.Optional(Claims)
-// })])
-
 export const EntityInfo = <T extends TSchema>(T: T) =>
   Type.Object({
     pageid: Type.Optional(Type.Number()),
@@ -167,7 +126,7 @@ export const EntityInfo = <T extends TSchema>(T: T) =>
       Type.Object({
         from: T,
         to: T,
-      })
+      }),
     ),
     id: T,
   })
@@ -223,3 +182,68 @@ export const SimplifiedEntityInfo = Type.Object({
 
 // export type SimplifiedEntities = Static<typeof SimplifiedEntities>
 // export const SimplifiedEntities = Type.Record(EntityId, SimplifiedEntity)
+
+// --- Commented out unresolved types ---
+// TODO: Define or import DataType, Labels, Descriptions, Aliases, Claims, Sitelinks, Lemmas, Form, Sense
+// export type Property = Static<typeof Property>
+// export const Property = Type.Composite([EntityInfo(PropertyId), Type.Object({
+//   type: Type.Literal('property'),
+//   datatype: Type.Optional(DataType),
+//   labels: Type.Optional(Labels),
+//   descriptions: Type.Optional(Descriptions),
+//   aliases: Type.Optional(Aliases),
+//   claims: Type.Optional(Claims)
+// })])
+
+export type Labels = Static<typeof Labels>
+export const Labels = Type.Record(Type.String(), Type.String())
+
+export type Descriptions = Static<typeof Descriptions>
+export const Descriptions = Type.Record(Type.String(), Type.String())
+
+export type Aliases = Static<typeof Aliases>
+export const Aliases = Type.Record(Type.String(), Type.Array(Type.String()))
+
+export type Claims = Static<typeof Claims>
+export const Claims = Type.Record(Type.String(), Type.Any())
+
+export type Sitelinks = Static<typeof Sitelinks>
+export const Sitelinks = Type.Record(
+  Type.String(),
+  Type.Object({
+    site: Type.String(),
+    title: Type.String(),
+  }),
+)
+
+export type Item = Static<typeof Item>
+export const Item = Type.Composite([
+  EntityInfo(ItemId),
+  Type.Object({
+    type: Type.Literal('item'),
+    labels: Type.Optional(Labels),
+    descriptions: Type.Optional(Descriptions),
+    aliases: Type.Optional(Aliases),
+    claims: Type.Optional(Claims),
+    sitelinks: Type.Optional(Sitelinks),
+  }),
+])
+
+// export type Lexeme = Static<typeof Lexeme>
+// export const Lexeme = Type.Composite([EntityInfo(LexemeId), Type.Object({
+//   type: Type.Literal('lexeme'),
+//   lexicalCategory: ItemId,
+//   language: ItemId,
+//   claims: Type.Optional(Claims),
+//   lemmas: Type.Optional(Lemmas),
+//   forms: Type.Optional(Type.Array(Form)),
+//   senses: Type.Optional(Type.Array(Sense))
+// })])
+
+// export type MediaInfo = Static<typeof MediaInfo>
+// export const MediaInfo = Type.Composite([EntityInfo(MediaInfoId), Type.Object({
+//   type: Type.Literal('mediainfo'),
+//   labels: Type.Optional(Labels),
+//   descriptions: Type.Optional(Descriptions),
+//   statements: Type.Optional(Claims)
+// })])

@@ -58,6 +58,8 @@ export default tseslint.config(
     },
     rules: {
       'vue/multi-word-component-names': 'off',
+      '@typescript-eslint/comma-dangle': ['error', 'always-multiline'],
+      'prettier/prettier': ['error', { trailingComma: 'all' }],
     },
   },
 )

@@ -1,6 +1,6 @@
 /// <reference types="bun-types" />
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test'
-import { Elysia, InvertedStatusMap } from 'elysia'
+import { Elysia } from 'elysia'
 import { treaty } from '@elysiajs/eden'
 import { closeDb, initializeDb, getDb } from '@backend/plugins/database'
 import { projectRoutes } from '@backend/api/project'
@@ -26,16 +26,13 @@ describe('deleteProject', () => {
     const db = getDb()
 
     const insertReader = await db.runAndReadAll(
-      `INSERT INTO _meta_projects (name)
-       VALUES (?)
-       RETURNING id`,
-      ['Test Project']
+      `INSERT INTO _meta_projects (name) VALUES ('Test Project') RETURNING id`,
     )
 
     const result = insertReader.getRowObjectsJson() as Array<{ id: string }>
     expect(result[0]).toBeDefined()
     expect(result[0]).toHaveProperty('id')
-    const testProjectId = result[0]?.id as string
+    const testProjectId = result[0]!.id as string
 
     const { data, status, error } = await api.project({ id: testProjectId }).delete()
 
@@ -64,7 +61,7 @@ describe('deleteProject', () => {
       errors: [
         {
           code: 'NOT_FOUND',
-          message: 'Project not found',
+          message: `Project with identifier '${nonExistentId}' not found`,
           details: [],
         },
       ],

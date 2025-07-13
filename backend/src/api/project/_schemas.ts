@@ -7,7 +7,6 @@ export const UUID_REGEX =
 // RegExp version of UUID_REGEX for test matching
 export const UUID_REGEX_PATTERN = new RegExp(UUID_REGEX, 'i')
 
-// Shared project schema
 export const ProjectResponseSchema = t.Object({
   id: t.String(),
   name: t.String(),
@@ -15,10 +14,9 @@ export const ProjectResponseSchema = t.Object({
   updated_at: t.String(),
 })
 
-// Project types
 export type Project = typeof ProjectResponseSchema.static
 
-export const ProjectUUIDParams = t.Object({
+export const UUIDParam = t.Object({
   id: t.String({
     pattern: UUID_REGEX,
     error: 'ID must be a valid UUID',
@@ -35,7 +33,7 @@ export const DuckDBColumnSchema = t.Array(
     name: t.String(),
     type: t.String(),
     pk: t.Boolean(),
-  })
+  }),
 )
 
 export type DuckDBColumnSchema = typeof DuckDBColumnSchema.static

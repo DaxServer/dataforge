@@ -28,6 +28,7 @@ export default [
         'error',
         { 'ts-expect-error': 'allow-with-description' },
       ],
+      '@typescript-eslint/comma-dangle': ['error', 'always-multiline'],
     },
   },
 
@@ -37,7 +38,7 @@ export default [
       prettier: prettierPlugin,
     },
     rules: {
-      'prettier/prettier': 'error',
+      'prettier/prettier': ['error', { trailingComma: 'all' }],
       'arrow-body-style': 'off',
       'prefer-arrow-callback': 'off',
     },
