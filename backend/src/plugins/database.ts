@@ -34,6 +34,8 @@ export const initializeDb = async (dbPath: string): Promise<DuckDBConnection> =>
       id UUID PRIMARY KEY DEFAULT uuid(),
       project_id UUID NOT NULL,
       wikibase TEXT NOT NULL,
+      name TEXT NOT NULL,
+      schema JSON NOT NULL DEFAULT '{}',
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
       updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
       FOREIGN KEY (project_id) REFERENCES _meta_projects(id)

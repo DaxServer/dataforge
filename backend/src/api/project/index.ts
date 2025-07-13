@@ -15,6 +15,7 @@ import {
   generateProjectName,
   ProjectImportFileSchema,
 } from '@backend/api/project/project.import-file'
+import { wikibaseRoutes } from '@backend/api/project/project.wikibase'
 
 export const projectRoutes = new Elysia({ prefix: '/api/project' })
   .use(errorHandlerPlugin)
@@ -354,3 +355,4 @@ export const projectRoutes = new Elysia({ prefix: '/api/project' })
     },
     ProjectImportFileSchema
   )
+  .use(wikibaseRoutes)

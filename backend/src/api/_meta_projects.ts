@@ -15,6 +15,7 @@ const MetaProject = t.Object({
     t.Object({
       id: t.String(),
       wikibase: t.String(),
+      name: t.String(),
       created_at: t.String(),
       updated_at: t.String(),
     })
@@ -44,6 +45,7 @@ export const metaProjectsRoutes = new Elysia({ prefix: '/api' })
                   struct_pack(
                     id := w.id,
                     wikibase := w.wikibase,
+                    name := w.name,
                     created_at := w.created_at,
                     updated_at := w.updated_at
                   )

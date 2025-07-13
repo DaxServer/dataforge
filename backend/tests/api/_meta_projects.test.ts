@@ -19,15 +19,16 @@ const insertMetaProject = async (project: Record<string, unknown>) => {
   )
 }
 
-type WikibaseRow = { id: string; wikibase: string }
+type WikibaseRow = { id: string; wikibase: string; name: string }
 
 const createAndInsertWikibaseRows = async (wikibaseRows: WikibaseRow[]) => {
   const db = getDb()
   for (const w of wikibaseRows) {
-    await db.run(`INSERT INTO _meta_wikibase_schema (id, project_id, wikibase) VALUES (?, ?, ?)`, [
+    await db.run(`INSERT INTO _meta_wikibase_schema (id, project_id, wikibase, name) VALUES (?, ?, ?, ?)`, [
       w.id,
       TEST_PROJECT_ID,
       w.wikibase,
+      w.name,
     ])
   }
 }
@@ -100,6 +101,7 @@ describe('GET /api/_meta_projects', () => {
         updated_at: expect.any(String),
         wikibase_schema: wikibaseRows.map(w => ({
           ...w,
+          name: w.name || `Schema for ${w.wikibase}`,
           created_at: expect.any(String),
           updated_at: expect.any(String),
         })),
@@ -112,15 +114,15 @@ describe('GET /api/_meta_projects', () => {
     })
 
     test('parses JSON columns as objects with one linked wikibase schema', async () => {
-      wikibaseRows = [{ id: Bun.randomUUIDv7(), wikibase: 'wikibase1' }]
+      wikibaseRows = [{ id: Bun.randomUUIDv7(), wikibase: 'wikibase1', name: 'Schema for wikibase1' }]
       await createAndInsertWikibaseRows(wikibaseRows)
       ;({ data, status, error } = await api._meta_projects.get())
     })
 
     test('parses JSON columns as objects with multiple linked wikibase schemas', async () => {
       wikibaseRows = [
-        { id: Bun.randomUUIDv7(), wikibase: 'wikibase1' },
-        { id: Bun.randomUUIDv7(), wikibase: 'wikibase2' },
+        { id: Bun.randomUUIDv7(), wikibase: 'wikibase1', name: 'Schema for wikibase1' },
+        { id: Bun.randomUUIDv7(), wikibase: 'wikibase2', name: 'Schema for wikibase2' },
       ]
       await createAndInsertWikibaseRows(wikibaseRows)
       ;({ data, status, error } = await api._meta_projects.get())
@@ -128,8 +130,8 @@ describe('GET /api/_meta_projects', () => {
 
     test('parses JSON columns as objects with and without linked wikibase schemas', async () => {
       wikibaseRows = [
-        { id: Bun.randomUUIDv7(), wikibase: 'wikibase1' },
-        { id: Bun.randomUUIDv7(), wikibase: 'wikibase2' },
+        { id: Bun.randomUUIDv7(), wikibase: 'wikibase1', name: 'Schema for wikibase1' },
+        { id: Bun.randomUUIDv7(), wikibase: 'wikibase2', name: 'Schema for wikibase2' },
       ]
       await createAndInsertWikibaseRows(wikibaseRows)
       ;({ data, status, error } = await api._meta_projects.get())
