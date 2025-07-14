@@ -18,6 +18,8 @@ import type {
   ItemId,
   Item,
   Sitelink,
+  MediaInfo,
+  MediaInfoId,
 } from 'wikibase-sdk'
 
 let _strCounter = 0
@@ -28,6 +30,9 @@ const deterministicItemId = (): ItemId => `Q${_itemIdCounter++}` as ItemId
 
 let _propertyIdCounter = 200
 const deterministicPropertyId = (): PropertyId => `P${_propertyIdCounter++}` as PropertyId
+
+let _mediaInfoIdCounter = 5000
+const deterministicMediaInfoId = (): MediaInfoId => `M${_mediaInfoIdCounter++}` as MediaInfoId
 
 const deterministicLangs = ['en', 'fr', 'de', 'es', 'it']
 const deterministicLang = (index: number) =>
@@ -201,6 +206,23 @@ const generateRandomWikibaseSchema = (overrides = {}) => {
   }
 }
 
+const generateRandomMediaInfoSchema = (overrides = {}) => {
+  return {
+    id: Bun.randomUUIDv7(),
+    project_id: TEST_PROJECT_ID,
+    name: deterministicString('Test MediaInfo Schema'),
+    wikibase: 'wikidata',
+    schema: {
+      id: deterministicMediaInfoId(),
+      type: 'mediainfo',
+      labels: deterministicLabels(),
+      descriptions: deterministicDescriptions(),
+      statements: deterministicClaims(),
+    } as MediaInfo,
+    ...overrides,
+  }
+}
+
 const expectNotFoundError = (status: number, data: any, error: any, message: string) => {
   expect(status).toBe(404)
   expect(data).toBeNull()
@@ -249,7 +271,7 @@ describe('Wikibase API', () => {
     await closeDb()
   })
 
-  describe('GET /api/wikibase/project/:project_id/schemas', () => {
+  describe('GET /api/project/:project_id/schemas', () => {
     test('should return empty array when no schemas exist', async () => {
       const { data, status, error } = await api
         .project({ project_id: TEST_PROJECT_ID })
@@ -288,7 +310,7 @@ describe('Wikibase API', () => {
     })
   })
 
-  describe('POST /api/wikibase/schemas', () => {
+  describe('POST /api/project/:project_id/schemas', () => {
     test('should create a new Wikibase schema', async () => {
       const schema = generateRandomWikibaseSchema()
       const { data, status, error } = await api
@@ -318,7 +340,7 @@ describe('Wikibase API', () => {
     })
   })
 
-  describe('GET /api/wikibase/schemas/:id', () => {
+  describe('GET /api/project/:project_id/schemas/:id', () => {
     test('should return schema with full details', async () => {
       const schema = generateRandomWikibaseSchema()
       await api.project({ project_id: TEST_PROJECT_ID }).schemas.post(schema)
@@ -351,7 +373,7 @@ describe('Wikibase API', () => {
     })
   })
 
-  describe('PUT /api/wikibase/schemas/:id', () => {
+  describe('PUT /api/project/:project_id/schemas/:id', () => {
     test('should update schema name', async () => {
       const schema = generateRandomWikibaseSchema()
       await api.project({ project_id: TEST_PROJECT_ID }).schemas.post(schema)
@@ -405,7 +427,7 @@ describe('Wikibase API', () => {
     })
   })
 
-  describe('DELETE /api/wikibase/schemas/:id', () => {
+  describe('DELETE /api/project/:project_id/schemas/:id', () => {
     test('should delete schema successfully', async () => {
       const schema = generateRandomWikibaseSchema()
       await api.project({ project_id: TEST_PROJECT_ID }).schemas.post(schema)
@@ -452,6 +474,71 @@ describe('Wikibase API', () => {
         .delete()
 
       expectNotFoundError(status, data, error, `Schema with identifier '${randomId}' not found`)
+    })
+  })
+
+  describe('MediaInfo', () => {
+    test('should create a new MediaInfo schema', async () => {
+      const mediaInfoSchema = generateRandomMediaInfoSchema()
+      const { data, status, error } = await api
+        .project({ project_id: TEST_PROJECT_ID })
+        .schemas.post(mediaInfoSchema)
+
+      expectSuccess(status, data, error, mediaInfoSchema)
+    })
+
+    test('should return a MediaInfo schema', async () => {
+      const mediaInfoSchema = generateRandomMediaInfoSchema()
+      await api.project({ project_id: TEST_PROJECT_ID }).schemas.post(mediaInfoSchema)
+
+      const { data, status, error } = await api
+        .project({ project_id: TEST_PROJECT_ID })
+        .schemas({ id: mediaInfoSchema.id })
+        .get()
+
+      expectSuccess(status, data, error, mediaInfoSchema)
+    })
+
+    test('should update a MediaInfo schema name', async () => {
+      const mediaInfoSchema = generateRandomMediaInfoSchema()
+      await api.project({ project_id: TEST_PROJECT_ID }).schemas.post(mediaInfoSchema)
+
+      const updateData = { name: 'Updated Schema Name' }
+
+      const { data, status, error } = await api
+        .project({ project_id: TEST_PROJECT_ID })
+        .schemas({ id: mediaInfoSchema.id })
+        .put(updateData)
+
+      expectSuccess(status, data, error, { ...mediaInfoSchema, name: updateData.name })
+    })
+
+    test('should update a MediaInfo schema schema', async () => {
+      const mediaInfoSchema = generateRandomMediaInfoSchema()
+      await api.project({ project_id: TEST_PROJECT_ID }).schemas.post(mediaInfoSchema)
+
+      const updateData = { schema: { ...mediaInfoSchema.schema, id: deterministicMediaInfoId() } }
+
+      const { data, status, error } = await api
+        .project({ project_id: TEST_PROJECT_ID })
+        .schemas({ id: mediaInfoSchema.id })
+        .put(updateData)
+
+      expectSuccess(status, data, error, { ...mediaInfoSchema, schema: updateData.schema })
+    })
+
+    test('should delete a MediaInfo schema', async () => {
+      const mediaInfoSchema = generateRandomMediaInfoSchema()
+      await api.project({ project_id: TEST_PROJECT_ID }).schemas.post(mediaInfoSchema)
+
+      const { data, status, error } = await api
+        .project({ project_id: TEST_PROJECT_ID })
+        .schemas({ id: mediaInfoSchema.id })
+        .delete()
+
+      expect(status).toBe(204)
+      expect(data).toBeEmpty()
+      expect(error).toBeNull()
     })
   })
 })

@@ -94,21 +94,6 @@ export const GuidAltSyntax = Type.TemplateLiteral([
 export type Hash = Static<typeof Hash>
 export const Hash = Type.String()
 
-// --- Forward declarations for use-before-declaration issues ---
-// TODO: Define or import Property, Item, Lexeme, MediaInfo
-// export type Property = ...
-// export type Item = ...
-// export type Lexeme = ...
-// export type MediaInfo = ...
-
-// export type Entity = Static<typeof Entity>
-// export const Entity = Type.Union([
-//   Property,
-//   Item,
-//   Lexeme,
-//   MediaInfo
-// ])
-
 export type EntityPageTitle = Static<typeof EntityPageTitle>
 export const EntityPageTitle = Type.Union([NamespacedEntityId, ItemId])
 
@@ -240,10 +225,16 @@ export const Item = Type.Composite([
 //   senses: Type.Optional(Type.Array(Sense))
 // })])
 
-// export type MediaInfo = Static<typeof MediaInfo>
-// export const MediaInfo = Type.Composite([EntityInfo(MediaInfoId), Type.Object({
-//   type: Type.Literal('mediainfo'),
-//   labels: Type.Optional(Labels),
-//   descriptions: Type.Optional(Descriptions),
-//   statements: Type.Optional(Claims)
-// })])
+export type MediaInfo = Static<typeof MediaInfo>
+export const MediaInfo = Type.Composite([
+  EntityInfo(MediaInfoId),
+  Type.Object({
+    type: Type.Literal('mediainfo'),
+    labels: Type.Optional(Labels),
+    descriptions: Type.Optional(Descriptions),
+    statements: Type.Optional(Claims),
+  }),
+])
+
+export type Entity = Static<typeof Entity>
+export const Entity = Type.Union([Item, MediaInfo])
