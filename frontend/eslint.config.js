@@ -5,6 +5,7 @@ import vueParser from 'vue-eslint-parser'
 import { readFileSync } from 'fs'
 import { fileURLToPath } from 'url'
 import { dirname, join } from 'path'
+import pluginPrettier from 'eslint-plugin-prettier'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
@@ -55,10 +56,11 @@ export default tseslint.config(
     },
     plugins: {
       '@typescript-eslint': tseslint.plugin,
+      prettier: pluginPrettier,
     },
     rules: {
       'vue/multi-word-component-names': 'off',
-      '@typescript-eslint/comma-dangle': ['error', 'always-multiline'],
+      'comma-dangle': ['error', 'always-multiline'],
       'prettier/prettier': ['error', { trailingComma: 'all' }],
     },
   },

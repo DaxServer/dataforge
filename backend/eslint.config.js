@@ -28,7 +28,7 @@ export default [
         'error',
         { 'ts-expect-error': 'allow-with-description' },
       ],
-      '@typescript-eslint/comma-dangle': ['error', 'always-multiline'],
+      'comma-dangle': ['error', 'always-multiline'],
     },
   },
 

@@ -4,20 +4,20 @@ import { errorHandlerPlugin } from '@backend/plugins/error-handler'
 import { ApiError } from '@backend/types/error-schemas'
 import { UUID_REGEX, UUIDParam } from '@backend/api/project/_schemas'
 import { ApiErrorHandler } from '@backend/types/error-handler'
-import { Item } from '@backend/types/wikibase-schema'
+import { Entity } from '@backend/types/wikibase-schema'
 
 const WikibaseSchemaCreateRequest = t.Object({
   id: t.Optional(t.String({ pattern: UUID_REGEX })),
   project_id: t.String({ pattern: UUID_REGEX }),
   name: t.String({ minLength: 1, maxLength: 255 }),
   wikibase: t.Optional(t.String({ default: 'wikidata' })),
-  schema: t.Optional(Item),
+  schema: t.Optional(Entity),
 })
 
 const WikibaseSchemaUpdateRequest = t.Object({
   name: t.Optional(t.String({ minLength: 1, maxLength: 255 })),
   wikibase: t.Optional(t.String()),
-  schema: t.Optional(Item),
+  schema: t.Optional(Entity),
 })
 
 const ProjectParams = t.Object({
