@@ -8,9 +8,9 @@
       <MainContent>
         <router-view v-slot="{ Component, route }">
           <transition
+            :key="route.name"
             name="fade"
             mode="out-in"
-            :key="route.name"
           >
             <component :is="Component" />
           </transition>

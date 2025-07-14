@@ -1,85 +1,53 @@
 <script setup lang="ts">
-const projectId = useRouteParams('id')
-const projectStore = useProjectStore()
-const { meta, isLoading, data, columns } = storeToRefs(projectStore)
-const { fetchProject } = projectStore
-const { processHtml } = useHtml()
+const router = useRouter()
+const route = useRoute()
 
-// Computed properties for template calculations
-const totalRecords = computed(() => meta.value.total)
+const activeTab = useRouteParams('tab') as Ref<string>
 
-// Handle fetch requests from paginator
-const handlePaginate = async (event: { offset: number; limit: number }) => {
-  await fetchProject(projectId.value as string, event.offset, event.limit)
+const onTabChange = (value: string | number) => {
+  activeTab.value = value as string
+  router.replace({ name: route.name, params: { ...route.params, tab: value as string } })
 }
 
-onUnmounted(() => {
-  projectStore.clearProject()
-})
+const _tabs = {
+  data: {
+    key: 'data',
+    label: 'Data',
+    icon: 'pi pi-table',
+  },
+  schema: {
+    key: 'schema',
+    label: 'Schema',
+    icon: 'pi pi-pencil',
+  },
+}
 </script>
 
 <template>
-  <!-- Project Data -->
   <div class="-m-6 flex flex-col">
-    <!-- Custom Pagination Controls -->
-    <CustomPaginator
-      :total-records="totalRecords"
-      :initial-rows="5"
-      @paginate="handlePaginate"
-    />
-
-    <DataTable
-      :value="data"
-      :paginator="false"
-      :loading="isLoading"
-      table-class="text-sm"
-      striped-rows
-      show-gridlines
-      scrollable
-      scrollHeight="flex"
+    <Tabs
+      :value="activeTab"
+      class="mb-8"
+      @update:value="onTabChange"
     >
-      <template #empty>
-        <div class="text-center py-8">
-          <i class="pi pi-info-circle text-4xl text-gray-400 mb-4"></i>
-          <p class="text-gray-600">No data available in this project.</p>
-        </div>
-      </template>
-
-      <Column
-        v-for="col of columns"
-        :key="col.field"
-        :field="col.field"
-        :pt="{
-          headerCell: {
-            class: `whitespace-nowrap p-2! min-w-20 max-w-100 ${
-              col.pk ? 'bg-blue-50 border-l-4 border-l-blue-500' : ''
-            }`,
-          },
-          bodyCell: {
-            class: `${col.isDate ? 'whitespace-nowrap' : 'whitespace-normal break-words'} align-top p-2! min-w-20 max-w-100 ${
-              col.isInteger ? 'text-end!' : ''
-            } ${col.pk ? 'bg-blue-25 border-l-4 border-l-blue-500' : ''}`,
-          },
-        }"
-      >
-        <template #header>
-          <div class="flex items-center font-bold gap-2">
-            <i
-              v-if="col.pk"
-              class="pi pi-key text-blue-600"
-            ></i>
-            <span>{{ col.header }}</span>
-          </div>
-        </template>
-        <template #body="slotProps">
-          <span
-            :class="{
-              'text-green-600 font-medium': col.isInteger,
-            }"
-            v-html="processHtml(slotProps.data[col.field])"
-          ></span>
-        </template>
-      </Column>
-    </DataTable>
+      <TabList>
+        <Tab
+          v-for="_tab in _tabs"
+          :key="_tab.key"
+          :value="_tab.key"
+        >
+          <i :class="_tab.icon" />
+          {{ _tab.label }}
+        </Tab>
+      </TabList>
+      <TabPanels>
+        <TabPanel :value="_tabs.data.key">
+          <DataTabPanel />
+        </TabPanel>
+        <TabPanel :value="_tabs.schema.key">
+          <WikibaseSchemaEditor />
+        </TabPanel>
+      </TabPanels>
+    </Tabs>
   </div>
 </template>

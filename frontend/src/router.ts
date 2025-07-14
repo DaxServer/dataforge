@@ -27,7 +27,7 @@ const routes = [
         },
       },
       {
-        path: 'project/:id',
+        path: 'project/:id/:tab',
         name: 'ProjectView',
         component: () => import('@frontend/views/ProjectView.vue'),
         meta: {

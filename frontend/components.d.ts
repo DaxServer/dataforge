@@ -15,6 +15,7 @@ declare module 'vue' {
     CreateProject: typeof import('./src/pages/CreateProject.vue')['default']
     CustomPaginator: typeof import('./src/components/CustomPaginator.vue')['default']
     DataTable: typeof import('primevue/datatable')['default']
+    DataTabPanel: typeof import('./src/components/DataTabPanel.vue')['default']
     DefaultLayout: typeof import('./src/layouts/DefaultLayout.vue')['default']
     FileUpload: typeof import('primevue/fileupload')['default']
     Header: typeof import('./src/components/Header.vue')['default']
@@ -25,7 +26,15 @@ declare module 'vue' {
     ProjectView: typeof import('./src/views/ProjectView.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
+    SchemaTabPanel: typeof import('./src/components/SchemaTabPanel.vue')['default']
     Sidebar: typeof import('./src/components/Sidebar.vue')['default']
+    Tab: typeof import('primevue/tab')['default']
+    TabList: typeof import('primevue/tablist')['default']
+    TabPanel: typeof import('primevue/tabpanel')['default']
+    TabPanels: typeof import('primevue/tabpanels')['default']
+    Tabs: typeof import('primevue/tabs')['default']
+    TabView: typeof import('primevue/tabview')['default']
     Toast: typeof import('primevue/toast')['default']
+    WikibaseSchemaEditor: typeof import('./src/components/WikibaseSchemaEditor.vue')['default']
   }
 }

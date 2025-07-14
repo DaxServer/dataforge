@@ -33,8 +33,8 @@ onMounted(() => {
             label="Refresh"
             severity="secondary"
             outlined
-            @click="fetchProjects"
             :loading="isLoading"
+            @click="fetchProjects"
           />
           <router-link :to="{ name: 'create' }">
             <Button
@@ -60,7 +60,7 @@ onMounted(() => {
       class="text-center py-12"
     >
       <div class="mx-auto h-12 w-12 text-gray-400">
-        <i class="pi pi-folder-open text-4xl"></i>
+        <i class="pi pi-folder-open text-4xl" />
       </div>
       <h3 class="mt-2 text-sm font-medium text-gray-900">No projects found</h3>
       <p class="mt-1 text-sm text-gray-500">Get started by creating your first project.</p>
@@ -84,13 +84,13 @@ onMounted(() => {
         :loading="isLoading"
         :paginator="projectCount > 10"
         :rows="10"
-        paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
-        :rowsPerPageOptions="[5, 10, 25, 50]"
-        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} projects"
-        sortField="updated_at"
-        :sortOrder="-1"
+        paginator-template="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
+        :rows-per-page-options="[5, 10, 25, 50]"
+        current-page-report-template="Showing {first} to {last} of {totalRecords} projects"
+        sort-field="updated_at"
+        :sort-order="-1"
         class="p-datatable-sm"
-        :rowHover="true"
+        :row-hover="true"
       >
         <Column
           field="name"
@@ -98,9 +98,9 @@ onMounted(() => {
           sortable
         >
           <template #body="{ data }">
-            <router-link :to="{ name: 'ProjectView', params: { id: data.id } }">
+            <router-link :to="{ name: 'ProjectView', params: { id: data.id, tab: 'data' } }">
               <div class="flex items-center space-x-3 group">
-                <i class="pi pi-file text-lg text-blue-600"></i>
+                <i class="pi pi-file text-lg text-blue-600" />
                 <span
                   class="font-medium text-gray-900 cursor-pointer group-hover:text-blue-600 group-hover:underline"
                 >
@@ -139,8 +139,8 @@ onMounted(() => {
                 severity="danger"
                 outlined
                 size="small"
-                @click="deleteProject(data)"
                 class="p-button-sm delete-button"
+                @click="deleteProject(data)"
               />
             </div>
           </template>
