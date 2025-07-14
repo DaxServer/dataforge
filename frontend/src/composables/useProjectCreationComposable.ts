@@ -38,7 +38,7 @@ export const useProjectCreationComposable = () => {
 
     if (data?.data?.id) {
       setTimeout(() => {
-        router.push(`/project/${data.data.id}`)
+        router.push({ name: 'ProjectView', params: { id: data.data.id, tab: 'data' } })
       }, 1000)
     } else {
       showError({
