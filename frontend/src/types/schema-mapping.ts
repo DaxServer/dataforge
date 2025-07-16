@@ -1,7 +1,4 @@
-import type { 
-  ItemId, 
-  PropertyId
-} from '@backend/types/wikibase-schema'
+import type { ItemId, PropertyId } from '@backend/types/wikibase-schema'
 
 // Core schema mapping interfaces
 export interface WikibaseSchemaMapping {
@@ -88,14 +85,14 @@ export interface ReferenceSchemaMapping {
 export type StatementRank = 'preferred' | 'normal' | 'deprecated'
 
 // Wikibase data types
-export type WikibaseDataType = 
-  | 'string' 
+export type WikibaseDataType =
+  | 'string'
   | 'wikibase-item'
-  | 'wikibase-property' 
-  | 'quantity' 
-  | 'time' 
-  | 'globe-coordinate' 
-  | 'url' 
+  | 'wikibase-property'
+  | 'quantity'
+  | 'time'
+  | 'globe-coordinate'
+  | 'url'
   | 'external-id'
   | 'monolingualtext'
   | 'commonsMedia'

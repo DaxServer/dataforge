@@ -6,7 +6,7 @@
   - Implement TypeScript interfaces for schema mapping
   - _Requirements: 1.2_
 
-- [ ] 2. Create drag-and-drop context types and utilities
+- [x] 2. Create drag-and-drop context types and utilities
   - Write tests for drag-and-drop context state management
   - Write tests for drop target validation logic
   - Implement drag-and-drop context types and utilities

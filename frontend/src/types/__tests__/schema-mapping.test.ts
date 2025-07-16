@@ -21,8 +21,8 @@ import type {
   SchemaMapping,
   ColumnReference,
   ValueSchemaMapping,
-  ValidatedSchemaMapping
-} from '../schema-mapping'
+  ValidatedSchemaMapping,
+} from '@frontend/types/schema-mapping'
 
 describe('Schema Mapping Types', () => {
   describe('WikibaseSchemaMapping', () => {
@@ -37,12 +37,12 @@ describe('Schema Mapping Types', () => {
           terms: {
             labels: {},
             descriptions: {},
-            aliases: {}
+            aliases: {},
           },
-          statements: []
+          statements: [],
         },
         createdAt: '2024-01-01T00:00:00Z',
-        updatedAt: '2024-01-01T00:00:00Z'
+        updatedAt: '2024-01-01T00:00:00Z',
       }
 
       expect(schemaMapping.id).toBe('schema-123')
@@ -64,12 +64,12 @@ describe('Schema Mapping Types', () => {
           terms: {
             labels: {},
             descriptions: {},
-            aliases: {}
+            aliases: {},
           },
-          statements: []
+          statements: [],
         },
         createdAt: '2024-01-01T00:00:00Z',
-        updatedAt: '2024-01-01T00:00:00Z'
+        updatedAt: '2024-01-01T00:00:00Z',
       }
 
       expect(schemaMapping.item.id).toBeUndefined()
@@ -80,18 +80,18 @@ describe('Schema Mapping Types', () => {
     it('should create valid terms mapping with multiple languages', () => {
       const termsMapping: TermsSchemaMapping = {
         labels: {
-          'en': { columnName: 'name_en', dataType: 'VARCHAR' },
-          'fr': { columnName: 'name_fr', dataType: 'VARCHAR' }
+          en: { columnName: 'name_en', dataType: 'VARCHAR' },
+          fr: { columnName: 'name_fr', dataType: 'VARCHAR' },
         },
         descriptions: {
-          'en': { columnName: 'desc_en', dataType: 'TEXT' }
+          en: { columnName: 'desc_en', dataType: 'TEXT' },
         },
         aliases: {
-          'en': [
+          en: [
             { columnName: 'alias1_en', dataType: 'VARCHAR' },
-            { columnName: 'alias2_en', dataType: 'VARCHAR' }
-          ]
-        }
+            { columnName: 'alias2_en', dataType: 'VARCHAR' },
+          ],
+        },
       }
 
       expect(termsMapping.labels['en']?.columnName).toBe('name_en')
@@ -105,7 +105,7 @@ describe('Schema Mapping Types', () => {
       const termsMapping: TermsSchemaMapping = {
         labels: {},
         descriptions: {},
-        aliases: {}
+        aliases: {},
       }
 
       expect(Object.keys(termsMapping.labels)).toHaveLength(0)
@@ -118,7 +118,7 @@ describe('Schema Mapping Types', () => {
     it('should create basic column mapping', () => {
       const columnMapping: ColumnMapping = {
         columnName: 'test_column',
-        dataType: 'VARCHAR'
+        dataType: 'VARCHAR',
       }
 
       expect(columnMapping.columnName).toBe('test_column')
@@ -130,13 +130,13 @@ describe('Schema Mapping Types', () => {
       const transformationRule: TransformationRule = {
         type: 'expression',
         value: 'UPPER(${column})',
-        parameters: { format: 'uppercase' }
+        parameters: { format: 'uppercase' },
       }
 
       const columnMapping: ColumnMapping = {
         columnName: 'test_column',
         dataType: 'VARCHAR',
-        transformation: transformationRule
+        transformation: transformationRule,
       }
 
       expect(columnMapping.transformation).toBeDefined()
@@ -151,13 +151,13 @@ describe('Schema Mapping Types', () => {
       const propertyRef: PropertyReference = {
         id: 'P123',
         label: 'Test Property',
-        dataType: 'string'
+        dataType: 'string',
       }
 
       const valueMapping: ValueMapping = {
         type: 'column',
         source: { columnName: 'value_col', dataType: 'VARCHAR' },
-        dataType: 'string'
+        dataType: 'string',
       }
 
       const qualifier: QualifierSchemaMapping = {
@@ -165,8 +165,8 @@ describe('Schema Mapping Types', () => {
         value: {
           type: 'column',
           source: { columnName: 'qualifier_col', dataType: 'VARCHAR' },
-          dataType: 'string'
-        }
+          dataType: 'string',
+        },
       }
 
       const reference: ReferenceSchemaMapping = {
@@ -174,8 +174,8 @@ describe('Schema Mapping Types', () => {
         value: {
           type: 'column',
           source: { columnName: 'ref_url', dataType: 'VARCHAR' },
-          dataType: 'url'
-        }
+          dataType: 'url',
+        },
       }
 
       const statementMapping: StatementSchemaMapping = {
@@ -184,7 +184,7 @@ describe('Schema Mapping Types', () => {
         value: valueMapping,
         rank: 'normal',
         qualifiers: [qualifier],
-        references: [reference]
+        references: [reference],
       }
 
       expect(statementMapping.id).toBe('stmt-1')
@@ -197,19 +197,19 @@ describe('Schema Mapping Types', () => {
 
     it('should handle different statement ranks', () => {
       const ranks: StatementRank[] = ['preferred', 'normal', 'deprecated']
-      
-      ranks.forEach(rank => {
+
+      ranks.forEach((rank) => {
         const statementMapping: StatementSchemaMapping = {
           id: `stmt-${rank}`,
           property: { id: 'P123', dataType: 'string' },
           value: {
             type: 'constant',
             source: 'test value',
-            dataType: 'string'
+            dataType: 'string',
           },
           rank,
           qualifiers: [],
-          references: []
+          references: [],
         }
 
         expect(statementMapping.rank).toBe(rank)
@@ -221,13 +221,13 @@ describe('Schema Mapping Types', () => {
     it('should create column-based value mapping', () => {
       const columnMapping: ColumnMapping = {
         columnName: 'test_col',
-        dataType: 'VARCHAR'
+        dataType: 'VARCHAR',
       }
 
       const valueMapping: ValueMapping = {
         type: 'column',
         source: columnMapping,
-        dataType: 'string'
+        dataType: 'string',
       }
 
       expect(valueMapping.type).toBe('column')
@@ -239,7 +239,7 @@ describe('Schema Mapping Types', () => {
       const valueMapping: ValueMapping = {
         type: 'constant',
         source: 'fixed value',
-        dataType: 'string'
+        dataType: 'string',
       }
 
       expect(valueMapping.type).toBe('constant')
@@ -250,7 +250,7 @@ describe('Schema Mapping Types', () => {
       const valueMapping: ValueMapping = {
         type: 'expression',
         source: 'CONCAT(${col1}, " - ", ${col2})',
-        dataType: 'string'
+        dataType: 'string',
       }
 
       expect(valueMapping.type).toBe('expression')
@@ -270,14 +270,14 @@ describe('Schema Mapping Types', () => {
         'url',
         'external-id',
         'monolingualtext',
-        'commonsMedia'
+        'commonsMedia',
       ]
 
-      validTypes.forEach(dataType => {
+      validTypes.forEach((dataType) => {
         const valueMapping: ValueMapping = {
           type: 'constant',
           source: 'test',
-          dataType
+          dataType,
         }
 
         expect(valueMapping.dataType).toBe(dataType)
@@ -292,7 +292,7 @@ describe('Schema Mapping Types', () => {
         dataType: 'VARCHAR',
         sampleValues: ['value1', 'value2', 'value3'],
         nullable: true,
-        uniqueCount: 150
+        uniqueCount: 150,
       }
 
       expect(columnInfo.name).toBe('test_column')
@@ -307,7 +307,7 @@ describe('Schema Mapping Types', () => {
         name: 'simple_column',
         dataType: 'INTEGER',
         sampleValues: [],
-        nullable: false
+        nullable: false,
       }
 
       expect(columnInfo.name).toBe('simple_column')
@@ -322,7 +322,7 @@ describe('Schema Mapping Types', () => {
         code: 'MISSING_REQUIRED_MAPPING',
         message: 'Required mapping is missing for labels',
         path: 'item.terms.labels',
-        suggestions: ['Add a column mapping for labels', 'Use constant value for labels']
+        suggestions: ['Add a column mapping for labels', 'Use constant value for labels'],
       }
 
       expect(error.type).toBe('error')
@@ -337,7 +337,7 @@ describe('Schema Mapping Types', () => {
         type: 'warning',
         code: 'INCOMPLETE_MAPPING',
         message: 'Some optional fields are not mapped',
-        path: 'item.terms.descriptions'
+        path: 'item.terms.descriptions',
       }
 
       expect(warning.type).toBe('warning')
@@ -347,24 +347,28 @@ describe('Schema Mapping Types', () => {
 
   describe('ValidationResult', () => {
     it('should create validation result with errors and warnings', () => {
-      const errors: ValidationError[] = [{
-        type: 'error',
-        code: 'INVALID_PROPERTY',
-        message: 'Property P999 does not exist',
-        path: 'item.statements[0].property'
-      }]
+      const errors: ValidationError[] = [
+        {
+          type: 'error',
+          code: 'INVALID_PROPERTY',
+          message: 'Property P999 does not exist',
+          path: 'item.statements[0].property',
+        },
+      ]
 
-      const warnings: ValidationError[] = [{
-        type: 'warning',
-        code: 'MISSING_DESCRIPTION',
-        message: 'No description mapping provided',
-        path: 'item.terms.descriptions'
-      }]
+      const warnings: ValidationError[] = [
+        {
+          type: 'warning',
+          code: 'MISSING_DESCRIPTION',
+          message: 'No description mapping provided',
+          path: 'item.terms.descriptions',
+        },
+      ]
 
       const result: ValidationResult = {
         isValid: false,
         errors,
-        warnings
+        warnings,
       }
 
       expect(result.isValid).toBe(false)
@@ -378,7 +382,7 @@ describe('Schema Mapping Types', () => {
       const result: ValidationResult = {
         isValid: true,
         errors: [],
-        warnings: []
+        warnings: [],
       }
 
       expect(result.isValid).toBe(true)
@@ -394,15 +398,15 @@ describe('Schema Mapping Types', () => {
           name: 'format',
           type: 'string',
           required: true,
-          description: 'Output format pattern'
+          description: 'Output format pattern',
         },
         {
           name: 'defaultValue',
           type: 'string',
           required: false,
           defaultValue: 'N/A',
-          description: 'Default value when input is null'
-        }
+          description: 'Default value when input is null',
+        },
       ]
 
       const transformationFunction: TransformationFunction = {
@@ -411,7 +415,7 @@ describe('Schema Mapping Types', () => {
         parameters,
         execute: (input: unknown, params: Record<string, unknown>) => {
           return `${params.format}: ${input}`
-        }
+        },
       }
 
       expect(transformationFunction.name).toBe('formatString')
@@ -430,7 +434,7 @@ describe('Schema Mapping Types', () => {
         parameters: [],
         execute: (input: unknown) => {
           return typeof input === 'string' ? input.toUpperCase() : input
-        }
+        },
       }
 
       const result = transformationFunction.execute('hello world', {})
@@ -444,7 +448,7 @@ describe('Schema Mapping Types', () => {
         name: 'pattern',
         type: 'string',
         required: true,
-        description: 'Regex pattern for matching'
+        description: 'Regex pattern for matching',
       }
 
       expect(parameter.name).toBe('pattern')
@@ -459,7 +463,7 @@ describe('Schema Mapping Types', () => {
         name: 'maxLength',
         type: 'number',
         required: false,
-        defaultValue: 100
+        defaultValue: 100,
       }
 
       expect(parameter.name).toBe('maxLength')
@@ -470,14 +474,18 @@ describe('Schema Mapping Types', () => {
 
     it('should handle all parameter types', () => {
       const types: Array<TransformationParameter['type']> = [
-        'string', 'number', 'boolean', 'array', 'object'
+        'string',
+        'number',
+        'boolean',
+        'array',
+        'object',
       ]
 
-      types.forEach(type => {
+      types.forEach((type) => {
         const parameter: TransformationParameter = {
           name: `param_${type}`,
           type,
-          required: false
+          required: false,
         }
 
         expect(parameter.type).toBe(type)
@@ -498,11 +506,11 @@ describe('Schema Mapping Types', () => {
               type: 'error',
               code: 'MISSING_LABELS',
               message: 'At least one label mapping is required',
-              path: 'item.terms.labels'
+              path: 'item.terms.labels',
             })
           }
           return errors
-        }
+        },
       }
 
       expect(rule.id).toBe('required-labels')
@@ -517,13 +525,17 @@ describe('Schema Mapping Types', () => {
         name: 'Test Rule',
         description: 'Test validation rule',
         validate: (schema: WikibaseSchemaMapping) => {
-          return Object.keys(schema.item.terms.labels).length === 0 ? [{
-            type: 'error',
-            code: 'NO_LABELS',
-            message: 'No labels found',
-            path: 'item.terms.labels'
-          }] : []
-        }
+          return Object.keys(schema.item.terms.labels).length === 0
+            ? [
+                {
+                  type: 'error',
+                  code: 'NO_LABELS',
+                  message: 'No labels found',
+                  path: 'item.terms.labels',
+                },
+              ]
+            : []
+        },
       }
 
       const schemaWithLabels: WikibaseSchemaMapping = {
@@ -533,14 +545,14 @@ describe('Schema Mapping Types', () => {
         wikibase: 'test',
         item: {
           terms: {
-            labels: { 'en': { columnName: 'name', dataType: 'VARCHAR' } },
+            labels: { en: { columnName: 'name', dataType: 'VARCHAR' } },
             descriptions: {},
-            aliases: {}
+            aliases: {},
           },
-          statements: []
+          statements: [],
         },
         createdAt: '2024-01-01T00:00:00Z',
-        updatedAt: '2024-01-01T00:00:00Z'
+        updatedAt: '2024-01-01T00:00:00Z',
       }
 
       const schemaWithoutLabels: WikibaseSchemaMapping = {
@@ -550,9 +562,9 @@ describe('Schema Mapping Types', () => {
           terms: {
             labels: {},
             descriptions: {},
-            aliases: {}
-          }
-        }
+            aliases: {},
+          },
+        },
       }
 
       const validResult = rule.validate(schemaWithLabels)
@@ -567,28 +579,28 @@ describe('Schema Mapping Types', () => {
   describe('SchemaMapping', () => {
     it('should create complete schema mapping', () => {
       const columnMappings: Record<string, ColumnMapping> = {
-        'name_en': { columnName: 'name_en', dataType: 'VARCHAR' },
-        'description_en': { columnName: 'description_en', dataType: 'TEXT' }
+        name_en: { columnName: 'name_en', dataType: 'VARCHAR' },
+        description_en: { columnName: 'description_en', dataType: 'TEXT' },
       }
 
       const validationRule: ValidationRule = {
         id: 'test-rule',
         name: 'Test Rule',
         description: 'Test validation',
-        validate: () => []
+        validate: () => [],
       }
 
       const schemaMapping: SchemaMapping = {
         item: {
           terms: {
-            labels: { 'en': columnMappings['name_en']! },
-            descriptions: { 'en': columnMappings['description_en']! },
-            aliases: {}
+            labels: { en: columnMappings['name_en']! },
+            descriptions: { en: columnMappings['description_en']! },
+            aliases: {},
           },
-          statements: []
+          statements: [],
         },
         columnMappings,
-        validationRules: [validationRule]
+        validationRules: [validationRule],
       }
 
       expect(schemaMapping.item.terms.labels['en']?.columnName).toBe('name_en')
@@ -603,7 +615,7 @@ describe('Schema Mapping Types', () => {
       const columnRef: ColumnReference = {
         columnName: 'test_column',
         dataType: 'INTEGER',
-        required: true
+        required: true,
       }
 
       expect(columnRef.columnName).toBe('test_column')
@@ -615,7 +627,7 @@ describe('Schema Mapping Types', () => {
       const columnRef: ColumnReference = {
         columnName: 'optional_column',
         dataType: 'VARCHAR',
-        required: false
+        required: false,
       }
 
       expect(columnRef.required).toBe(false)
@@ -627,20 +639,20 @@ describe('Schema Mapping Types', () => {
       const columnRef: ColumnReference = {
         columnName: 'source_column',
         dataType: 'VARCHAR',
-        required: true
+        required: true,
       }
 
       const transformation: TransformationFunction = {
         name: 'trim',
         description: 'Trims whitespace',
         parameters: [],
-        execute: (input: unknown) => typeof input === 'string' ? input.trim() : input
+        execute: (input: unknown) => (typeof input === 'string' ? input.trim() : input),
       }
 
       const valueMapping: ValueSchemaMapping = {
         columnReference: columnRef,
         dataType: 'string',
-        transformation
+        transformation,
       }
 
       expect(valueMapping.columnReference.columnName).toBe('source_column')
@@ -652,12 +664,12 @@ describe('Schema Mapping Types', () => {
       const columnRef: ColumnReference = {
         columnName: 'simple_column',
         dataType: 'INTEGER',
-        required: false
+        required: false,
       }
 
       const valueMapping: ValueSchemaMapping = {
         columnReference: columnRef,
-        dataType: 'quantity'
+        dataType: 'quantity',
       }
 
       expect(valueMapping.columnReference.columnName).toBe('simple_column')
@@ -675,31 +687,33 @@ describe('Schema Mapping Types', () => {
         wikibase: 'https://test.wikibase.org',
         item: {
           terms: {
-            labels: { 'en': { columnName: 'name', dataType: 'VARCHAR' } },
+            labels: { en: { columnName: 'name', dataType: 'VARCHAR' } },
             descriptions: {},
-            aliases: {}
+            aliases: {},
           },
-          statements: []
+          statements: [],
         },
         createdAt: '2024-01-01T00:00:00Z',
-        updatedAt: '2024-01-01T00:00:00Z'
+        updatedAt: '2024-01-01T00:00:00Z',
       }
 
       const validation: ValidationResult = {
         isValid: true,
         errors: [],
-        warnings: [{
-          type: 'warning',
-          code: 'MISSING_DESCRIPTION',
-          message: 'No description provided',
-          path: 'item.terms.descriptions'
-        }]
+        warnings: [
+          {
+            type: 'warning',
+            code: 'MISSING_DESCRIPTION',
+            message: 'No description provided',
+            path: 'item.terms.descriptions',
+          },
+        ],
       }
 
       const validatedSchema: ValidatedSchemaMapping = {
         ...baseSchema,
         validation,
-        completeness: 75
+        completeness: 75,
       }
 
       expect(validatedSchema.id).toBe('validated-schema')

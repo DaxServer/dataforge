@@ -11,29 +11,29 @@ import type {
   DragEventData,
   DropEventData,
   DragVisualState,
-  DragDropConfig
-} from '../drag-drop'
-import type { ColumnInfo, WikibaseDataType } from '../schema-mapping'
+  DragDropConfig,
+} from '@frontend/types/drag-drop'
+import type { ColumnInfo, WikibaseDataType } from '@frontend/types/schema-mapping'
 
 describe('Drag Drop Types', () => {
   describe('SchemaDragDropContext', () => {
     it('should create schema drag drop context with reactive properties', () => {
       // Mock Vue refs and computed properties
-      const mockRef = <T>(value: T) => ({ value } as Ref<T>)
-      const mockComputed = <T>(fn: () => T) => ({ value: fn() } as ComputedRef<T>)
+      const mockRef = <T>(value: T) => ({ value }) as Ref<T>
+      const mockComputed = <T>(fn: () => T) => ({ value: fn() }) as ComputedRef<T>
 
       const columnInfo: ColumnInfo = {
         name: 'test_column',
         dataType: 'VARCHAR',
         sampleValues: ['sample1', 'sample2'],
-        nullable: true
+        nullable: true,
       }
 
       const dropTarget: DropTarget = {
         type: 'label',
         path: 'item.terms.labels.en',
         acceptedTypes: ['string'],
-        language: 'en'
+        language: 'en',
       }
 
       const context: SchemaDragDropContext = {
@@ -45,8 +45,8 @@ describe('Drag Drop Types', () => {
         isValidDrop: mockComputed(() => true),
         dropFeedback: mockRef({
           type: 'success',
-          message: 'Valid drop target'
-        })
+          message: 'Valid drop target',
+        }),
       }
 
       expect(context.draggedColumn.value?.name).toBe('test_column')
@@ -59,8 +59,8 @@ describe('Drag Drop Types', () => {
     })
 
     it('should handle null/idle state', () => {
-      const mockRef = <T>(value: T) => ({ value } as Ref<T>)
-      const mockComputed = <T>(fn: () => T) => ({ value: fn() } as ComputedRef<T>)
+      const mockRef = <T>(value: T) => ({ value }) as Ref<T>
+      const mockComputed = <T>(fn: () => T) => ({ value: fn() }) as ComputedRef<T>
 
       const context: SchemaDragDropContext = {
         draggedColumn: mockRef(null),
@@ -69,7 +69,7 @@ describe('Drag Drop Types', () => {
         hoveredTarget: mockRef(null),
         validDropTargets: mockComputed(() => []),
         isValidDrop: mockComputed(() => false),
-        dropFeedback: mockRef(null)
+        dropFeedback: mockRef(null),
       }
 
       expect(context.draggedColumn.value).toBeNull()
@@ -110,7 +110,7 @@ describe('Drag Drop Types', () => {
         acceptedDataTypes: ['application/x-column-data', 'text/plain'],
         validateDrop: (data: string) => {
           return data.includes('test_column')
-        }
+        },
       }
 
       // Test event handlers
@@ -135,7 +135,7 @@ describe('Drag Drop Types', () => {
         onDrop: () => {
           dropCalled = true
         },
-        acceptedDataTypes: ['text/plain']
+        acceptedDataTypes: ['text/plain'],
       }
 
       config.onDrop({} as DragEvent)
@@ -153,7 +153,7 @@ describe('Drag Drop Types', () => {
     it('should create success feedback', () => {
       const feedback: DropFeedback = {
         type: 'success',
-        message: 'Column successfully mapped to label'
+        message: 'Column successfully mapped to label',
       }
 
       expect(feedback.type).toBe('success')
@@ -165,10 +165,7 @@ describe('Drag Drop Types', () => {
       const feedback: DropFeedback = {
         type: 'error',
         message: 'Invalid data type for this target',
-        suggestions: [
-          'Use a text-based column instead',
-          'Transform the data first'
-        ]
+        suggestions: ['Use a text-based column instead', 'Transform the data first'],
       }
 
       expect(feedback.type).toBe('error')
@@ -181,7 +178,7 @@ describe('Drag Drop Types', () => {
       const feedback: DropFeedback = {
         type: 'warning',
         message: 'This mapping may cause data loss',
-        suggestions: ['Consider using a different column']
+        suggestions: ['Consider using a different column'],
       }
 
       expect(feedback.type).toBe('warning')
@@ -196,21 +193,21 @@ describe('Drag Drop Types', () => {
         name: 'test_column',
         dataType: 'VARCHAR',
         sampleValues: ['sample1', 'sample2'],
-        nullable: true
+        nullable: true,
       }
 
       const dropTarget: DropTarget = {
         type: 'label',
         path: 'item.terms.labels.en',
         acceptedTypes: ['string'],
-        language: 'en'
+        language: 'en',
       }
 
       const context: DragDropContext = {
         draggedColumn: columnInfo,
         dropTarget: dropTarget,
         isValidDrop: true,
-        dragStartPosition: { x: 100, y: 200 }
+        dragStartPosition: { x: 100, y: 200 },
       }
 
       expect(context.draggedColumn?.name).toBe('test_column')
@@ -224,7 +221,7 @@ describe('Drag Drop Types', () => {
       const context: DragDropContext = {
         draggedColumn: null,
         dropTarget: null,
-        isValidDrop: false
+        isValidDrop: false,
       }
 
       expect(context.draggedColumn).toBeNull()
@@ -241,7 +238,7 @@ describe('Drag Drop Types', () => {
         path: 'item.terms.labels.en',
         acceptedTypes: ['string', 'monolingualtext'],
         language: 'en',
-        isRequired: true
+        isRequired: true,
       }
 
       expect(target.type).toBe('label')
@@ -257,7 +254,7 @@ describe('Drag Drop Types', () => {
         type: 'statement',
         path: 'item.statements[0].value',
         acceptedTypes: ['wikibase-item', 'string'],
-        propertyId: 'P123'
+        propertyId: 'P123',
       }
 
       expect(target.type).toBe('statement')
@@ -272,7 +269,7 @@ describe('Drag Drop Types', () => {
         type: 'qualifier',
         path: 'item.statements[0].qualifiers[0].value',
         acceptedTypes: ['time', 'quantity'],
-        propertyId: 'P585'
+        propertyId: 'P585',
       }
 
       expect(target.type).toBe('qualifier')
@@ -285,7 +282,7 @@ describe('Drag Drop Types', () => {
         type: 'reference',
         path: 'item.statements[0].references[0].value',
         acceptedTypes: ['url', 'external-id'],
-        propertyId: 'P854'
+        propertyId: 'P854',
       }
 
       expect(target.type).toBe('reference')
@@ -302,14 +299,14 @@ describe('Drag Drop Types', () => {
         'alias',
         'statement',
         'qualifier',
-        'reference'
+        'reference',
       ]
 
-      validTypes.forEach(type => {
+      validTypes.forEach((type) => {
         const target: DropTarget = {
           type,
           path: `test.path.${type}`,
-          acceptedTypes: ['string']
+          acceptedTypes: ['string'],
         }
 
         expect(target.type).toBe(type)
@@ -321,7 +318,7 @@ describe('Drag Drop Types', () => {
     it('should handle all drag states', () => {
       const states: DragState[] = ['idle', 'dragging', 'dropping', 'invalid']
 
-      states.forEach(state => {
+      states.forEach((state) => {
         // Just verify the type can be assigned
         const currentState: DragState = state
         expect(currentState).toBe(state)
@@ -332,7 +329,7 @@ describe('Drag Drop Types', () => {
   describe('DropValidation', () => {
     it('should create valid drop validation', () => {
       const validation: DropValidation = {
-        isValid: true
+        isValid: true,
       }
 
       expect(validation.isValid).toBe(true)
@@ -344,14 +341,13 @@ describe('Drag Drop Types', () => {
       const validation: DropValidation = {
         isValid: false,
         reason: 'Data type mismatch: VARCHAR cannot be mapped to wikibase-item',
-        suggestions: [
-          'Use a column with item references',
-          'Transform the data to item IDs first'
-        ]
+        suggestions: ['Use a column with item references', 'Transform the data to item IDs first'],
       }
 
       expect(validation.isValid).toBe(false)
-      expect(validation.reason).toBe('Data type mismatch: VARCHAR cannot be mapped to wikibase-item')
+      expect(validation.reason).toBe(
+        'Data type mismatch: VARCHAR cannot be mapped to wikibase-item',
+      )
       expect(validation.suggestions).toHaveLength(2)
       expect(validation.suggestions?.[0]).toBe('Use a column with item references')
     })
@@ -364,13 +360,13 @@ describe('Drag Drop Types', () => {
         name: 'drag_column',
         dataType: 'INTEGER',
         sampleValues: ['1', '2', '3'],
-        nullable: false
+        nullable: false,
       }
 
       const eventData: DragEventData = {
         column: columnInfo,
         sourceElement: mockElement,
-        timestamp: Date.now()
+        timestamp: Date.now(),
       }
 
       expect(eventData.column.name).toBe('drag_column')
@@ -386,21 +382,21 @@ describe('Drag Drop Types', () => {
         name: 'drop_column',
         dataType: 'VARCHAR',
         sampleValues: ['a', 'b', 'c'],
-        nullable: true
+        nullable: true,
       }
 
       const dropTarget: DropTarget = {
         type: 'description',
         path: 'item.terms.descriptions.fr',
         acceptedTypes: ['string'],
-        language: 'fr'
+        language: 'fr',
       }
 
       const eventData: DropEventData = {
         column: columnInfo,
         target: dropTarget,
         position: { x: 250, y: 300 },
-        timestamp: Date.now()
+        timestamp: Date.now(),
       }
 
       expect(eventData.column.name).toBe('drop_column')
@@ -417,20 +413,15 @@ describe('Drag Drop Types', () => {
         name: 'visual_column',
         dataType: 'TEXT',
         sampleValues: ['text1', 'text2'],
-        nullable: false
+        nullable: false,
       }
 
       const visualState: DragVisualState = {
         isDragging: true,
         draggedColumn: columnInfo,
-        validDropTargets: [
-          'item.terms.labels.en',
-          'item.terms.descriptions.en'
-        ],
-        invalidDropTargets: [
-          'item.statements[0].value'
-        ],
-        hoveredTarget: 'item.terms.labels.en'
+        validDropTargets: ['item.terms.labels.en', 'item.terms.descriptions.en'],
+        invalidDropTargets: ['item.statements[0].value'],
+        hoveredTarget: 'item.terms.labels.en',
       }
 
       expect(visualState.isDragging).toBe(true)
@@ -446,7 +437,7 @@ describe('Drag Drop Types', () => {
         draggedColumn: null,
         validDropTargets: [],
         invalidDropTargets: [],
-        hoveredTarget: null
+        hoveredTarget: null,
       }
 
       expect(visualState.isDragging).toBe(false)
@@ -464,7 +455,7 @@ describe('Drag Drop Types', () => {
         highlightValidTargets: true,
         showInvalidTargetWarnings: false,
         animationDuration: 300,
-        snapToTarget: true
+        snapToTarget: true,
       }
 
       expect(config.enableVisualFeedback).toBe(true)
@@ -480,7 +471,7 @@ describe('Drag Drop Types', () => {
         highlightValidTargets: false,
         showInvalidTargetWarnings: false,
         animationDuration: 0,
-        snapToTarget: false
+        snapToTarget: false,
       }
 
       expect(config.enableVisualFeedback).toBe(false)
@@ -495,13 +486,13 @@ describe('Drag Drop Types', () => {
         'wikibase-item',
         'quantity',
         'time',
-        'url'
+        'url',
       ]
 
       const target: DropTarget = {
         type: 'statement',
         path: 'item.statements[0].value',
-        acceptedTypes: wikibaseTypes
+        acceptedTypes: wikibaseTypes,
       }
 
       expect(target.acceptedTypes).toHaveLength(5)
@@ -516,27 +507,27 @@ describe('Drag Drop Types', () => {
         dataType: 'DECIMAL',
         sampleValues: ['1.5', '2.7', '3.14'],
         nullable: true,
-        uniqueCount: 42
+        uniqueCount: 42,
       }
 
       const dragEvent: DragEventData = {
         column: columnInfo,
         sourceElement: {} as HTMLElement,
-        timestamp: Date.now()
+        timestamp: Date.now(),
       }
 
       const dropTarget: DropTarget = {
         type: 'statement',
         path: 'item.statements[0].value',
         acceptedTypes: ['quantity'],
-        propertyId: 'P2067'
+        propertyId: 'P2067',
       }
 
       const dropEvent: DropEventData = {
         column: columnInfo,
         target: dropTarget,
         position: { x: 0, y: 0 },
-        timestamp: Date.now()
+        timestamp: Date.now(),
       }
 
       expect(dragEvent.column.uniqueCount).toBe(42)
