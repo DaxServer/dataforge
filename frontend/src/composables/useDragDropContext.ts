@@ -5,11 +5,54 @@ import type {
   DropFeedback,
   DragState,
   DropValidation,
-  DragEventData,
   DropEventData,
   DropZoneConfig,
 } from '@frontend/types/drag-drop'
 import type { ColumnInfo, WikibaseDataType } from '@frontend/types/schema-mapping'
+
+// Helper functions for path parsing
+const getTargetTypeFromPath = (path: string): DropTarget['type'] => {
+  if (path.includes('.labels.')) return 'label'
+  if (path.includes('.descriptions.')) return 'description'
+  if (path.includes('.aliases.')) return 'alias'
+  if (path.includes('.qualifiers.')) return 'qualifier'
+  if (path.includes('.references.')) return 'reference'
+  if (path.includes('.statements.')) return 'statement'
+  return 'statement' // default
+}
+
+const extractLanguageFromPath = (path: string): string | undefined => {
+  const match = path.match(/\.(labels|descriptions|aliases)\.([a-z]{2,3})/)
+  return match ? match[2] : undefined
+}
+
+const extractPropertyIdFromPath = (path: string): string | undefined => {
+  // This would extract property ID from context or path metadata
+  // For now, return undefined as property IDs are typically set separately
+  return undefined
+}
+
+const isDataTypeCompatible = (columnType: string, acceptedTypes: WikibaseDataType[]): boolean => {
+  const compatibilityMap: Record<string, WikibaseDataType[]> = {
+    VARCHAR: ['string', 'url', 'external-id', 'monolingualtext'],
+    TEXT: ['string', 'monolingualtext'],
+    STRING: ['string', 'url', 'external-id', 'monolingualtext'],
+    INTEGER: ['quantity'],
+    DECIMAL: ['quantity'],
+    NUMERIC: ['quantity'],
+    FLOAT: ['quantity'],
+    DOUBLE: ['quantity'],
+    DATE: ['time'],
+    DATETIME: ['time'],
+    TIMESTAMP: ['time'],
+    BOOLEAN: [],
+    JSON: ['string'], // JSON can be serialized to string
+    ARRAY: ['string'], // Arrays can be serialized to string
+  }
+
+  const compatibleTypes = compatibilityMap[columnType.toUpperCase()] || []
+  return acceptedTypes.some((type) => compatibleTypes.includes(type))
+}
 
 /**
  * Composable for managing drag and drop context in the schema editor
@@ -21,7 +64,7 @@ export const useDragDropContext = (): SchemaDragDropContext & {
   enterDropZone: (targetPath: string) => void
   leaveDropZone: () => void
   validateDrop: (column: ColumnInfo, target: DropTarget) => DropValidation
-  performDrop: (column: ColumnInfo, target: DropTarget) => boolean
+  performDrop: (column: ColumnInfo, target: DropTarget) => Promise<boolean>
   getValidTargetsForColumn: (column: ColumnInfo) => DropTarget[]
   setAvailableTargets: (targets: DropTarget[]) => void
 } => {
@@ -34,6 +77,9 @@ export const useDragDropContext = (): SchemaDragDropContext & {
 
   // Available drop targets (would be populated from schema configuration)
   const availableTargets = ref<DropTarget[]>([])
+
+  // Store reference to dragstart listener for cleanup
+  const dragStartListeners = new WeakMap<HTMLElement, (event: DragEvent) => void>()
 
   // Computed properties
   const validDropTargets = computed(() => {
@@ -54,19 +100,23 @@ export const useDragDropContext = (): SchemaDragDropContext & {
     dragState.value = 'dragging'
     dropFeedback.value = null
 
-    // Create drag event data
-    const dragEventData: DragEventData = {
-      column,
-      sourceElement,
-      timestamp: Date.now(),
-    }
-
     // Store drag data for HTML5 drag and drop
     if (sourceElement.draggable) {
-      sourceElement.addEventListener('dragstart', (event) => {
+      // Remove existing listener if it exists
+      const existingListener = dragStartListeners.get(sourceElement)
+      if (existingListener) {
+        sourceElement.removeEventListener('dragstart', existingListener)
+      }
+
+      // Create new listener
+      const dragStartHandler = (event: DragEvent) => {
         event.dataTransfer?.setData('application/x-column-data', JSON.stringify(column))
         event.dataTransfer?.setData('text/plain', column.name)
-      })
+      }
+
+      // Add new listener and store reference
+      sourceElement.addEventListener('dragstart', dragStartHandler)
+      dragStartListeners.set(sourceElement, dragStartHandler)
     }
   }
 
@@ -136,7 +186,7 @@ export const useDragDropContext = (): SchemaDragDropContext & {
     }
   }
 
-  const performDrop = (column: ColumnInfo, target: DropTarget): boolean => {
+  const performDrop = async (column: ColumnInfo, target: DropTarget): Promise<boolean> => {
     const validation = validateDrop(column, target)
 
     if (!validation.isValid) {
@@ -161,16 +211,40 @@ export const useDragDropContext = (): SchemaDragDropContext & {
 
     dragState.value = 'dropping'
 
-    // Simulate async operation
-    setTimeout(() => {
+    try {
+      // Perform the actual drop operation (e.g., API call, store update)
+      // This would be replaced with actual async logic like:
+      // await schemaStore.updateMapping(dropEventData)
+      // or emit an event: emit('drop', dropEventData)
+
+      // For now, simulate async operation with a Promise
+      await new Promise<void>((resolve) => {
+        // This could be replaced with actual async operations like:
+        // - API calls to save the mapping
+        // - Store actions to update the schema
+        // - Event emission to parent components
+        setTimeout(resolve, 100)
+      })
+
+      // Success feedback and cleanup after async operation completes
       dropFeedback.value = {
         type: 'success',
         message: `Successfully mapped '${column.name}' to ${target.type}`,
       }
-      endDrag()
-    }, 100)
 
-    return true
+      endDrag()
+      return true
+    } catch (error) {
+      // Handle async operation errors
+      dropFeedback.value = {
+        type: 'error',
+        message: 'Failed to complete drop operation',
+        suggestions: ['Please try again'],
+      }
+
+      endDrag()
+      return false
+    }
   }
 
   const getValidTargetsForColumn = (column: ColumnInfo): DropTarget[] => {
@@ -178,28 +252,6 @@ export const useDragDropContext = (): SchemaDragDropContext & {
   }
 
   // Helper functions
-  const isDataTypeCompatible = (columnType: string, acceptedTypes: WikibaseDataType[]): boolean => {
-    const compatibilityMap: Record<string, WikibaseDataType[]> = {
-      VARCHAR: ['string', 'url', 'external-id', 'monolingualtext'],
-      TEXT: ['string', 'monolingualtext'],
-      STRING: ['string', 'url', 'external-id', 'monolingualtext'],
-      INTEGER: ['quantity'],
-      DECIMAL: ['quantity'],
-      NUMERIC: ['quantity'],
-      FLOAT: ['quantity'],
-      DOUBLE: ['quantity'],
-      DATE: ['time'],
-      DATETIME: ['time'],
-      TIMESTAMP: ['time'],
-      BOOLEAN: [],
-      JSON: ['string'], // JSON can be serialized to string
-      ARRAY: ['string'], // Arrays can be serialized to string
-    }
-
-    const compatibleTypes = compatibilityMap[columnType.toUpperCase()] || []
-    return acceptedTypes.some((type) => compatibleTypes.includes(type))
-  }
-
   const getSuggestions = (column: ColumnInfo, target: DropTarget): string[] => {
     const suggestions: string[] = []
 
@@ -316,7 +368,7 @@ export const useDragDropContext = (): SchemaDragDropContext & {
 export const createDropZoneConfig = (
   targetPath: string,
   acceptedTypes: WikibaseDataType[],
-  onDropCallback: (column: ColumnInfo, target: DropTarget) => void,
+  onDropCallback: (column: ColumnInfo, target: DropTarget) => Promise<void> | void,
 ): DropZoneConfig => {
   return {
     acceptedDataTypes: ['application/x-column-data'],
@@ -336,7 +388,7 @@ export const createDropZoneConfig = (
       // Visual feedback would be handled by the component
     },
 
-    onDrop: (event: DragEvent) => {
+    onDrop: async (event: DragEvent) => {
       event.preventDefault()
 
       const columnData = event.dataTransfer?.getData('application/x-column-data')
@@ -352,7 +404,7 @@ export const createDropZoneConfig = (
           propertyId: extractPropertyIdFromPath(targetPath),
         }
 
-        onDropCallback(column, target)
+        await onDropCallback(column, target)
       } catch (error) {
         console.error('Failed to parse drop data:', error)
       }
@@ -367,45 +419,4 @@ export const createDropZoneConfig = (
       }
     },
   }
-}
-
-// Helper functions for path parsing
-const getTargetTypeFromPath = (path: string): DropTarget['type'] => {
-  if (path.includes('.labels.')) return 'label'
-  if (path.includes('.descriptions.')) return 'description'
-  if (path.includes('.aliases.')) return 'alias'
-  if (path.includes('.qualifiers.')) return 'qualifier'
-  if (path.includes('.references.')) return 'reference'
-  if (path.includes('.statements.')) return 'statement'
-  return 'statement' // default
-}
-
-const extractLanguageFromPath = (path: string): string | undefined => {
-  const match = path.match(/\.(labels|descriptions|aliases)\.([a-z]{2,3})/)
-  return match ? match[2] : undefined
-}
-
-const extractPropertyIdFromPath = (path: string): string | undefined => {
-  // This would extract property ID from context or path metadata
-  // For now, return undefined as property IDs are typically set separately
-  return undefined
-}
-
-const isDataTypeCompatible = (columnType: string, acceptedTypes: WikibaseDataType[]): boolean => {
-  const compatibilityMap: Record<string, WikibaseDataType[]> = {
-    VARCHAR: ['string', 'url', 'external-id', 'monolingualtext'],
-    TEXT: ['string', 'monolingualtext'],
-    STRING: ['string', 'url', 'external-id', 'monolingualtext'],
-    INTEGER: ['quantity'],
-    DECIMAL: ['quantity'],
-    NUMERIC: ['quantity'],
-    FLOAT: ['quantity'],
-    DOUBLE: ['quantity'],
-    DATE: ['time'],
-    DATETIME: ['time'],
-    TIMESTAMP: ['time'],
-  }
-
-  const compatibleTypes = compatibilityMap[columnType.toUpperCase()] || []
-  return acceptedTypes.some((type) => compatibleTypes.includes(type))
 }
