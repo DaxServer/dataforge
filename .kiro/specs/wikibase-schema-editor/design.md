@@ -356,6 +356,4 @@ const ValidationErrors = {
 - Implement optimistic updates with rollback capability
 - Use Elysia Eden Treaty for type-safe API calls
 
-
-
 This design provides a comprehensive foundation for implementing the Wikibase Schema Editor while maintaining consistency with the existing codebase architecture and ensuring scalability for future enhancements.
