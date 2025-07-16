@@ -1,6 +1,6 @@
 # Implementation Plan
 
-- [ ] 1. Set up core TypeScript interfaces and types
+- [x] 1. Set up core TypeScript interfaces and types
   - Write tests for schema mapping data structure validation
   - Write tests for column mapping and transformation types
   - Implement TypeScript interfaces for schema mapping
