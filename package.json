@@ -13,8 +13,9 @@
     "dev": "concurrently -k -n backend,frontend -c blue,green \"bun --cwd backend dev\" \"bun --cwd frontend dev\"",
     "format": "prettier --write \"**/*.{ts,vue}\"",
     "lint": "bun -F '*' lint",
+    "mcpi": "bunx @modelcontextprotocol/inspector",
     "test": "bun -F backend test",
-    "mcpi": "bunx @modelcontextprotocol/inspector"
+    "typecheck": "bun -F '*' typecheck"
   },
   "trustedDependencies": [
     "@tailwindcss/oxide"
