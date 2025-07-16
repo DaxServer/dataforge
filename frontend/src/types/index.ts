@@ -16,3 +16,9 @@ export interface FileRemoveEvent {
 
 // API types
 export type ApiClient = ReturnType<typeof treaty<ElysiaApp>>
+
+// Re-export schema mapping types
+export * from './schema-mapping'
+
+// Re-export drag and drop types
+export * from './drag-drop'
