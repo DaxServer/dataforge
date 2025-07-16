@@ -6,7 +6,6 @@
 // biome-ignore lint: disable
 export {}
 declare global {
-  const /: typeof import('from')['/']
   const ApiKey: typeof import('./src/plugins/api')['ApiKey']
   const ApiPlugin: typeof import('./src/plugins/api')['ApiPlugin']
   const EffectScope: typeof import('vue')['EffectScope']
