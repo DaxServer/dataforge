@@ -1,0 +1,14 @@
+{
+  "name": "Run Tests After Conversation",
+  "description": "Automatically run `bun test` from root after Kiro finishes a conversation to ensure tests pass",
+  "trigger": {
+    "type": "conversationEnd"
+  },
+  "action": {
+    "type": "command",
+    "command": "bun test",
+    "workingDirectory": ".",
+    "requireSuccess": true
+  },
+  "enabled": true
+}
