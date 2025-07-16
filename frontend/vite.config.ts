@@ -24,6 +24,7 @@ export default defineConfig({
         'vue',
         'vue-router',
         'pinia',
+        '@vueuse/core',
         {
           from: '@vueuse/router',
           imports: ['useRouteParams'],

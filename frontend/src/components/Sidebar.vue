@@ -1,7 +1,7 @@
 <script setup lang="ts">
 const route = useRoute()
 
-// Sidebar navigation items for OpenRefine
+// Sidebar navigation items for DataForge
 const navItems = [
   {
     name: 'Open',
@@ -20,7 +20,7 @@ const navItems = [
   <div class="w-64 h-full bg-white border-r border-gray-200 flex-shrink-0">
     <!-- Logo/App Name -->
     <div class="p-4 border-b border-gray-200 h-16">
-      <h1 class="text-xl font-semibold text-gray-800">OpenRefine</h1>
+      <h1 class="text-xl font-semibold text-gray-800">DataForge</h1>
     </div>
 
     <!-- Navigation -->
@@ -53,7 +53,7 @@ const navItems = [
 
     <!-- Footer -->
     <div class="p-4 border-t border-gray-200 text-xs text-gray-500">
-      <p>OpenRefine</p>
+      <p>DataForge</p>
     </div>
   </div>
 </template>

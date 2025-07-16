@@ -63,7 +63,7 @@ const router = createRouter({
 
 // Set page title based on route meta
 // router.beforeEach((to, from, next) => {
-//   document.title = to.meta.title ? `OpenRefine - ${to.meta.title}` : 'OpenRefine'
+//   document.title = to.meta.title ? `DataForge - ${to.meta.title}` : 'DataForge'
 //   next()
 // })
 
