@@ -187,19 +187,20 @@ describe('useDragDropContext', () => {
       const context = useDragDropContext()
       context.setAvailableTargets([mockDropTarget])
 
-      const result = context.performDrop(mockColumnInfo, mockDropTarget)
+      const resultPromise = context.performDrop(mockColumnInfo, mockDropTarget)
 
-      expect(result).toBe(true)
+      expect(resultPromise).toBeInstanceOf(Promise)
       expect(context.dragState.value).toBe('dropping')
 
-      // Wait for async operation to complete
-      await new Promise((resolve) => setTimeout(resolve, 150))
+      const result = await resultPromise
 
+      expect(result).toBe(true)
       expect(context.draggedColumn.value).toBeNull()
       expect(context.dragState.value).toBe('idle')
+      expect(context.dropFeedback.value?.type).toBe('success')
     })
 
-    it('should handle failed drop', () => {
+    it('should handle failed drop', async () => {
       const context = useDragDropContext()
       const incompatibleTarget: DropTarget = {
         type: 'qualifier',
@@ -208,7 +209,11 @@ describe('useDragDropContext', () => {
         propertyId: 'P585',
       }
 
-      const result = context.performDrop(mockColumnInfo, incompatibleTarget)
+      const resultPromise = context.performDrop(mockColumnInfo, incompatibleTarget)
+
+      expect(resultPromise).toBeInstanceOf(Promise)
+
+      const result = await resultPromise
 
       expect(result).toBe(false)
       expect(context.dropFeedback.value?.type).toBe('error')

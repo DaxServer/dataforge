@@ -211,6 +211,8 @@ export const useDragDropContext = (): SchemaDragDropContext & {
 
     dragState.value = 'dropping'
 
+    let success = false
+
     try {
       // Perform the actual drop operation (e.g., API call, store update)
       // This would be replaced with actual async logic like:
@@ -226,14 +228,13 @@ export const useDragDropContext = (): SchemaDragDropContext & {
         setTimeout(resolve, 100)
       })
 
-      // Success feedback and cleanup after async operation completes
+      // Success feedback after async operation completes
       dropFeedback.value = {
         type: 'success',
         message: `Successfully mapped '${column.name}' to ${target.type}`,
       }
 
-      endDrag()
-      return true
+      success = true
     } catch (error) {
       // Handle async operation errors
       dropFeedback.value = {
@@ -242,9 +243,17 @@ export const useDragDropContext = (): SchemaDragDropContext & {
         suggestions: ['Please try again'],
       }
 
-      endDrag()
-      return false
+      success = false
+    } finally {
+      // Clear drag state but preserve feedback for UI
+      draggedColumn.value = null
+      dragState.value = 'idle'
+      isOverDropZone.value = false
+      hoveredTarget.value = null
+      // Don't clear dropFeedback here so it can be checked by tests/UI
     }
+
+    return success
   }
 
   const getValidTargetsForColumn = (column: ColumnInfo): DropTarget[] => {
