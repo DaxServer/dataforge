@@ -90,8 +90,6 @@ The Wikibase Schema Editor is a visual interface that allows users to create and
 4. WHEN references are configured THEN the system SHALL display them as citations under their parent statement
 5. WHEN the user defines reference values THEN the system SHALL support appropriate value types for citation data
 
-
-
 ### Requirement 8
 
 **User Story:** As a data curator, I want visual feedback and validation, so that I can create correct schema mappings efficiently.
