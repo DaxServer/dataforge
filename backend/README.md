@@ -1,6 +1,6 @@
-# OpenRefine Backend
+# DataForge Backend
 
-This is the backend service for OpenRefine, built with Bun and DuckDB.
+This is the backend service for the app, built with Bun and DuckDB.
 
 ## Prerequisites
 

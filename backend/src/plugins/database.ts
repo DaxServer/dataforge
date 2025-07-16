@@ -63,7 +63,7 @@ export const closeDb = async (): Promise<void> => {
 export const databasePlugin = new Elysia({ name: 'database', seed: 'database-plugin' })
   .onStart(async () => {
     console.log('Initializing database...')
-    const dbPath = process.env.DB_PATH || path.join(Bun.main, '../../openrefine.db')
+    const dbPath = process.env.DB_PATH || path.join(Bun.main, '../../dataforge.db')
     await initializeDb(dbPath)
     console.log('Database initialized successfully')
   })

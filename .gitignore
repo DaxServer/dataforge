@@ -23,4 +23,4 @@ dist
 # Finder (MacOS) folder config
 .DS_Store
 
-openrefine.db*
+dataforge.db*

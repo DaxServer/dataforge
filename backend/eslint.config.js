@@ -5,7 +5,7 @@ import prettierPlugin from 'eslint-plugin-prettier'
 export default [
   // Base configuration
   {
-    ignores: ['node_modules/**', 'dist/**', '*.d.ts', 'openrefine.db'],
+    ignores: ['node_modules/**', 'dist/**', '*.d.ts', 'dataforge.db'],
   },
 
   // TypeScript configuration

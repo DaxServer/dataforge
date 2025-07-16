@@ -1,6 +1,6 @@
-# OpenRefine NG - Development Guidelines
+# DataForge - Development Guidelines
 
-> **Comprehensive development standards and practices for the OpenRefine NG project**
+> **Comprehensive development standards and practices for the DataForge project**
 
 This documentation provides a complete guide to developing with our tech stack: **Bun + Elysia + Vue 3 + DuckDB**.
 
