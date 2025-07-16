@@ -1,13 +1,16 @@
+import type { Ref, ComputedRef } from 'vue'
+import type { ColumnInfo, WikibaseDataType } from '@frontend/types/schema-mapping'
+
 // Schema editor specific drag and drop context (from design document)
 export interface SchemaDragDropContext {
   // Global drag state (from Pinia store)
   draggedColumn: Ref<ColumnInfo | null>
   dragState: Ref<DragState>
-  
+
   // Drop zone state from native HTML5 events
   isOverDropZone: Ref<boolean>
   hoveredTarget: Ref<string | null>
-  
+
   // Validation and feedback
   validDropTargets: ComputedRef<DropTarget[]>
   isValidDrop: ComputedRef<boolean>
@@ -47,12 +50,12 @@ export interface DropTarget {
   isRequired?: boolean
 }
 
-export type DropTargetType = 
-  | 'label' 
-  | 'description' 
-  | 'alias' 
-  | 'statement' 
-  | 'qualifier' 
+export type DropTargetType =
+  | 'label'
+  | 'description'
+  | 'alias'
+  | 'statement'
+  | 'qualifier'
   | 'reference'
 
 // Drag operation states

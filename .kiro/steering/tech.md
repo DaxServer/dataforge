@@ -27,6 +27,9 @@
 - **Auto-imports**: Automatic imports for Vue composables and PrimeVue components
 - **TypeScript**: Strict type checking across the stack
 
+## Coding Standards
+- **Function Declarations**: Always use arrow functions (`const fn = () => {}`) instead of function declarations (`function fn() {}`)
+
 ## Auto-Import Configuration (Frontend)
 
 The frontend uses `unplugin-auto-import` and `unplugin-vue-components` for automatic imports:
