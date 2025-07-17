@@ -9,7 +9,7 @@
     "build": "vite build",
     "preview": "vite preview",
     "lint": "eslint .",
-    "typecheck": "vue-tsc --build"
+    "typecheck": "vue-tsc"
   },
   "dependencies": {
     "@elysiajs/eden": "catalog:",
@@ -42,6 +42,7 @@
     "@vue/eslint-config-typescript": "catalog:",
     "@vue/tsconfig": "^0.7.0",
     "autoprefixer": "^10.4.21",
+    "bun-types": "catalog:",
     "elysia": "catalog:",
     "eslint": "catalog:",
     "eslint-plugin-prettier": "catalog:",

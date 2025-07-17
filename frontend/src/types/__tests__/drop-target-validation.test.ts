@@ -6,7 +6,7 @@ import type {
   DropTargetType,
   DragState,
 } from '@frontend/types/drag-drop'
-import type { ColumnInfo, WikibaseDataType } from '@frontend/types/schema-mapping'
+import type { ColumnInfo, WikibaseDataType } from '@frontend/types/wikibase-schema'
 
 describe('Drop Target Validation Logic', () => {
   let mockColumnInfo: ColumnInfo
@@ -295,8 +295,12 @@ describe('Drop Target Validation Logic', () => {
         propertyId: 'P585', // point in time
       }
 
-      expect(qualifierTarget.propertyId).toBe('P585')
-      expect(qualifierTarget.acceptedTypes).toContain('time')
+      expect(qualifierTarget).toEqual({
+        type: 'qualifier',
+        path: 'item.statements[0].qualifiers[0].value',
+        acceptedTypes: ['time'],
+        propertyId: 'P585',
+      })
     })
 
     it('should validate reference targets with property IDs', () => {

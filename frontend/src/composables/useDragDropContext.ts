@@ -8,7 +8,7 @@ import type {
   DropEventData,
   DropZoneConfig,
 } from '@frontend/types/drag-drop'
-import type { ColumnInfo, WikibaseDataType } from '@frontend/types/schema-mapping'
+import type { ColumnInfo, WikibaseDataType } from '@frontend/types/wikibase-schema'
 
 // Helper functions for path parsing
 const getTargetTypeFromPath = (path: string): DropTarget['type'] => {
@@ -141,7 +141,6 @@ export const useDragDropContext = (): SchemaDragDropContext & {
           type: validation.isValid ? 'success' : 'error',
           message:
             validation.reason || (validation.isValid ? 'Valid drop target' : 'Invalid drop target'),
-          suggestions: validation.suggestions,
         }
       }
     }
@@ -161,7 +160,6 @@ export const useDragDropContext = (): SchemaDragDropContext & {
       return {
         isValid: false,
         reason: `Column type '${column.dataType}' is not compatible with target types: ${target.acceptedTypes.join(', ')}`,
-        suggestions: getSuggestions(column, target),
       }
     }
 
@@ -170,7 +168,6 @@ export const useDragDropContext = (): SchemaDragDropContext & {
       return {
         isValid: false,
         reason: 'Required field cannot accept nullable column',
-        suggestions: ['Use a non-nullable column', 'Add a default value transformation'],
       }
     }
 
@@ -193,7 +190,6 @@ export const useDragDropContext = (): SchemaDragDropContext & {
       dropFeedback.value = {
         type: 'error',
         message: validation.reason || 'Drop operation failed',
-        suggestions: validation.suggestions,
       }
       return false
     }
@@ -240,7 +236,6 @@ export const useDragDropContext = (): SchemaDragDropContext & {
       dropFeedback.value = {
         type: 'error',
         message: 'Failed to complete drop operation',
-        suggestions: ['Please try again'],
       }
 
       success = false
@@ -260,44 +255,6 @@ export const useDragDropContext = (): SchemaDragDropContext & {
     return availableTargets.value.filter((target) => validateDrop(column, target).isValid)
   }
 
-  // Helper functions
-  const getSuggestions = (column: ColumnInfo, target: DropTarget): string[] => {
-    const suggestions: string[] = []
-
-    // Suggest data type conversions
-    if (
-      target.acceptedTypes.includes('string') &&
-      !['VARCHAR', 'TEXT', 'STRING'].includes(column.dataType.toUpperCase())
-    ) {
-      suggestions.push('Convert column to text format')
-    }
-
-    if (
-      target.acceptedTypes.includes('quantity') &&
-      !['INTEGER', 'DECIMAL', 'NUMERIC', 'FLOAT', 'DOUBLE'].includes(column.dataType.toUpperCase())
-    ) {
-      suggestions.push('Convert column to numeric format')
-    }
-
-    if (
-      target.acceptedTypes.includes('time') &&
-      !['DATE', 'DATETIME', 'TIMESTAMP'].includes(column.dataType.toUpperCase())
-    ) {
-      suggestions.push('Convert column to date/time format')
-    }
-
-    // Suggest alternative targets
-    const alternativeTargets = availableTargets.value.filter(
-      (t) => t.type !== target.type && isDataTypeCompatible(column.dataType, t.acceptedTypes),
-    )
-
-    if (alternativeTargets.length > 0) {
-      suggestions.push(`Try mapping to: ${alternativeTargets.map((t) => t.type).join(', ')}`)
-    }
-
-    return suggestions
-  }
-
   const validateByTargetType = (column: ColumnInfo, target: DropTarget): DropValidation => {
     switch (target.type) {
       case 'label':
@@ -311,7 +268,6 @@ export const useDragDropContext = (): SchemaDragDropContext & {
             return {
               isValid: false,
               reason: `${target.type} values should be shorter than ${maxLength} characters`,
-              suggestions: ['Truncate values', 'Use description field instead'],
             }
           }
         }
@@ -323,7 +279,6 @@ export const useDragDropContext = (): SchemaDragDropContext & {
           return {
             isValid: false,
             reason: 'Statement target must have a property ID',
-            suggestions: ['Select a property for this statement'],
           }
         }
         break
@@ -335,7 +290,6 @@ export const useDragDropContext = (): SchemaDragDropContext & {
           return {
             isValid: false,
             reason: `${target.type} target must have a property ID`,
-            suggestions: [`Select a property for this ${target.type}`],
           }
         }
         break
