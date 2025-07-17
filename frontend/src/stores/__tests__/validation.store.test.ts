@@ -1,0 +1,402 @@
+import { describe, it, expect, beforeEach } from 'bun:test'
+import { createPinia, setActivePinia } from 'pinia'
+import { useValidationStore } from '@frontend/stores/validation.store'
+import type { ValidationError, ValidationContext } from '@frontend/types/wikibase-schema'
+
+describe('useValidationStore', () => {
+  let store: ReturnType<typeof useValidationStore>
+
+  beforeEach(() => {
+    setActivePinia(createPinia())
+    store = useValidationStore()
+  })
+
+  describe('addError and addWarning', () => {
+    it('should add errors to the error list', () => {
+      const error: ValidationError = {
+        type: 'error',
+        code: 'MISSING_REQUIRED_MAPPING',
+        message: 'Required mapping is missing',
+        path: 'item.terms.labels.en',
+      }
+
+      store.addError(error)
+
+      expect(store.errors).toHaveLength(1)
+      expect(store.errors[0]).toEqual(error)
+    })
+
+    it('should add warnings to the warning list', () => {
+      const warning: ValidationError = {
+        type: 'warning',
+        code: 'INCOMPATIBLE_DATA_TYPE',
+        message: 'Column data type is incompatible with target',
+        path: 'item.statements[0].value',
+      }
+
+      store.addWarning(warning)
+
+      expect(store.warnings).toHaveLength(1)
+      expect(store.warnings[0]).toEqual(warning)
+    })
+
+    it('should not add duplicate errors', () => {
+      const error: ValidationError = {
+        type: 'error',
+        code: 'MISSING_REQUIRED_MAPPING',
+        message: 'Required mapping is missing',
+        path: 'item.terms.labels.en',
+      }
+
+      store.addError(error)
+      store.addError(error)
+
+      expect(store.errors).toHaveLength(1)
+    })
+
+    it('should not add duplicate warnings', () => {
+      const warning: ValidationError = {
+        type: 'warning',
+        code: 'INCOMPATIBLE_DATA_TYPE',
+        message: 'Column data type is incompatible with target',
+        path: 'item.statements[0].value',
+      }
+
+      store.addWarning(warning)
+      store.addWarning(warning)
+
+      expect(store.warnings).toHaveLength(1)
+    })
+  })
+
+  describe('clearErrorsForPath', () => {
+    it('should clear errors for a specific path', () => {
+      const error1: ValidationError = {
+        type: 'error',
+        code: 'MISSING_REQUIRED_MAPPING',
+        message: 'Required mapping is missing',
+        path: 'item.terms.labels.en',
+      }
+      const error2: ValidationError = {
+        type: 'error',
+        code: 'MISSING_REQUIRED_MAPPING',
+        message: 'Required mapping is missing',
+        path: 'item.terms.labels.fr',
+      }
+      const error3: ValidationError = {
+        type: 'error',
+        code: 'MISSING_REQUIRED_MAPPING',
+        message: 'Required mapping is missing',
+        path: 'item.statements[0].value',
+      }
+
+      store.addError(error1)
+      store.addError(error2)
+      store.addError(error3)
+
+      store.clearErrorsForPath('item.terms.labels')
+
+      expect(store.errors).toHaveLength(1)
+      expect(store.errors[0]?.path).toBe('item.statements[0].value')
+    })
+
+    it('should clear warnings for a specific path', () => {
+      const warning1: ValidationError = {
+        type: 'warning',
+        code: 'INCOMPATIBLE_DATA_TYPE',
+        message: 'Column data type is incompatible with target',
+        path: 'item.terms.labels.en',
+      }
+      const warning2: ValidationError = {
+        type: 'warning',
+        code: 'INCOMPATIBLE_DATA_TYPE',
+        message: 'Column data type is incompatible with target',
+        path: 'item.statements[0].value',
+      }
+
+      store.addWarning(warning1)
+      store.addWarning(warning2)
+
+      store.clearErrorsForPath('item.terms.labels')
+
+      expect(store.warnings).toHaveLength(1)
+      expect(store.warnings[0]?.path).toBe('item.statements[0].value')
+    })
+  })
+
+  describe('clearErrorsByCode', () => {
+    it('should clear errors with a specific code', () => {
+      const error1: ValidationError = {
+        type: 'error',
+        code: 'MISSING_REQUIRED_MAPPING',
+        message: 'Required mapping is missing',
+        path: 'item.terms.labels.en',
+      }
+      const error2: ValidationError = {
+        type: 'error',
+        code: 'INCOMPATIBLE_DATA_TYPE',
+        message: 'Column data type is incompatible with target',
+        path: 'item.statements[0].value',
+      }
+
+      store.addError(error1)
+      store.addError(error2)
+
+      store.clearErrorsByCode('MISSING_REQUIRED_MAPPING')
+
+      expect(store.errors).toHaveLength(1)
+      expect(store.errors[0]?.code).toBe('INCOMPATIBLE_DATA_TYPE')
+    })
+
+    it('should clear warnings with a specific code', () => {
+      const warning1: ValidationError = {
+        type: 'warning',
+        code: 'MISSING_REQUIRED_MAPPING',
+        message: 'Required mapping is missing',
+        path: 'item.terms.labels.en',
+      }
+      const warning2: ValidationError = {
+        type: 'warning',
+        code: 'INCOMPATIBLE_DATA_TYPE',
+        message: 'Column data type is incompatible with target',
+        path: 'item.statements[0].value',
+      }
+
+      store.addWarning(warning1)
+      store.addWarning(warning2)
+
+      store.clearErrorsByCode('MISSING_REQUIRED_MAPPING')
+
+      expect(store.warnings).toHaveLength(1)
+      expect(store.warnings[0]?.code).toBe('INCOMPATIBLE_DATA_TYPE')
+    })
+  })
+
+  describe('clearAll', () => {
+    it('should clear all errors and warnings', () => {
+      const error: ValidationError = {
+        type: 'error',
+        code: 'MISSING_REQUIRED_MAPPING',
+        message: 'Required mapping is missing',
+        path: 'item.terms.labels.en',
+      }
+      const warning: ValidationError = {
+        type: 'warning',
+        code: 'INCOMPATIBLE_DATA_TYPE',
+        message: 'Column data type is incompatible with target',
+        path: 'item.statements[0].value',
+      }
+
+      store.addError(error)
+      store.addWarning(warning)
+      store.clearAll()
+
+      expect(store.errors).toHaveLength(0)
+      expect(store.warnings).toHaveLength(0)
+    })
+  })
+
+  describe('getErrorsForPath', () => {
+    it('should return errors for a specific path', () => {
+      const error1: ValidationError = {
+        type: 'error',
+        code: 'MISSING_REQUIRED_MAPPING',
+        message: 'Required mapping is missing',
+        path: 'item.terms.labels.en',
+      }
+      const error2: ValidationError = {
+        type: 'error',
+        code: 'MISSING_REQUIRED_MAPPING',
+        message: 'Required mapping is missing',
+        path: 'item.terms.labels.fr',
+      }
+      const error3: ValidationError = {
+        type: 'error',
+        code: 'MISSING_REQUIRED_MAPPING',
+        message: 'Required mapping is missing',
+        path: 'item.statements[0].value',
+      }
+
+      store.addError(error1)
+      store.addError(error2)
+      store.addError(error3)
+
+      const labelsErrors = store.getErrorsForPath('item.terms.labels')
+
+      expect(labelsErrors).toHaveLength(2)
+      expect(labelsErrors.every((e) => e.path.startsWith('item.terms.labels'))).toBe(true)
+    })
+  })
+
+  describe('getWarningsForPath', () => {
+    it('should return warnings for a specific path', () => {
+      const warning1: ValidationError = {
+        type: 'warning',
+        code: 'INCOMPATIBLE_DATA_TYPE',
+        message: 'Column data type is incompatible with target',
+        path: 'item.terms.labels.en',
+      }
+      const warning2: ValidationError = {
+        type: 'warning',
+        code: 'INCOMPATIBLE_DATA_TYPE',
+        message: 'Column data type is incompatible with target',
+        path: 'item.terms.labels.fr',
+      }
+      const warning3: ValidationError = {
+        type: 'warning',
+        code: 'INCOMPATIBLE_DATA_TYPE',
+        message: 'Column data type is incompatible with target',
+        path: 'item.statements[0].value',
+      }
+
+      store.addWarning(warning1)
+      store.addWarning(warning2)
+      store.addWarning(warning3)
+
+      const labelsWarnings = store.getWarningsForPath('item.terms.labels')
+
+      expect(labelsWarnings).toHaveLength(2)
+      expect(labelsWarnings.every((w) => w.path.startsWith('item.terms.labels'))).toBe(true)
+    })
+  })
+
+  describe('hasErrorsForPath and hasWarningsForPath', () => {
+    it('should return true if there are errors for a path', () => {
+      const error: ValidationError = {
+        type: 'error',
+        code: 'MISSING_REQUIRED_MAPPING',
+        message: 'Required mapping is missing',
+        path: 'item.terms.labels.en',
+      }
+
+      store.addError(error)
+
+      expect(store.hasErrorsForPath('item.terms.labels')).toBe(true)
+      expect(store.hasErrorsForPath('item.statements')).toBe(false)
+    })
+
+    it('should return true if there are warnings for a path', () => {
+      const warning: ValidationError = {
+        type: 'warning',
+        code: 'INCOMPATIBLE_DATA_TYPE',
+        message: 'Column data type is incompatible with target',
+        path: 'item.terms.labels.en',
+      }
+
+      store.addWarning(warning)
+
+      expect(store.hasWarningsForPath('item.terms.labels')).toBe(true)
+      expect(store.hasWarningsForPath('item.statements')).toBe(false)
+    })
+  })
+
+  describe('getValidationResult', () => {
+    it('should return validation result with isValid false when there are errors', () => {
+      const error: ValidationError = {
+        type: 'error',
+        code: 'MISSING_REQUIRED_MAPPING',
+        message: 'Required mapping is missing',
+        path: 'item.terms.labels.en',
+      }
+
+      store.addError(error)
+
+      const result = store.getValidationResult()
+
+      expect(result).toEqual({
+        isValid: false,
+        errors: [error],
+        warnings: [],
+      })
+    })
+
+    it('should return validation result with isValid true when there are no errors', () => {
+      const warning: ValidationError = {
+        type: 'warning',
+        code: 'INCOMPATIBLE_DATA_TYPE',
+        message: 'Column data type is incompatible with target',
+        path: 'item.statements[0].value',
+      }
+
+      store.addWarning(warning)
+
+      const result = store.getValidationResult()
+
+      expect(result).toEqual({
+        isValid: true,
+        errors: [],
+        warnings: [warning],
+      })
+    })
+  })
+
+  describe('computed properties', () => {
+    it('should update hasErrors computed property', () => {
+      expect(store.hasErrors).toBe(false)
+
+      const error: ValidationError = {
+        type: 'error',
+        code: 'MISSING_REQUIRED_MAPPING',
+        message: 'Required mapping is missing',
+        path: 'item.terms.labels.en',
+      }
+      store.addError(error)
+
+      expect(store.hasErrors).toBe(true)
+    })
+
+    it('should update hasWarnings computed property', () => {
+      expect(store.hasWarnings).toBe(false)
+
+      const warning: ValidationError = {
+        type: 'warning',
+        code: 'INCOMPATIBLE_DATA_TYPE',
+        message: 'Column data type is incompatible with target',
+        path: 'item.statements[0].value',
+      }
+      store.addWarning(warning)
+
+      expect(store.hasWarnings).toBe(true)
+    })
+
+    it('should update error and warning counts', () => {
+      expect(store.errorCount).toBe(0)
+      expect(store.warningCount).toBe(0)
+      expect(store.totalIssueCount).toBe(0)
+
+      const error: ValidationError = {
+        type: 'error',
+        code: 'MISSING_REQUIRED_MAPPING',
+        message: 'Required mapping is missing',
+        path: 'item.terms.labels.en',
+      }
+      const warning: ValidationError = {
+        type: 'warning',
+        code: 'INCOMPATIBLE_DATA_TYPE',
+        message: 'Column data type is incompatible with target',
+        path: 'item.statements[0].value',
+      }
+
+      store.addError(error)
+      store.addWarning(warning)
+
+      expect(store.errorCount).toBe(1)
+      expect(store.warningCount).toBe(1)
+      expect(store.totalIssueCount).toBe(2)
+    })
+
+    it('should update hasAnyIssues computed property', () => {
+      expect(store.hasAnyIssues).toBe(false)
+
+      const warning: ValidationError = {
+        type: 'warning',
+        code: 'INCOMPATIBLE_DATA_TYPE',
+        message: 'Column data type is incompatible with target',
+        path: 'item.statements[0].value',
+      }
+      store.addWarning(warning)
+
+      expect(store.hasAnyIssues).toBe(true)
+    })
+  })
+})
