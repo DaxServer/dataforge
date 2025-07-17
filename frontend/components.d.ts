@@ -9,7 +9,6 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     Button: typeof import('primevue/button')['default']
-    Card: typeof import('primevue/card')['default']
     Column: typeof import('primevue/column')['default']
     ConfirmDialog: typeof import('primevue/confirmdialog')['default']
     CreateProject: typeof import('./src/pages/CreateProject.vue')['default']
@@ -17,7 +16,6 @@ declare module 'vue' {
     DataTable: typeof import('primevue/datatable')['default']
     DataTabPanel: typeof import('./src/components/DataTabPanel.vue')['default']
     DefaultLayout: typeof import('./src/layouts/DefaultLayout.vue')['default']
-    FileUpload: typeof import('primevue/fileupload')['default']
     Header: typeof import('./src/components/Header.vue')['default']
     MainContent: typeof import('./src/components/MainContent.vue')['default']
     OpenProject: typeof import('./src/pages/OpenProject.vue')['default']
@@ -33,8 +31,8 @@ declare module 'vue' {
     TabPanel: typeof import('primevue/tabpanel')['default']
     TabPanels: typeof import('primevue/tabpanels')['default']
     Tabs: typeof import('primevue/tabs')['default']
-    TabView: typeof import('primevue/tabview')['default']
     Toast: typeof import('primevue/toast')['default']
+    ValidationErrorDisplay: typeof import('./src/components/ValidationErrorDisplay.vue')['default']
     WikibaseSchemaEditor: typeof import('./src/components/WikibaseSchemaEditor.vue')['default']
   }
 }

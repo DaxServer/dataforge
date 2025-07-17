@@ -9,8 +9,7 @@ declare global {
   const ApiKey: typeof import('./src/plugins/api')['ApiKey']
   const ApiPlugin: typeof import('./src/plugins/api')['ApiPlugin']
   const EffectScope: typeof import('vue')['EffectScope']
-  const Progress: typeof import('primevue/progress')['Progress']
-  const ProgressBar: typeof import('primevue/progress')['ProgressBar']
+  const ValidationMessages: typeof import('./src/types/wikibase-schema')['ValidationMessages']
   const acceptHMRUpdate: typeof import('pinia')['acceptHMRUpdate']
   const api: typeof import('./src/plugins/api')['api']
   const asyncComputed: typeof import('@vueuse/core')['asyncComputed']
@@ -40,16 +39,13 @@ declare global {
   const defineAsyncComponent: typeof import('vue')['defineAsyncComponent']
   const defineComponent: typeof import('vue')['defineComponent']
   const defineStore: typeof import('pinia')['defineStore']
-  const e: typeof import('from')['e']
   const eagerComputed: typeof import('@vueuse/core')['eagerComputed']
   const effectScope: typeof import('vue')['effectScope']
   const extendRef: typeof import('@vueuse/core')['extendRef']
-  const g: typeof import('from')['g']
   const getActivePinia: typeof import('pinia')['getActivePinia']
   const getCurrentInstance: typeof import('vue')['getCurrentInstance']
   const getCurrentScope: typeof import('vue')['getCurrentScope']
   const h: typeof import('vue')['h']
-  const i: typeof import('from')['i']
   const ignorableWatch: typeof import('@vueuse/core')['ignorableWatch']
   const inject: typeof import('vue')['inject']
   const injectLocal: typeof import('@vueuse/core')['injectLocal']
@@ -58,7 +54,6 @@ declare global {
   const isReactive: typeof import('vue')['isReactive']
   const isReadonly: typeof import('vue')['isReadonly']
   const isRef: typeof import('vue')['isRef']
-  const m: typeof import('from')['m']
   const makeDestructurable: typeof import('@vueuse/core')['makeDestructurable']
   const mapActions: typeof import('pinia')['mapActions']
   const mapGetters: typeof import('pinia')['mapGetters']
@@ -67,7 +62,6 @@ declare global {
   const mapWritableState: typeof import('pinia')['mapWritableState']
   const markRaw: typeof import('vue')['markRaw']
   const nextTick: typeof import('vue')['nextTick']
-  const o: typeof import('from')['o']
   const onActivated: typeof import('vue')['onActivated']
   const onBeforeMount: typeof import('vue')['onBeforeMount']
   const onBeforeRouteLeave: typeof import('vue-router')['onBeforeRouteLeave']
@@ -89,11 +83,9 @@ declare global {
   const onUnmounted: typeof import('vue')['onUnmounted']
   const onUpdated: typeof import('vue')['onUpdated']
   const onWatcherCleanup: typeof import('vue')['onWatcherCleanup']
-  const p: typeof import('from')['p']
   const pausableWatch: typeof import('@vueuse/core')['pausableWatch']
   const provide: typeof import('vue')['provide']
   const provideLocal: typeof import('@vueuse/core')['provideLocal']
-  const r: typeof import('from')['r']
   const reactify: typeof import('@vueuse/core')['reactify']
   const reactifyObject: typeof import('@vueuse/core')['reactifyObject']
   const reactive: typeof import('vue')['reactive']
@@ -111,7 +103,7 @@ declare global {
   const resolveRef: typeof import('@vueuse/core')['resolveRef']
   const resolveUnref: typeof import('@vueuse/core')['resolveUnref']
   const router: typeof import('./src/router')['default']
-  const s: typeof import('from')['s']
+  const routerD: typeof import('./src/router.d')['default']
   const setActivePinia: typeof import('pinia')['setActivePinia']
   const setMapStoreSuffix: typeof import('pinia')['setMapStoreSuffix']
   const shallowReactive: typeof import('vue')['shallowReactive']
@@ -134,7 +126,6 @@ declare global {
   const tryOnMounted: typeof import('@vueuse/core')['tryOnMounted']
   const tryOnScopeDispose: typeof import('@vueuse/core')['tryOnScopeDispose']
   const tryOnUnmounted: typeof import('@vueuse/core')['tryOnUnmounted']
-  const u: typeof import('from')['u']
   const unref: typeof import('vue')['unref']
   const unrefElement: typeof import('@vueuse/core')['unrefElement']
   const until: typeof import('@vueuse/core')['until']
@@ -257,9 +248,7 @@ declare global {
   const usePreferredReducedMotion: typeof import('@vueuse/core')['usePreferredReducedMotion']
   const usePreferredReducedTransparency: typeof import('@vueuse/core')['usePreferredReducedTransparency']
   const usePrevious: typeof import('@vueuse/core')['usePrevious']
-  const useProjectActions: (typeof import('./src/composables/useProjectActions'))['useProjectActions']
   const useProjectCreationComposable: typeof import('./src/composables/useProjectCreationComposable')['useProjectCreationComposable']
-  const useProjectData: (typeof import('./src/composables/useProjectData'))['useProjectData']
   const useProjectListComposable: typeof import('./src/composables/useProjectListComposable')['useProjectListComposable']
   const useProjectListStore: typeof import('./src/stores/project-list.store')['useProjectListStore']
   const useProjectStore: typeof import('./src/stores/project.store')['useProjectStore']
@@ -310,6 +299,8 @@ declare global {
   const useUserMedia: typeof import('@vueuse/core')['useUserMedia']
   const useVModel: typeof import('@vueuse/core')['useVModel']
   const useVModels: typeof import('@vueuse/core')['useVModels']
+  const useValidationErrors: typeof import('./src/composables/useValidationErrors')['useValidationErrors']
+  const useValidationStore: typeof import('./src/stores/validation.store')['useValidationStore']
   const useVibrate: typeof import('@vueuse/core')['useVibrate']
   const useVirtualList: typeof import('@vueuse/core')['useVirtualList']
   const useWakeLock: typeof import('@vueuse/core')['useWakeLock']
@@ -320,7 +311,6 @@ declare global {
   const useWindowFocus: typeof import('@vueuse/core')['useWindowFocus']
   const useWindowScroll: typeof import('@vueuse/core')['useWindowScroll']
   const useWindowSize: typeof import('@vueuse/core')['useWindowSize']
-  const v: typeof import('from')['v']
   const watch: typeof import('vue')['watch']
   const watchArray: typeof import('@vueuse/core')['watchArray']
   const watchAtMost: typeof import('@vueuse/core')['watchAtMost']
@@ -356,11 +346,11 @@ declare global {
   export type { SchemaDragDropContext, DropZoneConfig, DropFeedback, DragDropContext, DropTarget, DropTargetType, DragState, DropValidation, DragEventData, DropEventData, DragVisualState, DragDropConfig } from './src/types/drag-drop'
   import('./src/types/drag-drop')
   // @ts-ignore
-  export type { WikibaseSchemaMapping, ItemSchemaMapping, TermsSchemaMapping, ColumnMapping, TransformationRule, TransformationFunction, TransformationParameter, StatementSchemaMapping, PropertyReference, ValueMapping, QualifierSchemaMapping, ReferenceSchemaMapping, StatementRank, WikibaseDataType, ColumnInfo, ValidationError, ValidationResult, SchemaValidationRule, ValidationRule, SchemaMapping, ColumnReference, ValueSchemaMapping, ValidatedSchemaMapping } from './src/types/schema-mapping'
-  import('./src/types/schema-mapping')
-  // @ts-ignore
   export type { ProjectFile, FileSelectEvent, FileRemoveEvent, ApiClient } from './src/types/index'
   import('./src/types/index')
+  // @ts-ignore
+  export type { ValidationErrorType, ValidationErrorCode, ValidationError, ValidationResult, ValidationContext, WikibaseSchemaMapping, ItemSchemaMapping, TermsSchemaMapping, ColumnMapping, TransformationRule, TransformationFunction, TransformationParameter, StatementSchemaMapping, PropertyReference, ValueMapping, QualifierSchemaMapping, ReferenceSchemaMapping, StatementRank, WikibaseDataType, ColumnInfo, ValidationRule, SchemaMapping, ColumnReference, ValueSchemaMapping, ValidatedSchemaMapping } from './src/types/wikibase-schema'
+  import('./src/types/wikibase-schema')
 }
 
 // for vue template auto import
@@ -371,6 +361,7 @@ declare module 'vue' {
     readonly ApiKey: UnwrapRef<typeof import('./src/plugins/api')['ApiKey']>
     readonly ApiPlugin: UnwrapRef<typeof import('./src/plugins/api')['ApiPlugin']>
     readonly EffectScope: UnwrapRef<typeof import('vue')['EffectScope']>
+    readonly ValidationMessages: UnwrapRef<typeof import('./src/types/wikibase-schema')['ValidationMessages']>
     readonly acceptHMRUpdate: UnwrapRef<typeof import('pinia')['acceptHMRUpdate']>
     readonly api: UnwrapRef<typeof import('./src/plugins/api')['api']>
     readonly asyncComputed: UnwrapRef<typeof import('@vueuse/core')['asyncComputed']>
@@ -659,6 +650,8 @@ declare module 'vue' {
     readonly useUserMedia: UnwrapRef<typeof import('@vueuse/core')['useUserMedia']>
     readonly useVModel: UnwrapRef<typeof import('@vueuse/core')['useVModel']>
     readonly useVModels: UnwrapRef<typeof import('@vueuse/core')['useVModels']>
+    readonly useValidationErrors: UnwrapRef<typeof import('./src/composables/useValidationErrors')['useValidationErrors']>
+    readonly useValidationStore: UnwrapRef<typeof import('./src/stores/validation.store')['useValidationStore']>
     readonly useVibrate: UnwrapRef<typeof import('@vueuse/core')['useVibrate']>
     readonly useVirtualList: UnwrapRef<typeof import('@vueuse/core')['useVirtualList']>
     readonly useWakeLock: UnwrapRef<typeof import('@vueuse/core')['useWakeLock']>

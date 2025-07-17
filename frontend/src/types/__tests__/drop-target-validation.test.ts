@@ -231,7 +231,7 @@ describe('Drop Target Validation Logic', () => {
       targets.forEach((target) => {
         expect(target.language).toBeDefined()
         expect(target.acceptedTypes).toContain('string')
-        expect(target.path).toContain(target.language!)
+        expect(target.path).toContain(target.language)
       })
     })
 
@@ -321,7 +321,7 @@ describe('Drop Target Validation Logic', () => {
 
       referenceTargets.forEach((target) => {
         expect(target.propertyId).toMatch(/^P\d+$/)
-        expect(['P248', 'P854']).toContain(target.propertyId!)
+        expect(['P248', 'P854']).toContain(target.propertyId)
       })
     })
   })
