@@ -312,6 +312,7 @@
     "useRouteParams": true,
     "useRouter": true,
     "useSSRWidth": true,
+    "useSchemaStore": true,
     "useScreenOrientation": true,
     "useScreenSafeArea": true,
     "useScriptTag": true,
