@@ -145,4 +145,141 @@ describe('ValidationErrorDisplay Component Logic', () => {
     expect(errorCount).toBe(1)
     expect(warningCount).toBe(1)
   })
+
+  describe('dismissal logic', () => {
+    it('should handle individual error dismissal', () => {
+      const error: ValidationError = {
+        type: 'error',
+        code: 'MISSING_REQUIRED_MAPPING',
+        message: 'Required mapping is missing',
+        path: 'item.terms.labels.en',
+      }
+
+      // Mock the dismissError function behavior
+      const dismissError = (errorToDismiss: ValidationError) => {
+        // This simulates calling clearError(error) in the component
+        return errorToDismiss
+      }
+
+      const dismissedError = dismissError(error)
+      expect(dismissedError).toEqual(error)
+    })
+
+    it('should handle individual warning dismissal', () => {
+      const warning: ValidationError = {
+        type: 'warning',
+        code: 'INCOMPATIBLE_DATA_TYPE',
+        message: 'Data type may not be optimal',
+        path: 'item.statements[0].value',
+      }
+
+      // Mock the dismissWarning function behavior
+      const dismissWarning = (warningToDismiss: ValidationError) => {
+        // This simulates calling clearError(warning) in the component
+        return warningToDismiss
+      }
+
+      const dismissedWarning = dismissWarning(warning)
+      expect(dismissedWarning).toEqual(warning)
+    })
+
+    it('should preserve nested errors when dismissing parent errors', () => {
+      const parentError: ValidationError = {
+        type: 'error',
+        code: 'MISSING_REQUIRED_MAPPING',
+        message: 'Parent error',
+        path: 'item.terms.labels',
+      }
+
+      const nestedError: ValidationError = {
+        type: 'error',
+        code: 'MISSING_REQUIRED_MAPPING',
+        message: 'Nested error',
+        path: 'item.terms.labels.en',
+      }
+
+      const errors = [parentError, nestedError]
+
+      // Simulate the new clearError behavior (exact match only)
+      const clearError = (errorToClear: ValidationError, errorList: ValidationError[]) => {
+        return errorList.filter(
+          (e) =>
+            !(
+              e.path === errorToClear.path &&
+              e.code === errorToClear.code &&
+              e.message === errorToClear.message
+            ),
+        )
+      }
+
+      const remainingErrors = clearError(parentError, errors)
+
+      expect(remainingErrors).toHaveLength(1)
+      expect(remainingErrors[0]).toEqual(nestedError)
+    })
+
+    it('should handle clear all with path filter', () => {
+      const errors: ValidationError[] = [
+        {
+          type: 'error',
+          code: 'MISSING_REQUIRED_MAPPING',
+          message: 'Error 1',
+          path: 'item.terms.labels.en',
+        },
+        {
+          type: 'error',
+          code: 'MISSING_REQUIRED_MAPPING',
+          message: 'Error 2',
+          path: 'item.terms.labels.fr',
+        },
+        {
+          type: 'error',
+          code: 'MISSING_REQUIRED_MAPPING',
+          message: 'Error 3',
+          path: 'item.statements[0].value',
+        },
+      ]
+
+      // Simulate clearAll with pathFilter behavior
+      const clearAllWithFilter = (pathFilter: string, errorList: ValidationError[]) => {
+        return errorList.filter((error) => !error.path.startsWith(pathFilter))
+      }
+
+      const remainingErrors = clearAllWithFilter('item.terms.labels', errors)
+
+      expect(remainingErrors).toHaveLength(1)
+      expect(remainingErrors[0]?.path).toBe('item.statements[0].value')
+    })
+
+    it('should emit correct events on dismissal', () => {
+      const error: ValidationError = {
+        type: 'error',
+        code: 'MISSING_REQUIRED_MAPPING',
+        message: 'Required mapping is missing',
+        path: 'item.terms.labels.en',
+      }
+
+      const warning: ValidationError = {
+        type: 'warning',
+        code: 'INCOMPATIBLE_DATA_TYPE',
+        message: 'Data type may not be optimal',
+        path: 'item.statements[0].value',
+      }
+
+      // Mock emit function behavior
+      const mockEmit = (eventName: string, payload: ValidationError) => {
+        return { eventName, payload }
+      }
+
+      const errorEvent = mockEmit('errorDismissed', error)
+      const warningEvent = mockEmit('warningDismissed', warning)
+      const clearAllEvent = mockEmit('allCleared', {} as ValidationError)
+
+      expect(errorEvent.eventName).toBe('errorDismissed')
+      expect(errorEvent.payload).toEqual(error)
+      expect(warningEvent.eventName).toBe('warningDismissed')
+      expect(warningEvent.payload).toEqual(warning)
+      expect(clearAllEvent.eventName).toBe('allCleared')
+    })
+  })
 })

@@ -42,6 +42,7 @@ const {
   hasWarnings,
   hasAnyIssues,
   clearAll: clearAllErrors,
+  clearError,
   clearErrorsForPath,
 } = validationStore
 
@@ -74,16 +75,12 @@ const getErrorClasses = (error: ValidationError): string => {
 }
 
 const dismissError = (error: ValidationError) => {
-  if (props.pathFilter) {
-    clearErrorsForPath(error.path)
-  }
+  clearError(error)
   emit('errorDismissed', error)
 }
 
 const dismissWarning = (warning: ValidationError) => {
-  if (props.pathFilter) {
-    clearErrorsForPath(warning.path)
-  }
+  clearError(warning)
   emit('warningDismissed', warning)
 }
 

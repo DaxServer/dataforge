@@ -28,9 +28,30 @@ export const useValidationStore = defineStore('validation', () => {
     }
   }
 
-  const clearErrorsForPath = (path: string) => {
-    errors.value = errors.value.filter((error) => !error.path.startsWith(path))
-    warnings.value = warnings.value.filter((warning) => !warning.path.startsWith(path))
+  const clearError = (error: ValidationError) => {
+    const errorIndex = errors.value.findIndex(
+      (e) => e.path === error.path && e.code === error.code && e.message === error.message,
+    )
+    if (errorIndex !== -1) {
+      errors.value.splice(errorIndex, 1)
+    }
+
+    const warningIndex = warnings.value.findIndex(
+      (w) => w.path === error.path && w.code === error.code && w.message === error.message,
+    )
+    if (warningIndex !== -1) {
+      warnings.value.splice(warningIndex, 1)
+    }
+  }
+
+  const clearErrorsForPath = (path: string, exactMatch = false) => {
+    if (exactMatch) {
+      errors.value = errors.value.filter((error) => error.path !== path)
+      warnings.value = warnings.value.filter((warning) => warning.path !== path)
+    } else {
+      errors.value = errors.value.filter((error) => !error.path.startsWith(path))
+      warnings.value = warnings.value.filter((warning) => !warning.path.startsWith(path))
+    }
   }
 
   const clearErrorsByCode = (code: ValidationErrorCode) => {
@@ -84,6 +105,7 @@ export const useValidationStore = defineStore('validation', () => {
     // Actions
     addError,
     addWarning,
+    clearError,
     clearErrorsForPath,
     clearErrorsByCode,
     clearAll,

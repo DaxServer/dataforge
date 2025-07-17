@@ -69,8 +69,113 @@ describe('useValidationStore', () => {
     })
   })
 
+  describe('clearError', () => {
+    it('should clear a specific error by exact match', () => {
+      const error1: ValidationError = {
+        type: 'error',
+        code: 'MISSING_REQUIRED_MAPPING',
+        message: 'Required mapping is missing',
+        path: 'item.terms.labels.en',
+      }
+      const error2: ValidationError = {
+        type: 'error',
+        code: 'INCOMPATIBLE_DATA_TYPE',
+        message: 'Different error type',
+        path: 'item.terms.labels.en',
+      }
+      const error3: ValidationError = {
+        type: 'error',
+        code: 'MISSING_REQUIRED_MAPPING',
+        message: 'Required mapping is missing',
+        path: 'item.terms.labels.fr',
+      }
+
+      store.addError(error1)
+      store.addError(error2)
+      store.addError(error3)
+
+      store.clearError(error1)
+
+      expect(store.errors).toHaveLength(2)
+      expect(
+        store.errors.find(
+          (e) => e.code === 'MISSING_REQUIRED_MAPPING' && e.path === 'item.terms.labels.en',
+        ),
+      ).toBeUndefined()
+      expect(store.errors.find((e) => e.code === 'INCOMPATIBLE_DATA_TYPE')).toBeDefined()
+      expect(store.errors.find((e) => e.path === 'item.terms.labels.fr')).toBeDefined()
+    })
+
+    it('should clear a specific warning by exact match', () => {
+      const warning1: ValidationError = {
+        type: 'warning',
+        code: 'INCOMPATIBLE_DATA_TYPE',
+        message: 'Column data type is incompatible with target',
+        path: 'item.terms.labels.en',
+      }
+      const warning2: ValidationError = {
+        type: 'warning',
+        code: 'MISSING_REQUIRED_MAPPING',
+        message: 'Different warning type',
+        path: 'item.terms.labels.en',
+      }
+
+      store.addWarning(warning1)
+      store.addWarning(warning2)
+
+      store.clearError(warning1)
+
+      expect(store.warnings).toHaveLength(1)
+      expect(store.warnings[0]?.code).toBe('MISSING_REQUIRED_MAPPING')
+    })
+
+    it('should not clear errors that do not match exactly', () => {
+      const error1: ValidationError = {
+        type: 'error',
+        code: 'MISSING_REQUIRED_MAPPING',
+        message: 'Required mapping is missing',
+        path: 'item.terms.labels.en',
+      }
+      const error2: ValidationError = {
+        type: 'error',
+        code: 'MISSING_REQUIRED_MAPPING',
+        message: 'Required mapping is missing',
+        path: 'item.terms.labels.fr',
+      }
+
+      store.addError(error1)
+      store.addError(error2)
+
+      // Try to clear an error that doesn't exist
+      const nonExistentError: ValidationError = {
+        type: 'error',
+        code: 'MISSING_REQUIRED_MAPPING',
+        message: 'Different message',
+        path: 'item.terms.labels.en',
+      }
+
+      store.clearError(nonExistentError)
+
+      expect(store.errors).toHaveLength(2)
+    })
+
+    it('should handle clearing error when no errors exist', () => {
+      const error: ValidationError = {
+        type: 'error',
+        code: 'MISSING_REQUIRED_MAPPING',
+        message: 'Required mapping is missing',
+        path: 'item.terms.labels.en',
+      }
+
+      store.clearError(error)
+
+      expect(store.errors).toHaveLength(0)
+      expect(store.warnings).toHaveLength(0)
+    })
+  })
+
   describe('clearErrorsForPath', () => {
-    it('should clear errors for a specific path', () => {
+    it('should clear errors for a specific path using startsWith (default behavior)', () => {
       const error1: ValidationError = {
         type: 'error',
         code: 'MISSING_REQUIRED_MAPPING',
@@ -100,6 +205,38 @@ describe('useValidationStore', () => {
       expect(store.errors[0]?.path).toBe('item.statements[0].value')
     })
 
+    it('should clear errors for exact path match when exactMatch is true', () => {
+      const error1: ValidationError = {
+        type: 'error',
+        code: 'MISSING_REQUIRED_MAPPING',
+        message: 'Required mapping is missing',
+        path: 'item.terms.labels',
+      }
+      const error2: ValidationError = {
+        type: 'error',
+        code: 'MISSING_REQUIRED_MAPPING',
+        message: 'Required mapping is missing',
+        path: 'item.terms.labels.en',
+      }
+      const error3: ValidationError = {
+        type: 'error',
+        code: 'MISSING_REQUIRED_MAPPING',
+        message: 'Required mapping is missing',
+        path: 'item.terms.labels.fr',
+      }
+
+      store.addError(error1)
+      store.addError(error2)
+      store.addError(error3)
+
+      store.clearErrorsForPath('item.terms.labels', true)
+
+      expect(store.errors).toHaveLength(2)
+      expect(store.errors.find((e) => e.path === 'item.terms.labels')).toBeUndefined()
+      expect(store.errors.find((e) => e.path === 'item.terms.labels.en')).toBeDefined()
+      expect(store.errors.find((e) => e.path === 'item.terms.labels.fr')).toBeDefined()
+    })
+
     it('should clear warnings for a specific path', () => {
       const warning1: ValidationError = {
         type: 'warning',
@@ -121,6 +258,29 @@ describe('useValidationStore', () => {
 
       expect(store.warnings).toHaveLength(1)
       expect(store.warnings[0]?.path).toBe('item.statements[0].value')
+    })
+
+    it('should clear warnings for exact path match when exactMatch is true', () => {
+      const warning1: ValidationError = {
+        type: 'warning',
+        code: 'INCOMPATIBLE_DATA_TYPE',
+        message: 'Column data type is incompatible with target',
+        path: 'item.terms.labels',
+      }
+      const warning2: ValidationError = {
+        type: 'warning',
+        code: 'INCOMPATIBLE_DATA_TYPE',
+        message: 'Column data type is incompatible with target',
+        path: 'item.terms.labels.en',
+      }
+
+      store.addWarning(warning1)
+      store.addWarning(warning2)
+
+      store.clearErrorsForPath('item.terms.labels', true)
+
+      expect(store.warnings).toHaveLength(1)
+      expect(store.warnings[0]?.path).toBe('item.terms.labels.en')
     })
   })
 
