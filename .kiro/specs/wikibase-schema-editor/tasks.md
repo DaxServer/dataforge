@@ -12,13 +12,13 @@
   - Implement drag-and-drop context types and utilities
   - _Requirements: 2.3_
 
-- [ ] 3. Build validation error handling system
+- [x] 3. Build validation error handling system
   - Write tests for validation error types and error messages
   - Write tests for error display and user feedback
   - Implement validation error handling system
   - _Requirements: 8.1_
 
-- [ ] 4. Create basic schema store with TDD
+- [x] 4. Create basic schema store with TDD
   - Write tests for Pinia store initialization and state management
   - Write tests for schema state updates and reactivity
   - Implement basic schema store structure

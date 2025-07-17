@@ -259,6 +259,7 @@ declare global {
   const useRouteParams: typeof import('@vueuse/router')['useRouteParams']
   const useRouter: typeof import('vue-router')['useRouter']
   const useSSRWidth: typeof import('@vueuse/core')['useSSRWidth']
+  const useSchemaStore: typeof import('./src/stores/schema.store')['useSchemaStore']
   const useScreenOrientation: typeof import('@vueuse/core')['useScreenOrientation']
   const useScreenSafeArea: typeof import('@vueuse/core')['useScreenSafeArea']
   const useScriptTag: typeof import('@vueuse/core')['useScriptTag']
@@ -610,6 +611,7 @@ declare module 'vue' {
     readonly useRouteParams: UnwrapRef<typeof import('@vueuse/router')['useRouteParams']>
     readonly useRouter: UnwrapRef<typeof import('vue-router')['useRouter']>
     readonly useSSRWidth: UnwrapRef<typeof import('@vueuse/core')['useSSRWidth']>
+    readonly useSchemaStore: UnwrapRef<typeof import('./src/stores/schema.store')['useSchemaStore']>
     readonly useScreenOrientation: UnwrapRef<typeof import('@vueuse/core')['useScreenOrientation']>
     readonly useScreenSafeArea: UnwrapRef<typeof import('@vueuse/core')['useScreenSafeArea']>
     readonly useScriptTag: UnwrapRef<typeof import('@vueuse/core')['useScriptTag']>
