@@ -1,5 +1,5 @@
 import type { Ref, ComputedRef } from 'vue'
-import type { ColumnInfo, WikibaseDataType } from '@frontend/types/schema-mapping'
+import type { ColumnInfo, WikibaseDataType } from '@frontend/types/wikibase-schema'
 
 // Schema editor specific drag and drop context (from design document)
 export interface SchemaDragDropContext {
@@ -30,7 +30,6 @@ export interface DropZoneConfig {
 export interface DropFeedback {
   type: 'success' | 'error' | 'warning'
   message: string
-  suggestions?: string[]
 }
 
 // Legacy drag and drop context (keeping for backward compatibility)
@@ -65,7 +64,6 @@ export type DragState = 'idle' | 'dragging' | 'dropping' | 'invalid'
 export interface DropValidation {
   isValid: boolean
   reason?: string
-  suggestions?: string[]
 }
 
 // Drag event data

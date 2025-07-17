@@ -73,6 +73,9 @@ export default defineConfig({
         secure: false,
       },
     },
+    watch: {
+      ignored: ['**/*.test.ts'],
+    },
   },
   clearScreen: false,
 })

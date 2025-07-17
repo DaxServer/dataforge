@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'bun:test'
 import { useDragDropContext, createDropZoneConfig } from '@frontend/composables/useDragDropContext'
-import type { ColumnInfo, WikibaseDataType } from '@frontend/types/schema-mapping'
+import type { ColumnInfo, WikibaseDataType } from '@frontend/types/wikibase-schema'
 import type { DropTarget } from '@frontend/types/drag-drop'
 
 describe('useDragDropContext', () => {
@@ -95,11 +95,12 @@ describe('useDragDropContext', () => {
   describe('Drop Validation', () => {
     it('should validate compatible data types', () => {
       const context = useDragDropContext()
-
       const validation = context.validateDrop(mockColumnInfo, mockDropTarget)
 
-      expect(validation.isValid).toBe(true)
-      expect(validation.reason).toBe('Compatible mapping')
+      expect(validation).toEqual({
+        isValid: true,
+        reason: 'Compatible mapping',
+      })
     })
 
     it('should reject incompatible data types', () => {
@@ -113,9 +114,10 @@ describe('useDragDropContext', () => {
 
       const validation = context.validateDrop(numericColumn, mockDropTarget)
 
-      expect(validation.isValid).toBe(false)
-      expect(validation.reason).toContain('not compatible')
-      expect(validation.suggestions).toBeDefined()
+      expect(validation).toEqual({
+        isValid: false,
+        reason: "Column type 'INTEGER' is not compatible with target types: string",
+      })
     })
 
     it('should reject nullable columns for required targets', () => {
@@ -131,9 +133,10 @@ describe('useDragDropContext', () => {
 
       const validation = context.validateDrop(nullableColumn, requiredTarget)
 
-      expect(validation.isValid).toBe(false)
-      expect(validation.reason).toContain('Required field cannot accept nullable column')
-      expect(validation.suggestions).toContain('Use a non-nullable column')
+      expect(validation).toEqual({
+        isValid: false,
+        reason: 'Required field cannot accept nullable column',
+      })
     })
 
     it('should validate statement targets with property IDs', () => {
@@ -147,7 +150,10 @@ describe('useDragDropContext', () => {
 
       const validation = context.validateDrop(mockColumnInfo, statementTarget)
 
-      expect(validation.isValid).toBe(true)
+      expect(validation).toEqual({
+        isValid: true,
+        reason: 'Compatible mapping',
+      })
     })
 
     it('should reject statement targets without property IDs', () => {
@@ -161,8 +167,10 @@ describe('useDragDropContext', () => {
 
       const validation = context.validateDrop(mockColumnInfo, statementTarget)
 
-      expect(validation.isValid).toBe(false)
-      expect(validation.reason).toContain('must have a property ID')
+      expect(validation).toEqual({
+        isValid: false,
+        reason: 'Statement target must have a property ID',
+      })
     })
 
     it('should validate label length constraints', () => {
@@ -176,9 +184,10 @@ describe('useDragDropContext', () => {
 
       const validation = context.validateDrop(longValueColumn, mockDropTarget)
 
-      expect(validation.isValid).toBe(false)
-      expect(validation.reason).toContain('should be shorter than')
-      expect(validation.suggestions).toContain('Use description field instead')
+      expect(validation).toEqual({
+        isValid: false,
+        reason: 'label values should be shorter than 250 characters',
+      })
     })
   })
 
@@ -295,12 +304,14 @@ describe('createDropZoneConfig', () => {
     const onDropCallback = () => {}
     const config = createDropZoneConfig('item.terms.labels.en', ['string'], onDropCallback)
 
-    expect(config.acceptedDataTypes).toEqual(['application/x-column-data'])
-    expect(config.onDrop).toBeDefined()
-    expect(config.onDragOver).toBeDefined()
-    expect(config.onDragEnter).toBeDefined()
-    expect(config.onDragLeave).toBeDefined()
-    expect(config.validateDrop).toBeDefined()
+    expect(config).toEqual({
+      acceptedDataTypes: ['application/x-column-data'],
+      onDrop: expect.any(Function),
+      onDragOver: expect.any(Function),
+      onDragEnter: expect.any(Function),
+      onDragLeave: expect.any(Function),
+      validateDrop: expect.any(Function),
+    })
   })
 
   it('should validate drop data correctly', () => {

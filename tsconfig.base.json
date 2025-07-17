@@ -27,7 +27,7 @@
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "types": ["@types/bun"],
+    "types": ["bun-types"],
     "baseUrl": ".",
     "paths": {
       "@backend": ["./backend/src"],

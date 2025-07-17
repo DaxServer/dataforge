@@ -13,7 +13,7 @@ import type {
   DragVisualState,
   DragDropConfig,
 } from '@frontend/types/drag-drop'
-import type { ColumnInfo, WikibaseDataType } from '@frontend/types/schema-mapping'
+import type { ColumnInfo, WikibaseDataType } from '@frontend/types/wikibase-schema'
 
 describe('Drag Drop Types', () => {
   describe('SchemaDragDropContext', () => {
@@ -156,34 +156,34 @@ describe('Drag Drop Types', () => {
         message: 'Column successfully mapped to label',
       }
 
-      expect(feedback.type).toBe('success')
-      expect(feedback.message).toBe('Column successfully mapped to label')
-      expect(feedback.suggestions).toBeUndefined()
+      expect(feedback).toEqual({
+        type: 'success',
+        message: 'Column successfully mapped to label',
+      })
     })
 
-    it('should create error feedback with suggestions', () => {
+    it('should create error feedback', () => {
       const feedback: DropFeedback = {
         type: 'error',
         message: 'Invalid data type for this target',
-        suggestions: ['Use a text-based column instead', 'Transform the data first'],
       }
 
-      expect(feedback.type).toBe('error')
-      expect(feedback.message).toBe('Invalid data type for this target')
-      expect(feedback.suggestions).toHaveLength(2)
-      expect(feedback.suggestions?.[0]).toBe('Use a text-based column instead')
+      expect(feedback).toEqual({
+        type: 'error',
+        message: 'Invalid data type for this target',
+      })
     })
 
     it('should create warning feedback', () => {
       const feedback: DropFeedback = {
         type: 'warning',
         message: 'This mapping may cause data loss',
-        suggestions: ['Consider using a different column'],
       }
 
-      expect(feedback.type).toBe('warning')
-      expect(feedback.message).toBe('This mapping may cause data loss')
-      expect(feedback.suggestions).toHaveLength(1)
+      expect(feedback).toEqual({
+        type: 'warning',
+        message: 'This mapping may cause data loss',
+      })
     })
   })
 
@@ -210,11 +210,12 @@ describe('Drag Drop Types', () => {
         dragStartPosition: { x: 100, y: 200 },
       }
 
-      expect(context.draggedColumn?.name).toBe('test_column')
-      expect(context.dropTarget?.type).toBe('label')
-      expect(context.isValidDrop).toBe(true)
-      expect(context.dragStartPosition?.x).toBe(100)
-      expect(context.dragStartPosition?.y).toBe(200)
+      expect(context).toEqual({
+        draggedColumn: columnInfo,
+        dropTarget: dropTarget,
+        isValidDrop: true,
+        dragStartPosition: { x: 100, y: 200 },
+      })
     })
 
     it('should handle null values', () => {
@@ -224,9 +225,11 @@ describe('Drag Drop Types', () => {
         isValidDrop: false,
       }
 
-      expect(context.draggedColumn).toBeNull()
-      expect(context.dropTarget).toBeNull()
-      expect(context.isValidDrop).toBe(false)
+      expect(context).toEqual({
+        draggedColumn: null,
+        dropTarget: null,
+        isValidDrop: false,
+      })
       expect(context.dragStartPosition).toBeUndefined()
     })
   })
@@ -241,12 +244,13 @@ describe('Drag Drop Types', () => {
         isRequired: true,
       }
 
-      expect(target.type).toBe('label')
-      expect(target.path).toBe('item.terms.labels.en')
-      expect(target.acceptedTypes).toContain('string')
-      expect(target.acceptedTypes).toContain('monolingualtext')
-      expect(target.language).toBe('en')
-      expect(target.isRequired).toBe(true)
+      expect(target).toEqual({
+        type: 'label',
+        path: 'item.terms.labels.en',
+        acceptedTypes: ['string', 'monolingualtext'],
+        language: 'en',
+        isRequired: true,
+      })
     })
 
     it('should create statement drop target', () => {
@@ -257,10 +261,12 @@ describe('Drag Drop Types', () => {
         propertyId: 'P123',
       }
 
-      expect(target.type).toBe('statement')
-      expect(target.path).toBe('item.statements[0].value')
-      expect(target.acceptedTypes).toContain('wikibase-item')
-      expect(target.propertyId).toBe('P123')
+      expect(target).toEqual({
+        type: 'statement',
+        path: 'item.statements[0].value',
+        acceptedTypes: ['wikibase-item', 'string'],
+        propertyId: 'P123',
+      })
       expect(target.language).toBeUndefined()
     })
 
@@ -272,9 +278,12 @@ describe('Drag Drop Types', () => {
         propertyId: 'P585',
       }
 
-      expect(target.type).toBe('qualifier')
-      expect(target.acceptedTypes).toContain('time')
-      expect(target.acceptedTypes).toContain('quantity')
+      expect(target).toEqual({
+        type: 'qualifier',
+        path: 'item.statements[0].qualifiers[0].value',
+        acceptedTypes: ['time', 'quantity'],
+        propertyId: 'P585',
+      })
     })
 
     it('should create reference drop target', () => {
@@ -285,9 +294,12 @@ describe('Drag Drop Types', () => {
         propertyId: 'P854',
       }
 
-      expect(target.type).toBe('reference')
-      expect(target.acceptedTypes).toContain('url')
-      expect(target.acceptedTypes).toContain('external-id')
+      expect(target).toEqual({
+        type: 'reference',
+        path: 'item.statements[0].references[0].value',
+        acceptedTypes: ['url', 'external-id'],
+        propertyId: 'P854',
+      })
     })
   })
 
@@ -332,24 +344,22 @@ describe('Drag Drop Types', () => {
         isValid: true,
       }
 
-      expect(validation.isValid).toBe(true)
+      expect(validation).toEqual({
+        isValid: true,
+      })
       expect(validation.reason).toBeUndefined()
-      expect(validation.suggestions).toBeUndefined()
     })
 
-    it('should create invalid drop validation with reason and suggestions', () => {
+    it('should create invalid drop validation with reason', () => {
       const validation: DropValidation = {
         isValid: false,
         reason: 'Data type mismatch: VARCHAR cannot be mapped to wikibase-item',
-        suggestions: ['Use a column with item references', 'Transform the data to item IDs first'],
       }
 
-      expect(validation.isValid).toBe(false)
-      expect(validation.reason).toBe(
-        'Data type mismatch: VARCHAR cannot be mapped to wikibase-item',
-      )
-      expect(validation.suggestions).toHaveLength(2)
-      expect(validation.suggestions?.[0]).toBe('Use a column with item references')
+      expect(validation).toEqual({
+        isValid: false,
+        reason: 'Data type mismatch: VARCHAR cannot be mapped to wikibase-item',
+      })
     })
   })
 
@@ -369,8 +379,11 @@ describe('Drag Drop Types', () => {
         timestamp: Date.now(),
       }
 
-      expect(eventData.column.name).toBe('drag_column')
-      expect(eventData.sourceElement).toBe(mockElement)
+      expect(eventData).toEqual({
+        column: columnInfo,
+        sourceElement: mockElement,
+        timestamp: eventData.timestamp,
+      })
       expect(typeof eventData.timestamp).toBe('number')
       expect(eventData.timestamp).toBeGreaterThan(0)
     })
@@ -399,10 +412,12 @@ describe('Drag Drop Types', () => {
         timestamp: Date.now(),
       }
 
-      expect(eventData.column.name).toBe('drop_column')
-      expect(eventData.target.type).toBe('description')
-      expect(eventData.position.x).toBe(250)
-      expect(eventData.position.y).toBe(300)
+      expect(eventData).toEqual({
+        column: columnInfo,
+        target: dropTarget,
+        position: { x: 250, y: 300 },
+        timestamp: eventData.timestamp,
+      })
       expect(typeof eventData.timestamp).toBe('number')
     })
   })
@@ -424,11 +439,13 @@ describe('Drag Drop Types', () => {
         hoveredTarget: 'item.terms.labels.en',
       }
 
-      expect(visualState.isDragging).toBe(true)
-      expect(visualState.draggedColumn?.name).toBe('visual_column')
-      expect(visualState.validDropTargets).toHaveLength(2)
-      expect(visualState.invalidDropTargets).toHaveLength(1)
-      expect(visualState.hoveredTarget).toBe('item.terms.labels.en')
+      expect(visualState).toEqual({
+        isDragging: true,
+        draggedColumn: columnInfo,
+        validDropTargets: ['item.terms.labels.en', 'item.terms.descriptions.en'],
+        invalidDropTargets: ['item.statements[0].value'],
+        hoveredTarget: 'item.terms.labels.en',
+      })
     })
 
     it('should handle idle visual state', () => {
@@ -440,11 +457,13 @@ describe('Drag Drop Types', () => {
         hoveredTarget: null,
       }
 
-      expect(visualState.isDragging).toBe(false)
-      expect(visualState.draggedColumn).toBeNull()
-      expect(visualState.validDropTargets).toHaveLength(0)
-      expect(visualState.invalidDropTargets).toHaveLength(0)
-      expect(visualState.hoveredTarget).toBeNull()
+      expect(visualState).toEqual({
+        isDragging: false,
+        draggedColumn: null,
+        validDropTargets: [],
+        invalidDropTargets: [],
+        hoveredTarget: null,
+      })
     })
   })
 
@@ -458,11 +477,13 @@ describe('Drag Drop Types', () => {
         snapToTarget: true,
       }
 
-      expect(config.enableVisualFeedback).toBe(true)
-      expect(config.highlightValidTargets).toBe(true)
-      expect(config.showInvalidTargetWarnings).toBe(false)
-      expect(config.animationDuration).toBe(300)
-      expect(config.snapToTarget).toBe(true)
+      expect(config).toEqual({
+        enableVisualFeedback: true,
+        highlightValidTargets: true,
+        showInvalidTargetWarnings: false,
+        animationDuration: 300,
+        snapToTarget: true,
+      })
     })
 
     it('should create minimal configuration', () => {
@@ -474,8 +495,13 @@ describe('Drag Drop Types', () => {
         snapToTarget: false,
       }
 
-      expect(config.enableVisualFeedback).toBe(false)
-      expect(config.animationDuration).toBe(0)
+      expect(config).toEqual({
+        enableVisualFeedback: false,
+        highlightValidTargets: false,
+        showInvalidTargetWarnings: false,
+        animationDuration: 0,
+        snapToTarget: false,
+      })
     })
   })
 

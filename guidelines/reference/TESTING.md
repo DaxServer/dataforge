@@ -571,7 +571,7 @@ await Bun.file(tempFilePath).delete() // May throw if file doesn't exist
 
 ## Writing Assertions
 
-Assertions are the core of any test, verifying that the code behaves as expected. Bun's test runner provides a familiar `expect` API, similar to Jest or Vitest, allowing for a wide range of assertions.
+Assertions are the core of any test, verifying that the code behaves as expected. Bun's test runner provides a familiar `expect` API, similar to Jest, allowing for a wide range of assertions.
 
 - **Be Specific**: Assertions should be as specific as possible. Instead of `expect(result).toBeDefined()`, prefer `expect(result).toEqual({ key: 'value' })`.
 - **One Assertion Per Test (Ideally)**: While not always strictly possible or practical, aiming for one logical assertion per test makes tests easier to understand and debug. If a test fails, you know exactly what failed.
@@ -855,7 +855,7 @@ describe('ApiErrorHandler', () => {
 
 ### Important Notes
 
-- Never run testing tools directly (e.g., `vitest`, `eslint`, `typescript`)
+- Never run testing tools directly (e.g., `eslint`, `typescript`)
 - Always use the package.json scripts
 - All checks must pass before considering a task complete
 - The CI pipeline enforces these same checks
