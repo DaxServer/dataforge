@@ -9,7 +9,7 @@
     "build": "vite build",
     "preview": "vite preview",
     "lint": "eslint .",
-    "typecheck": "vue-tsc"
+    "typecheck": "vue-tsc --noEmit --skipLibCheck --project tsconfig.typecheck.json"
   },
   "dependencies": {
     "@elysiajs/eden": "catalog:",

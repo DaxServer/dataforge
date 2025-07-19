@@ -61,7 +61,7 @@ describe('Project API - GET /:id', () => {
     expect(projectId).toBeDefined()
     expect(api).toBeDefined()
 
-    const { error } = await api.project({ id: projectId }).delete()
+    const { error } = await api.project({ projectId }).delete()
     expect(error).toBeNull()
 
     const tempFilePath = './temp/test-data.json'
@@ -73,7 +73,7 @@ describe('Project API - GET /:id', () => {
     const tempFilePath = './temp/test-data.json'
     await Bun.write(tempFilePath, JSON.stringify(TEST_DATA))
 
-    const { status, error } = await api.project({ id: projectId }).import.post({
+    const { status, error } = await api.project({ projectId }).import.post({
       filePath: tempFilePath,
     })
 
@@ -90,7 +90,7 @@ describe('Project API - GET /:id', () => {
     })
     expect(error).toBeNull()
     expect(status).toBe(201)
-    projectId = data!.data!.id as string
+    projectId = (data as any)?.data?.id as string
 
     await importTestData()
   })
@@ -101,7 +101,7 @@ describe('Project API - GET /:id', () => {
   })
 
   it('should return project by id', async () => {
-    const { data, status, error } = await api.project({ id: projectId }).get({
+    const { data, status, error } = await api.project({ projectId }).get({
       query: {
         offset: 0,
         limit: 25,
@@ -123,7 +123,7 @@ describe('Project API - GET /:id', () => {
   })
 
   it('should return 404 for non-existent project', async () => {
-    const { data, status, error } = await api.project({ id: NON_EXISTENT_UUID }).get({
+    const { data, status, error } = await api.project({ projectId: NON_EXISTENT_UUID }).get({
       query: {
         offset: 0,
         limit: 25,
@@ -146,7 +146,7 @@ describe('Project API - GET /:id', () => {
   })
 
   it('should return 422 for invalid project id format', async () => {
-    const { data, status, error } = await api.project({ id: INVALID_UUID }).get({
+    const { data, status, error } = await api.project({ projectId: INVALID_UUID }).get({
       query: {
         offset: 0,
         limit: 25,
@@ -161,13 +161,11 @@ describe('Project API - GET /:id', () => {
       errors: [
         {
           code: 'VALIDATION',
-          message: 'ID must be a valid UUID',
           details: [
             {
               message: `Expected string to match '${UUID_REGEX}'`,
-              path: '/id',
+              path: '/projectId',
               schema: {
-                error: 'ID must be a valid UUID',
                 pattern: UUID_REGEX,
                 type: 'string',
               },
@@ -183,9 +181,9 @@ describe('Project API - GET /:id', () => {
       name: 'Empty Project',
     })
     expect(createError).toBeNull()
-    const emptyProjectId = createData!.data!.id as string
+    const emptyProjectId = (createData as any)?.data?.id as string
 
-    const { data, status, error } = await api.project({ id: emptyProjectId }).get({
+    const { data, status, error } = await api.project({ projectId: emptyProjectId }).get({
       query: {
         offset: 0,
         limit: 25,
@@ -206,12 +204,12 @@ describe('Project API - GET /:id', () => {
       ],
     })
 
-    await api.project({ id: emptyProjectId }).delete()
+    await api.project({ projectId: emptyProjectId }).delete()
   })
 
   describe('Pagination', () => {
     it('should return first page with default limit', async () => {
-      const { data, status, error } = await api.project({ id: projectId }).get({
+      const { data, status, error } = await api.project({ projectId }).get({
         query: {
           offset: 0,
           limit: 25,
@@ -225,7 +223,7 @@ describe('Project API - GET /:id', () => {
     })
 
     it('should return first page with custom limit', async () => {
-      const { data, status, error } = await api.project({ id: projectId }).get({
+      const { data, status, error } = await api.project({ projectId }).get({
         query: { limit: 3 },
       })
 
@@ -236,7 +234,7 @@ describe('Project API - GET /:id', () => {
     })
 
     it('should return second page with offset', async () => {
-      const { data, status, error } = await api.project({ id: projectId }).get({
+      const { data, status, error } = await api.project({ projectId }).get({
         query: { limit: 3, offset: 3 },
       })
 
@@ -247,7 +245,7 @@ describe('Project API - GET /:id', () => {
     })
 
     it('should return partial page when offset near end', async () => {
-      const { data, status, error } = await api.project({ id: projectId }).get({
+      const { data, status, error } = await api.project({ projectId }).get({
         query: { limit: 5, offset: 6 },
       })
 
@@ -258,7 +256,7 @@ describe('Project API - GET /:id', () => {
     })
 
     it('should return empty data when offset exceeds total', async () => {
-      const { data, status, error } = await api.project({ id: projectId }).get({
+      const { data, status, error } = await api.project({ projectId }).get({
         query: { limit: 5, offset: 20 },
       })
 
@@ -269,7 +267,7 @@ describe('Project API - GET /:id', () => {
     })
 
     it('should handle limit of 1', async () => {
-      const { data, status, error } = await api.project({ id: projectId }).get({
+      const { data, status, error } = await api.project({ projectId }).get({
         query: { limit: 1, offset: 0 },
       })
 
@@ -280,7 +278,7 @@ describe('Project API - GET /:id', () => {
     })
 
     it('should handle maximum limit', async () => {
-      const { data, status, error } = await api.project({ id: projectId }).get({
+      const { data, status, error } = await api.project({ projectId }).get({
         query: { limit: 1000 },
       })
 

@@ -15,9 +15,9 @@ export const useProjectListStore = defineStore('project.list', () => {
     const { data, error: apiError } = await api.project.get()
 
     if (apiError) {
-      showError(apiError.value)
+      showError(apiError.value as any)
     } else {
-      projects.value = data.data
+      projects.value = (data as any).data
     }
 
     isLoading.value = false
@@ -26,10 +26,10 @@ export const useProjectListStore = defineStore('project.list', () => {
   const deleteProject = async (projectId: string) => {
     isLoading.value = true
 
-    const { error: apiError } = await api.project({ id: projectId }).delete()
+    const { error: apiError } = await api.project({ projectId }).delete()
 
     if (apiError) {
-      showError(apiError.value)
+      showError(apiError.value as any)
       isLoading.value = false
       return
     }

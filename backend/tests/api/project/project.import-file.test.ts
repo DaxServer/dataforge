@@ -343,7 +343,7 @@ describe('POST /api/project/import', () => {
         expect(status).toBe(201)
 
         const db = getDb()
-        const projectId = data?.data?.id
+        const projectId = (data as any)?.data?.id
 
         const result = await db.runAndReadAll(`PRAGMA table_info("project_${projectId}")`)
         const columns = result.getRowObjectsJson()
@@ -368,7 +368,7 @@ describe('POST /api/project/import', () => {
         expect(status).toBe(201)
 
         const db = getDb()
-        const projectId = data?.data?.id
+        const projectId = (data as any)?.data?.id
 
         const result = await db.runAndReadAll(`PRAGMA table_info("project_${projectId}")`)
         const columns = result.getRowObjectsJson()

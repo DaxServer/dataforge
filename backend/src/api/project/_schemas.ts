@@ -16,11 +16,10 @@ export const ProjectResponseSchema = t.Object({
 
 export type Project = typeof ProjectResponseSchema.static
 
+export const UUIDValidator = t.String({ pattern: UUID_REGEX })
+
 export const UUIDParam = t.Object({
-  id: t.String({
-    pattern: UUID_REGEX,
-    error: 'ID must be a valid UUID',
-  }),
+  id: UUIDValidator,
 })
 
 export const PaginationQuery = t.Object({

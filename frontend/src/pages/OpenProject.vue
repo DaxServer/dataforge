@@ -5,8 +5,8 @@ const { hasProjects, projectCount, isLoading, projects } = storeToRefs(projectsL
 const { fetchProjects } = projectsListStore
 
 // Load projects when component mounts
-onMounted(() => {
-  fetchProjects()
+onMounted(async () => {
+  await fetchProjects()
 })
 </script>
 

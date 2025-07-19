@@ -236,5 +236,5 @@ export const MediaInfo = Type.Composite([
   }),
 ])
 
-export type Entity = Static<typeof Entity>
 export const Entity = Type.Union([Item, MediaInfo])
+export type Entity = Static<typeof Entity>
