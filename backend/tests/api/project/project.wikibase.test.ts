@@ -189,8 +189,8 @@ const insertTestProject = async () => {
 
 const generateRandomWikibaseSchema = (overrides = {}) => {
   return {
-    id: Bun.randomUUIDv7(),
-    project_id: TEST_PROJECT_ID,
+    schemaId: Bun.randomUUIDv7(),
+    projectId: TEST_PROJECT_ID,
     name: deterministicString('Test Wikibase Schema'),
     wikibase: 'wikidata',
     schema: {
@@ -208,8 +208,8 @@ const generateRandomWikibaseSchema = (overrides = {}) => {
 
 const generateRandomMediaInfoSchema = (overrides = {}) => {
   return {
-    id: Bun.randomUUIDv7(),
-    project_id: TEST_PROJECT_ID,
+    schemaId: Bun.randomUUIDv7(),
+    projectId: TEST_PROJECT_ID,
     name: deterministicString('Test MediaInfo Schema'),
     wikibase: 'wikidata',
     schema: {
@@ -242,12 +242,18 @@ const expectNotFoundError = (status: number, data: any, error: any, message: str
   )
 }
 
-const expectSuccess = (status: number, data: any, error: any, schema: any) => {
-  expect(status).toBe(status)
+const expectSuccess = (
+  expectedStatus: number,
+  status: number,
+  data: any,
+  error: any,
+  schema: any,
+) => {
+  expect(status).toBe(expectedStatus)
   expect(data).toEqual({
     data: expect.objectContaining({
-      id: schema.id,
-      project_id: schema.project_id,
+      id: schema.schemaId,
+      project_id: schema.projectId,
       name: schema.name,
       wikibase: schema.wikibase,
       schema: schema.schema,
@@ -274,7 +280,7 @@ describe('Wikibase API', () => {
   describe('GET /api/project/:project_id/schemas', () => {
     test('should return empty array when no schemas exist', async () => {
       const { data, status, error } = await api
-        .project({ project_id: TEST_PROJECT_ID })
+        .project({ projectId: TEST_PROJECT_ID })
         .schemas.get()
 
       expect(status).toBe(200)
@@ -284,19 +290,24 @@ describe('Wikibase API', () => {
 
     test('should return schemas for a project', async () => {
       const schema = generateRandomWikibaseSchema()
-      await api.project({ project_id: TEST_PROJECT_ID }).schemas.post(schema)
+      await api.project({ projectId: TEST_PROJECT_ID }).schemas.post(schema)
 
       const { data, status, error } = await api
-        .project({ project_id: TEST_PROJECT_ID })
+        .project({ projectId: TEST_PROJECT_ID })
         .schemas.get()
 
       expect(status).toBe(200)
       expect(data).toEqual({
         data: [
-          Object.assign({}, schema, {
+          {
+            id: schema.schemaId,
+            project_id: schema.projectId,
+            name: schema.name,
+            wikibase: schema.wikibase,
+            schema: schema.schema,
             created_at: expect.any(String),
             updated_at: expect.any(String),
-          }),
+          },
         ],
       })
       expect(error).toBeNull()
@@ -304,7 +315,7 @@ describe('Wikibase API', () => {
 
     test('should return 404 for non-existent project', async () => {
       const randomId = Bun.randomUUIDv7()
-      const { data, status, error } = await api.project({ project_id: randomId }).schemas.get()
+      const { data, status, error } = await api.project({ projectId: randomId }).schemas.get()
 
       expectNotFoundError(status, data, error, `Project with identifier '${randomId}' not found`)
     })
@@ -313,22 +324,20 @@ describe('Wikibase API', () => {
   describe('POST /api/project/:project_id/schemas', () => {
     test('should create a new Wikibase schema', async () => {
       const schema = generateRandomWikibaseSchema()
+
       const { data, status, error } = await api
-        .project({ project_id: TEST_PROJECT_ID })
+        .project({ projectId: TEST_PROJECT_ID })
         .schemas.post(schema)
 
-      expectSuccess(status, data, error, schema)
+      expectSuccess(201, status, data, error, schema)
     })
 
     test('should return 404 when project does not exist', async () => {
       const randomProjectId = Bun.randomUUIDv7()
-      const schema = {
-        ...generateRandomWikibaseSchema(),
-        project_id: randomProjectId, // Non-existent project
-      }
+      const schema = generateRandomWikibaseSchema()
 
       const { data, status, error } = await api
-        .project({ project_id: randomProjectId })
+        .project({ projectId: randomProjectId })
         .schemas.post(schema)
 
       expectNotFoundError(
@@ -343,20 +352,20 @@ describe('Wikibase API', () => {
   describe('GET /api/project/:project_id/schemas/:id', () => {
     test('should return schema with full details', async () => {
       const schema = generateRandomWikibaseSchema()
-      await api.project({ project_id: TEST_PROJECT_ID }).schemas.post(schema)
+      await api.project({ projectId: TEST_PROJECT_ID }).schemas.post(schema)
       const { data, status, error } = await api
-        .project({ project_id: TEST_PROJECT_ID })
-        .schemas({ id: schema.id })
+        .project({ projectId: TEST_PROJECT_ID })
+        .schemas({ schemaId: schema.schemaId })
         .get()
 
-      expectSuccess(status, data, error, schema)
+      expectSuccess(200, status, data, error, schema)
     })
 
     test('should return 404 for non-existent project', async () => {
       const randomId = Bun.randomUUIDv7()
       const { data, status, error } = await api
-        .project({ project_id: randomId })
-        .schemas({ id: Bun.randomUUIDv7() })
+        .project({ projectId: randomId })
+        .schemas({ schemaId: Bun.randomUUIDv7() })
         .get()
 
       expectNotFoundError(status, data, error, `Project with identifier '${randomId}' not found`)
@@ -365,8 +374,8 @@ describe('Wikibase API', () => {
     test('should return 404 for non-existent schema', async () => {
       const randomId = Bun.randomUUIDv7()
       const { data, status, error } = await api
-        .project({ project_id: TEST_PROJECT_ID })
-        .schemas({ id: randomId })
+        .project({ projectId: TEST_PROJECT_ID })
+        .schemas({ schemaId: randomId })
         .get()
 
       expectNotFoundError(status, data, error, `Schema with identifier '${randomId}' not found`)
@@ -376,51 +385,59 @@ describe('Wikibase API', () => {
   describe('PUT /api/project/:project_id/schemas/:id', () => {
     test('should update schema name', async () => {
       const schema = generateRandomWikibaseSchema()
-      await api.project({ project_id: TEST_PROJECT_ID }).schemas.post(schema)
+      await api.project({ projectId: TEST_PROJECT_ID }).schemas.post(schema)
 
       const updateData = {
         name: 'Updated Schema Name',
+        schema: schema.schema,
       }
       const { data, status, error } = await api
-        .project({ project_id: TEST_PROJECT_ID })
-        .schemas({ id: schema.id })
+        .project({ projectId: TEST_PROJECT_ID })
+        .schemas({ schemaId: schema.schemaId })
         .put(updateData)
 
-      expectSuccess(status, data, error, { ...schema, name: updateData.name })
+      expectSuccess(200, status, data, error, { ...schema, name: updateData.name })
     })
 
     test('should update wikibase', async () => {
       const schema = generateRandomWikibaseSchema()
-      await api.project({ project_id: TEST_PROJECT_ID }).schemas.post(schema)
+      await api.project({ projectId: TEST_PROJECT_ID }).schemas.post(schema)
       const updateData = {
         wikibase: 'commons',
+        schema: schema.schema,
       }
 
       const { data, status, error } = await api
-        .project({ project_id: TEST_PROJECT_ID })
-        .schemas({ id: schema.id })
+        .project({ projectId: TEST_PROJECT_ID })
+        .schemas({ schemaId: schema.schemaId })
         .put(updateData)
 
-      expectSuccess(status, data, error, { ...schema, wikibase: updateData.wikibase })
+      expectSuccess(200, status, data, error, { ...schema, wikibase: updateData.wikibase })
     })
 
     test('should return 404 for non-existent project', async () => {
       const randomId = Bun.randomUUIDv7()
+      const schema = generateRandomWikibaseSchema()
+      await api.project({ projectId: TEST_PROJECT_ID }).schemas.post(schema)
+
       const { data, status, error } = await api
-        .project({ project_id: randomId })
-        .schemas({ id: Bun.randomUUIDv7() })
-        .put({ name: 'New Name' })
+        .project({ projectId: randomId })
+        .schemas({ schemaId: Bun.randomUUIDv7() })
+        .put({ name: 'New Name', schema: schema.schema })
 
       expectNotFoundError(status, data, error, `Project with identifier '${randomId}' not found`)
     })
 
     test('should return 404 for non-existent schema', async () => {
-      const updateData = { name: 'New Name' }
+      const schema = generateRandomWikibaseSchema()
+      await api.project({ projectId: TEST_PROJECT_ID }).schemas.post(schema)
+
+      const updateData = { name: 'New Name', schema: schema.schema }
       const randomId = Bun.randomUUIDv7()
 
       const { data, status, error } = await api
-        .project({ project_id: TEST_PROJECT_ID })
-        .schemas({ id: randomId })
+        .project({ projectId: TEST_PROJECT_ID })
+        .schemas({ schemaId: randomId })
         .put(updateData)
 
       expectNotFoundError(status, data, error, `Schema with identifier '${randomId}' not found`)
@@ -430,11 +447,11 @@ describe('Wikibase API', () => {
   describe('DELETE /api/project/:project_id/schemas/:id', () => {
     test('should delete schema successfully', async () => {
       const schema = generateRandomWikibaseSchema()
-      await api.project({ project_id: TEST_PROJECT_ID }).schemas.post(schema)
+      await api.project({ projectId: TEST_PROJECT_ID }).schemas.post(schema)
 
       const { data, status, error } = await api
-        .project({ project_id: TEST_PROJECT_ID })
-        .schemas({ id: schema.id })
+        .project({ projectId: TEST_PROJECT_ID })
+        .schemas({ schemaId: schema.schemaId })
         .delete()
 
       expect(status).toBe(204)
@@ -446,21 +463,24 @@ describe('Wikibase API', () => {
         data: getResponse,
         status: getStatus,
         error: getError,
-      } = await api.project({ project_id: TEST_PROJECT_ID }).schemas({ id: schema.id }).get()
+      } = await api
+        .project({ projectId: TEST_PROJECT_ID })
+        .schemas({ schemaId: schema.schemaId })
+        .get()
 
       expectNotFoundError(
         getStatus,
         getResponse,
         getError,
-        `Schema with identifier '${schema.id}' not found`,
+        `Schema with identifier '${schema.schemaId}' not found`,
       )
     })
 
     test('should return 404 for non-existent project', async () => {
       const randomId = Bun.randomUUIDv7()
       const { data, status, error } = await api
-        .project({ project_id: randomId })
-        .schemas({ id: Bun.randomUUIDv7() })
+        .project({ projectId: randomId })
+        .schemas({ schemaId: Bun.randomUUIDv7() })
         .delete()
 
       expectNotFoundError(status, data, error, `Project with identifier '${randomId}' not found`)
@@ -469,8 +489,8 @@ describe('Wikibase API', () => {
     test('should return 404 for non-existent schema', async () => {
       const randomId = Bun.randomUUIDv7()
       const { data, status, error } = await api
-        .project({ project_id: TEST_PROJECT_ID })
-        .schemas({ id: randomId })
+        .project({ projectId: TEST_PROJECT_ID })
+        .schemas({ schemaId: randomId })
         .delete()
 
       expectNotFoundError(status, data, error, `Schema with identifier '${randomId}' not found`)
@@ -481,59 +501,61 @@ describe('Wikibase API', () => {
     test('should create a new MediaInfo schema', async () => {
       const mediaInfoSchema = generateRandomMediaInfoSchema()
       const { data, status, error } = await api
-        .project({ project_id: TEST_PROJECT_ID })
+        .project({ projectId: TEST_PROJECT_ID })
         .schemas.post(mediaInfoSchema)
 
-      expectSuccess(status, data, error, mediaInfoSchema)
+      expectSuccess(201, status, data, error, mediaInfoSchema)
     })
 
     test('should return a MediaInfo schema', async () => {
       const mediaInfoSchema = generateRandomMediaInfoSchema()
-      await api.project({ project_id: TEST_PROJECT_ID }).schemas.post(mediaInfoSchema)
+      await api.project({ projectId: TEST_PROJECT_ID }).schemas.post(mediaInfoSchema)
 
       const { data, status, error } = await api
-        .project({ project_id: TEST_PROJECT_ID })
-        .schemas({ id: mediaInfoSchema.id })
+        .project({ projectId: TEST_PROJECT_ID })
+        .schemas({ schemaId: mediaInfoSchema.schemaId })
         .get()
 
-      expectSuccess(status, data, error, mediaInfoSchema)
+      expectSuccess(200, status, data, error, mediaInfoSchema)
     })
 
     test('should update a MediaInfo schema name', async () => {
       const mediaInfoSchema = generateRandomMediaInfoSchema()
-      await api.project({ project_id: TEST_PROJECT_ID }).schemas.post(mediaInfoSchema)
+      await api.project({ projectId: TEST_PROJECT_ID }).schemas.post(mediaInfoSchema)
 
-      const updateData = { name: 'Updated Schema Name' }
+      const updateData = { name: 'Updated Schema Name', schema: mediaInfoSchema.schema }
 
       const { data, status, error } = await api
-        .project({ project_id: TEST_PROJECT_ID })
-        .schemas({ id: mediaInfoSchema.id })
+        .project({ projectId: TEST_PROJECT_ID })
+        .schemas({ schemaId: mediaInfoSchema.schemaId })
         .put(updateData)
 
-      expectSuccess(status, data, error, { ...mediaInfoSchema, name: updateData.name })
+      expectSuccess(200, status, data, error, { ...mediaInfoSchema, name: updateData.name })
     })
 
     test('should update a MediaInfo schema schema', async () => {
       const mediaInfoSchema = generateRandomMediaInfoSchema()
-      await api.project({ project_id: TEST_PROJECT_ID }).schemas.post(mediaInfoSchema)
+      await api.project({ projectId: TEST_PROJECT_ID }).schemas.post(mediaInfoSchema)
 
-      const updateData = { schema: { ...mediaInfoSchema.schema, id: deterministicMediaInfoId() } }
+      const updateData = {
+        schema: { ...mediaInfoSchema.schema, id: deterministicMediaInfoId() },
+      }
 
       const { data, status, error } = await api
-        .project({ project_id: TEST_PROJECT_ID })
-        .schemas({ id: mediaInfoSchema.id })
+        .project({ projectId: TEST_PROJECT_ID })
+        .schemas({ schemaId: mediaInfoSchema.schemaId })
         .put(updateData)
 
-      expectSuccess(status, data, error, { ...mediaInfoSchema, schema: updateData.schema })
+      expectSuccess(200, status, data, error, { ...mediaInfoSchema, schema: updateData.schema })
     })
 
     test('should delete a MediaInfo schema', async () => {
       const mediaInfoSchema = generateRandomMediaInfoSchema()
-      await api.project({ project_id: TEST_PROJECT_ID }).schemas.post(mediaInfoSchema)
+      await api.project({ projectId: TEST_PROJECT_ID }).schemas.post(mediaInfoSchema)
 
       const { data, status, error } = await api
-        .project({ project_id: TEST_PROJECT_ID })
-        .schemas({ id: mediaInfoSchema.id })
+        .project({ projectId: TEST_PROJECT_ID })
+        .schemas({ schemaId: mediaInfoSchema.schemaId })
         .delete()
 
       expect(status).toBe(204)

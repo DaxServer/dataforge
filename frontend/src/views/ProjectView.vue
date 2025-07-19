@@ -4,9 +4,9 @@ const route = useRoute()
 
 const activeTab = useRouteParams('tab') as Ref<string>
 
-const onTabChange = (value: string | number) => {
+const onTabChange = async (value: string | number) => {
   activeTab.value = value as string
-  router.replace({ name: route.name, params: { ...route.params, tab: value as string } })
+  await router.replace({ name: route.name, params: { ...route.params, tab: value as string } })
 }
 
 const _tabs = {

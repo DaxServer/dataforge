@@ -18,7 +18,7 @@ describe('POST /project/:projectId/import-file', () => {
     api = createTestApi()
 
     const { data } = await api.project.post({ name: 'Test Project' })
-    projectId = data!.data!.id as string
+    projectId = (data as any)?.data?.id as string
   })
 
   afterEach(async () => {
@@ -45,7 +45,7 @@ describe('POST /project/:projectId/import-file', () => {
     const testData = 'This is not JSON data'
     const file = new File([testData], 'test-file.txt', { type: 'text/plain' })
 
-    const { data, status, error } = await api.project({ id: projectId }).import.file.post({
+    const { data, status, error } = await api.project({ projectId }).import.file.post({
       file,
     })
 
@@ -57,7 +57,7 @@ describe('POST /project/:projectId/import-file', () => {
   test('should return 422 for empty file', async () => {
     const file = new File([], 'empty-file.json', { type: 'application/json' })
 
-    const { data, status, error } = await api.project({ id: projectId }).import.file.post({
+    const { data, status, error } = await api.project({ projectId }).import.file.post({
       file,
     })
 
@@ -90,7 +90,7 @@ describe('POST /project/:projectId/import-file', () => {
     const testData = JSON.stringify({ name: 'John', age: 30, city: 'New York' })
     const file = new File([testData], 'test-data.json', { type: 'application/json' })
 
-    const { data, status, error } = await api.project({ id: projectId }).import.file.post({
+    const { data, status, error } = await api.project({ projectId }).import.file.post({
       file,
     })
 
@@ -98,7 +98,7 @@ describe('POST /project/:projectId/import-file', () => {
     expect(data).toHaveProperty('tempFilePath', expect.stringMatching(/\.json$/))
     expect(error).toBeNull()
 
-    const tempFile = Bun.file(data.tempFilePath)
+    const tempFile = Bun.file((data as any).tempFilePath)
     expect(await tempFile.exists()).toBe(true)
 
     const savedContent = await tempFile.text()
@@ -118,7 +118,7 @@ describe('POST /project/:projectId/import-file', () => {
       data: uploadData,
       status: uploadStatus,
       error: uploadError,
-    } = await api.project({ id: projectId }).import.file.post({
+    } = await api.project({ projectId }).import.file.post({
       file,
     })
 
@@ -130,8 +130,8 @@ describe('POST /project/:projectId/import-file', () => {
       data: importData,
       status: importStatus,
       error: importError,
-    } = await api.project({ id: projectId }).import.post({
-      filePath: uploadData.tempFilePath,
+    } = await api.project({ projectId }).import.post({
+      filePath: (uploadData as any).tempFilePath,
     })
 
     expect(importStatus).toBe(201)

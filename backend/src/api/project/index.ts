@@ -1,9 +1,9 @@
-import { Elysia } from 'elysia'
+import { Elysia, t } from 'elysia'
 import cors from '@elysiajs/cors'
 import { errorHandlerPlugin } from '@backend/plugins/error-handler'
 import { ApiErrorHandler } from '@backend/types/error-handler'
 import { databasePlugin } from '@backend/plugins/database'
-import { ProjectResponseSchema, type Project, UUIDParam } from '@backend/api/project/_schemas'
+import { ProjectResponseSchema, type Project, UUIDValidator } from '@backend/api/project/_schemas'
 import { enhanceSchemaWithTypes, type DuckDBTablePragma } from '@backend/utils/duckdb-types'
 import { ProjectImportFileAltSchema, ProjectImportSchema } from '@backend/api/project/import'
 import { ProjectCreateSchema } from '@backend/api/project/project.create'
@@ -15,13 +15,11 @@ import {
   generateProjectName,
   ProjectImportFileSchema,
 } from '@backend/api/project/project.import-file'
-import { wikibaseRoutes } from '@backend/api/project/project.wikibase'
 
 export const projectRoutes = new Elysia({ prefix: '/api/project' })
   .use(errorHandlerPlugin)
   .use(databasePlugin)
   .use(cors())
-  .use(wikibaseRoutes)
 
   .get(
     '/',
@@ -198,11 +196,15 @@ export const projectRoutes = new Elysia({ prefix: '/api/project' })
 
   .guard({
     schema: 'standalone',
-    params: UUIDParam,
+    params: t.Object({
+      projectId: UUIDValidator,
+    }),
   })
 
-  .resolve(async ({ db, params: { id } }) => {
-    const reader = await db().runAndReadAll('SELECT * FROM _meta_projects WHERE id = ?', [id])
+  .resolve(async ({ db, params: { projectId } }) => {
+    const reader = await db().runAndReadAll('SELECT * FROM _meta_projects WHERE id = ?', [
+      projectId,
+    ])
     const projects = reader.getRowObjectsJson()
 
     return {
@@ -210,18 +212,18 @@ export const projectRoutes = new Elysia({ prefix: '/api/project' })
     }
   })
 
-  .onBeforeHandle(async ({ params: { id }, projects, status }) => {
+  .onBeforeHandle(async ({ params: { projectId }, projects, status }) => {
     if (projects.length === 0) {
-      return status(404, ApiErrorHandler.notFoundErrorWithData('Project', id))
+      return status(404, ApiErrorHandler.notFoundErrorWithData('Project', projectId))
     }
   })
 
   .get(
-    '/:id',
-    async ({ db, params: { id }, query: { limit = 0, offset = 0 }, projects, status }) => {
+    '/:projectId',
+    async ({ db, params: { projectId }, query: { limit = 0, offset = 0 }, projects, status }) => {
       try {
         // Get the project's data from the project table with pagination
-        const tableName = `project_${id}`
+        const tableName = `project_${projectId}`
         const rowsReader = await db().runAndReadAll(
           `SELECT * FROM "${tableName}" LIMIT ? OFFSET ?`,
           [limit, offset],
@@ -248,7 +250,7 @@ export const projectRoutes = new Elysia({ prefix: '/api/project' })
         }
       } catch (error) {
         if (error instanceof Error && error.message.includes('does not exist')) {
-          return status(404, ApiErrorHandler.notFoundErrorWithData('Project', id))
+          return status(404, ApiErrorHandler.notFoundErrorWithData('Project', projectId))
         }
         throw error
       }
@@ -257,18 +259,18 @@ export const projectRoutes = new Elysia({ prefix: '/api/project' })
   )
 
   .delete(
-    '/:id',
-    async ({ db, params: { id }, status }) => {
+    '/:projectId',
+    async ({ db, params: { projectId }, status }) => {
       // Delete the project and return the deleted row if it exists
       const reader = await db().runAndReadAll(
         'DELETE FROM _meta_projects WHERE id = ? RETURNING id',
-        [id],
+        [projectId],
       )
 
       const deleted = reader.getRowObjectsJson()
 
       if (deleted.length === 0) {
-        return status(404, ApiErrorHandler.notFoundErrorWithData('Project', id))
+        return status(404, ApiErrorHandler.notFoundErrorWithData('Project', projectId))
       }
 
       // @ts-expect-error
@@ -278,8 +280,8 @@ export const projectRoutes = new Elysia({ prefix: '/api/project' })
   )
 
   .post(
-    '/:id/import',
-    async ({ db, params: { id }, body: { filePath }, status }) => {
+    '/:projectId/import',
+    async ({ db, params: { projectId }, body: { filePath }, status }) => {
       const fileExists = await Bun.file(filePath).exists()
 
       if (!fileExists) {
@@ -293,7 +295,7 @@ export const projectRoutes = new Elysia({ prefix: '/api/project' })
       let tableExistsReader
       try {
         tableExistsReader = await db().runAndReadAll(
-          `SELECT 1 FROM duckdb_tables() WHERE table_name = 'project_${id}'`,
+          `SELECT 1 FROM duckdb_tables() WHERE table_name = 'project_${projectId}'`,
         )
       } catch (error) {
         return status(
@@ -306,12 +308,12 @@ export const projectRoutes = new Elysia({ prefix: '/api/project' })
       }
 
       if (tableExistsReader.getRows().length > 0) {
-        return status(409, ApiErrorHandler.tableExistsErrorWithData(`project_${id}`))
+        return status(409, ApiErrorHandler.tableExistsErrorWithData(`project_${projectId}`))
       }
 
       // Try to create the table directly
       try {
-        await db().run(`CREATE TABLE "project_${id}" AS SELECT * FROM read_json_auto(?)`, [
+        await db().run(`CREATE TABLE "project_${projectId}" AS SELECT * FROM read_json_auto(?)`, [
           filePath,
         ])
 
@@ -343,7 +345,7 @@ export const projectRoutes = new Elysia({ prefix: '/api/project' })
   )
 
   .post(
-    '/:id/import/file',
+    '/:projectId/import/file',
     async ({ body: { file }, status }) => {
       try {
         // Generate a unique temporary file name

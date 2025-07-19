@@ -17,7 +17,7 @@ describe('POST /project/:projectId/import', () => {
     api = createTestApi()
 
     const { data } = await api.project.post({ name: 'Test Project' })
-    projectId = data!.data!.id as string
+    projectId = (data as any)?.data?.id as string
   })
 
   afterEach(async () => {
@@ -38,7 +38,7 @@ describe('POST /project/:projectId/import', () => {
     const tempFilePath = './temp-test-file.json'
     await Bun.write(tempFilePath, JSON.stringify({ test: 'data' }))
 
-    const { data, status, error } = await api.project({ id: projectId }).import.post({
+    const { data, status, error } = await api.project({ projectId }).import.post({
       filePath: tempFilePath,
     })
 
@@ -50,7 +50,7 @@ describe('POST /project/:projectId/import', () => {
   test('should return 400 for a missing JSON file', async () => {
     const nonExistentFilePath = './non-existent-file.json'
 
-    const { data, status, error } = await api.project({ id: projectId }).import.post({
+    const { data, status, error } = await api.project({ projectId }).import.post({
       filePath: nonExistentFilePath,
     })
 
@@ -73,7 +73,7 @@ describe('POST /project/:projectId/import', () => {
     const tempFilePath = './temp-invalid-json-file.json'
     await Bun.write(tempFilePath, 'this is not valid json')
 
-    const { data, status, error } = await api.project({ id: projectId }).import.post({
+    const { data, status, error } = await api.project({ projectId }).import.post({
       filePath: tempFilePath,
     })
 
@@ -99,7 +99,7 @@ describe('POST /project/:projectId/import', () => {
     const testData = [{ id: 1, name: 'test' }]
     await Bun.write(tempFilePath, JSON.stringify(testData))
 
-    const { data, status, error } = await api.project({ id: projectId }).import.post({
+    const { data, status, error } = await api.project({ projectId }).import.post({
       filePath: tempFilePath,
     })
 
@@ -124,7 +124,7 @@ describe('POST /project/:projectId/import', () => {
       data: firstData,
       status: firstStatus,
       error: firstError,
-    } = await api.project({ id: projectId }).import.post({
+    } = await api.project({ projectId }).import.post({
       filePath: tempFilePath,
     })
     expect(firstStatus).toBe(201)
@@ -132,7 +132,7 @@ describe('POST /project/:projectId/import', () => {
     expect(firstError).toBeNull()
 
     // Second import with same project ID - should fail with 409
-    const { data, status, error } = await api.project({ id: projectId }).import.post({
+    const { data, status, error } = await api.project({ projectId }).import.post({
       filePath: tempFilePath,
     })
 

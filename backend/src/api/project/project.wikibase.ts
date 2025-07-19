@@ -1,30 +1,31 @@
 import { Elysia, t } from 'elysia'
+import cors from '@elysiajs/cors'
 import { databasePlugin } from '@backend/plugins/database'
 import { errorHandlerPlugin } from '@backend/plugins/error-handler'
 import { ApiError } from '@backend/types/error-schemas'
-import { UUID_REGEX, UUIDParam } from '@backend/api/project/_schemas'
+import { UUIDValidator } from '@backend/api/project/_schemas'
 import { ApiErrorHandler } from '@backend/types/error-handler'
-import { Entity } from '@backend/types/wikibase-schema'
 
 const WikibaseSchemaCreateRequest = t.Object({
-  id: t.Optional(t.String({ pattern: UUID_REGEX })),
-  project_id: t.String({ pattern: UUID_REGEX }),
+  schemaId: t.Optional(UUIDValidator),
+  projectId: UUIDValidator,
   name: t.String({ minLength: 1, maxLength: 255 }),
   wikibase: t.Optional(t.String({ default: 'wikidata' })),
-  schema: t.Optional(Entity),
+  schema: t.Optional(t.Any()),
 })
 
 const WikibaseSchemaUpdateRequest = t.Object({
   name: t.Optional(t.String({ minLength: 1, maxLength: 255 })),
   wikibase: t.Optional(t.String()),
-  schema: t.Optional(Entity),
+  schema: t.Optional(t.Any()),
 })
 
 const ProjectParams = t.Object({
-  project_id: t.String({ pattern: UUID_REGEX }),
+  projectId: UUIDValidator,
 })
 
-export const wikibaseRoutes = new Elysia({ prefix: '/api/project/:project_id' })
+export const wikibaseRoutes = new Elysia({ prefix: '/api/project/:projectId/schemas' })
+  .use(cors())
   .use(errorHandlerPlugin)
   .use(databasePlugin)
 
@@ -33,23 +34,23 @@ export const wikibaseRoutes = new Elysia({ prefix: '/api/project/:project_id' })
     params: ProjectParams,
   })
 
-  .onBeforeHandle(async ({ db, params: { project_id }, status }) => {
+  .onBeforeHandle(async ({ db, params: { projectId }, status }) => {
     const reader = await db().runAndReadAll('SELECT id FROM _meta_projects WHERE id = ?', [
-      project_id,
+      projectId,
     ])
 
     if (reader.getRowObjectsJson().length === 0) {
-      return status(404, ApiErrorHandler.notFoundErrorWithData('Project', project_id))
+      return status(404, ApiErrorHandler.notFoundErrorWithData('Project', projectId))
     }
   })
 
   // Get all schemas for a project
   .get(
-    '/schemas',
-    async ({ db, params: { project_id } }) => {
+    '/',
+    async ({ db, params: { projectId } }) => {
       const reader = await db().runAndReadAll(
         `SELECT * FROM _meta_wikibase_schema WHERE project_id = ?`,
-        [project_id],
+        [projectId],
       )
       const rows = reader.getRowObjectsJson()
       // Parse schema JSON if needed
@@ -79,19 +80,19 @@ export const wikibaseRoutes = new Elysia({ prefix: '/api/project/:project_id' })
 
   // Create a new Wikibase schema
   .post(
-    '/schemas',
+    '/',
     async ({ db, body, status }) => {
-      const { id, project_id, name, wikibase = 'wikidata', schema = {} } = body
+      const { schemaId, projectId, name, wikibase = 'wikidata', schema = {} } = body
       // Compose new schema object, use provided id if present
-      const schemaId = id || Bun.randomUUIDv7()
+      const _schemaId = schemaId || Bun.randomUUIDv7()
 
       await db().run(
         'INSERT INTO _meta_wikibase_schema (id, project_id, wikibase, name, schema) VALUES (?, ?, ?, ?, ?)',
-        [schemaId, project_id, wikibase, name, JSON.stringify(schema)],
+        [_schemaId, projectId, wikibase, name, JSON.stringify(schema)],
       )
 
       const reader = await db().runAndReadAll('SELECT * FROM _meta_wikibase_schema WHERE id = ?', [
-        schemaId,
+        _schemaId,
       ])
       const row = reader.getRowObjectsJson()[0]
       let parsedSchema = row?.schema
@@ -116,13 +117,16 @@ export const wikibaseRoutes = new Elysia({ prefix: '/api/project/:project_id' })
 
   .guard({
     schema: 'standalone',
-    params: UUIDParam,
+    params: t.Object({
+      projectId: UUIDValidator,
+      schemaId: UUIDValidator,
+    }),
   })
 
-  .resolve(async ({ db, params: { project_id, id } }) => {
+  .resolve(async ({ db, params: { projectId, schemaId } }) => {
     const reader = await db().runAndReadAll(
       'SELECT * FROM _meta_wikibase_schema WHERE id = ? AND project_id = ?',
-      [id, project_id],
+      [schemaId, projectId],
     )
 
     return {
@@ -130,15 +134,15 @@ export const wikibaseRoutes = new Elysia({ prefix: '/api/project/:project_id' })
     }
   })
 
-  .onBeforeHandle(async ({ params: { id }, schema, status }) => {
+  .onBeforeHandle(async ({ params: { schemaId }, schema, status }) => {
     if (schema.length === 0 || !schema[0]) {
-      return status(404, ApiErrorHandler.notFoundErrorWithData('Schema', id))
+      return status(404, ApiErrorHandler.notFoundErrorWithData('Schema', schemaId))
     }
   })
 
   // Get a specific schema with full details
   .get(
-    '/schemas/:id',
+    '/:schemaId',
     async ({ schema }) => {
       let _schema = schema[0]!.schema
       try {
@@ -160,8 +164,8 @@ export const wikibaseRoutes = new Elysia({ prefix: '/api/project/:project_id' })
 
   // Update a schema
   .put(
-    '/schemas/:id',
-    async ({ db, params: { id }, body: { name, wikibase, schema: ns }, schema, status }) => {
+    '/:schemaId',
+    async ({ db, params: { schemaId }, body: { name, wikibase, schema: ns }, schema, status }) => {
       let _name = schema[0]!.name as string
       let _wikibase = schema[0]!.wikibase as string
 
@@ -179,14 +183,14 @@ export const wikibaseRoutes = new Elysia({ prefix: '/api/project/:project_id' })
         _wikibase = wikibase
       }
       if (ns) {
-        _schema = ns
+        _schema = ns as any
       }
 
       const updated_at = new Date().toISOString()
       try {
         await db().run(
           'UPDATE _meta_wikibase_schema SET name = ?, wikibase = ?, schema = ?, updated_at = ? WHERE id = ?',
-          [_name, _wikibase, JSON.stringify(_schema), updated_at, id],
+          [_name, _wikibase, JSON.stringify(_schema), updated_at, schemaId],
         )
       } catch (error) {
         return status(
@@ -196,7 +200,7 @@ export const wikibaseRoutes = new Elysia({ prefix: '/api/project/:project_id' })
       }
 
       const reader = await db().runAndReadAll('SELECT * FROM _meta_wikibase_schema WHERE id = ?', [
-        id,
+        schemaId,
       ])
       const row = reader.getRowObjectsJson()[0]
       let parsedSchema = row?.schema
@@ -220,9 +224,9 @@ export const wikibaseRoutes = new Elysia({ prefix: '/api/project/:project_id' })
 
   // Delete a schema
   .delete(
-    '/schemas/:id',
-    async ({ db, params: { id }, status }) => {
-      await db().run('DELETE FROM _meta_wikibase_schema WHERE id = ?', [id])
+    '/:schemaId',
+    async ({ db, params: { schemaId }, status }) => {
+      await db().run('DELETE FROM _meta_wikibase_schema WHERE id = ?', [schemaId])
 
       // @ts-expect-error
       return status(204, new Response(null))

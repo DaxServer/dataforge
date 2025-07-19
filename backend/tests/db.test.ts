@@ -53,7 +53,7 @@ describe('Database', () => {
       await closeDb()
 
       // Second close should not throw
-      await expect(closeDb()).resolves.toBeUndefined()
+      expect(closeDb()).resolves.toBeUndefined()
     })
 
     test('should allow re-initialization after closing', async () => {
@@ -90,7 +90,7 @@ describe('Meta Wikibase Schema Table', () => {
   test('should enforce foreign key constraint on project_id', async () => {
     const db = getDb()
     // Try to insert with a non-existent project_id
-    await expect(
+    expect(
       db.run(`INSERT INTO _meta_wikibase_schema (id, project_id, wikibase) VALUES (?, ?, ?)`, [
         Bun.randomUUIDv7(),
         '22222222-2222-4222-8222-222222222222',

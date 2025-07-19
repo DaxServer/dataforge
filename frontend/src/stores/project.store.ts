@@ -21,12 +21,10 @@ export const useProjectStore = defineStore('project', () => {
   const fetchProject = async (projectId: string, offset = 0, limit = 25) => {
     isLoading.value = true
 
-    const { data: rows, error } = await api
-      .project({ id: projectId })
-      .get({ query: { offset, limit } })
+    const { data: rows, error } = await api.project({ projectId }).get({ query: { offset, limit } })
 
     if (error) {
-      showError(error.value)
+      showError(error.value as any)
       isLoading.value = false
       return
     }

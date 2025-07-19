@@ -35,26 +35,23 @@ describe('useSchemaStore', () => {
     })
   })
 
-  describe('currentSchema auto-creation behavior', () => {
-    it('should auto-create default schema when accessing currentSchema with no existing schema', () => {
+  describe('schema behavior', () => {
+    it('should not auto-create schema when calling updateSchemaName with no existing schema', () => {
       // Initially no schema
       expect(store.schema).toBeNull()
       expect(store.hasSchema).toBe(false)
 
-      // Access currentSchema should trigger auto-creation
+      // Calling updateSchemaName should not auto-create a schema
       store.updateSchemaName('Test Auto Schema')
 
-      // Should now have a schema with default values
-      expect(store.schema).not.toBeNull()
-      expect(store.hasSchema).toBe(true)
-      expect(store.schema?.projectId).toBe('default')
-      expect(store.schema?.wikibase).toBe('https://www.wikidata.org')
-      expect(store.schema?.name).toBe('Test Auto Schema')
-      expect(store.isDirty).toBe(true)
+      // Should still have no schema
+      expect(store.schema).toBeNull()
+      expect(store.hasSchema).toBe(false)
     })
 
-    it('should create default schema with proper structure when auto-creating', () => {
-      // Trigger auto-creation by accessing currentSchema
+    it('should create default schema with proper structure when explicitly created', () => {
+      // Explicitly create schema first
+      store.createSchema('default', 'https://www.wikidata.org')
       store.addLabelMapping('en', { columnName: 'test', dataType: 'VARCHAR' })
 
       expect(store.schema).not.toBeNull()
@@ -73,12 +70,12 @@ describe('useSchemaStore', () => {
       expect(store.isDirty).toBe(true)
     })
 
-    it('should not auto-create if schema already exists', () => {
+    it('should update existing schema without creating new one', () => {
       // Create explicit schema first
       store.createSchema('explicit-project', 'https://explicit.wikibase.org')
       const originalId = store.schema?.id
 
-      // Access currentSchema should not create new schema
+      // Update schema name should modify existing schema
       store.updateSchemaName('Updated Name')
 
       expect(store.schema?.id).toBe(originalId)
