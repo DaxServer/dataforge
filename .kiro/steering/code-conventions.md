@@ -65,9 +65,9 @@ Vue components MUST follow this exact order:
 - Leverage auto-imports for Vue APIs and PrimeVue components
 
 ### Variable Naming Restrictions
-- **Avoid Reserved Names**: Never use `column` or `row` as variable names in frontend code
+- **Avoid Reserved Names**: Never use `column`, `message, `row` as variable names in frontend code
 - **PrimeVue Conflicts**: These names trigger PrimeVue auto-imports and cause runtime errors
-- **Alternative Names**: Use `tableColumn`, `dataColumn`, `tableRow`, `dataRow`, or similar descriptive names
+- **Alternative Names**: Use a similar descriptive name
 
 ## Auto-Import Configuration
 

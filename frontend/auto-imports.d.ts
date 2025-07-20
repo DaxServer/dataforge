@@ -23,6 +23,7 @@ declare global {
   const controlledRef: typeof import('@vueuse/core')['controlledRef']
   const createApp: typeof import('vue')['createApp']
   const createEventHook: typeof import('@vueuse/core')['createEventHook']
+  const createFrontendError: typeof import('./src/types/client-errors')['createFrontendError']
   const createGlobalState: typeof import('@vueuse/core')['createGlobalState']
   const createInjectionState: typeof import('@vueuse/core')['createInjectionState']
   const createPinia: typeof import('pinia')['createPinia']
@@ -351,6 +352,9 @@ declare global {
   export type { CreateSchemaRequest } from './src/composables/useSchemaApi'
   import('./src/composables/useSchemaApi')
   // @ts-ignore
+  export type { FrontendErrorCode, ExtendedErrorCode, ExtendedError } from './src/types/client-errors'
+  import('./src/types/client-errors')
+  // @ts-ignore
   export type { SchemaDragDropContext, DropZoneConfig, DropFeedback, DragDropContext, DropTarget, DropTargetType, DragState, DropValidation, DragEventData, DropEventData, DragVisualState, DragDropConfig } from './src/types/drag-drop'
   import('./src/types/drag-drop')
   // @ts-ignore
@@ -383,6 +387,7 @@ declare module 'vue' {
     readonly controlledRef: UnwrapRef<typeof import('@vueuse/core')['controlledRef']>
     readonly createApp: UnwrapRef<typeof import('vue')['createApp']>
     readonly createEventHook: UnwrapRef<typeof import('@vueuse/core')['createEventHook']>
+    readonly createFrontendError: UnwrapRef<typeof import('./src/types/client-errors')['createFrontendError']>
     readonly createGlobalState: UnwrapRef<typeof import('@vueuse/core')['createGlobalState']>
     readonly createInjectionState: UnwrapRef<typeof import('@vueuse/core')['createInjectionState']>
     readonly createPinia: UnwrapRef<typeof import('pinia')['createPinia']>

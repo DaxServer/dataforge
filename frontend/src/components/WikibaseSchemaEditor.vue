@@ -72,14 +72,9 @@ const initializeEditor = async () => {
 
     isInitialized.value = true
   } catch (error) {
-    showError({
-      errors: [
-        {
-          code: 'INTERNAL_SERVER_ERROR',
-          message: 'Failed to initialize schema editor',
-        },
-      ],
-    })
+    showError(
+      createFrontendError('SCHEMA_EDITOR_INIT_FAILED', 'Failed to initialize schema editor'),
+    )
   }
 }
 
@@ -166,14 +161,7 @@ const handleSave = async () => {
 
     showSuccess('Schema saved successfully')
   } catch (error) {
-    showError({
-      errors: [
-        {
-          code: 'DATABASE_ERROR',
-          message: 'Failed to save schema',
-        },
-      ],
-    })
+    showError(createFrontendError('UI_STATE_ERROR', 'Failed to save schema'))
   }
 
   emit('save')
