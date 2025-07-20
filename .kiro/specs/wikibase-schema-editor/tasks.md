@@ -24,7 +24,7 @@
   - Implement basic schema store structure
   - _Requirements: 1.3, 1.5_
 
-- [ ] 5. Build API integration composable
+- [x] 5. Build API integration composable with TDD
   - Write tests for schema CRUD operations with API
   - Write tests for schema loading and saving functionality
   - Implement API integration composable for schema operations
