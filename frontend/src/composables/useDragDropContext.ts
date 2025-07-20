@@ -1,6 +1,6 @@
 import { ref } from 'vue'
 import { useDragDropStore } from '@frontend/stores/drag-drop.store'
-import { isDataTypeCompatible } from '@frontend/utils/data-type-compatibility'
+import { useDataTypeCompatibility } from '@frontend/composables/useDataTypeCompatibility'
 import type {
   SchemaDragDropContext,
   DropTarget,
@@ -46,6 +46,7 @@ export const useDragDropContext = (): SchemaDragDropContext & {
 } => {
   // Use the global drag-drop store
   const store = useDragDropStore()
+  const { isDataTypeCompatible } = useDataTypeCompatibility()
 
   const isOverDropZone = ref(false)
   const dropFeedback = ref<DropFeedback | null>(null)
@@ -307,6 +308,7 @@ export const createDropZoneConfig = (
     validateDrop: (data: string) => {
       try {
         const column = JSON.parse(data) as ColumnInfo
+        const { isDataTypeCompatible } = useDataTypeCompatibility()
         return isDataTypeCompatible(column.dataType, acceptedTypes)
       } catch {
         return false

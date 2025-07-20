@@ -1,9 +1,10 @@
 import { describe, it, expect, beforeEach } from 'bun:test'
-import { isDataTypeCompatible } from '@frontend/utils/data-type-compatibility'
+import { useDataTypeCompatibility } from '@frontend/composables/useDataTypeCompatibility'
 import type { DropTarget, DropZoneConfig, DropTargetType } from '@frontend/types/drag-drop'
 import type { ColumnInfo, WikibaseDataType } from '@frontend/types/wikibase-schema'
 
 describe('Drop Target Validation Logic', () => {
+  const { isDataTypeCompatible } = useDataTypeCompatibility()
   let mockColumnInfo: ColumnInfo
   let mockDropTargets: Record<DropTargetType, DropTarget>
 
