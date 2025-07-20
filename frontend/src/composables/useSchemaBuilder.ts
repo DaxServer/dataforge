@@ -9,7 +9,6 @@ import type {
   ValueMapping,
   StatementRank,
 } from '@frontend/types/wikibase-schema'
-import { generateUUIDv7 } from '@frontend/utils/uuid'
 
 /**
  * Composable for building and constructing complete schema objects
@@ -82,7 +81,7 @@ export const useSchemaBuilder = () => {
     rank: StatementRank = 'normal',
   ): StatementSchemaMapping => {
     return {
-      id: generateUUIDv7(),
+      id: Bun.randomUUIDv7(),
       property,
       value: valueMapping,
       rank,
@@ -96,7 +95,7 @@ export const useSchemaBuilder = () => {
    */
   const createEmptySchema = (projectId: string, wikibaseUrl: string): WikibaseSchemaMapping => {
     return buildSchema(
-      generateUUIDv7(),
+      Bun.randomUUIDv7(),
       projectId,
       'Untitled Schema',
       wikibaseUrl,

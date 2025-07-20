@@ -43,6 +43,7 @@ declare global {
   const eagerComputed: typeof import('@vueuse/core')['eagerComputed']
   const effectScope: typeof import('vue')['effectScope']
   const extendRef: typeof import('@vueuse/core')['extendRef']
+  const generateUUIDv7: typeof import('./src/utils/uuid')['generateUUIDv7']
   const getActivePinia: typeof import('pinia')['getActivePinia']
   const getCompatibleWikibaseTypes: typeof import('./src/utils/data-type-compatibility')['getCompatibleWikibaseTypes']
   const getCurrentInstance: typeof import('vue')['getCurrentInstance']
