@@ -31,7 +31,7 @@
 ## Common Commands
 
 ### Development
-The development server is run independatly and should not be triggered.
+The development server is run manually and should not be triggered.
 
 ### Testing & Quality
 ```bash
@@ -49,6 +49,10 @@ bun test path/to/test.test.ts
 
 # Run linting across all packages
 bun lint
+bun lint:backend
+bun lint:backend path/to/file/relative-to-backend-folder
+bun lint:frontend
+bun lint:frontend path/to/file/relative-to-frontend-folder
 
 # Format code
 bun format

@@ -10,7 +10,7 @@
     "dev": "bun --watch src/index.ts",
     "start": "bun src/index.ts",
     "build": "bun build ./src/index.ts --outdir dist --target bun",
-    "lint": "eslint . --ext .ts",
+    "lint": "eslint --ext .ts",
     "typecheck": "bun tsc --noEmit --skipLibCheck"
   },
   "dependencies": {

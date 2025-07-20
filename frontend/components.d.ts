@@ -21,6 +21,7 @@ declare module 'vue' {
     DefaultLayout: typeof import('./src/layouts/DefaultLayout.vue')['default']
     FileUpload: typeof import('primevue/fileupload')['default']
     Header: typeof import('./src/components/Header.vue')['default']
+    ItemEditor: typeof import('./src/components/ItemEditor.vue')['default']
     MainContent: typeof import('./src/components/MainContent.vue')['default']
     OpenProject: typeof import('./src/pages/OpenProject.vue')['default']
     Paginator: typeof import('primevue/paginator')['default']
