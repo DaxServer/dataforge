@@ -99,6 +99,7 @@
     "eagerComputed": true,
     "effectScope": true,
     "extendRef": true,
+    "generateUUIDv7": true,
     "getActivePinia": true,
     "getCompatibleWikibaseTypes": true,
     "getCurrentInstance": true,
