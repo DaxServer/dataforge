@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'bun:test'
 import { createPinia, setActivePinia } from 'pinia'
-import { useDragDropContext, createDropZoneConfig } from '@frontend/composables/useDragDropContext'
+import { useDragDropContext } from '@frontend/composables/useDragDropContext'
 import { useDragDropStore } from '@frontend/stores/drag-drop.store'
 import type { ColumnInfo, WikibaseDataType } from '@frontend/types/wikibase-schema'
 import type { DropTarget } from '@frontend/types/drag-drop'
@@ -272,6 +272,7 @@ describe('useDragDropContext', () => {
       expect(typeof context.leaveDropZone).toBe('function')
       expect(typeof context.validateDrop).toBe('function')
       expect(typeof context.performDrop).toBe('function')
+      expect(typeof context.createDropZoneConfig).toBe('function')
     })
 
     it('should work with store setAvailableTargets method', () => {
@@ -299,8 +300,9 @@ describe('useDragDropContext', () => {
 
 describe('createDropZoneConfig', () => {
   it('should create valid drop zone configuration', () => {
+    const context = useDragDropContext()
     const onDropCallback = () => {}
-    const config = createDropZoneConfig('item.terms.labels.en', ['string'], onDropCallback)
+    const config = context.createDropZoneConfig('item.terms.labels.en', ['string'], onDropCallback)
 
     expect(config).toEqual({
       acceptedDataTypes: ['application/x-column-data'],
@@ -313,7 +315,8 @@ describe('createDropZoneConfig', () => {
   })
 
   it('should validate drop data correctly', () => {
-    const config = createDropZoneConfig('item.terms.labels.en', ['string'], () => {})
+    const context = useDragDropContext()
+    const config = context.createDropZoneConfig('item.terms.labels.en', ['string'], () => {})
 
     const validData = JSON.stringify({
       name: 'test',
@@ -334,10 +337,11 @@ describe('createDropZoneConfig', () => {
   })
 
   it('should handle drop events correctly', () => {
+    const context = useDragDropContext()
     let dropCallbackCalled = false
     let droppedColumn: ColumnInfo | null = null
 
-    const config = createDropZoneConfig('item.terms.labels.en', ['string'], (column) => {
+    const config = context.createDropZoneConfig('item.terms.labels.en', ['string'], (column) => {
       dropCallbackCalled = true
       droppedColumn = column
     })
@@ -368,7 +372,8 @@ describe('createDropZoneConfig', () => {
   })
 
   it('should handle drag over events', () => {
-    const config = createDropZoneConfig('item.terms.labels.en', ['string'], () => {})
+    const context = useDragDropContext()
+    const config = context.createDropZoneConfig('item.terms.labels.en', ['string'], () => {})
 
     let preventDefaultCalled = false
     const mockEvent = {

@@ -78,7 +78,6 @@
     "controlledComputed": true,
     "controlledRef": true,
     "createApp": true,
-    "createDropZoneConfig": true,
     "createEventHook": true,
     "createGlobalState": true,
     "createInjectionState": true,
