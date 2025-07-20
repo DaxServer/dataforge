@@ -43,6 +43,11 @@ export const useDragDropContext = (): SchemaDragDropContext & {
   leaveDropZone: () => void
   validateDrop: (column: ColumnInfo, target: DropTarget) => DropValidation
   performDrop: (column: ColumnInfo, target: DropTarget) => Promise<boolean>
+  createDropZoneConfig: (
+    targetPath: string,
+    acceptedTypes: WikibaseDataType[],
+    onDropCallback: (column: ColumnInfo, target: DropTarget) => Promise<void> | void,
+  ) => DropZoneConfig
 } => {
   // Use the global drag-drop store
   const store = useDragDropStore()
@@ -245,74 +250,74 @@ export const useDragDropContext = (): SchemaDragDropContext & {
     return { isValid: true }
   }
 
+  /**
+   * Create a drop zone configuration for HTML5 drag and drop
+   */
+  const createDropZoneConfig = (
+    targetPath: string,
+    acceptedTypes: WikibaseDataType[],
+    onDropCallback: (column: ColumnInfo, target: DropTarget) => Promise<void> | void,
+  ): DropZoneConfig => {
+    return {
+      acceptedDataTypes: ['application/x-column-data'],
+
+      onDragOver: (event: DragEvent) => {
+        event.preventDefault()
+        event.dataTransfer!.dropEffect = 'copy'
+      },
+
+      onDragEnter: (event: DragEvent) => {
+        event.preventDefault()
+        // Visual feedback would be handled by the component
+      },
+
+      onDragLeave: (event: DragEvent) => {
+        event.preventDefault()
+        // Visual feedback would be handled by the component
+      },
+
+      onDrop: async (event: DragEvent) => {
+        event.preventDefault()
+
+        const columnData = event.dataTransfer?.getData('application/x-column-data')
+        if (!columnData) return
+
+        try {
+          const column = JSON.parse(columnData) as ColumnInfo
+          const target: DropTarget = {
+            type: getTargetTypeFromPath(targetPath),
+            path: targetPath,
+            acceptedTypes,
+            language: extractLanguageFromPath(targetPath),
+            propertyId: extractPropertyIdFromPath(targetPath),
+          }
+
+          await onDropCallback(column, target)
+        } catch (error) {
+          console.error('Failed to parse drop data:', error)
+        }
+      },
+
+      validateDrop: (data: string) => {
+        try {
+          const column = JSON.parse(data) as ColumnInfo
+          return isDataTypeCompatible(column.dataType, acceptedTypes)
+        } catch {
+          return false
+        }
+      },
+    }
+  }
+
   return {
     isOverDropZone,
     dropFeedback,
+    createDropZoneConfig,
     startDrag,
     endDrag,
     enterDropZone,
     leaveDropZone,
     validateDrop,
     performDrop,
-  }
-}
-
-/**
- * Create a drop zone configuration for HTML5 drag and drop
- */
-export const createDropZoneConfig = (
-  targetPath: string,
-  acceptedTypes: WikibaseDataType[],
-  onDropCallback: (column: ColumnInfo, target: DropTarget) => Promise<void> | void,
-): DropZoneConfig => {
-  return {
-    acceptedDataTypes: ['application/x-column-data'],
-
-    onDragOver: (event: DragEvent) => {
-      event.preventDefault()
-      event.dataTransfer!.dropEffect = 'copy'
-    },
-
-    onDragEnter: (event: DragEvent) => {
-      event.preventDefault()
-      // Visual feedback would be handled by the component
-    },
-
-    onDragLeave: (event: DragEvent) => {
-      event.preventDefault()
-      // Visual feedback would be handled by the component
-    },
-
-    onDrop: async (event: DragEvent) => {
-      event.preventDefault()
-
-      const columnData = event.dataTransfer?.getData('application/x-column-data')
-      if (!columnData) return
-
-      try {
-        const column = JSON.parse(columnData) as ColumnInfo
-        const target: DropTarget = {
-          type: getTargetTypeFromPath(targetPath),
-          path: targetPath,
-          acceptedTypes,
-          language: extractLanguageFromPath(targetPath),
-          propertyId: extractPropertyIdFromPath(targetPath),
-        }
-
-        await onDropCallback(column, target)
-      } catch (error) {
-        console.error('Failed to parse drop data:', error)
-      }
-    },
-
-    validateDrop: (data: string) => {
-      try {
-        const column = JSON.parse(data) as ColumnInfo
-        const { isDataTypeCompatible } = useDataTypeCompatibility()
-        return isDataTypeCompatible(column.dataType, acceptedTypes)
-      } catch {
-        return false
-      }
-    },
   }
 }
