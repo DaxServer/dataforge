@@ -1,5 +1,13 @@
 import { describe, test, expect } from 'bun:test'
-import type { ColumnInfo, WikibaseDataType } from '@frontend/types/wikibase-schema'
+import type { ColumnInfo } from '@frontend/types/wikibase-schema'
+import { useColumnDataTypeIndicators } from '@frontend/composables/useColumnDataTypeIndicators'
+
+/**
+ * ColumnPalette Component Tests
+ *
+ * These tests verify the integration between the ColumnPalette component and the
+ * useColumnDataTypeIndicators composable
+ */
 
 // Test the component logic without DOM testing since we don't have full test setup
 describe('ColumnPalette Component Logic', () => {
@@ -194,6 +202,13 @@ describe('ColumnPalette Component Logic', () => {
   })
 
   describe('column data type display and tooltips', () => {
+    const {
+      getCompatibleWikibaseTypes,
+      formatDataTypeDisplayName,
+      generateDataTypeTooltip,
+      generateColumnTooltip,
+    } = useColumnDataTypeIndicators()
+
     test('should generate correct tooltip content for data types', () => {
       const column: ColumnInfo = {
         name: 'test_column',
@@ -203,18 +218,12 @@ describe('ColumnPalette Component Logic', () => {
         uniqueCount: 150,
       }
 
-      // Test tooltip content generation logic
-      const tooltipContent = {
-        dataType: column.dataType,
-        nullable: column.nullable,
-        uniqueCount: column.uniqueCount,
-        sampleCount: column.sampleValues.length,
-      }
+      const tooltip = generateDataTypeTooltip(column)
 
-      expect(tooltipContent.dataType).toBe('VARCHAR')
-      expect(tooltipContent.nullable).toBe(true)
-      expect(tooltipContent.uniqueCount).toBe(150)
-      expect(tooltipContent.sampleCount).toBe(3)
+      expect(tooltip).toContain('Data Type: Text (VARCHAR)')
+      expect(tooltip).toContain('Nullable: Yes')
+      expect(tooltip).toContain('Unique Values: 150')
+      expect(tooltip).toContain('Wikibase Compatible: string, url, external-id, monolingualtext')
     })
 
     test('should handle tooltip content for columns without unique count', () => {
@@ -225,79 +234,59 @@ describe('ColumnPalette Component Logic', () => {
         nullable: false,
       }
 
-      const tooltipContent = {
-        dataType: column.dataType,
-        nullable: column.nullable,
-        uniqueCount: column.uniqueCount,
-        sampleCount: column.sampleValues.length,
-      }
+      const tooltip = generateDataTypeTooltip(column)
 
-      expect(tooltipContent.dataType).toBe('INTEGER')
-      expect(tooltipContent.nullable).toBe(false)
-      expect(tooltipContent.uniqueCount).toBeUndefined()
-      expect(tooltipContent.sampleCount).toBe(2)
+      expect(tooltip).toContain('Data Type: Number (INTEGER)')
+      expect(tooltip).not.toContain('Nullable: Yes')
+      expect(tooltip).not.toContain('Unique Values:')
+      expect(tooltip).toContain('Wikibase Compatible: quantity')
     })
 
     test('should generate data type compatibility information', () => {
-      // Mock compatibility mapping logic
-      const compatibilityMap: Record<string, WikibaseDataType[]> = {
-        VARCHAR: ['string', 'url', 'external-id', 'monolingualtext'],
-        INTEGER: ['quantity'],
-        DATE: ['time'],
-      }
-
-      const getCompatibleTypes = (dataType: string): WikibaseDataType[] => {
-        return compatibilityMap[dataType.toUpperCase()] || []
-      }
-
-      expect(getCompatibleTypes('VARCHAR')).toEqual([
+      expect(getCompatibleWikibaseTypes('VARCHAR')).toEqual([
         'string',
         'url',
         'external-id',
         'monolingualtext',
       ])
-      expect(getCompatibleTypes('INTEGER')).toEqual(['quantity'])
-      expect(getCompatibleTypes('DATE')).toEqual(['time'])
-      expect(getCompatibleTypes('UNKNOWN')).toEqual([])
+      expect(getCompatibleWikibaseTypes('INTEGER')).toEqual(['quantity'])
+      expect(getCompatibleWikibaseTypes('DATE')).toEqual(['time'])
+      expect(getCompatibleWikibaseTypes('UNKNOWN')).toEqual([])
     })
 
     test('should format data type display names', () => {
-      const formatDataType = (dataType: string): string => {
-        const typeMap: Record<string, string> = {
-          VARCHAR: 'Text',
-          INTEGER: 'Number',
-          DATE: 'Date',
-          DATETIME: 'Date/Time',
-          BOOLEAN: 'Boolean',
-          DECIMAL: 'Decimal',
-        }
-        return typeMap[dataType.toUpperCase()] || dataType
+      expect(formatDataTypeDisplayName('VARCHAR')).toBe('Text')
+      expect(formatDataTypeDisplayName('INTEGER')).toBe('Number')
+      expect(formatDataTypeDisplayName('DATE')).toBe('Date')
+      expect(formatDataTypeDisplayName('DATETIME')).toBe('Date/Time')
+      expect(formatDataTypeDisplayName('BOOLEAN')).toBe('Boolean')
+      expect(formatDataTypeDisplayName('DECIMAL')).toBe('Decimal')
+      expect(formatDataTypeDisplayName('UNKNOWN_TYPE')).toBe('UNKNOWN_TYPE')
+    })
+
+    test('should generate comprehensive column tooltip with data type and sample values', () => {
+      const column: ColumnInfo = {
+        name: 'test_column',
+        dataType: 'VARCHAR',
+        sampleValues: ['sample1', 'sample2', 'sample3'],
+        nullable: true,
+        uniqueCount: 150,
       }
 
-      expect(formatDataType('VARCHAR')).toBe('Text')
-      expect(formatDataType('INTEGER')).toBe('Number')
-      expect(formatDataType('DATE')).toBe('Date')
-      expect(formatDataType('UNKNOWN_TYPE')).toBe('UNKNOWN_TYPE')
+      const tooltip = generateColumnTooltip(column)
+
+      expect(tooltip).toContain('Data Type: Text (VARCHAR)')
+      expect(tooltip).toContain('Nullable: Yes')
+      expect(tooltip).toContain('Unique Values: 150')
+      expect(tooltip).toContain('Sample Values:')
+      expect(tooltip).toContain('sample1, sample2, sample3')
     })
   })
 
   describe('sample value display functionality', () => {
+    const { formatSampleValuesForTooltip, generateSampleStats } = useColumnDataTypeIndicators()
+
     test('should format sample values with proper truncation', () => {
-      const formatSampleValuesForTooltip = (
-        sampleValues: string[],
-        maxDisplay: number = 5,
-      ): string => {
-        if (!sampleValues || sampleValues.length === 0) return 'No sample data'
-
-        const displayValues = sampleValues.slice(0, maxDisplay)
-        const hasMore = sampleValues.length > maxDisplay
-
-        return (
-          displayValues.join(', ') +
-          (hasMore ? `, ... (+${sampleValues.length - maxDisplay} more)` : '')
-        )
-      }
-
       const manyValues = ['val1', 'val2', 'val3', 'val4', 'val5', 'val6', 'val7']
       const fewValues = ['val1', 'val2', 'val3']
       const emptyValues: string[] = []
@@ -306,38 +295,21 @@ describe('ColumnPalette Component Logic', () => {
         'val1, val2, val3, val4, val5, ... (+2 more)',
       )
       expect(formatSampleValuesForTooltip(fewValues, 5)).toBe('val1, val2, val3')
-      expect(formatSampleValuesForTooltip(emptyValues)).toBe('No sample data')
+      expect(formatSampleValuesForTooltip(emptyValues)).toBe('No sample data available')
     })
 
     test('should handle long sample values with truncation', () => {
-      const truncateValue = (value: string, maxLength: number = 20): string => {
-        return value.length > maxLength ? value.substring(0, maxLength) + '...' : value
-      }
+      const longValues = ['This is a very long sample value that should be truncated for display']
+      const shortValues = ['Short value']
 
-      const longValue = 'This is a very long sample value that should be truncated'
-      const shortValue = 'Short value'
+      const longResult = formatSampleValuesForTooltip(longValues)
+      const shortResult = formatSampleValuesForTooltip(shortValues)
 
-      expect(truncateValue(longValue, 20)).toBe('This is a very long ...')
-      expect(truncateValue(shortValue, 20)).toBe('Short value')
+      expect(longResult).toContain('...')
+      expect(shortResult).toBe('Short value')
     })
 
     test('should generate sample value statistics', () => {
-      const generateSampleStats = (sampleValues: string[]) => {
-        if (!sampleValues || sampleValues.length === 0) {
-          return { isEmpty: true, count: 0, hasNulls: false }
-        }
-
-        const nullValues = sampleValues.filter(
-          (val) => val === null || val === 'null' || val === '',
-        )
-        return {
-          isEmpty: false,
-          count: sampleValues.length,
-          hasNulls: nullValues.length > 0,
-          nullCount: nullValues.length,
-        }
-      }
-
       const valuesWithNulls = ['value1', 'null', 'value2', '']
       const valuesWithoutNulls = ['value1', 'value2', 'value3']
       const emptyValues: string[] = []
@@ -352,11 +324,13 @@ describe('ColumnPalette Component Logic', () => {
       expect(statsWithoutNulls.isEmpty).toBe(false)
       expect(statsWithoutNulls.count).toBe(3)
       expect(statsWithoutNulls.hasNulls).toBe(false)
+      expect(statsWithoutNulls.nullCount).toBe(0)
 
       const emptyStats = generateSampleStats(emptyValues)
       expect(emptyStats.isEmpty).toBe(true)
       expect(emptyStats.count).toBe(0)
       expect(emptyStats.hasNulls).toBe(false)
+      expect(emptyStats.nullCount).toBe(0)
     })
   })
 })
