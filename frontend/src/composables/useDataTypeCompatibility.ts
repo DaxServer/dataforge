@@ -1,5 +1,5 @@
 import type { WikibaseDataType } from '@frontend/types/wikibase-schema'
-import { useColumnDataTypeIndicators } from './useColumnDataTypeIndicators'
+import { useColumnDataTypeIndicators } from '@frontend/composables/useColumnDataTypeIndicators'
 
 /**
  * Composable for handling data type compatibility between database columns and Wikibase data types

@@ -108,18 +108,18 @@ export const useColumnDataTypeIndicators = () => {
   /**
    * Generate tooltip content for column data type information
    */
-  const generateDataTypeTooltip = (column: ColumnInfo): string => {
-    const compatibleTypes = getCompatibleWikibaseTypes(column.dataType)
-    const displayName = formatDataTypeDisplayName(column.dataType)
+  const generateDataTypeTooltip = (_column: ColumnInfo): string => {
+    const compatibleTypes = getCompatibleWikibaseTypes(_column.dataType)
+    const displayName = formatDataTypeDisplayName(_column.dataType)
 
-    let tooltip = `Data Type: ${displayName} (${column.dataType})`
+    let tooltip = `Data Type: ${displayName} (${_column.dataType})`
 
-    if (column.nullable) {
+    if (_column.nullable) {
       tooltip += '\nNullable: Yes'
     }
 
-    if (column.uniqueCount !== undefined) {
-      tooltip += `\nUnique Values: ${column.uniqueCount.toLocaleString()}`
+    if (_column.uniqueCount !== undefined) {
+      tooltip += `\nUnique Values: ${_column.uniqueCount.toLocaleString()}`
     }
 
     if (compatibleTypes.length > 0) {
@@ -157,9 +157,9 @@ export const useColumnDataTypeIndicators = () => {
   /**
    * Generate comprehensive tooltip content for a column
    */
-  const generateColumnTooltip = (column: ColumnInfo): string => {
-    const dataTypeInfo = generateDataTypeTooltip(column)
-    const sampleInfo = formatSampleValuesForTooltip(column.sampleValues)
+  const generateColumnTooltip = (_column: ColumnInfo): string => {
+    const dataTypeInfo = generateDataTypeTooltip(_column)
+    const sampleInfo = formatSampleValuesForTooltip(_column.sampleValues)
 
     return `${dataTypeInfo}\n\nSample Values:\n${sampleInfo}`
   }

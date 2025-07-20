@@ -64,6 +64,11 @@ Vue components MUST follow this exact order:
 - Use computed properties for reactive derived state
 - Leverage auto-imports for Vue APIs and PrimeVue components
 
+### Variable Naming Restrictions
+- **Avoid Reserved Names**: Never use `column` or `row` as variable names in frontend code
+- **PrimeVue Conflicts**: These names trigger PrimeVue auto-imports and cause runtime errors
+- **Alternative Names**: Use `tableColumn`, `dataColumn`, `tableRow`, `dataRow`, or similar descriptive names
+
 ## Auto-Import Configuration
 
 The frontend uses `unplugin-auto-import` and `unplugin-vue-components` for automatic imports.

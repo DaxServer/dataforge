@@ -10,6 +10,7 @@ declare module 'vue' {
   export interface GlobalComponents {
     Button: typeof import('primevue/button')['default']
     Card: typeof import('primevue/card')['default']
+    Chip: typeof import('primevue/chip')['default']
     Column: typeof import('primevue/column')['default']
     ColumnPalette: typeof import('./src/components/ColumnPalette.vue')['default']
     ConfirmDialog: typeof import('primevue/confirmdialog')['default']

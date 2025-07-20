@@ -31,16 +31,7 @@
 ## Common Commands
 
 ### Development
-```bash
-# Start both frontend and backend in development mode
-bun dev
-
-# Start backend only
-bun --cwd backend dev
-
-# Start frontend only  
-bun --cwd frontend dev
-```
+The development server is run independatly and should not be triggered.
 
 ### Testing & Quality
 ```bash
@@ -48,13 +39,13 @@ bun --cwd frontend dev
 bun test
 
 # Run backend tests only
-bun --cwd backend test
+bun test backend/
 
 # Run frontend tests only
-bun --cwd frontend test
+bun test frontend/
 
 # Run specific test file
-bun test path/to/test.test.ts --run
+bun test path/to/test.test.ts
 
 # Run linting across all packages
 bun lint
@@ -63,29 +54,18 @@ bun lint
 bun format
 
 # Type checking
-bun --cwd backend typecheck
-bun --cwd frontend typecheck
+bun typecheck
+bun -F backend typecheck
+bun -F frontend typecheck
 ```
 
 ## Testing Framework
 
 ### Bun Test
-- **Native Testing**: Uses Bun's built-in test runner for optimal performance
+- **Native Testing**: Uses Bun's built-in test runner
 - **Test Structure**: Tests follow the pattern `*.test.ts` or `*.spec.ts`
 - **Location**: Frontend tests in `frontend/src/**/__tests__/` directories
 - **Backend Tests**: Backend tests in `backend/tests/` mirroring `src/` structure
-
-### Testing Patterns
-```typescript
-import { describe, test, expect } from 'bun:test'
-
-describe('Component Logic', () => {
-  test('should validate expected behavior', () => {
-    // Test implementation
-    expect(result).toBe(expected)
-  })
-})
-```
 
 ### Frontend Testing
 - **Logic Testing**: Focus on component logic, computed properties, and business rules
@@ -99,4 +79,3 @@ describe('Component Logic', () => {
 - **wikibase-sdk**: Wikibase API integration
 - **@vueuse/core**: Vue composition utilities
 - **primevue**: UI components with auto-import resolver
-- **@vue/test-utils**: Vue component testing utilities (for future DOM testing)
