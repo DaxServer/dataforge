@@ -22,6 +22,7 @@ declare global {
   const computedWithControl: typeof import('@vueuse/core')['computedWithControl']
   const controlledComputed: typeof import('@vueuse/core')['controlledComputed']
   const controlledRef: typeof import('@vueuse/core')['controlledRef']
+  const convertProjectColumnsToColumnInfo: typeof import('./src/utils/column-conversion')['convertProjectColumnsToColumnInfo']
   const createApp: typeof import('vue')['createApp']
   const createDropZoneConfig: typeof import('./src/composables/useDragDropContext')['createDropZoneConfig']
   const createEventHook: typeof import('@vueuse/core')['createEventHook']
@@ -162,6 +163,7 @@ declare global {
   const useClipboardItems: typeof import('@vueuse/core')['useClipboardItems']
   const useCloned: typeof import('@vueuse/core')['useCloned']
   const useColorMode: typeof import('@vueuse/core')['useColorMode']
+  const useColumnConversion: typeof import('./src/composables/useColumnConversion')['useColumnConversion']
   const useColumnGeneration: typeof import('./src/composables/useColumnGeneration')['useColumnGeneration']
   const useConfirm: typeof import('primevue/useconfirm')['useConfirm']
   const useConfirmDialog: typeof import('@vueuse/core')['useConfirmDialog']
@@ -174,6 +176,7 @@ declare global {
   const useCurrentElement: typeof import('@vueuse/core')['useCurrentElement']
   const useCycleList: typeof import('@vueuse/core')['useCycleList']
   const useDark: typeof import('@vueuse/core')['useDark']
+  const useDataTypeCompatibility: typeof import('./src/composables/useDataTypeCompatibility')['useDataTypeCompatibility']
   const useDateFormat: typeof import('@vueuse/core')['useDateFormat']
   const useDebounce: typeof import('@vueuse/core')['useDebounce']
   const useDebounceFn: typeof import('@vueuse/core')['useDebounceFn']
@@ -371,7 +374,6 @@ declare module 'vue' {
   interface ComponentCustomProperties {
     readonly ApiKey: UnwrapRef<typeof import('./src/plugins/api')['ApiKey']>
     readonly ApiPlugin: UnwrapRef<typeof import('./src/plugins/api')['ApiPlugin']>
-    readonly DATA_TYPE_COMPATIBILITY_MAP: UnwrapRef<typeof import('./src/utils/data-type-compatibility')['DATA_TYPE_COMPATIBILITY_MAP']>
     readonly EffectScope: UnwrapRef<typeof import('vue')['EffectScope']>
     readonly ValidationMessages: UnwrapRef<typeof import('./src/types/wikibase-schema')['ValidationMessages']>
     readonly acceptHMRUpdate: UnwrapRef<typeof import('pinia')['acceptHMRUpdate']>
@@ -407,14 +409,12 @@ declare module 'vue' {
     readonly effectScope: UnwrapRef<typeof import('vue')['effectScope']>
     readonly extendRef: UnwrapRef<typeof import('@vueuse/core')['extendRef']>
     readonly getActivePinia: UnwrapRef<typeof import('pinia')['getActivePinia']>
-    readonly getCompatibleWikibaseTypes: UnwrapRef<typeof import('./src/utils/data-type-compatibility')['getCompatibleWikibaseTypes']>
     readonly getCurrentInstance: UnwrapRef<typeof import('vue')['getCurrentInstance']>
     readonly getCurrentScope: UnwrapRef<typeof import('vue')['getCurrentScope']>
     readonly h: UnwrapRef<typeof import('vue')['h']>
     readonly ignorableWatch: UnwrapRef<typeof import('@vueuse/core')['ignorableWatch']>
     readonly inject: UnwrapRef<typeof import('vue')['inject']>
     readonly injectLocal: UnwrapRef<typeof import('@vueuse/core')['injectLocal']>
-    readonly isDataTypeCompatible: UnwrapRef<typeof import('./src/utils/data-type-compatibility')['isDataTypeCompatible']>
     readonly isDefined: UnwrapRef<typeof import('@vueuse/core')['isDefined']>
     readonly isProxy: UnwrapRef<typeof import('vue')['isProxy']>
     readonly isReactive: UnwrapRef<typeof import('vue')['isReactive']>
@@ -523,6 +523,7 @@ declare module 'vue' {
     readonly useClipboardItems: UnwrapRef<typeof import('@vueuse/core')['useClipboardItems']>
     readonly useCloned: UnwrapRef<typeof import('@vueuse/core')['useCloned']>
     readonly useColorMode: UnwrapRef<typeof import('@vueuse/core')['useColorMode']>
+    readonly useColumnConversion: UnwrapRef<typeof import('./src/composables/useColumnConversion')['useColumnConversion']>
     readonly useColumnGeneration: UnwrapRef<typeof import('./src/composables/useColumnGeneration')['useColumnGeneration']>
     readonly useConfirm: UnwrapRef<typeof import('primevue/useconfirm')['useConfirm']>
     readonly useConfirmDialog: UnwrapRef<typeof import('@vueuse/core')['useConfirmDialog']>
@@ -535,6 +536,7 @@ declare module 'vue' {
     readonly useCurrentElement: UnwrapRef<typeof import('@vueuse/core')['useCurrentElement']>
     readonly useCycleList: UnwrapRef<typeof import('@vueuse/core')['useCycleList']>
     readonly useDark: UnwrapRef<typeof import('@vueuse/core')['useDark']>
+    readonly useDataTypeCompatibility: UnwrapRef<typeof import('./src/composables/useDataTypeCompatibility')['useDataTypeCompatibility']>
     readonly useDateFormat: UnwrapRef<typeof import('@vueuse/core')['useDateFormat']>
     readonly useDebounce: UnwrapRef<typeof import('@vueuse/core')['useDebounce']>
     readonly useDebounceFn: UnwrapRef<typeof import('@vueuse/core')['useDebounceFn']>

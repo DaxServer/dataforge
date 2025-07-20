@@ -2,12 +2,14 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import type { ColumnInfo, WikibaseDataType } from '@frontend/types/wikibase-schema'
 import type { DragState, DropTarget } from '@frontend/types/drag-drop'
-import { getCompatibleWikibaseTypes } from '@frontend/utils/data-type-compatibility'
+import { useDataTypeCompatibility } from '@frontend/composables/useDataTypeCompatibility'
 
 /**
  * Pinia store for managing global drag and drop state in the schema editor
  */
 export const useDragDropStore = defineStore('dragDrop', () => {
+  const { getCompatibleWikibaseTypes } = useDataTypeCompatibility()
+
   // Core reactive state
   const draggedColumn = ref<ColumnInfo | null>(null)
   const dragState = ref<DragState>('idle')

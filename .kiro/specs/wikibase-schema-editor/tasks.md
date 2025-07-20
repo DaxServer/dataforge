@@ -36,7 +36,7 @@
   - Implement drag-and-drop composable functionality
   - _Requirements: 2.3_
 
-- [ ] 7. Build ColumnPalette component with TDD
+- [x] 7. Build ColumnPalette component with TDD
   - Write tests for displaying available data columns
   - Write tests for draggable column elements
   - Write tests for empty dataset state handling
