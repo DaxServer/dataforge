@@ -5,6 +5,45 @@
 - **TypeScript**: Use strict typing throughout the codebase
 - **Path Aliases**: Always use `@frontend/` and `@backend/` instead of relative paths
 
+## Testing Standards
+
+### Test Framework
+- **Bun Test**: Use Bun's native test runner for all tests
+- **Import Pattern**: `import { describe, test, expect } from 'bun:test'`
+- **File Naming**: Tests must use `.test.ts` or `.spec.ts` suffix
+
+### Test Structure
+- **Frontend Tests**: Place in `src/**/__tests__/` directories
+- **Backend Tests**: Place in `tests/` directory mirroring `src/` structure
+- **Test Organization**: Group related tests using `describe` blocks
+- **Test Naming**: Use descriptive names that explain the behavior being tested
+
+### Testing Approach
+- **Logic Testing**: Focus on testing component logic, business rules, and data transformations
+- **Type Validation**: Test TypeScript interfaces and type definitions
+- **State Management**: Test store interactions and state mutations
+- **Integration**: Test composable interactions and data flow
+- **Avoid DOM Testing**: Prefer logic testing over complex DOM manipulation tests
+
+### Test Examples
+```typescript
+import { describe, test, expect } from 'bun:test'
+
+describe('Component Logic', () => {
+  test('should compute values correctly', () => {
+    const input = 'test'
+    const result = processInput(input)
+    expect(result).toBe('expected')
+  })
+
+  test('should handle edge cases', () => {
+    const emptyInput = ''
+    const result = processInput(emptyInput)
+    expect(result).toBe('default')
+  })
+})
+```
+
 ## Vue Component Standards
 
 ### Single File Component Structure
@@ -24,6 +63,11 @@ Vue components MUST follow this exact order:
 - Define emits with `defineEmits<{}>()`
 - Use computed properties for reactive derived state
 - Leverage auto-imports for Vue APIs and PrimeVue components
+
+### Variable Naming Restrictions
+- **Avoid Reserved Names**: Never use `column`, `message, `row` as variable names in frontend code
+- **PrimeVue Conflicts**: These names trigger PrimeVue auto-imports and cause runtime errors
+- **Alternative Names**: Use a similar descriptive name
 
 ## Auto-Import Configuration
 

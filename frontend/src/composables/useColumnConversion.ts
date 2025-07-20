@@ -14,7 +14,7 @@ export const useColumnConversion = () => {
   ): ColumnInfo[] => {
     return projectColumns.map((col) => {
       // Get all values for this column
-      const columnValues = sampleData.map((row) => row[col.field])
+      const columnValues = sampleData.map((_row) => _row[col.field])
 
       // Filter non-null values and get unique set
       const nonNullValues = columnValues.filter((value) => value !== null && value !== undefined)

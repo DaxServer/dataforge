@@ -26,25 +26,26 @@
 - **Prettier**: Code formatting
 - **Auto-imports**: Automatic imports for Vue composables and PrimeVue components
 - **TypeScript**: Strict type checking across the stack
+- **Bun Test**: Native testing framework for unit and integration tests
 
 ## Common Commands
 
 ### Development
-```bash
-# Start both frontend and backend in development mode
-bun dev
-
-# Start backend only
-bun --cwd backend dev
-
-# Start frontend only  
-bun --cwd frontend dev
-```
+The development server is run independatly and should not be triggered.
 
 ### Testing & Quality
 ```bash
-# Run backend tests
+# Run all tests
 bun test
+
+# Run backend tests only
+bun test backend/
+
+# Run frontend tests only
+bun test frontend/
+
+# Run specific test file
+bun test path/to/test.test.ts
 
 # Run linting across all packages
 bun lint
@@ -53,9 +54,24 @@ bun lint
 bun format
 
 # Type checking
-bun --cwd backend typecheck
-bun --cwd frontend typecheck
+bun typecheck
+bun -F backend typecheck
+bun -F frontend typecheck
 ```
+
+## Testing Framework
+
+### Bun Test
+- **Native Testing**: Uses Bun's built-in test runner
+- **Test Structure**: Tests follow the pattern `*.test.ts` or `*.spec.ts`
+- **Location**: Frontend tests in `frontend/src/**/__tests__/` directories
+- **Backend Tests**: Backend tests in `backend/tests/` mirroring `src/` structure
+
+### Frontend Testing
+- **Logic Testing**: Focus on component logic, computed properties, and business rules
+- **State Management**: Test store interactions and state mutations
+- **Type Safety**: Validate TypeScript interfaces and type definitions
+- **Integration**: Test composable interactions and data flow
 
 ## Key Dependencies
 - **@elysiajs/eden**: Type-safe API client generation

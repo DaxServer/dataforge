@@ -1,9 +1,7 @@
-import type { ApiError } from '@backend/types/error-schemas'
-
 export const useErrorHandling = () => {
   const toast = useToast()
 
-  const showError = (error: ApiError): void => {
+  const showError = (error: ExtendedError): void => {
     toast.add({
       severity: 'error',
       summary: 'Error',

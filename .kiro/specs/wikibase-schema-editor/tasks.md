@@ -49,7 +49,7 @@
   - Implement column data type indicators and tooltips
   - _Requirements: 8.2_
 
-- [ ] 9. Build basic WikibaseSchemaEditor container
+- [x] 9. Build basic WikibaseSchemaEditor container
   - Write tests for main container component initialization
   - Write tests for toolbar functionality
   - Implement WikibaseSchemaEditor container structure
