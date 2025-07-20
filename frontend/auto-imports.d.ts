@@ -259,6 +259,8 @@ declare global {
   const useRouteParams: typeof import('@vueuse/router')['useRouteParams']
   const useRouter: typeof import('vue-router')['useRouter']
   const useSSRWidth: typeof import('@vueuse/core')['useSSRWidth']
+  const useSchemaApi: typeof import('./src/composables/useSchemaApi')['useSchemaApi']
+  const useSchemaBuilder: typeof import('./src/composables/useSchemaBuilder')['useSchemaBuilder']
   const useSchemaStore: typeof import('./src/stores/schema.store')['useSchemaStore']
   const useScreenOrientation: typeof import('@vueuse/core')['useScreenOrientation']
   const useScreenSafeArea: typeof import('@vueuse/core')['useScreenSafeArea']
@@ -344,13 +346,16 @@ declare global {
   export type { ProjectColumn } from './src/composables/useColumnGeneration'
   import('./src/composables/useColumnGeneration')
   // @ts-ignore
+  export type { CreateSchemaRequest } from './src/composables/useSchemaApi'
+  import('./src/composables/useSchemaApi')
+  // @ts-ignore
   export type { SchemaDragDropContext, DropZoneConfig, DropFeedback, DragDropContext, DropTarget, DropTargetType, DragState, DropValidation, DragEventData, DropEventData, DragVisualState, DragDropConfig } from './src/types/drag-drop'
   import('./src/types/drag-drop')
   // @ts-ignore
   export type { ProjectFile, FileSelectEvent, FileRemoveEvent, ApiClient } from './src/types/index'
   import('./src/types/index')
   // @ts-ignore
-  export type { ValidationErrorType, ValidationErrorCode, ValidationError, ValidationResult, ValidationContext, WikibaseSchemaMapping, ItemSchemaMapping, TermsSchemaMapping, ColumnMapping, TransformationRule, TransformationFunction, TransformationParameter, StatementSchemaMapping, PropertyReference, ValueMapping, QualifierSchemaMapping, ReferenceSchemaMapping, StatementRank, WikibaseDataType, ColumnInfo, ValidationRule, SchemaMapping, ColumnReference, ValueSchemaMapping, ValidatedSchemaMapping } from './src/types/wikibase-schema'
+  export type { ValidationErrorType, ValidationErrorCode, ValidationError, ValidationResult, ValidationContext, WikibaseSchemaMapping, ItemSchemaMapping, Label, TermsSchemaMapping, ColumnMapping, TransformationRule, TransformationFunction, TransformationParameter, StatementSchemaMapping, PropertyReference, ValueMapping, QualifierSchemaMapping, ReferenceSchemaMapping, StatementRank, WikibaseDataType, ColumnInfo, ValidationRule, SchemaMapping, ColumnReference, ValueSchemaMapping, ValidatedSchemaMapping } from './src/types/wikibase-schema'
   import('./src/types/wikibase-schema')
 }
 
@@ -611,6 +616,8 @@ declare module 'vue' {
     readonly useRouteParams: UnwrapRef<typeof import('@vueuse/router')['useRouteParams']>
     readonly useRouter: UnwrapRef<typeof import('vue-router')['useRouter']>
     readonly useSSRWidth: UnwrapRef<typeof import('@vueuse/core')['useSSRWidth']>
+    readonly useSchemaApi: UnwrapRef<typeof import('./src/composables/useSchemaApi')['useSchemaApi']>
+    readonly useSchemaBuilder: UnwrapRef<typeof import('./src/composables/useSchemaBuilder')['useSchemaBuilder']>
     readonly useSchemaStore: UnwrapRef<typeof import('./src/stores/schema.store')['useSchemaStore']>
     readonly useScreenOrientation: UnwrapRef<typeof import('@vueuse/core')['useScreenOrientation']>
     readonly useScreenSafeArea: UnwrapRef<typeof import('@vueuse/core')['useScreenSafeArea']>

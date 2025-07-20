@@ -23,7 +23,7 @@ export interface ValidationError {
   message: string
   path: string
   field?: string
-  context?: Record<string, any>
+  context?: ValidationContext
 }
 
 export interface ValidationResult {
@@ -70,9 +70,11 @@ export interface ItemSchemaMapping {
   statements: StatementSchemaMapping[]
 }
 
+export type Label = Record<string, ColumnMapping>
+
 export interface TermsSchemaMapping {
-  labels: Record<string, ColumnMapping> // language code -> column mapping
-  descriptions: Record<string, ColumnMapping>
+  labels: Label // language code -> column mapping
+  descriptions: Label
   aliases: Record<string, ColumnMapping[]>
 }
 
