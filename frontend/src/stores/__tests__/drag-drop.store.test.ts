@@ -1,0 +1,424 @@
+import { describe, it, expect, beforeEach } from 'bun:test'
+import { createPinia, setActivePinia } from 'pinia'
+import { useDragDropStore } from '@frontend/stores/drag-drop.store'
+import type { ColumnInfo } from '@frontend/types/wikibase-schema'
+import type { DropTarget } from '@frontend/types/drag-drop'
+
+describe('useDragDropStore', () => {
+  let mockColumnInfo: ColumnInfo
+  let mockDropTargets: DropTarget[]
+
+  beforeEach(() => {
+    // Create a fresh Pinia instance for each test
+    setActivePinia(createPinia())
+
+    mockColumnInfo = {
+      name: 'test_column',
+      dataType: 'VARCHAR',
+      sampleValues: ['value1', 'value2'],
+      nullable: false,
+      uniqueCount: 100,
+    }
+
+    mockDropTargets = [
+      {
+        type: 'label',
+        path: 'item.terms.labels.en',
+        acceptedTypes: ['string'],
+        language: 'en',
+        isRequired: false,
+      },
+      {
+        type: 'description',
+        path: 'item.terms.descriptions.en',
+        acceptedTypes: ['string'],
+        language: 'en',
+        isRequired: false,
+      },
+      {
+        type: 'statement',
+        path: 'item.statements[0].value',
+        acceptedTypes: ['string'],
+        propertyId: 'P31',
+        isRequired: true,
+      },
+      {
+        type: 'qualifier',
+        path: 'item.statements[0].qualifiers[0].value',
+        acceptedTypes: ['time'],
+        propertyId: 'P585',
+        isRequired: false,
+      },
+    ]
+  })
+
+  describe('Initial State', () => {
+    it('should initialize with default state', () => {
+      const store = useDragDropStore()
+
+      expect(store.draggedColumn).toBeNull()
+      expect(store.dragState).toBe('idle')
+      expect(store.validDropTargets).toEqual([])
+      expect(store.hoveredTarget).toBeNull()
+      expect(store.availableTargets).toEqual([])
+      expect(store.isDragging).toBe(false)
+      expect(store.isDropping).toBe(false)
+      expect(store.hasValidTargets).toBe(false)
+    })
+  })
+
+  describe('Drag State Management', () => {
+    it('should handle drag start correctly', () => {
+      const store = useDragDropStore()
+      store.setAvailableTargets(mockDropTargets)
+
+      store.startDrag(mockColumnInfo)
+
+      expect(store.draggedColumn).toEqual(mockColumnInfo)
+      expect(store.dragState).toBe('dragging')
+      expect(store.isDragging).toBe(true)
+      expect(store.validDropTargets.length).toBeGreaterThan(0)
+      expect(store.hasValidTargets).toBe(true)
+    })
+
+    it('should handle drag end correctly', () => {
+      const store = useDragDropStore()
+      store.setAvailableTargets(mockDropTargets)
+
+      // Start drag first
+      store.startDrag(mockColumnInfo)
+      store.setHoveredTarget('item.terms.labels.en')
+
+      // End drag
+      store.endDrag()
+
+      expect(store.draggedColumn).toBeNull()
+      expect(store.dragState).toBe('idle')
+      expect(store.validDropTargets).toEqual([])
+      expect(store.hoveredTarget).toBeNull()
+      expect(store.isDragging).toBe(false)
+      expect(store.hasValidTargets).toBe(false)
+    })
+
+    it('should handle hovered target changes', () => {
+      const store = useDragDropStore()
+
+      store.setHoveredTarget('item.terms.labels.en')
+      expect(store.hoveredTarget).toBe('item.terms.labels.en')
+
+      store.setHoveredTarget(null)
+      expect(store.hoveredTarget).toBeNull()
+    })
+
+    it('should handle drag state changes', () => {
+      const store = useDragDropStore()
+
+      store.setDragState('dragging')
+      expect(store.dragState).toBe('dragging')
+      expect(store.isDragging).toBe(true)
+
+      store.setDragState('dropping')
+      expect(store.dragState).toBe('dropping')
+      expect(store.isDropping).toBe(true)
+
+      store.setDragState('idle')
+      expect(store.dragState).toBe('idle')
+      expect(store.isDragging).toBe(false)
+      expect(store.isDropping).toBe(false)
+    })
+  })
+
+  describe('Available Targets Management', () => {
+    it('should set available targets', () => {
+      const store = useDragDropStore()
+
+      store.setAvailableTargets(mockDropTargets)
+
+      expect(store.availableTargets).toEqual(mockDropTargets)
+      expect(store.availableTargets.length).toBe(4)
+    })
+
+    it('should update available targets', () => {
+      const store = useDragDropStore()
+
+      store.setAvailableTargets(mockDropTargets)
+      expect(store.availableTargets.length).toBe(4)
+
+      const newTargets = mockDropTargets.slice(0, 2)
+      store.setAvailableTargets(newTargets)
+      expect(store.availableTargets.length).toBe(2)
+    })
+  })
+
+  describe('Valid Targets Calculation', () => {
+    it('should calculate valid targets for VARCHAR column', () => {
+      const store = useDragDropStore()
+      store.setAvailableTargets(mockDropTargets)
+
+      store.startDrag(mockColumnInfo)
+
+      // VARCHAR should be compatible with string targets (label, description, statement)
+      // but not with time targets (qualifier)
+      expect(store.validDropTargets).toContain('item.terms.labels.en')
+      expect(store.validDropTargets).toContain('item.terms.descriptions.en')
+      expect(store.validDropTargets).toContain('item.statements[0].value')
+      expect(store.validDropTargets).not.toContain('item.statements[0].qualifiers[0].value')
+    })
+
+    it('should calculate valid targets for INTEGER column', () => {
+      const store = useDragDropStore()
+      const integerColumn: ColumnInfo = {
+        name: 'age',
+        dataType: 'INTEGER',
+        sampleValues: ['25', '30'],
+        nullable: false,
+      }
+
+      const quantityTarget: DropTarget = {
+        type: 'statement',
+        path: 'item.statements[1].value',
+        acceptedTypes: ['quantity'],
+        propertyId: 'P2067',
+      }
+
+      store.setAvailableTargets([...mockDropTargets, quantityTarget])
+      store.startDrag(integerColumn)
+
+      // INTEGER should only be compatible with quantity targets
+      expect(store.validDropTargets).toContain('item.statements[1].value')
+      expect(store.validDropTargets).not.toContain('item.terms.labels.en')
+      expect(store.validDropTargets).not.toContain('item.statements[0].value')
+    })
+
+    it('should reject nullable columns for required targets', () => {
+      const store = useDragDropStore()
+      const nullableColumn: ColumnInfo = {
+        ...mockColumnInfo,
+        nullable: true,
+      }
+
+      store.setAvailableTargets(mockDropTargets)
+      store.startDrag(nullableColumn)
+
+      // Should not include the required statement target
+      expect(store.validDropTargets).toContain('item.terms.labels.en')
+      expect(store.validDropTargets).toContain('item.terms.descriptions.en')
+      expect(store.validDropTargets).not.toContain('item.statements[0].value') // This is required
+    })
+
+    it('should reject targets without property IDs for statements/qualifiers/references', () => {
+      const store = useDragDropStore()
+      const targetWithoutProperty: DropTarget = {
+        type: 'statement',
+        path: 'item.statements[2].value',
+        acceptedTypes: ['string'],
+        // Missing propertyId
+      }
+
+      store.setAvailableTargets([...mockDropTargets, targetWithoutProperty])
+      store.startDrag(mockColumnInfo)
+
+      // Should not include the target without property ID
+      expect(store.validDropTargets).not.toContain('item.statements[2].value')
+    })
+
+    it('should reject long values for label/alias targets', () => {
+      const store = useDragDropStore()
+      const longValueColumn: ColumnInfo = {
+        name: 'long_text',
+        dataType: 'VARCHAR',
+        sampleValues: ['a'.repeat(300)], // Very long value
+        nullable: false,
+      }
+
+      store.setAvailableTargets(mockDropTargets)
+      store.startDrag(longValueColumn)
+
+      // Should not include label targets due to length constraint
+      expect(store.validDropTargets).not.toContain('item.terms.labels.en')
+      // But should include description (which has higher length limit)
+      expect(store.validDropTargets).toContain('item.terms.descriptions.en')
+    })
+  })
+
+  describe('Computed Properties', () => {
+    it('should compute isDragging correctly', () => {
+      const store = useDragDropStore()
+
+      expect(store.isDragging).toBe(false)
+
+      store.setDragState('dragging')
+      expect(store.isDragging).toBe(true)
+
+      store.setDragState('dropping')
+      expect(store.isDragging).toBe(false)
+
+      store.setDragState('idle')
+      expect(store.isDragging).toBe(false)
+    })
+
+    it('should compute isDropping correctly', () => {
+      const store = useDragDropStore()
+
+      expect(store.isDropping).toBe(false)
+
+      store.setDragState('dropping')
+      expect(store.isDropping).toBe(true)
+
+      store.setDragState('dragging')
+      expect(store.isDropping).toBe(false)
+
+      store.setDragState('idle')
+      expect(store.isDropping).toBe(false)
+    })
+
+    it('should compute hasValidTargets correctly', () => {
+      const store = useDragDropStore()
+
+      expect(store.hasValidTargets).toBe(false)
+
+      store.setAvailableTargets(mockDropTargets)
+      store.startDrag(mockColumnInfo)
+
+      expect(store.hasValidTargets).toBe(true)
+
+      store.endDrag()
+      expect(store.hasValidTargets).toBe(false)
+    })
+  })
+
+  describe('Store Reset', () => {
+    it('should reset store to initial state', () => {
+      const store = useDragDropStore()
+
+      // Set up some state
+      store.setAvailableTargets(mockDropTargets)
+      store.startDrag(mockColumnInfo)
+      store.setHoveredTarget('item.terms.labels.en')
+
+      // Verify state is set
+      expect(store.draggedColumn).not.toBeNull()
+      expect(store.dragState).toBe('dragging')
+      expect(store.validDropTargets.length).toBeGreaterThan(0)
+      expect(store.hoveredTarget).not.toBeNull()
+      expect(store.availableTargets.length).toBeGreaterThan(0)
+
+      // Reset
+      store.$reset()
+
+      // Verify reset to initial state
+      expect(store.draggedColumn).toBeNull()
+      expect(store.dragState).toBe('idle')
+      expect(store.validDropTargets).toEqual([])
+      expect(store.hoveredTarget).toBeNull()
+      expect(store.availableTargets).toEqual([])
+      expect(store.isDragging).toBe(false)
+      expect(store.isDropping).toBe(false)
+      expect(store.hasValidTargets).toBe(false)
+    })
+  })
+
+  describe('Data Type Compatibility', () => {
+    it('should handle all supported data types', () => {
+      const store = useDragDropStore()
+
+      const testCases = [
+        {
+          dataType: 'VARCHAR',
+          expectedTargets: ['string', 'url', 'external-id', 'monolingualtext'],
+        },
+        { dataType: 'TEXT', expectedTargets: ['string', 'monolingualtext'] },
+        { dataType: 'INTEGER', expectedTargets: ['quantity'] },
+        { dataType: 'DECIMAL', expectedTargets: ['quantity'] },
+        { dataType: 'DATE', expectedTargets: ['time'] },
+        { dataType: 'DATETIME', expectedTargets: ['time'] },
+        { dataType: 'JSON', expectedTargets: ['string'] },
+        { dataType: 'ARRAY', expectedTargets: ['string'] },
+      ]
+
+      testCases.forEach(({ dataType, expectedTargets }) => {
+        const column: ColumnInfo = {
+          name: `test_${dataType.toLowerCase()}`,
+          dataType,
+          sampleValues: ['test'],
+          nullable: false,
+        }
+
+        const targets: DropTarget[] = expectedTargets.map((type, index) => ({
+          type: 'statement',
+          path: `item.statements[${index}].value`,
+          acceptedTypes: [type as any],
+          propertyId: `P${index + 1}`,
+        }))
+
+        store.setAvailableTargets(targets)
+        store.startDrag(column)
+
+        expect(store.validDropTargets.length).toBe(expectedTargets.length)
+        store.endDrag()
+      })
+    })
+
+    it('should handle unsupported data types', () => {
+      const store = useDragDropStore()
+      const unsupportedColumn: ColumnInfo = {
+        name: 'unsupported',
+        dataType: 'UNKNOWN_TYPE',
+        sampleValues: ['test'],
+        nullable: false,
+      }
+
+      store.setAvailableTargets(mockDropTargets)
+      store.startDrag(unsupportedColumn)
+
+      // Should have no valid targets for unsupported data type
+      expect(store.validDropTargets).toEqual([])
+      expect(store.hasValidTargets).toBe(false)
+    })
+  })
+
+  describe('New Computed Properties', () => {
+    it('should compute validDropTargetsAsObjects correctly', () => {
+      const store = useDragDropStore()
+      store.setAvailableTargets(mockDropTargets)
+
+      // Initially no valid targets
+      expect(store.validDropTargetsAsObjects).toEqual([])
+
+      // Start dragging
+      store.startDrag(mockColumnInfo)
+
+      // Should have valid targets as objects
+      expect(store.validDropTargetsAsObjects.length).toBeGreaterThan(0)
+      expect(store.validDropTargetsAsObjects[0]).toHaveProperty('type')
+      expect(store.validDropTargetsAsObjects[0]).toHaveProperty('path')
+      expect(store.validDropTargetsAsObjects[0]).toHaveProperty('acceptedTypes')
+    })
+
+    it('should compute isValidDrop correctly', () => {
+      const store = useDragDropStore()
+      store.setAvailableTargets(mockDropTargets)
+
+      // Initially not valid
+      expect(store.isValidDrop).toBe(false)
+
+      // Start drag
+      store.startDrag(mockColumnInfo)
+
+      // Still not valid (no hovered target)
+      expect(store.isValidDrop).toBe(false)
+
+      // Set valid hovered target
+      store.setHoveredTarget('item.terms.labels.en')
+
+      // Now should be valid
+      expect(store.isValidDrop).toBe(true)
+
+      // Set invalid hovered target
+      store.setHoveredTarget('item.statements[0].qualifiers[0].value') // time type, incompatible with VARCHAR
+
+      // Should be invalid
+      expect(store.isValidDrop).toBe(false)
+    })
+  })
+})

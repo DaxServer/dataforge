@@ -2,18 +2,10 @@ import type { Ref, ComputedRef } from 'vue'
 import type { ColumnInfo, WikibaseDataType } from '@frontend/types/wikibase-schema'
 
 // Schema editor specific drag and drop context (from design document)
+// This represents what the composable provides, not the store state
 export interface SchemaDragDropContext {
-  // Global drag state (from Pinia store)
-  draggedColumn: Ref<ColumnInfo | null>
-  dragState: Ref<DragState>
-
-  // Drop zone state from native HTML5 events
+  // Local drop zone state managed by the composable
   isOverDropZone: Ref<boolean>
-  hoveredTarget: Ref<string | null>
-
-  // Validation and feedback
-  validDropTargets: ComputedRef<DropTarget[]>
-  isValidDrop: ComputedRef<boolean>
   dropFeedback: Ref<DropFeedback | null>
 }
 

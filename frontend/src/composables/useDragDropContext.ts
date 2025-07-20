@@ -1,11 +1,10 @@
-import { ref, computed } from 'vue'
+import { ref } from 'vue'
+import { useDragDropStore } from '@frontend/stores/drag-drop.store'
 import type {
   SchemaDragDropContext,
   DropTarget,
   DropFeedback,
-  DragState,
   DropValidation,
-  DropEventData,
   DropZoneConfig,
 } from '@frontend/types/drag-drop'
 import type { ColumnInfo, WikibaseDataType } from '@frontend/types/wikibase-schema'
@@ -56,48 +55,31 @@ const isDataTypeCompatible = (columnType: string, acceptedTypes: WikibaseDataTyp
 
 /**
  * Composable for managing drag and drop context in the schema editor
+ * Integrates with the global drag-drop store for state management
  */
 export const useDragDropContext = (): SchemaDragDropContext & {
-  // Additional utility methods
   startDrag: (column: ColumnInfo, sourceElement: HTMLElement) => void
   endDrag: () => void
   enterDropZone: (targetPath: string) => void
   leaveDropZone: () => void
   validateDrop: (column: ColumnInfo, target: DropTarget) => DropValidation
   performDrop: (column: ColumnInfo, target: DropTarget) => Promise<boolean>
-  getValidTargetsForColumn: (column: ColumnInfo) => DropTarget[]
-  setAvailableTargets: (targets: DropTarget[]) => void
 } => {
-  // Core reactive state
-  const draggedColumn = ref<ColumnInfo | null>(null)
-  const dragState = ref<DragState>('idle')
-  const isOverDropZone = ref(false)
-  const hoveredTarget = ref<string | null>(null)
-  const dropFeedback = ref<DropFeedback | null>(null)
+  // Use the global drag-drop store
+  const store = useDragDropStore()
 
-  // Available drop targets (would be populated from schema configuration)
-  const availableTargets = ref<DropTarget[]>([])
+  const isOverDropZone = ref(false)
+  const dropFeedback = ref<DropFeedback | null>(null)
 
   // Store reference to dragstart listener for cleanup
   const dragStartListeners = new WeakMap<HTMLElement, (event: DragEvent) => void>()
 
-  // Computed properties
-  const validDropTargets = computed(() => {
-    if (!draggedColumn.value) return []
-    return getValidTargetsForColumn(draggedColumn.value)
-  })
-
-  const isValidDrop = computed(() => {
-    if (!draggedColumn.value || !hoveredTarget.value) return false
-    const target = availableTargets.value.find((t) => t.path === hoveredTarget.value)
-    if (!target) return false
-    return validateDrop(draggedColumn.value, target).isValid
-  })
-
-  // Utility methods
+  // Utility methods that coordinate with the store
   const startDrag = (column: ColumnInfo, sourceElement: HTMLElement): void => {
-    draggedColumn.value = column
-    dragState.value = 'dragging'
+    // Update global store state
+    store.startDrag(column)
+
+    // Clear local feedback
     dropFeedback.value = null
 
     // Store drag data for HTML5 drag and drop
@@ -121,22 +103,23 @@ export const useDragDropContext = (): SchemaDragDropContext & {
   }
 
   const endDrag = (): void => {
-    draggedColumn.value = null
-    dragState.value = 'idle'
+    // Update global store state
+    store.endDrag()
+
+    // Clear local state
     isOverDropZone.value = false
-    hoveredTarget.value = null
     dropFeedback.value = null
   }
 
   const enterDropZone = (targetPath: string): void => {
     isOverDropZone.value = true
-    hoveredTarget.value = targetPath
+    store.setHoveredTarget(targetPath)
 
     // Update feedback based on validation
-    if (draggedColumn.value) {
-      const target = availableTargets.value.find((t) => t.path === targetPath)
+    if (store.draggedColumn) {
+      const target = store.availableTargets.find((t) => t.path === targetPath)
       if (target) {
-        const validation = validateDrop(draggedColumn.value, target)
+        const validation = validateDrop(store.draggedColumn, target)
         dropFeedback.value = {
           type: validation.isValid ? 'success' : 'error',
           message:
@@ -148,7 +131,7 @@ export const useDragDropContext = (): SchemaDragDropContext & {
 
   const leaveDropZone = (): void => {
     isOverDropZone.value = false
-    hoveredTarget.value = null
+    store.setHoveredTarget(null)
     dropFeedback.value = null
   }
 
@@ -194,18 +177,8 @@ export const useDragDropContext = (): SchemaDragDropContext & {
       return false
     }
 
-    // Create drop event data
-    const dropEventData: DropEventData = {
-      column,
-      target,
-      position: { x: 0, y: 0 }, // Would be populated from actual mouse position
-      timestamp: Date.now(),
-    }
-
-    // Emit drop event or call callback
-    // This would typically trigger a store action to update the schema mapping
-
-    dragState.value = 'dropping'
+    // Update store state to dropping
+    store.setDragState('dropping')
 
     let success = false
 
@@ -241,18 +214,12 @@ export const useDragDropContext = (): SchemaDragDropContext & {
       success = false
     } finally {
       // Clear drag state but preserve feedback for UI
-      draggedColumn.value = null
-      dragState.value = 'idle'
+      store.endDrag()
       isOverDropZone.value = false
-      hoveredTarget.value = null
       // Don't clear dropFeedback here so it can be checked by tests/UI
     }
 
     return success
-  }
-
-  const getValidTargetsForColumn = (column: ColumnInfo): DropTarget[] => {
-    return availableTargets.value.filter((target) => validateDrop(column, target).isValid)
   }
 
   const validateByTargetType = (column: ColumnInfo, target: DropTarget): DropValidation => {
@@ -298,30 +265,15 @@ export const useDragDropContext = (): SchemaDragDropContext & {
     return { isValid: true }
   }
 
-  // Method to set available targets (would be called when schema is loaded)
-  const setAvailableTargets = (targets: DropTarget[]): void => {
-    availableTargets.value = targets
-  }
-
   return {
-    // Core context properties
-    draggedColumn,
-    dragState,
     isOverDropZone,
-    hoveredTarget,
-    validDropTargets,
-    isValidDrop,
     dropFeedback,
-
-    // Utility methods
     startDrag,
     endDrag,
     enterDropZone,
     leaveDropZone,
     validateDrop,
     performDrop,
-    getValidTargetsForColumn,
-    setAvailableTargets,
   }
 }
 
