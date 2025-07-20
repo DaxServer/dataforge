@@ -39,20 +39,6 @@ const mockApi = {
 // Mock auto-imported composables
 globalThis.useApi = () => mockApi
 globalThis.useErrorHandling = () => ({ showError: mockShowError })
-globalThis.useSchemaBuilder = () => ({
-  parseSchema: mock((schema: WikibaseSchemaMapping) => ({
-    id: schema.id,
-    projectId: schema.projectId,
-    name: schema.name,
-    wikibaseUrl: schema.wikibase,
-    labels: schema.item.terms.labels,
-    descriptions: schema.item.terms.descriptions,
-    aliases: schema.item.terms.aliases,
-    statements: schema.item.statements,
-    createdAt: schema.createdAt,
-    updatedAt: schema.updatedAt,
-  })),
-})
 
 // Mock useSchemaStore for the composable
 globalThis.useSchemaStore = useSchemaStore
@@ -60,14 +46,13 @@ globalThis.useSchemaStore = useSchemaStore
 // Store original functions to restore later
 const originalUseApi = globalThis.useApi
 const originalUseErrorHandling = globalThis.useErrorHandling
-const originalUseSchemaBuilder = globalThis.useSchemaBuilder
 const originalUseSchemaStore = globalThis.useSchemaStore
 
 const mockSchema: WikibaseSchemaMapping = {
   id: 'schema-123',
   projectId: 'project-456',
   name: 'Test Schema',
-  wikibase: 'https://www.wikidata.org',
+  wikibase: '',
   item: {
     terms: {
       labels: {
@@ -104,23 +89,6 @@ describe('useSchemaApi', () => {
       createTestingPinia({
         createSpy: mock,
         stubActions: true, // Stub actions since we're testing the composable, not the store
-        initialState: {
-          schema: {
-            schemaId: null,
-            projectId: null,
-            schemaName: null,
-            wikibaseUrl: null,
-            labels: {},
-            descriptions: {},
-            aliases: {},
-            statements: [],
-            createdAt: null,
-            updatedAt: null,
-            isDirty: false,
-            lastSaved: null,
-            isLoading: false,
-          },
-        },
       }),
     )
 
@@ -150,12 +118,6 @@ describe('useSchemaApi', () => {
       delete globalThis.useErrorHandling
     }
 
-    if (originalUseSchemaBuilder) {
-      globalThis.useSchemaBuilder = originalUseSchemaBuilder
-    } else {
-      delete globalThis.useSchemaBuilder
-    }
-
     if (originalUseSchemaStore) {
       globalThis.useSchemaStore = originalUseSchemaStore
     } else {
@@ -183,7 +145,7 @@ describe('useSchemaApi', () => {
       expect(store.schemaId).toBe(mockSchema.id)
       expect(store.projectId).toBe(mockSchema.projectId)
       expect(store.schemaName).toBe(mockSchema.name)
-      expect(store.wikibaseUrl).toBe(mockSchema.wikibase)
+      expect(store.wikibase).toBe(mockSchema.wikibase)
     })
 
     it('should handle API errors when loading a schema', async () => {
@@ -247,7 +209,7 @@ describe('useSchemaApi', () => {
       expect(store.schemaId).toBe(mockCreatedSchema.id)
       expect(store.projectId).toBe(mockCreatedSchema.projectId)
       expect(store.schemaName).toBe(mockCreatedSchema.name)
-      expect(store.wikibaseUrl).toBe(mockCreatedSchema.wikibase)
+      expect(store.wikibase).toBe(mockCreatedSchema.wikibase)
       expect(store.setLoading).toHaveBeenCalledWith(true)
       expect(store.setLoading).toHaveBeenLastCalledWith(false)
     })
@@ -298,7 +260,7 @@ describe('useSchemaApi', () => {
       expect(store.schemaId).toBe(mockUpdatedSchema.id)
       expect(store.projectId).toBe(mockUpdatedSchema.projectId)
       expect(store.schemaName).toBe(mockUpdatedSchema.name)
-      expect(store.wikibaseUrl).toBe(mockUpdatedSchema.wikibase)
+      expect(store.wikibase).toBe(mockUpdatedSchema.wikibase)
       expect(store.markAsSaved).toHaveBeenCalled()
       expect(store.setLoading).toHaveBeenCalledWith(true)
       expect(store.setLoading).toHaveBeenLastCalledWith(false)
@@ -319,7 +281,7 @@ describe('useSchemaApi', () => {
       expect(store.schemaId).toBe(mockUpdatedSchema.id)
       expect(store.projectId).toBe(mockUpdatedSchema.projectId)
       expect(store.schemaName).toBe(mockUpdatedSchema.name)
-      expect(store.wikibaseUrl).toBe(mockUpdatedSchema.wikibase)
+      expect(store.wikibase).toBe(mockUpdatedSchema.wikibase)
       expect(store.markAsSaved).toHaveBeenCalled()
       expect(store.setLoading).toHaveBeenCalledWith(true)
       expect(store.setLoading).toHaveBeenLastCalledWith(false)

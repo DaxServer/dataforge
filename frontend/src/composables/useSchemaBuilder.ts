@@ -106,27 +106,11 @@ export const useSchemaBuilder = () => {
     )
   }
 
-  const parseSchema = (schema: WikibaseSchemaMapping) => {
-    return {
-      id: schema.id,
-      projectId: schema.projectId,
-      name: schema.name,
-      wikibaseUrl: schema.wikibase,
-      labels: schema.item.terms.labels,
-      descriptions: schema.item.terms.descriptions,
-      aliases: schema.item.terms.aliases,
-      statements: schema.item.statements,
-      createdAt: schema.createdAt,
-      updatedAt: schema.updatedAt,
-    }
-  }
-
   return {
     buildSchema,
     buildItemSchema,
     buildTermsSchema,
     buildStatement,
     createEmptySchema,
-    parseSchema,
   }
 }

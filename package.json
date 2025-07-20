@@ -14,7 +14,6 @@
     "format": "prettier --write \"**/*.{ts,vue}\"",
     "lint": "bun -F '*' lint",
     "mcpi": "bunx @modelcontextprotocol/inspector",
-    "test": "bun -F backend test",
     "typecheck": "bun -F '*' typecheck"
   },
   "trustedDependencies": [

@@ -8,6 +8,7 @@ export {}
 declare global {
   const ApiKey: typeof import('./src/plugins/api')['ApiKey']
   const ApiPlugin: typeof import('./src/plugins/api')['ApiPlugin']
+  const DATA_TYPE_COMPATIBILITY_MAP: typeof import('./src/utils/data-type-compatibility')['DATA_TYPE_COMPATIBILITY_MAP']
   const EffectScope: typeof import('vue')['EffectScope']
   const ValidationMessages: typeof import('./src/types/wikibase-schema')['ValidationMessages']
   const acceptHMRUpdate: typeof import('pinia')['acceptHMRUpdate']
@@ -42,13 +43,16 @@ declare global {
   const eagerComputed: typeof import('@vueuse/core')['eagerComputed']
   const effectScope: typeof import('vue')['effectScope']
   const extendRef: typeof import('@vueuse/core')['extendRef']
+  const generateUUIDv7: typeof import('./src/utils/uuid')['generateUUIDv7']
   const getActivePinia: typeof import('pinia')['getActivePinia']
+  const getCompatibleWikibaseTypes: typeof import('./src/utils/data-type-compatibility')['getCompatibleWikibaseTypes']
   const getCurrentInstance: typeof import('vue')['getCurrentInstance']
   const getCurrentScope: typeof import('vue')['getCurrentScope']
   const h: typeof import('vue')['h']
   const ignorableWatch: typeof import('@vueuse/core')['ignorableWatch']
   const inject: typeof import('vue')['inject']
   const injectLocal: typeof import('@vueuse/core')['injectLocal']
+  const isDataTypeCompatible: typeof import('./src/utils/data-type-compatibility')['isDataTypeCompatible']
   const isDefined: typeof import('@vueuse/core')['isDefined']
   const isProxy: typeof import('vue')['isProxy']
   const isReactive: typeof import('vue')['isReactive']
@@ -181,6 +185,7 @@ declare global {
   const useDisplayMedia: typeof import('@vueuse/core')['useDisplayMedia']
   const useDocumentVisibility: typeof import('@vueuse/core')['useDocumentVisibility']
   const useDragDropContext: typeof import('./src/composables/useDragDropContext')['useDragDropContext']
+  const useDragDropStore: typeof import('./src/stores/drag-drop.store')['useDragDropStore']
   const useDraggable: typeof import('@vueuse/core')['useDraggable']
   const useDropZone: typeof import('@vueuse/core')['useDropZone']
   const useElementBounding: typeof import('@vueuse/core')['useElementBounding']
@@ -366,6 +371,7 @@ declare module 'vue' {
   interface ComponentCustomProperties {
     readonly ApiKey: UnwrapRef<typeof import('./src/plugins/api')['ApiKey']>
     readonly ApiPlugin: UnwrapRef<typeof import('./src/plugins/api')['ApiPlugin']>
+    readonly DATA_TYPE_COMPATIBILITY_MAP: UnwrapRef<typeof import('./src/utils/data-type-compatibility')['DATA_TYPE_COMPATIBILITY_MAP']>
     readonly EffectScope: UnwrapRef<typeof import('vue')['EffectScope']>
     readonly ValidationMessages: UnwrapRef<typeof import('./src/types/wikibase-schema')['ValidationMessages']>
     readonly acceptHMRUpdate: UnwrapRef<typeof import('pinia')['acceptHMRUpdate']>
@@ -401,12 +407,14 @@ declare module 'vue' {
     readonly effectScope: UnwrapRef<typeof import('vue')['effectScope']>
     readonly extendRef: UnwrapRef<typeof import('@vueuse/core')['extendRef']>
     readonly getActivePinia: UnwrapRef<typeof import('pinia')['getActivePinia']>
+    readonly getCompatibleWikibaseTypes: UnwrapRef<typeof import('./src/utils/data-type-compatibility')['getCompatibleWikibaseTypes']>
     readonly getCurrentInstance: UnwrapRef<typeof import('vue')['getCurrentInstance']>
     readonly getCurrentScope: UnwrapRef<typeof import('vue')['getCurrentScope']>
     readonly h: UnwrapRef<typeof import('vue')['h']>
     readonly ignorableWatch: UnwrapRef<typeof import('@vueuse/core')['ignorableWatch']>
     readonly inject: UnwrapRef<typeof import('vue')['inject']>
     readonly injectLocal: UnwrapRef<typeof import('@vueuse/core')['injectLocal']>
+    readonly isDataTypeCompatible: UnwrapRef<typeof import('./src/utils/data-type-compatibility')['isDataTypeCompatible']>
     readonly isDefined: UnwrapRef<typeof import('@vueuse/core')['isDefined']>
     readonly isProxy: UnwrapRef<typeof import('vue')['isProxy']>
     readonly isReactive: UnwrapRef<typeof import('vue')['isReactive']>
@@ -538,6 +546,7 @@ declare module 'vue' {
     readonly useDisplayMedia: UnwrapRef<typeof import('@vueuse/core')['useDisplayMedia']>
     readonly useDocumentVisibility: UnwrapRef<typeof import('@vueuse/core')['useDocumentVisibility']>
     readonly useDragDropContext: UnwrapRef<typeof import('./src/composables/useDragDropContext')['useDragDropContext']>
+    readonly useDragDropStore: UnwrapRef<typeof import('./src/stores/drag-drop.store')['useDragDropStore']>
     readonly useDraggable: UnwrapRef<typeof import('@vueuse/core')['useDraggable']>
     readonly useDropZone: UnwrapRef<typeof import('@vueuse/core')['useDropZone']>
     readonly useElementBounding: UnwrapRef<typeof import('@vueuse/core')['useElementBounding']>

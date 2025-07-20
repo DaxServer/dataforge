@@ -30,7 +30,7 @@
   - Implement API integration composable for schema operations
   - _Requirements: 1.3, 1.4_
 
-- [ ] 6. Create drag-and-drop composable
+- [x] 6. Create drag-and-drop composable
   - Write tests for drag-and-drop state management
   - Write tests for drag validation and drop handling
   - Implement drag-and-drop composable functionality
