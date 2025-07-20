@@ -1,10 +1,6 @@
 import { describe, it, expect, beforeEach } from 'bun:test'
 import { isDataTypeCompatible } from '@frontend/utils/data-type-compatibility'
-import type {
-  DropTarget,
-  DropZoneConfig,
-  DropTargetType,
-} from '@frontend/types/drag-drop'
+import type { DropTarget, DropZoneConfig, DropTargetType } from '@frontend/types/drag-drop'
 import type { ColumnInfo, WikibaseDataType } from '@frontend/types/wikibase-schema'
 
 describe('Drop Target Validation Logic', () => {
@@ -75,7 +71,10 @@ describe('Drop Target Validation Logic', () => {
         nullable: false,
       }
 
-      const isValid = isDataTypeCompatible(stringColumn.dataType, mockDropTargets.label.acceptedTypes)
+      const isValid = isDataTypeCompatible(
+        stringColumn.dataType,
+        mockDropTargets.label.acceptedTypes,
+      )
       expect(isValid).toBe(true)
     })
 
@@ -87,7 +86,10 @@ describe('Drop Target Validation Logic', () => {
         nullable: true,
       }
 
-      const isValid = isDataTypeCompatible(textColumn.dataType, mockDropTargets.description.acceptedTypes)
+      const isValid = isDataTypeCompatible(
+        textColumn.dataType,
+        mockDropTargets.description.acceptedTypes,
+      )
       expect(isValid).toBe(true)
     })
 
@@ -99,7 +101,10 @@ describe('Drop Target Validation Logic', () => {
         nullable: false,
       }
 
-      const isValid = isDataTypeCompatible(numericColumn.dataType, mockDropTargets.label.acceptedTypes)
+      const isValid = isDataTypeCompatible(
+        numericColumn.dataType,
+        mockDropTargets.label.acceptedTypes,
+      )
       expect(isValid).toBe(false)
     })
 
@@ -130,7 +135,10 @@ describe('Drop Target Validation Logic', () => {
         nullable: true,
       }
 
-      const isValid = isDataTypeCompatible(urlColumn.dataType, mockDropTargets.reference.acceptedTypes)
+      const isValid = isDataTypeCompatible(
+        urlColumn.dataType,
+        mockDropTargets.reference.acceptedTypes,
+      )
       expect(isValid).toBe(true)
     })
   })

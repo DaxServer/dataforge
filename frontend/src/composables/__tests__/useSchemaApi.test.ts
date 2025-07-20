@@ -36,24 +36,9 @@ const mockApi = {
   })),
 }
 
-// Mock parseSchema function
-const mockParseSchema = mock((schema: WikibaseSchemaMapping) => ({
-  id: schema.id,
-  projectId: schema.projectId,
-  name: schema.name,
-  wikibase: schema.wikibase,
-  labels: schema.item?.terms?.labels || {},
-  descriptions: schema.item?.terms?.descriptions || {},
-  aliases: schema.item?.terms?.aliases || {},
-  statements: schema.item?.statements || [],
-  createdAt: schema.createdAt,
-  updatedAt: schema.updatedAt,
-}))
-
 // Mock auto-imported composables
 globalThis.useApi = () => mockApi
 globalThis.useErrorHandling = () => ({ showError: mockShowError })
-globalThis.useSchemaBuilder = () => ({ parseSchema: mockParseSchema })
 
 // Mock useSchemaStore for the composable
 globalThis.useSchemaStore = useSchemaStore
@@ -61,7 +46,6 @@ globalThis.useSchemaStore = useSchemaStore
 // Store original functions to restore later
 const originalUseApi = globalThis.useApi
 const originalUseErrorHandling = globalThis.useErrorHandling
-const originalUseSchemaBuilder = globalThis.useSchemaBuilder
 const originalUseSchemaStore = globalThis.useSchemaStore
 
 const mockSchema: WikibaseSchemaMapping = {
@@ -118,7 +102,6 @@ describe('useSchemaApi', () => {
     mockShowError.mockClear()
     mockMarkAsSaved.mockClear()
     mock$reset.mockClear()
-    mockParseSchema.mockClear()
   })
 
   afterEach(() => {
@@ -133,12 +116,6 @@ describe('useSchemaApi', () => {
       globalThis.useErrorHandling = originalUseErrorHandling
     } else {
       delete globalThis.useErrorHandling
-    }
-
-    if (originalUseSchemaBuilder) {
-      globalThis.useSchemaBuilder = originalUseSchemaBuilder
-    } else {
-      delete globalThis.useSchemaBuilder
     }
 
     if (originalUseSchemaStore) {

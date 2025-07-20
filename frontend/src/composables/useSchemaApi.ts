@@ -1,6 +1,5 @@
 import { ApiError } from '@backend/types/error-schemas'
 import type { WikibaseSchemaMapping } from '@frontend/types/wikibase-schema'
-import { useSchemaBuilder } from '@frontend/composables/useSchemaBuilder'
 
 export interface CreateSchemaRequest {
   name: string
@@ -11,24 +10,21 @@ export const useSchemaApi = () => {
   const api = useApi()
   const schemaStore = useSchemaStore()
   const { showError } = useErrorHandling()
-  const { parseSchema } = useSchemaBuilder()
 
   // Helper function
   const loadSchemaIntoStore = (schema: WikibaseSchemaMapping) => {
-    const parsedSchema = parseSchema(schema)
-
-    schemaStore.schemaId = parsedSchema.id
-    schemaStore.projectId = parsedSchema.projectId
-    schemaStore.schemaName = parsedSchema.name
-    schemaStore.wikibase = parsedSchema.wikibase
-    schemaStore.labels = parsedSchema.labels
-    schemaStore.descriptions = parsedSchema.descriptions
-    schemaStore.aliases = parsedSchema.aliases
-    schemaStore.statements = parsedSchema.statements
-    schemaStore.createdAt = parsedSchema.createdAt
-    schemaStore.updatedAt = parsedSchema.updatedAt
+    schemaStore.schemaId = schema.id
+    schemaStore.projectId = schema.projectId
+    schemaStore.schemaName = schema.name
+    schemaStore.wikibase = schema.wikibase
+    schemaStore.labels = schema.item.terms.labels
+    schemaStore.descriptions = schema.item.terms.descriptions
+    schemaStore.aliases = schema.item.terms.aliases
+    schemaStore.statements = schema.item.statements
+    schemaStore.createdAt = schema.createdAt
+    schemaStore.updatedAt = schema.updatedAt
     schemaStore.isDirty = false
-    schemaStore.lastSaved = new Date(parsedSchema.updatedAt)
+    schemaStore.lastSaved = new Date(schema.updatedAt)
   }
 
   // Actions
