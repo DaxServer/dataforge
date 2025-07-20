@@ -1,5 +1,6 @@
 import { ref } from 'vue'
 import { useDragDropStore } from '@frontend/stores/drag-drop.store'
+import { isDataTypeCompatible } from '@frontend/utils/data-type-compatibility'
 import type {
   SchemaDragDropContext,
   DropTarget,
@@ -29,28 +30,6 @@ const extractPropertyIdFromPath = (path: string): string | undefined => {
   // This would extract property ID from context or path metadata
   // For now, return undefined as property IDs are typically set separately
   return undefined
-}
-
-const isDataTypeCompatible = (columnType: string, acceptedTypes: WikibaseDataType[]): boolean => {
-  const compatibilityMap: Record<string, WikibaseDataType[]> = {
-    VARCHAR: ['string', 'url', 'external-id', 'monolingualtext'],
-    TEXT: ['string', 'monolingualtext'],
-    STRING: ['string', 'url', 'external-id', 'monolingualtext'],
-    INTEGER: ['quantity'],
-    DECIMAL: ['quantity'],
-    NUMERIC: ['quantity'],
-    FLOAT: ['quantity'],
-    DOUBLE: ['quantity'],
-    DATE: ['time'],
-    DATETIME: ['time'],
-    TIMESTAMP: ['time'],
-    BOOLEAN: [],
-    JSON: ['string'], // JSON can be serialized to string
-    ARRAY: ['string'], // Arrays can be serialized to string
-  }
-
-  const compatibleTypes = compatibilityMap[columnType.toUpperCase()] || []
-  return acceptedTypes.some((type) => compatibleTypes.includes(type))
 }
 
 /**

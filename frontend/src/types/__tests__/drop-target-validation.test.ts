@@ -1,10 +1,9 @@
 import { describe, it, expect, beforeEach } from 'bun:test'
+import { isDataTypeCompatible } from '@frontend/utils/data-type-compatibility'
 import type {
   DropTarget,
-  DropValidation,
   DropZoneConfig,
   DropTargetType,
-  DragState,
 } from '@frontend/types/drag-drop'
 import type { ColumnInfo, WikibaseDataType } from '@frontend/types/wikibase-schema'
 
@@ -76,7 +75,7 @@ describe('Drop Target Validation Logic', () => {
         nullable: false,
       }
 
-      const isValid = validateDataTypeCompatibility(stringColumn, mockDropTargets.label)
+      const isValid = isDataTypeCompatible(stringColumn.dataType, mockDropTargets.label.acceptedTypes)
       expect(isValid).toBe(true)
     })
 
@@ -88,7 +87,7 @@ describe('Drop Target Validation Logic', () => {
         nullable: true,
       }
 
-      const isValid = validateDataTypeCompatibility(textColumn, mockDropTargets.description)
+      const isValid = isDataTypeCompatible(textColumn.dataType, mockDropTargets.description.acceptedTypes)
       expect(isValid).toBe(true)
     })
 
@@ -100,7 +99,7 @@ describe('Drop Target Validation Logic', () => {
         nullable: false,
       }
 
-      const isValid = validateDataTypeCompatibility(numericColumn, mockDropTargets.label)
+      const isValid = isDataTypeCompatible(numericColumn.dataType, mockDropTargets.label.acceptedTypes)
       expect(isValid).toBe(false)
     })
 
@@ -119,7 +118,7 @@ describe('Drop Target Validation Logic', () => {
         propertyId: 'P585',
       }
 
-      const isValid = validateDataTypeCompatibility(dateColumn, timeTarget)
+      const isValid = isDataTypeCompatible(dateColumn.dataType, timeTarget.acceptedTypes)
       expect(isValid).toBe(true)
     })
 
@@ -131,7 +130,7 @@ describe('Drop Target Validation Logic', () => {
         nullable: true,
       }
 
-      const isValid = validateDataTypeCompatibility(urlColumn, mockDropTargets.reference)
+      const isValid = isDataTypeCompatible(urlColumn.dataType, mockDropTargets.reference.acceptedTypes)
       expect(isValid).toBe(true)
     })
   })
@@ -369,26 +368,6 @@ describe('Drop Target Validation Logic', () => {
     })
   })
 })
-
-// Helper functions for validation (these would be implemented in the actual utilities)
-const validateDataTypeCompatibility = (column: ColumnInfo, target: DropTarget): boolean => {
-  const compatibilityMap: Record<string, WikibaseDataType[]> = {
-    VARCHAR: ['string', 'url', 'external-id'],
-    TEXT: ['string', 'monolingualtext'],
-    STRING: ['string', 'url', 'external-id'],
-    INTEGER: ['quantity'],
-    DECIMAL: ['quantity'],
-    NUMERIC: ['quantity'],
-    FLOAT: ['quantity'],
-    DATE: ['time'],
-    DATETIME: ['time'],
-    TIMESTAMP: ['time'],
-    BOOLEAN: [],
-  }
-
-  const compatibleTypes = compatibilityMap[column.dataType.toUpperCase()] || []
-  return target.acceptedTypes.some((type) => compatibleTypes.includes(type))
-}
 
 const validateTargetPath = (path: string): boolean => {
   if (!path || path.trim() === '') return false

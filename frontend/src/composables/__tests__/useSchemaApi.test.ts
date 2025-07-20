@@ -39,20 +39,6 @@ const mockApi = {
 // Mock auto-imported composables
 globalThis.useApi = () => mockApi
 globalThis.useErrorHandling = () => ({ showError: mockShowError })
-globalThis.useSchemaBuilder = () => ({
-  parseSchema: mock((schema: WikibaseSchemaMapping) => ({
-    id: schema.id,
-    projectId: schema.projectId,
-    name: schema.name,
-    wikibaseUrl: schema.wikibase,
-    labels: schema.item.terms.labels,
-    descriptions: schema.item.terms.descriptions,
-    aliases: schema.item.terms.aliases,
-    statements: schema.item.statements,
-    createdAt: schema.createdAt,
-    updatedAt: schema.updatedAt,
-  })),
-})
 
 // Mock useSchemaStore for the composable
 globalThis.useSchemaStore = useSchemaStore
@@ -67,7 +53,7 @@ const mockSchema: WikibaseSchemaMapping = {
   id: 'schema-123',
   projectId: 'project-456',
   name: 'Test Schema',
-  wikibase: 'https://www.wikidata.org',
+  wikibase: '',
   item: {
     terms: {
       labels: {
@@ -104,23 +90,6 @@ describe('useSchemaApi', () => {
       createTestingPinia({
         createSpy: mock,
         stubActions: true, // Stub actions since we're testing the composable, not the store
-        initialState: {
-          schema: {
-            schemaId: null,
-            projectId: null,
-            schemaName: null,
-            wikibaseUrl: null,
-            labels: {},
-            descriptions: {},
-            aliases: {},
-            statements: [],
-            createdAt: null,
-            updatedAt: null,
-            isDirty: false,
-            lastSaved: null,
-            isLoading: false,
-          },
-        },
       }),
     )
 
@@ -183,7 +152,7 @@ describe('useSchemaApi', () => {
       expect(store.schemaId).toBe(mockSchema.id)
       expect(store.projectId).toBe(mockSchema.projectId)
       expect(store.schemaName).toBe(mockSchema.name)
-      expect(store.wikibaseUrl).toBe(mockSchema.wikibase)
+      expect(store.wikibase).toBe(mockSchema.wikibase)
     })
 
     it('should handle API errors when loading a schema', async () => {

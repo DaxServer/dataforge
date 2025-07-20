@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import type { ColumnInfo, WikibaseDataType } from '@frontend/types/wikibase-schema'
 import type { DragState, DropTarget } from '@frontend/types/drag-drop'
+import { getCompatibleWikibaseTypes } from '@frontend/utils/data-type-compatibility'
 
 /**
  * Pinia store for managing global drag and drop state in the schema editor
@@ -33,25 +34,8 @@ export const useDragDropStore = defineStore('dragDrop', () => {
     const target = availableTargets.value.find((t) => t.path === hoveredTarget.value)
     if (!target) return false
 
-    // Use the same validation logic as in the composable
-    const compatibilityMap: Record<string, WikibaseDataType[]> = {
-      VARCHAR: ['string', 'url', 'external-id', 'monolingualtext'],
-      TEXT: ['string', 'monolingualtext'],
-      STRING: ['string', 'url', 'external-id', 'monolingualtext'],
-      INTEGER: ['quantity'],
-      DECIMAL: ['quantity'],
-      NUMERIC: ['quantity'],
-      FLOAT: ['quantity'],
-      DOUBLE: ['quantity'],
-      DATE: ['time'],
-      DATETIME: ['time'],
-      TIMESTAMP: ['time'],
-      BOOLEAN: [],
-      JSON: ['string'],
-      ARRAY: ['string'],
-    }
-
-    const compatibleTypes = compatibilityMap[draggedColumn.value.dataType.toUpperCase()] || []
+    // Use the shared compatibility mapping
+    const compatibleTypes = getCompatibleWikibaseTypes(draggedColumn.value.dataType)
     const isCompatible = target.acceptedTypes.some((type) => compatibleTypes.includes(type))
 
     if (!isCompatible) return false
@@ -60,18 +44,20 @@ export const useDragDropStore = defineStore('dragDrop', () => {
     // Additional validation based on target type
     switch (target.type) {
       case 'label':
-      case 'alias':
+      case 'alias': {
         const maxLength = target.type === 'label' ? 250 : 100
         const hasLongValues = draggedColumn.value.sampleValues?.some(
           (val) => val.length > maxLength,
         )
         if (hasLongValues) return false
         break
+      }
       case 'statement':
       case 'qualifier':
-      case 'reference':
+      case 'reference': {
         if (!target.propertyId) return false
         break
+      }
     }
 
     return true
@@ -108,24 +94,7 @@ export const useDragDropStore = defineStore('dragDrop', () => {
   const calculateValidTargets = (column: ColumnInfo): string[] => {
     if (!column) return []
 
-    const compatibilityMap: Record<string, WikibaseDataType[]> = {
-      VARCHAR: ['string', 'url', 'external-id', 'monolingualtext'],
-      TEXT: ['string', 'monolingualtext'],
-      STRING: ['string', 'url', 'external-id', 'monolingualtext'],
-      INTEGER: ['quantity'],
-      DECIMAL: ['quantity'],
-      NUMERIC: ['quantity'],
-      FLOAT: ['quantity'],
-      DOUBLE: ['quantity'],
-      DATE: ['time'],
-      DATETIME: ['time'],
-      TIMESTAMP: ['time'],
-      BOOLEAN: [],
-      JSON: ['string'], // JSON can be serialized to string
-      ARRAY: ['string'], // Arrays can be serialized to string
-    }
-
-    const compatibleTypes = compatibilityMap[column.dataType.toUpperCase()] || []
+    const compatibleTypes = getCompatibleWikibaseTypes(column.dataType)
 
     return availableTargets.value
       .filter((target) => {
