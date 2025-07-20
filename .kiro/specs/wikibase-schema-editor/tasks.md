@@ -43,7 +43,7 @@
   - Implement ColumnPalette component
   - _Requirements: 2.1, 2.2, 2.4_
 
-- [ ] 8. Create column data type indicators
+- [x] 8. Create column data type indicators
   - Write tests for column data type display and tooltips
   - Write tests for sample value display functionality
   - Implement column data type indicators and tooltips

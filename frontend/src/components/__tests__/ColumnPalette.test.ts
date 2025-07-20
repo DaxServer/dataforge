@@ -1,5 +1,13 @@
 import { describe, test, expect } from 'bun:test'
 import type { ColumnInfo } from '@frontend/types/wikibase-schema'
+import { useColumnDataTypeIndicators } from '@frontend/composables/useColumnDataTypeIndicators'
+
+/**
+ * ColumnPalette Component Tests
+ *
+ * These tests verify the integration between the ColumnPalette component and the
+ * useColumnDataTypeIndicators composable
+ */
 
 // Test the component logic without DOM testing since we don't have full test setup
 describe('ColumnPalette Component Logic', () => {
@@ -190,6 +198,139 @@ describe('ColumnPalette Component Logic', () => {
       // Should handle null values in sample data
       expect(column.sampleValues.includes('null')).toBe(true)
       expect(column.nullable).toBe(true)
+    })
+  })
+
+  describe('column data type display and tooltips', () => {
+    const {
+      getCompatibleWikibaseTypes,
+      formatDataTypeDisplayName,
+      generateDataTypeTooltip,
+      generateColumnTooltip,
+    } = useColumnDataTypeIndicators()
+
+    test('should generate correct tooltip content for data types', () => {
+      const column: ColumnInfo = {
+        name: 'test_column',
+        dataType: 'VARCHAR',
+        sampleValues: ['sample1', 'sample2', 'sample3'],
+        nullable: true,
+        uniqueCount: 150,
+      }
+
+      const tooltip = generateDataTypeTooltip(column)
+
+      expect(tooltip).toContain('Data Type: Text (VARCHAR)')
+      expect(tooltip).toContain('Nullable: Yes')
+      expect(tooltip).toContain('Unique Values: 150')
+      expect(tooltip).toContain('Wikibase Compatible: string, url, external-id, monolingualtext')
+    })
+
+    test('should handle tooltip content for columns without unique count', () => {
+      const column: ColumnInfo = {
+        name: 'test_column',
+        dataType: 'INTEGER',
+        sampleValues: ['1', '2'],
+        nullable: false,
+      }
+
+      const tooltip = generateDataTypeTooltip(column)
+
+      expect(tooltip).toContain('Data Type: Number (INTEGER)')
+      expect(tooltip).not.toContain('Nullable: Yes')
+      expect(tooltip).not.toContain('Unique Values:')
+      expect(tooltip).toContain('Wikibase Compatible: quantity')
+    })
+
+    test('should generate data type compatibility information', () => {
+      expect(getCompatibleWikibaseTypes('VARCHAR')).toEqual([
+        'string',
+        'url',
+        'external-id',
+        'monolingualtext',
+      ])
+      expect(getCompatibleWikibaseTypes('INTEGER')).toEqual(['quantity'])
+      expect(getCompatibleWikibaseTypes('DATE')).toEqual(['time'])
+      expect(getCompatibleWikibaseTypes('UNKNOWN')).toEqual([])
+    })
+
+    test('should format data type display names', () => {
+      expect(formatDataTypeDisplayName('VARCHAR')).toBe('Text')
+      expect(formatDataTypeDisplayName('INTEGER')).toBe('Number')
+      expect(formatDataTypeDisplayName('DATE')).toBe('Date')
+      expect(formatDataTypeDisplayName('DATETIME')).toBe('Date/Time')
+      expect(formatDataTypeDisplayName('BOOLEAN')).toBe('Boolean')
+      expect(formatDataTypeDisplayName('DECIMAL')).toBe('Decimal')
+      expect(formatDataTypeDisplayName('UNKNOWN_TYPE')).toBe('UNKNOWN_TYPE')
+    })
+
+    test('should generate comprehensive column tooltip with data type and sample values', () => {
+      const column: ColumnInfo = {
+        name: 'test_column',
+        dataType: 'VARCHAR',
+        sampleValues: ['sample1', 'sample2', 'sample3'],
+        nullable: true,
+        uniqueCount: 150,
+      }
+
+      const tooltip = generateColumnTooltip(column)
+
+      expect(tooltip).toContain('Data Type: Text (VARCHAR)')
+      expect(tooltip).toContain('Nullable: Yes')
+      expect(tooltip).toContain('Unique Values: 150')
+      expect(tooltip).toContain('Sample Values:')
+      expect(tooltip).toContain('sample1, sample2, sample3')
+    })
+  })
+
+  describe('sample value display functionality', () => {
+    const { formatSampleValuesForTooltip, generateSampleStats } = useColumnDataTypeIndicators()
+
+    test('should format sample values with proper truncation', () => {
+      const manyValues = ['val1', 'val2', 'val3', 'val4', 'val5', 'val6', 'val7']
+      const fewValues = ['val1', 'val2', 'val3']
+      const emptyValues: string[] = []
+
+      expect(formatSampleValuesForTooltip(manyValues, 5)).toBe(
+        'val1, val2, val3, val4, val5, ... (+2 more)',
+      )
+      expect(formatSampleValuesForTooltip(fewValues, 5)).toBe('val1, val2, val3')
+      expect(formatSampleValuesForTooltip(emptyValues)).toBe('No sample data available')
+    })
+
+    test('should handle long sample values with truncation', () => {
+      const longValues = ['This is a very long sample value that should be truncated for display']
+      const shortValues = ['Short value']
+
+      const longResult = formatSampleValuesForTooltip(longValues)
+      const shortResult = formatSampleValuesForTooltip(shortValues)
+
+      expect(longResult).toContain('...')
+      expect(shortResult).toBe('Short value')
+    })
+
+    test('should generate sample value statistics', () => {
+      const valuesWithNulls = ['value1', 'null', 'value2', '']
+      const valuesWithoutNulls = ['value1', 'value2', 'value3']
+      const emptyValues: string[] = []
+
+      const statsWithNulls = generateSampleStats(valuesWithNulls)
+      expect(statsWithNulls.isEmpty).toBe(false)
+      expect(statsWithNulls.count).toBe(4)
+      expect(statsWithNulls.hasNulls).toBe(true)
+      expect(statsWithNulls.nullCount).toBe(2)
+
+      const statsWithoutNulls = generateSampleStats(valuesWithoutNulls)
+      expect(statsWithoutNulls.isEmpty).toBe(false)
+      expect(statsWithoutNulls.count).toBe(3)
+      expect(statsWithoutNulls.hasNulls).toBe(false)
+      expect(statsWithoutNulls.nullCount).toBe(0)
+
+      const emptyStats = generateSampleStats(emptyValues)
+      expect(emptyStats.isEmpty).toBe(true)
+      expect(emptyStats.count).toBe(0)
+      expect(emptyStats.hasNulls).toBe(false)
+      expect(emptyStats.nullCount).toBe(0)
     })
   })
 })

@@ -213,6 +213,7 @@
     "useCloned": true,
     "useColorMode": true,
     "useColumnConversion": true,
+    "useColumnDataTypeIndicators": true,
     "useColumnGeneration": true,
     "useConfirm": true,
     "useConfirmDialog": true,

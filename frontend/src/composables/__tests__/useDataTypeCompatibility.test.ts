@@ -3,46 +3,7 @@ import { useDataTypeCompatibility } from '@frontend/composables/useDataTypeCompa
 import type { WikibaseDataType } from '@frontend/types/wikibase-schema'
 
 describe('useDataTypeCompatibility', () => {
-  const { DATA_TYPE_COMPATIBILITY_MAP, getCompatibleWikibaseTypes, isDataTypeCompatible } =
-    useDataTypeCompatibility()
-
-  describe('DATA_TYPE_COMPATIBILITY_MAP', () => {
-    test('should have correct mapping for string types', () => {
-      expect(DATA_TYPE_COMPATIBILITY_MAP.VARCHAR).toEqual([
-        'string',
-        'url',
-        'external-id',
-        'monolingualtext',
-      ])
-      expect(DATA_TYPE_COMPATIBILITY_MAP.TEXT).toEqual(['string', 'monolingualtext'])
-      expect(DATA_TYPE_COMPATIBILITY_MAP.STRING).toEqual([
-        'string',
-        'url',
-        'external-id',
-        'monolingualtext',
-      ])
-    })
-
-    test('should have correct mapping for numeric types', () => {
-      expect(DATA_TYPE_COMPATIBILITY_MAP.INTEGER).toEqual(['quantity'])
-      expect(DATA_TYPE_COMPATIBILITY_MAP.DECIMAL).toEqual(['quantity'])
-      expect(DATA_TYPE_COMPATIBILITY_MAP.NUMERIC).toEqual(['quantity'])
-      expect(DATA_TYPE_COMPATIBILITY_MAP.FLOAT).toEqual(['quantity'])
-      expect(DATA_TYPE_COMPATIBILITY_MAP.DOUBLE).toEqual(['quantity'])
-    })
-
-    test('should have correct mapping for date/time types', () => {
-      expect(DATA_TYPE_COMPATIBILITY_MAP.DATE).toEqual(['time'])
-      expect(DATA_TYPE_COMPATIBILITY_MAP.DATETIME).toEqual(['time'])
-      expect(DATA_TYPE_COMPATIBILITY_MAP.TIMESTAMP).toEqual(['time'])
-    })
-
-    test('should have correct mapping for other types', () => {
-      expect(DATA_TYPE_COMPATIBILITY_MAP.BOOLEAN).toEqual([])
-      expect(DATA_TYPE_COMPATIBILITY_MAP.JSON).toEqual(['string'])
-      expect(DATA_TYPE_COMPATIBILITY_MAP.ARRAY).toEqual(['string'])
-    })
-  })
+  const { getCompatibleWikibaseTypes, isDataTypeCompatible } = useDataTypeCompatibility()
 
   describe('getCompatibleWikibaseTypes', () => {
     test('should return correct types for VARCHAR', () => {
