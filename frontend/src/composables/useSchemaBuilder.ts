@@ -111,7 +111,7 @@ export const useSchemaBuilder = () => {
       id: schema.id,
       projectId: schema.projectId,
       name: schema.name,
-      wikibaseUrl: schema.wikibase,
+      wikibase: schema.wikibase,
       labels: schema.item.terms.labels,
       descriptions: schema.item.terms.descriptions,
       aliases: schema.item.terms.aliases,

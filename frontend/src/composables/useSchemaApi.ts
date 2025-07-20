@@ -15,32 +15,20 @@ export const useSchemaApi = () => {
 
   // Helper function
   const loadSchemaIntoStore = (schema: WikibaseSchemaMapping) => {
-    const {
-      id,
-      projectId,
-      name,
-      wikibaseUrl,
-      labels,
-      descriptions,
-      aliases,
-      statements,
-      createdAt,
-      updatedAt,
-    } = parseSchema(schema)
+    const parsedSchema = parseSchema(schema)
 
-    schemaStore.schemaId = id
-    schemaStore.projectId = projectId
-    schemaStore.schemaName = name
-    schemaStore.wikibaseUrl = wikibaseUrl
-    schemaStore.labels = labels
-    schemaStore.descriptions = descriptions
-    schemaStore.aliases = aliases
-    schemaStore.statements = statements
-    schemaStore.createdAt = createdAt
-    schemaStore.updatedAt = updatedAt
-
+    schemaStore.schemaId = parsedSchema.id
+    schemaStore.projectId = parsedSchema.projectId
+    schemaStore.schemaName = parsedSchema.name
+    schemaStore.wikibase = parsedSchema.wikibase
+    schemaStore.labels = parsedSchema.labels
+    schemaStore.descriptions = parsedSchema.descriptions
+    schemaStore.aliases = parsedSchema.aliases
+    schemaStore.statements = parsedSchema.statements
+    schemaStore.createdAt = parsedSchema.createdAt
+    schemaStore.updatedAt = parsedSchema.updatedAt
     schemaStore.isDirty = false
-    schemaStore.lastSaved = new Date(updatedAt)
+    schemaStore.lastSaved = new Date(parsedSchema.updatedAt)
   }
 
   // Actions
