@@ -164,6 +164,7 @@ declare global {
   const useCloned: typeof import('@vueuse/core')['useCloned']
   const useColorMode: typeof import('@vueuse/core')['useColorMode']
   const useColumnConversion: typeof import('./src/composables/useColumnConversion')['useColumnConversion']
+  const useColumnDataTypeIndicators: typeof import('./src/composables/useColumnDataTypeIndicators')['useColumnDataTypeIndicators']
   const useColumnGeneration: typeof import('./src/composables/useColumnGeneration')['useColumnGeneration']
   const useConfirm: typeof import('primevue/useconfirm')['useConfirm']
   const useConfirmDialog: typeof import('@vueuse/core')['useConfirmDialog']
@@ -523,6 +524,7 @@ declare module 'vue' {
     readonly useCloned: UnwrapRef<typeof import('@vueuse/core')['useCloned']>
     readonly useColorMode: UnwrapRef<typeof import('@vueuse/core')['useColorMode']>
     readonly useColumnConversion: UnwrapRef<typeof import('./src/composables/useColumnConversion')['useColumnConversion']>
+    readonly useColumnDataTypeIndicators: UnwrapRef<typeof import('./src/composables/useColumnDataTypeIndicators')['useColumnDataTypeIndicators']>
     readonly useColumnGeneration: UnwrapRef<typeof import('./src/composables/useColumnGeneration')['useColumnGeneration']>
     readonly useConfirm: UnwrapRef<typeof import('primevue/useconfirm')['useConfirm']>
     readonly useConfirmDialog: UnwrapRef<typeof import('@vueuse/core')['useConfirmDialog']>

@@ -1,5 +1,5 @@
 import { describe, test, expect } from 'bun:test'
-import type { ColumnInfo } from '@frontend/types/wikibase-schema'
+import type { ColumnInfo, WikibaseDataType } from '@frontend/types/wikibase-schema'
 
 // Test the component logic without DOM testing since we don't have full test setup
 describe('ColumnPalette Component Logic', () => {
@@ -190,6 +190,173 @@ describe('ColumnPalette Component Logic', () => {
       // Should handle null values in sample data
       expect(column.sampleValues.includes('null')).toBe(true)
       expect(column.nullable).toBe(true)
+    })
+  })
+
+  describe('column data type display and tooltips', () => {
+    test('should generate correct tooltip content for data types', () => {
+      const column: ColumnInfo = {
+        name: 'test_column',
+        dataType: 'VARCHAR',
+        sampleValues: ['sample1', 'sample2', 'sample3'],
+        nullable: true,
+        uniqueCount: 150,
+      }
+
+      // Test tooltip content generation logic
+      const tooltipContent = {
+        dataType: column.dataType,
+        nullable: column.nullable,
+        uniqueCount: column.uniqueCount,
+        sampleCount: column.sampleValues.length,
+      }
+
+      expect(tooltipContent.dataType).toBe('VARCHAR')
+      expect(tooltipContent.nullable).toBe(true)
+      expect(tooltipContent.uniqueCount).toBe(150)
+      expect(tooltipContent.sampleCount).toBe(3)
+    })
+
+    test('should handle tooltip content for columns without unique count', () => {
+      const column: ColumnInfo = {
+        name: 'test_column',
+        dataType: 'INTEGER',
+        sampleValues: ['1', '2'],
+        nullable: false,
+      }
+
+      const tooltipContent = {
+        dataType: column.dataType,
+        nullable: column.nullable,
+        uniqueCount: column.uniqueCount,
+        sampleCount: column.sampleValues.length,
+      }
+
+      expect(tooltipContent.dataType).toBe('INTEGER')
+      expect(tooltipContent.nullable).toBe(false)
+      expect(tooltipContent.uniqueCount).toBeUndefined()
+      expect(tooltipContent.sampleCount).toBe(2)
+    })
+
+    test('should generate data type compatibility information', () => {
+      // Mock compatibility mapping logic
+      const compatibilityMap: Record<string, WikibaseDataType[]> = {
+        VARCHAR: ['string', 'url', 'external-id', 'monolingualtext'],
+        INTEGER: ['quantity'],
+        DATE: ['time'],
+      }
+
+      const getCompatibleTypes = (dataType: string): WikibaseDataType[] => {
+        return compatibilityMap[dataType.toUpperCase()] || []
+      }
+
+      expect(getCompatibleTypes('VARCHAR')).toEqual([
+        'string',
+        'url',
+        'external-id',
+        'monolingualtext',
+      ])
+      expect(getCompatibleTypes('INTEGER')).toEqual(['quantity'])
+      expect(getCompatibleTypes('DATE')).toEqual(['time'])
+      expect(getCompatibleTypes('UNKNOWN')).toEqual([])
+    })
+
+    test('should format data type display names', () => {
+      const formatDataType = (dataType: string): string => {
+        const typeMap: Record<string, string> = {
+          VARCHAR: 'Text',
+          INTEGER: 'Number',
+          DATE: 'Date',
+          DATETIME: 'Date/Time',
+          BOOLEAN: 'Boolean',
+          DECIMAL: 'Decimal',
+        }
+        return typeMap[dataType.toUpperCase()] || dataType
+      }
+
+      expect(formatDataType('VARCHAR')).toBe('Text')
+      expect(formatDataType('INTEGER')).toBe('Number')
+      expect(formatDataType('DATE')).toBe('Date')
+      expect(formatDataType('UNKNOWN_TYPE')).toBe('UNKNOWN_TYPE')
+    })
+  })
+
+  describe('sample value display functionality', () => {
+    test('should format sample values with proper truncation', () => {
+      const formatSampleValuesForTooltip = (
+        sampleValues: string[],
+        maxDisplay: number = 5,
+      ): string => {
+        if (!sampleValues || sampleValues.length === 0) return 'No sample data'
+
+        const displayValues = sampleValues.slice(0, maxDisplay)
+        const hasMore = sampleValues.length > maxDisplay
+
+        return (
+          displayValues.join(', ') +
+          (hasMore ? `, ... (+${sampleValues.length - maxDisplay} more)` : '')
+        )
+      }
+
+      const manyValues = ['val1', 'val2', 'val3', 'val4', 'val5', 'val6', 'val7']
+      const fewValues = ['val1', 'val2', 'val3']
+      const emptyValues: string[] = []
+
+      expect(formatSampleValuesForTooltip(manyValues, 5)).toBe(
+        'val1, val2, val3, val4, val5, ... (+2 more)',
+      )
+      expect(formatSampleValuesForTooltip(fewValues, 5)).toBe('val1, val2, val3')
+      expect(formatSampleValuesForTooltip(emptyValues)).toBe('No sample data')
+    })
+
+    test('should handle long sample values with truncation', () => {
+      const truncateValue = (value: string, maxLength: number = 20): string => {
+        return value.length > maxLength ? value.substring(0, maxLength) + '...' : value
+      }
+
+      const longValue = 'This is a very long sample value that should be truncated'
+      const shortValue = 'Short value'
+
+      expect(truncateValue(longValue, 20)).toBe('This is a very long ...')
+      expect(truncateValue(shortValue, 20)).toBe('Short value')
+    })
+
+    test('should generate sample value statistics', () => {
+      const generateSampleStats = (sampleValues: string[]) => {
+        if (!sampleValues || sampleValues.length === 0) {
+          return { isEmpty: true, count: 0, hasNulls: false }
+        }
+
+        const nullValues = sampleValues.filter(
+          (val) => val === null || val === 'null' || val === '',
+        )
+        return {
+          isEmpty: false,
+          count: sampleValues.length,
+          hasNulls: nullValues.length > 0,
+          nullCount: nullValues.length,
+        }
+      }
+
+      const valuesWithNulls = ['value1', 'null', 'value2', '']
+      const valuesWithoutNulls = ['value1', 'value2', 'value3']
+      const emptyValues: string[] = []
+
+      const statsWithNulls = generateSampleStats(valuesWithNulls)
+      expect(statsWithNulls.isEmpty).toBe(false)
+      expect(statsWithNulls.count).toBe(4)
+      expect(statsWithNulls.hasNulls).toBe(true)
+      expect(statsWithNulls.nullCount).toBe(2)
+
+      const statsWithoutNulls = generateSampleStats(valuesWithoutNulls)
+      expect(statsWithoutNulls.isEmpty).toBe(false)
+      expect(statsWithoutNulls.count).toBe(3)
+      expect(statsWithoutNulls.hasNulls).toBe(false)
+
+      const emptyStats = generateSampleStats(emptyValues)
+      expect(emptyStats.isEmpty).toBe(true)
+      expect(emptyStats.count).toBe(0)
+      expect(emptyStats.hasNulls).toBe(false)
     })
   })
 })

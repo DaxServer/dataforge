@@ -3,6 +3,13 @@ const projectStore = useProjectStore()
 const dragDropStore = useDragDropStore()
 
 const { convertProjectColumnsToColumnInfo } = useColumnConversion()
+const {
+  formatDataTypeDisplayName,
+  generateColumnTooltip,
+  getDataTypeIcon,
+  getDataTypeSeverity,
+  generateSampleStats,
+} = useColumnDataTypeIndicators()
 
 const columns = computed(() => {
   return convertProjectColumnsToColumnInfo(projectStore.columns, projectStore.data)
@@ -80,25 +87,33 @@ const formatSampleValues = (sampleValues: string[]) => {
       >
         <div
           class="bg-white border border-surface-300 rounded-lg p-3 shadow-sm hover:shadow-md transition-shadow"
+          :title="generateColumnTooltip(column)"
         >
           <div class="flex items-center gap-2 mb-2">
+            <i
+              :class="getDataTypeIcon(column.dataType)"
+              class="text-surface-600 text-sm"
+              :title="`${formatDataTypeDisplayName(column.dataType)} column`"
+            ></i>
             <span class="font-medium text-surface-900">{{ column.name }}</span>
             <Chip
-              :label="column.dataType"
+              :label="formatDataTypeDisplayName(column.dataType)"
               size="small"
-              severity="secondary"
+              :severity="getDataTypeSeverity(column.dataType)"
               class="text-xs"
+              :title="`Database type: ${column.dataType}`"
             />
             <i
               v-if="column.nullable"
               class="pi pi-question-circle text-surface-400 text-xs"
-              title="Nullable column"
+              title="This column allows null values"
             ></i>
           </div>
 
           <div
             v-if="column.sampleValues && column.sampleValues.length > 0"
             class="text-xs text-surface-600"
+            :title="`Sample values: ${column.sampleValues.slice(0, 5).join(', ')}${column.sampleValues.length > 5 ? '...' : ''}`"
           >
             {{ formatSampleValues(column.sampleValues) }}
           </div>
@@ -106,8 +121,9 @@ const formatSampleValues = (sampleValues: string[]) => {
           <div
             v-if="column.uniqueCount !== undefined"
             class="text-xs text-surface-500 mt-1"
+            :title="`This column has ${column.uniqueCount.toLocaleString()} unique values`"
           >
-            {{ column.uniqueCount }} unique values
+            {{ column.uniqueCount.toLocaleString() }} unique values
           </div>
         </div>
       </div>
