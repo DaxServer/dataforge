@@ -13,6 +13,8 @@
     "dev": "concurrently -k -n backend,frontend -c blue,green \"bun --cwd backend dev\" \"bun --cwd frontend dev\"",
     "format": "prettier --write \"**/*.{ts,vue}\"",
     "lint": "bun -F '*' lint",
+    "lint:backend": "bun -F backend lint",
+    "lint:frontend": "bun -F frontend lint",
     "mcpi": "bunx @modelcontextprotocol/inspector",
     "typecheck": "bun -F '*' typecheck"
   },

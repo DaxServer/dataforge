@@ -55,7 +55,7 @@
   - Implement WikibaseSchemaEditor container structure
   - _Requirements: 1.1_
 
-- [ ] 10. Create ItemEditor component foundation
+- [x] 10. Create ItemEditor component foundation
   - Write tests for item configuration interface
   - Write tests for item creation and unique identifier assignment
   - Implement basic ItemEditor component structure

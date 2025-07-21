@@ -110,19 +110,21 @@ export const useDragDropStore = defineStore('dragDrop', () => {
         // Additional validation based on target type
         switch (target.type) {
           case 'label':
-          case 'alias':
+          case 'alias': {
             // Check for reasonable length constraints
             const maxLength = target.type === 'label' ? 250 : 100
             const hasLongValues = _column.sampleValues?.some((val) => val.length > maxLength)
             if (hasLongValues) return false
             break
+          }
 
           case 'statement':
           case 'qualifier':
-          case 'reference':
+          case 'reference': {
             // These require property IDs
             if (!target.propertyId) return false
             break
+          }
         }
 
         return true
