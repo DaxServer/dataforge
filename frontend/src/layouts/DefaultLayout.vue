@@ -1,8 +1,15 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+const route = useRoute()
+
+// Hide sidebar when viewing a project
+const showSidebar = computed(() => {
+  return route.name !== 'ProjectView'
+})
+</script>
 
 <template>
   <div class="flex h-screen w-full">
-    <Sidebar />
+    <Sidebar v-if="showSidebar" />
     <div class="flex-1 flex flex-col min-w-0">
       <Header />
       <MainContent>

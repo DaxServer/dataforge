@@ -48,6 +48,7 @@ describe('useSchemaStore', () => {
       }),
     )
     store = useSchemaStore()
+    store.$reset()
   })
 
   describe('store initialization', () => {

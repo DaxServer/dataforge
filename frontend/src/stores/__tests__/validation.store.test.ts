@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach } from 'bun:test'
 import { createPinia, setActivePinia } from 'pinia'
 import { useValidationStore } from '@frontend/stores/validation.store'
-import type { ValidationError, ValidationContext } from '@frontend/types/wikibase-schema'
+import type { ValidationError } from '@frontend/types/wikibase-schema'
 
 describe('useValidationStore', () => {
   let store: ReturnType<typeof useValidationStore>
@@ -349,7 +349,7 @@ describe('useValidationStore', () => {
 
       store.addError(error)
       store.addWarning(warning)
-      store.clearAll()
+      store.$reset()
 
       expect(store.errors).toHaveLength(0)
       expect(store.warnings).toHaveLength(0)
@@ -384,7 +384,7 @@ describe('useValidationStore', () => {
       const labelsErrors = store.getErrorsForPath('item.terms.labels')
 
       expect(labelsErrors).toHaveLength(2)
-      expect(labelsErrors.every((e) => e.path.startsWith('item.terms.labels'))).toBe(true)
+      expect(labelsErrors.every((e) => e.path.startsWith('item.terms.labels'))).toBeTrue()
     })
   })
 
@@ -416,7 +416,7 @@ describe('useValidationStore', () => {
       const labelsWarnings = store.getWarningsForPath('item.terms.labels')
 
       expect(labelsWarnings).toHaveLength(2)
-      expect(labelsWarnings.every((w) => w.path.startsWith('item.terms.labels'))).toBe(true)
+      expect(labelsWarnings.every((w) => w.path.startsWith('item.terms.labels'))).toBeTrue()
     })
   })
 
@@ -431,8 +431,8 @@ describe('useValidationStore', () => {
 
       store.addError(error)
 
-      expect(store.hasErrorsForPath('item.terms.labels')).toBe(true)
-      expect(store.hasErrorsForPath('item.statements')).toBe(false)
+      expect(store.hasErrorsForPath('item.terms.labels')).toBeTrue()
+      expect(store.hasErrorsForPath('item.statements')).toBeFalse()
     })
 
     it('should return true if there are warnings for a path', () => {
@@ -445,8 +445,8 @@ describe('useValidationStore', () => {
 
       store.addWarning(warning)
 
-      expect(store.hasWarningsForPath('item.terms.labels')).toBe(true)
-      expect(store.hasWarningsForPath('item.statements')).toBe(false)
+      expect(store.hasWarningsForPath('item.terms.labels')).toBeTrue()
+      expect(store.hasWarningsForPath('item.statements')).toBeFalse()
     })
   })
 
@@ -492,7 +492,7 @@ describe('useValidationStore', () => {
 
   describe('computed properties', () => {
     it('should update hasErrors computed property', () => {
-      expect(store.hasErrors).toBe(false)
+      expect(store.hasErrors).toBeFalse()
 
       const error: ValidationError = {
         type: 'error',
@@ -502,11 +502,11 @@ describe('useValidationStore', () => {
       }
       store.addError(error)
 
-      expect(store.hasErrors).toBe(true)
+      expect(store.hasErrors).toBeTrue()
     })
 
     it('should update hasWarnings computed property', () => {
-      expect(store.hasWarnings).toBe(false)
+      expect(store.hasWarnings).toBeFalse()
 
       const warning: ValidationError = {
         type: 'warning',
@@ -516,7 +516,7 @@ describe('useValidationStore', () => {
       }
       store.addWarning(warning)
 
-      expect(store.hasWarnings).toBe(true)
+      expect(store.hasWarnings).toBeTrue()
     })
 
     it('should update error and warning counts', () => {
@@ -556,7 +556,7 @@ describe('useValidationStore', () => {
       }
       store.addWarning(warning)
 
-      expect(store.hasAnyIssues).toBe(true)
+      expect(store.hasAnyIssues).toBeTrue()
     })
   })
 })

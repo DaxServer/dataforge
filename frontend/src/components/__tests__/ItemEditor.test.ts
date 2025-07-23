@@ -40,6 +40,7 @@ describe('ItemEditor Component Logic', () => {
     )
 
     store = useSchemaStore()
+    store.$reset()
   })
 
   describe('item configuration interface logic', () => {

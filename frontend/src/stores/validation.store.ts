@@ -59,7 +59,7 @@ export const useValidationStore = defineStore('validation', () => {
     warnings.value = warnings.value.filter((warning) => warning.code !== code)
   }
 
-  const clearAll = () => {
+  const $reset = () => {
     errors.value = []
     warnings.value = []
   }
@@ -108,7 +108,7 @@ export const useValidationStore = defineStore('validation', () => {
     clearError,
     clearErrorsForPath,
     clearErrorsByCode,
-    clearAll,
+    $reset,
 
     // Getters
     getErrorsForPath,
