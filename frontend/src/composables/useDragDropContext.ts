@@ -1,6 +1,7 @@
 import { ref } from 'vue'
 import { useDragDropStore } from '@frontend/stores/drag-drop.store'
 import { useDataTypeCompatibility } from '@frontend/composables/useDataTypeCompatibility'
+import { useDragDropHandlers } from '@frontend/composables/useDragDropHandlers'
 import type {
   SchemaDragDropContext,
   DropTarget,
@@ -26,7 +27,7 @@ const extractLanguageFromPath = (path: string): string | undefined => {
   return match ? match[2] : undefined
 }
 
-const extractPropertyIdFromPath = (path: string): string | undefined => {
+const extractPropertyIdFromPath = (): string | undefined => {
   // This would extract property ID from context or path metadata
   // For now, return undefined as property IDs are typically set separately
   return undefined
@@ -37,21 +38,22 @@ const extractPropertyIdFromPath = (path: string): string | undefined => {
  * Integrates with the global drag-drop store for state management
  */
 export const useDragDropContext = (): SchemaDragDropContext & {
-  startDrag: (column: ColumnInfo, sourceElement: HTMLElement) => void
+  startDrag: (columnInfo: ColumnInfo, sourceElement: HTMLElement) => void
   endDrag: () => void
   enterDropZone: (targetPath: string) => void
   leaveDropZone: () => void
-  validateDrop: (column: ColumnInfo, target: DropTarget) => DropValidation
-  performDrop: (column: ColumnInfo, target: DropTarget) => Promise<boolean>
+  validateDrop: (columnInfo: ColumnInfo, target: DropTarget) => DropValidation
+  performDrop: (columnInfo: ColumnInfo, target: DropTarget) => Promise<boolean>
   createDropZoneConfig: (
     targetPath: string,
     acceptedTypes: WikibaseDataType[],
-    onDropCallback: (column: ColumnInfo, target: DropTarget) => Promise<void> | void,
+    onDropCallback: (columnInfo: ColumnInfo, target: DropTarget) => Promise<void> | void,
   ) => DropZoneConfig
 } => {
   // Use the global drag-drop store
   const store = useDragDropStore()
   const { isDataTypeCompatible } = useDataTypeCompatibility()
+  const { createDragOverHandler } = useDragDropHandlers()
 
   const isOverDropZone = ref(false)
   const dropFeedback = ref<DropFeedback | null>(null)
@@ -60,9 +62,9 @@ export const useDragDropContext = (): SchemaDragDropContext & {
   const dragStartListeners = new WeakMap<HTMLElement, (event: DragEvent) => void>()
 
   // Utility methods that coordinate with the store
-  const startDrag = (column: ColumnInfo, sourceElement: HTMLElement): void => {
+  const startDrag = (columnInfo: ColumnInfo, sourceElement: HTMLElement): void => {
     // Update global store state
-    store.startDrag(column)
+    store.startDrag(columnInfo)
 
     // Clear local feedback
     dropFeedback.value = null
@@ -77,8 +79,8 @@ export const useDragDropContext = (): SchemaDragDropContext & {
 
       // Create new listener
       const dragStartHandler = (event: DragEvent) => {
-        event.dataTransfer?.setData('application/x-column-data', JSON.stringify(column))
-        event.dataTransfer?.setData('text/plain', column.name)
+        event.dataTransfer?.setData('application/x-column-data', JSON.stringify(columnInfo))
+        event.dataTransfer?.setData('text/plain', columnInfo.name)
       }
 
       // Add new listener and store reference
@@ -120,19 +122,19 @@ export const useDragDropContext = (): SchemaDragDropContext & {
     dropFeedback.value = null
   }
 
-  const validateDrop = (column: ColumnInfo, target: DropTarget): DropValidation => {
+  const validateDrop = (columnInfo: ColumnInfo, target: DropTarget): DropValidation => {
     // Check data type compatibility
-    const isCompatible = isDataTypeCompatible(column.dataType, target.acceptedTypes)
+    const isCompatible = isDataTypeCompatible(columnInfo.dataType, target.acceptedTypes)
 
     if (!isCompatible) {
       return {
         isValid: false,
-        reason: `Column type '${column.dataType}' is not compatible with target types: ${target.acceptedTypes.join(', ')}`,
+        reason: `Column type '${columnInfo.dataType}' is not compatible with target types: ${target.acceptedTypes.join(', ')}`,
       }
     }
 
     // Check for nullable constraints
-    if (target.isRequired && column.nullable) {
+    if (target.isRequired && columnInfo.nullable) {
       return {
         isValid: false,
         reason: 'Required field cannot accept nullable column',
@@ -140,7 +142,7 @@ export const useDragDropContext = (): SchemaDragDropContext & {
     }
 
     // Additional validation based on target type
-    const typeValidation = validateByTargetType(column, target)
+    const typeValidation = validateByTargetType(columnInfo, target)
     if (!typeValidation.isValid) {
       return typeValidation
     }
@@ -151,8 +153,8 @@ export const useDragDropContext = (): SchemaDragDropContext & {
     }
   }
 
-  const performDrop = async (column: ColumnInfo, target: DropTarget): Promise<boolean> => {
-    const validation = validateDrop(column, target)
+  const performDrop = async (columnInfo: ColumnInfo, target: DropTarget): Promise<boolean> => {
+    const validation = validateDrop(columnInfo, target)
 
     if (!validation.isValid) {
       dropFeedback.value = {
@@ -185,11 +187,11 @@ export const useDragDropContext = (): SchemaDragDropContext & {
       // Success feedback after async operation completes
       dropFeedback.value = {
         type: 'success',
-        message: `Successfully mapped '${column.name}' to ${target.type}`,
+        message: `Successfully mapped '${columnInfo.name}' to ${target.type}`,
       }
 
       success = true
-    } catch (error) {
+    } catch {
       // Handle async operation errors
       dropFeedback.value = {
         type: 'error',
@@ -207,7 +209,7 @@ export const useDragDropContext = (): SchemaDragDropContext & {
     return success
   }
 
-  const validateByTargetType = (column: ColumnInfo, target: DropTarget): DropValidation => {
+  const validateByTargetType = (columnInfo: ColumnInfo, target: DropTarget): DropValidation => {
     switch (target.type) {
       case 'label':
       case 'description':
@@ -215,7 +217,7 @@ export const useDragDropContext = (): SchemaDragDropContext & {
         // Terms should be text-based and reasonably short for labels/aliases
         if (target.type === 'label' || target.type === 'alias') {
           const maxLength = target.type === 'label' ? 250 : 100
-          const hasLongValues = column.sampleValues?.some((val) => val.length > maxLength)
+          const hasLongValues = columnInfo.sampleValues?.some((val) => val.length > maxLength)
           if (hasLongValues) {
             return {
               isValid: false,
@@ -256,15 +258,13 @@ export const useDragDropContext = (): SchemaDragDropContext & {
   const createDropZoneConfig = (
     targetPath: string,
     acceptedTypes: WikibaseDataType[],
-    onDropCallback: (column: ColumnInfo, target: DropTarget) => Promise<void> | void,
+    onDropCallback: (columnInfo: ColumnInfo, target: DropTarget) => Promise<void> | void,
   ): DropZoneConfig => {
     return {
       acceptedDataTypes: ['application/x-column-data'],
 
-      onDragOver: (event: DragEvent) => {
-        event.preventDefault()
-        event.dataTransfer!.dropEffect = 'copy'
-      },
+      // Use shared drag over handler for consistent cursor behavior
+      onDragOver: createDragOverHandler(acceptedTypes),
 
       onDragEnter: (event: DragEvent) => {
         event.preventDefault()
@@ -276,23 +276,28 @@ export const useDragDropContext = (): SchemaDragDropContext & {
         // Visual feedback would be handled by the component
       },
 
-      onDrop: async (event: DragEvent) => {
+      onDrop: (event: DragEvent) => {
         event.preventDefault()
 
         const columnData = event.dataTransfer?.getData('application/x-column-data')
         if (!columnData) return
 
         try {
-          const column = JSON.parse(columnData) as ColumnInfo
+          const columnInfo = JSON.parse(columnData) as ColumnInfo
           const target: DropTarget = {
             type: getTargetTypeFromPath(targetPath),
             path: targetPath,
             acceptedTypes,
             language: extractLanguageFromPath(targetPath),
-            propertyId: extractPropertyIdFromPath(targetPath),
+            propertyId: extractPropertyIdFromPath(),
           }
 
-          await onDropCallback(column, target)
+          const result = onDropCallback(columnInfo, target)
+          if (result instanceof Promise) {
+            result.catch((error) => {
+              console.error('Failed to handle drop:', error)
+            })
+          }
         } catch (error) {
           console.error('Failed to parse drop data:', error)
         }
@@ -300,8 +305,8 @@ export const useDragDropContext = (): SchemaDragDropContext & {
 
       validateDrop: (data: string) => {
         try {
-          const column = JSON.parse(data) as ColumnInfo
-          return isDataTypeCompatible(column.dataType, acceptedTypes)
+          const columnInfo = JSON.parse(data) as ColumnInfo
+          return isDataTypeCompatible(columnInfo.dataType, acceptedTypes)
         } catch {
           return false
         }

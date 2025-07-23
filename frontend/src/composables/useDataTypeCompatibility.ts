@@ -1,4 +1,5 @@
-import type { WikibaseDataType } from '@frontend/types/wikibase-schema'
+import { ref, readonly } from 'vue'
+import type { WikibaseDataType, ColumnInfo } from '@frontend/types/wikibase-schema'
 import { useColumnDataTypeIndicators } from '@frontend/composables/useColumnDataTypeIndicators'
 
 /**
@@ -6,6 +7,9 @@ import { useColumnDataTypeIndicators } from '@frontend/composables/useColumnData
  */
 export const useDataTypeCompatibility = () => {
   const { getCompatibleWikibaseTypes } = useColumnDataTypeIndicators()
+
+  // Define text-compatible data types as a reactive constant
+  const textCompatibleTypes = ref(['VARCHAR', 'TEXT', 'STRING', 'CHAR'])
 
   /**
    * Helper function to check if a column type is compatible with any of the accepted types
@@ -18,8 +22,23 @@ export const useDataTypeCompatibility = () => {
     return acceptedTypes.some((type) => compatibleTypes.includes(type))
   }
 
+  /**
+   * Check if a column is valid for text-based fields (string-like data types)
+   * @param dataColumn - The column information
+   * @returns True if the column can be used for text fields (labels, descriptions, aliases)
+   */
+  const isValidTextColumn = (dataColumn: ColumnInfo | null): boolean => {
+    if (!dataColumn) return false
+
+    // Direct check without unnecessary computed property
+    const upperDataType = dataColumn.dataType.toUpperCase()
+    return textCompatibleTypes.value.includes(upperDataType)
+  }
+
   return {
     getCompatibleWikibaseTypes,
     isDataTypeCompatible,
+    isValidTextColumn,
+    textCompatibleTypes: readonly(textCompatibleTypes),
   }
 }

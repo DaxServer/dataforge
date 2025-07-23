@@ -273,9 +273,8 @@ onUnmounted(() => {
           v-else-if="hasItem"
           class="item-configuration"
         >
-          <!-- This will be replaced by ItemEditor component in future tasks -->
           <div class="mb-6">
-            <div class="flex items-center justify-between mb-2">
+            <div class="flex items-center justify-between mb-4">
               <span class="font-medium text-lg">
                 {{
                   schemaStore.itemId
@@ -302,91 +301,62 @@ onUnmounted(() => {
               </div>
             </div>
 
-            <!-- Terms Section -->
-            <div class="pl-4 mb-2">
-              <div class="mb-1">
-                <span class="font-medium">Labels:</span>
-                <span
-                  v-if="Object.keys(schemaStore.labels).length > 0"
-                  class="ml-2 text-gray-700"
-                >
-                  {{
-                    Object.entries(schemaStore.labels)
-                      .map(([lang, mapping]) => `${mapping.columnName} (${lang})`)
-                      .join(', ')
-                  }}
-                </span>
-                <span
-                  v-else
-                  class="ml-2 text-gray-400 italic"
-                >
-                  No labels configured
-                </span>
-              </div>
-              <div>
-                <span class="font-medium">Descriptions:</span>
-                <span
-                  v-if="Object.keys(schemaStore.descriptions).length > 0"
-                  class="ml-2 text-gray-700"
-                >
-                  {{
-                    Object.entries(schemaStore.descriptions)
-                      .map(([lang, mapping]) => `${mapping.columnName} (${lang})`)
-                      .join(', ')
-                  }}
-                </span>
-                <span
-                  v-else
-                  class="ml-2 text-gray-400 italic"
-                >
-                  No descriptions configured
-                </span>
-              </div>
-            </div>
+            <!-- Terms Editor Integration -->
+            <TermsEditor />
 
             <!-- Statements Section -->
-            <div class="pl-4">
-              <div class="font-medium mb-1">Statements</div>
+            <div class="mt-6">
+              <h4 class="text-lg font-semibold mb-3">Statements</h4>
               <div v-if="schemaStore.statements.length > 0">
                 <div
                   v-for="statement in schemaStore.statements"
                   :key="statement.id"
-                  class="flex items-center mb-1"
+                  class="flex items-center justify-between p-3 bg-surface-50 rounded-lg border mb-2"
                 >
-                  <span class="text-blue-700 font-medium mr-2">
-                    {{ statement.property.id }} ({{
-                      statement.property.label || 'Unknown property'
-                    }})
-                  </span>
-                  <span class="text-gray-800 mr-2">
-                    {{
-                      typeof statement.value.source === 'string'
-                        ? statement.value.source
-                        : statement.value.source.columnName || 'No mapping'
-                    }}
-                  </span>
-                  <Button
-                    icon="pi pi-pencil"
-                    rounded
-                    text
-                    size="small"
-                    aria-label="Edit statement"
-                  />
-                  <Button
-                    icon="pi pi-trash"
-                    rounded
-                    text
-                    severity="danger"
-                    size="small"
-                    aria-label="Delete statement"
-                  />
+                  <div>
+                    <span class="text-blue-700 font-medium mr-2">
+                      {{ statement.property.id }} ({{
+                        statement.property.label || 'Unknown property'
+                      }})
+                    </span>
+                    <span class="text-gray-800">
+                      {{
+                        typeof statement.value.source === 'string'
+                          ? statement.value.source
+                          : statement.value.source.columnName || 'No mapping'
+                      }}
+                    </span>
+                  </div>
+                  <div class="flex gap-2">
+                    <Button
+                      icon="pi pi-pencil"
+                      rounded
+                      text
+                      size="small"
+                      aria-label="Edit statement"
+                    />
+                    <Button
+                      icon="pi pi-trash"
+                      rounded
+                      text
+                      severity="danger"
+                      size="small"
+                      aria-label="Delete statement"
+                    />
+                  </div>
                 </div>
               </div>
               <div
                 v-else
-                class="text-gray-400 italic"
+                class="text-center py-8 px-4 border-2 border-dashed border-surface-300 rounded-lg"
               >
-                No statements configured
+                <div class="text-surface-500 mb-2">
+                  <i class="pi pi-plus-circle text-3xl"></i>
+                </div>
+                <h4 class="text-surface-700 font-medium mb-2">No statements configured</h4>
+                <p class="text-sm text-surface-600">
+                  Add properties and values to define your item structure
+                </p>
               </div>
             </div>
           </div>

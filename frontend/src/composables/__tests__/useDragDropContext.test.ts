@@ -371,7 +371,65 @@ describe('createDropZoneConfig', () => {
     expect(droppedColumn).toEqual(mockColumnData)
   })
 
-  it('should handle drag over events', () => {
+  it('should handle drag over events with valid column', () => {
+    const context = useDragDropContext()
+    const config = context.createDropZoneConfig('item.terms.labels.en', ['string'], () => {})
+
+    // Set up a valid column in the drag store
+    const dragDropStore = useDragDropStore()
+    const validColumn: ColumnInfo = {
+      name: 'test_column',
+      dataType: 'TEXT',
+      nullable: false,
+      sampleValues: ['sample1', 'sample2'],
+      uniqueCount: 2,
+    }
+    dragDropStore.startDrag(validColumn)
+
+    let preventDefaultCalled = false
+    const mockEvent = {
+      preventDefault: () => {
+        preventDefaultCalled = true
+      },
+      dataTransfer: { dropEffect: '' },
+    } as DragEvent
+
+    config.onDragOver!(mockEvent)
+
+    expect(preventDefaultCalled).toBe(true)
+    expect(mockEvent.dataTransfer.dropEffect).toBe('copy')
+  })
+
+  it('should handle drag over events with invalid column', () => {
+    const context = useDragDropContext()
+    const config = context.createDropZoneConfig('item.terms.labels.en', ['string'], () => {})
+
+    // Set up an invalid column in the drag store
+    const dragDropStore = useDragDropStore()
+    const invalidColumn: ColumnInfo = {
+      name: 'test_column',
+      dataType: 'INTEGER',
+      nullable: false,
+      sampleValues: ['1', '2'],
+      uniqueCount: 2,
+    }
+    dragDropStore.startDrag(invalidColumn)
+
+    let preventDefaultCalled = false
+    const mockEvent = {
+      preventDefault: () => {
+        preventDefaultCalled = true
+      },
+      dataTransfer: { dropEffect: '' },
+    } as DragEvent
+
+    config.onDragOver!(mockEvent)
+
+    expect(preventDefaultCalled).toBe(true)
+    expect(mockEvent.dataTransfer.dropEffect).toBe('none')
+  })
+
+  it('should handle drag over events with no dragged column', () => {
     const context = useDragDropContext()
     const config = context.createDropZoneConfig('item.terms.labels.en', ['string'], () => {})
 
@@ -386,6 +444,6 @@ describe('createDropZoneConfig', () => {
     config.onDragOver!(mockEvent)
 
     expect(preventDefaultCalled).toBe(true)
-    expect(mockEvent.dataTransfer.dropEffect).toBe('copy')
+    expect(mockEvent.dataTransfer.dropEffect).toBe('none')
   })
 })

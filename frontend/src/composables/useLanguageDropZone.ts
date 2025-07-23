@@ -1,0 +1,94 @@
+import { ref, computed } from 'vue'
+import type { ColumnMapping } from '@frontend/types/wikibase-schema'
+import { useSchemaStore } from '@frontend/stores/schema.store'
+import { useTermsEditor } from '@frontend/composables/useTermsEditor'
+
+/**
+ * Composable for handling language drop zone functionality
+ */
+export const useLanguageDropZone = (termType: 'label' | 'description' | 'alias') => {
+  const schemaStore = useSchemaStore()
+  const { getAcceptedLanguages } = useTermsEditor()
+
+  // Reactive state
+  const selectedLanguage = ref('en')
+  const acceptedLanguages = getAcceptedLanguages()
+
+  // Check if there are any existing mappings using computed
+  const hasExistingMappings = computed(() => {
+    const storeProperty =
+      termType === 'label'
+        ? schemaStore.labels
+        : termType === 'description'
+          ? schemaStore.descriptions
+          : schemaStore.aliases
+
+    // Check if any property exists in the object
+    for (const key in storeProperty) {
+      if (storeProperty[key]) {
+        return true
+      }
+    }
+    return false
+  })
+
+  // Transform mappings into display format using computed
+  const mappingDisplayData = computed(() => {
+    const storeProperty =
+      termType === 'label'
+        ? schemaStore.labels
+        : termType === 'description'
+          ? schemaStore.descriptions
+          : schemaStore.aliases
+
+    const items: Array<{
+      languageCode: string
+      mappings: ColumnMapping[]
+      isArray: boolean
+    }> = []
+
+    // Iterate through all properties in the mappings object
+    for (const languageCode in storeProperty) {
+      const mapping = storeProperty[languageCode]
+      if (mapping) {
+        if (termType === 'alias') {
+          items.push({
+            languageCode,
+            mappings: mapping as ColumnMapping[],
+            isArray: true,
+          })
+        } else {
+          items.push({
+            languageCode,
+            mappings: [mapping as ColumnMapping],
+            isArray: false,
+          })
+        }
+      }
+    }
+
+    return items
+  })
+
+  // Remove mapping actions - direct store calls
+  const removeMapping = (languageCode: string, mapping?: ColumnMapping) => {
+    if (termType === 'label') {
+      schemaStore.removeLabelMapping(languageCode)
+    } else if (termType === 'description') {
+      schemaStore.removeDescriptionMapping(languageCode)
+    } else if (termType === 'alias' && mapping) {
+      schemaStore.removeAliasMapping(languageCode, mapping)
+    }
+  }
+
+  return {
+    // Reactive state
+    selectedLanguage,
+    acceptedLanguages,
+    hasExistingMappings,
+    mappingDisplayData,
+
+    // Actions
+    removeMapping,
+  }
+}

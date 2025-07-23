@@ -27,7 +27,6 @@ const _tabs = {
   <div class="-m-6 flex flex-col">
     <Tabs
       :value="activeTab"
-      class="mb-8"
       @update:value="onTabChange"
     >
       <TabList>
@@ -40,7 +39,7 @@ const _tabs = {
           {{ _tab.label }}
         </Tab>
       </TabList>
-      <TabPanels>
+      <TabPanels class="p-0!">
         <TabPanel :value="_tabs.data.key">
           <DataTabPanel />
         </TabPanel>

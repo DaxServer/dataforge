@@ -183,6 +183,7 @@ declare global {
   const useDisplayMedia: typeof import('@vueuse/core')['useDisplayMedia']
   const useDocumentVisibility: typeof import('@vueuse/core')['useDocumentVisibility']
   const useDragDropContext: typeof import('./src/composables/useDragDropContext')['useDragDropContext']
+  const useDragDropHandlers: typeof import('./src/composables/useDragDropHandlers')['useDragDropHandlers']
   const useDragDropStore: typeof import('./src/stores/drag-drop.store')['useDragDropStore']
   const useDraggable: typeof import('@vueuse/core')['useDraggable']
   const useDropZone: typeof import('@vueuse/core')['useDropZone']
@@ -215,6 +216,7 @@ declare global {
   const useInterval: typeof import('@vueuse/core')['useInterval']
   const useIntervalFn: typeof import('@vueuse/core')['useIntervalFn']
   const useKeyModifier: typeof import('@vueuse/core')['useKeyModifier']
+  const useLanguageDropZone: typeof import('./src/composables/useLanguageDropZone')['useLanguageDropZone']
   const useLastChanged: typeof import('@vueuse/core')['useLastChanged']
   const useLink: typeof import('vue-router')['useLink']
   const useLocalStorage: typeof import('@vueuse/core')['useLocalStorage']
@@ -264,6 +266,7 @@ declare global {
   const useSSRWidth: typeof import('@vueuse/core')['useSSRWidth']
   const useSchemaApi: typeof import('./src/composables/useSchemaApi')['useSchemaApi']
   const useSchemaBuilder: typeof import('./src/composables/useSchemaBuilder')['useSchemaBuilder']
+  const useSchemaDropZone: typeof import('./src/composables/useSchemaDropZone')['useSchemaDropZone']
   const useSchemaStore: typeof import('./src/stores/schema.store')['useSchemaStore']
   const useScreenOrientation: typeof import('@vueuse/core')['useScreenOrientation']
   const useScreenSafeArea: typeof import('@vueuse/core')['useScreenSafeArea']
@@ -284,6 +287,7 @@ declare global {
   const useSwipe: typeof import('@vueuse/core')['useSwipe']
   const useTemplateRef: typeof import('vue')['useTemplateRef']
   const useTemplateRefsList: typeof import('@vueuse/core')['useTemplateRefsList']
+  const useTermsEditor: typeof import('./src/composables/useTermsEditor')['useTermsEditor']
   const useTextDirection: typeof import('@vueuse/core')['useTextDirection']
   const useTextSelection: typeof import('@vueuse/core')['useTextSelection']
   const useTextareaAutosize: typeof import('@vueuse/core')['useTextareaAutosize']
@@ -547,6 +551,7 @@ declare module 'vue' {
     readonly useDisplayMedia: UnwrapRef<typeof import('@vueuse/core')['useDisplayMedia']>
     readonly useDocumentVisibility: UnwrapRef<typeof import('@vueuse/core')['useDocumentVisibility']>
     readonly useDragDropContext: UnwrapRef<typeof import('./src/composables/useDragDropContext')['useDragDropContext']>
+    readonly useDragDropHandlers: UnwrapRef<typeof import('./src/composables/useDragDropHandlers')['useDragDropHandlers']>
     readonly useDragDropStore: UnwrapRef<typeof import('./src/stores/drag-drop.store')['useDragDropStore']>
     readonly useDraggable: UnwrapRef<typeof import('@vueuse/core')['useDraggable']>
     readonly useDropZone: UnwrapRef<typeof import('@vueuse/core')['useDropZone']>
@@ -579,6 +584,7 @@ declare module 'vue' {
     readonly useInterval: UnwrapRef<typeof import('@vueuse/core')['useInterval']>
     readonly useIntervalFn: UnwrapRef<typeof import('@vueuse/core')['useIntervalFn']>
     readonly useKeyModifier: UnwrapRef<typeof import('@vueuse/core')['useKeyModifier']>
+    readonly useLanguageDropZone: UnwrapRef<typeof import('./src/composables/useLanguageDropZone')['useLanguageDropZone']>
     readonly useLastChanged: UnwrapRef<typeof import('@vueuse/core')['useLastChanged']>
     readonly useLink: UnwrapRef<typeof import('vue-router')['useLink']>
     readonly useLocalStorage: UnwrapRef<typeof import('@vueuse/core')['useLocalStorage']>
@@ -628,6 +634,7 @@ declare module 'vue' {
     readonly useSSRWidth: UnwrapRef<typeof import('@vueuse/core')['useSSRWidth']>
     readonly useSchemaApi: UnwrapRef<typeof import('./src/composables/useSchemaApi')['useSchemaApi']>
     readonly useSchemaBuilder: UnwrapRef<typeof import('./src/composables/useSchemaBuilder')['useSchemaBuilder']>
+    readonly useSchemaDropZone: UnwrapRef<typeof import('./src/composables/useSchemaDropZone')['useSchemaDropZone']>
     readonly useSchemaStore: UnwrapRef<typeof import('./src/stores/schema.store')['useSchemaStore']>
     readonly useScreenOrientation: UnwrapRef<typeof import('@vueuse/core')['useScreenOrientation']>
     readonly useScreenSafeArea: UnwrapRef<typeof import('@vueuse/core')['useScreenSafeArea']>
@@ -648,6 +655,7 @@ declare module 'vue' {
     readonly useSwipe: UnwrapRef<typeof import('@vueuse/core')['useSwipe']>
     readonly useTemplateRef: UnwrapRef<typeof import('vue')['useTemplateRef']>
     readonly useTemplateRefsList: UnwrapRef<typeof import('@vueuse/core')['useTemplateRefsList']>
+    readonly useTermsEditor: UnwrapRef<typeof import('./src/composables/useTermsEditor')['useTermsEditor']>
     readonly useTextDirection: UnwrapRef<typeof import('@vueuse/core')['useTextDirection']>
     readonly useTextSelection: UnwrapRef<typeof import('@vueuse/core')['useTextSelection']>
     readonly useTextareaAutosize: UnwrapRef<typeof import('@vueuse/core')['useTextareaAutosize']>
