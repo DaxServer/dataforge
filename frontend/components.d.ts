@@ -32,6 +32,7 @@ declare module 'vue' {
     SchemaTabPanel: typeof import('./src/components/SchemaTabPanel.vue')['default']
     Select: typeof import('primevue/select')['default']
     Sidebar: typeof import('./src/components/Sidebar.vue')['default']
+    StatementsEditor: typeof import('./src/components/StatementsEditor.vue')['default']
     Tab: typeof import('primevue/tab')['default']
     TabList: typeof import('primevue/tablist')['default']
     TabPanel: typeof import('primevue/tabpanel')['default']

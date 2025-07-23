@@ -69,19 +69,19 @@
   - Implement TermsEditor component with drop zone functionality
   - _Requirements: 3.2, 3.4_
 
-- [ ] 12. Add language selection for Terms
+- [x] 12. Add language selection for Terms
   - Write tests for language code selection and validation
   - Write tests for multiple aliases per language support
   - Implement language selection functionality for Terms
   - _Requirements: 3.2, 3.3_
 
-- [ ] 13. Create column mapping for Terms
+- [x] 13. Create column mapping for Terms
   - Write tests for column mapping to term types
   - Write tests for term mapping visual feedback
   - Implement column mapping functionality for Terms
   - _Requirements: 3.1, 3.5_
 
-- [ ] 14. Build StatementsEditor container
+- [x] 14. Build StatementsEditor container
   - Write tests for adding and removing statements
   - Write tests for statement ordering and management
   - Implement StatementsEditor container component
