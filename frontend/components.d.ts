@@ -19,6 +19,7 @@ declare module 'vue' {
     DataTabPanel: typeof import('./src/components/DataTabPanel.vue')['default']
     DefaultLayout: typeof import('./src/layouts/DefaultLayout.vue')['default']
     Header: typeof import('./src/components/Header.vue')['default']
+    InputText: typeof import('primevue/inputtext')['default']
     ItemEditor: typeof import('./src/components/ItemEditor.vue')['default']
     LanguageDropZone: typeof import('./src/components/LanguageDropZone.vue')['default']
     MainContent: typeof import('./src/components/MainContent.vue')['default']
@@ -32,16 +33,21 @@ declare module 'vue' {
     SchemaTabPanel: typeof import('./src/components/SchemaTabPanel.vue')['default']
     Select: typeof import('primevue/select')['default']
     Sidebar: typeof import('./src/components/Sidebar.vue')['default']
+    StatementConfigEditor: typeof import('./src/components/StatementConfigEditor.vue')['default']
     StatementsEditor: typeof import('./src/components/StatementsEditor.vue')['default']
     Tab: typeof import('primevue/tab')['default']
     TabList: typeof import('primevue/tablist')['default']
     TabPanel: typeof import('primevue/tabpanel')['default']
     TabPanels: typeof import('primevue/tabpanels')['default']
     Tabs: typeof import('primevue/tabs')['default']
+    Tag: typeof import('primevue/tag')['default']
     TermsEditor: typeof import('./src/components/TermsEditor.vue')['default']
     Toast: typeof import('primevue/toast')['default']
     ToggleSwitch: typeof import('primevue/toggleswitch')['default']
     ValidationErrorDisplay: typeof import('./src/components/ValidationErrorDisplay.vue')['default']
     WikibaseSchemaEditor: typeof import('./src/components/WikibaseSchemaEditor.vue')['default']
+  }
+  export interface GlobalDirectives {
+    Tooltip: typeof import('primevue/tooltip')['default']
   }
 }

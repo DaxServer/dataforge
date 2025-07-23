@@ -338,6 +338,7 @@
     "useSorted": true,
     "useSpeechRecognition": true,
     "useSpeechSynthesis": true,
+    "useStatementConfig": true,
     "useStepper": true,
     "useStorage": true,
     "useStorageAsync": true,

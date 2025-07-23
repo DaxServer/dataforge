@@ -1,0 +1,177 @@
+import type {
+  PropertyReference,
+  ValueMapping,
+  WikibaseDataType,
+  StatementRank,
+} from '@frontend/types/wikibase-schema'
+import { useSchemaStore } from '@frontend/stores/schema.store'
+import { ref, computed, watch } from 'vue'
+import { PropertyId } from '@backend/types/wikibase-schema'
+
+export const useStatementConfig = () => {
+  const schemaStore = useSchemaStore()
+
+  // Current statement being edited
+  const currentStatement = ref({
+    property: {
+      id: 'P1' as PropertyId,
+      label: '',
+      dataType: 'string' as WikibaseDataType,
+    } as PropertyReference,
+    value: {
+      type: 'column' as const,
+      source: '',
+      dataType: 'string' as WikibaseDataType,
+    } as ValueMapping,
+    rank: 'normal' as StatementRank,
+  })
+
+  // Available options
+  const valueTypes = [
+    { label: 'Column', value: 'column' },
+    { label: 'Constant', value: 'constant' },
+    { label: 'Expression', value: 'expression' },
+  ]
+
+  const dataTypes = [
+    { label: 'String', value: 'string' },
+    { label: 'Number', value: 'number' },
+    { label: 'Boolean', value: 'boolean' },
+    { label: 'Date', value: 'date' },
+    { label: 'URL', value: 'url' },
+    { label: 'Item', value: 'wikibase-item' },
+    { label: 'Property', value: 'wikibase-property' },
+  ]
+
+  const rankOptions = [
+    { label: 'Preferred', value: 'preferred' },
+    { label: 'Normal', value: 'normal' },
+    { label: 'Deprecated', value: 'deprecated' },
+  ]
+
+  // Computed properties for UI labels
+  const sourceLabel = computed(() => {
+    switch (currentStatement.value.value.type) {
+      case 'column':
+        return 'Column Name'
+      case 'constant':
+        return 'Constant Value'
+      case 'expression':
+        return 'Expression'
+      default:
+        return 'Source'
+    }
+  })
+
+  const sourcePlaceholder = computed(() => {
+    switch (currentStatement.value.value.type) {
+      case 'column':
+        return 'column_name'
+      case 'constant':
+        return 'constant value'
+      case 'expression':
+        return 'expression'
+      default:
+        return 'Enter value'
+    }
+  })
+
+  const sourceValue = computed({
+    get: () => {
+      return typeof currentStatement.value.value.source === 'string'
+        ? currentStatement.value.value.source
+        : ''
+    },
+    set: (value: string) => {
+      currentStatement.value.value.source = value
+    },
+  })
+
+  // Auto-save to store when statement is complete
+  const canSaveStatement = computed(() => {
+    const hasSource =
+      typeof currentStatement.value.value.source === 'string'
+        ? currentStatement.value.value.source.trim() !== ''
+        : false
+
+    return (
+      currentStatement.value.property.id &&
+      hasSource &&
+      currentStatement.value.property.id.startsWith('P')
+    )
+  })
+
+  // Watch for changes and auto-save when statement is complete
+  watch(
+    () => [
+      currentStatement.value.property,
+      currentStatement.value.value,
+      currentStatement.value.rank,
+    ],
+    () => {
+      if (canSaveStatement.value) {
+        saveCurrentStatement()
+      }
+    },
+    { deep: true },
+  )
+
+  const saveCurrentStatement = () => {
+    if (!canSaveStatement.value) return
+
+    // Ensure source is properly typed based on value type
+    const valueMapping: ValueMapping = {
+      ...currentStatement.value.value,
+      source:
+        currentStatement.value.value.type === 'column'
+          ? {
+              columnName: currentStatement.value.value.source as string,
+              dataType: currentStatement.value.value.dataType,
+            }
+          : (currentStatement.value.value.source as string),
+    }
+
+    schemaStore.addStatement(
+      currentStatement.value.property,
+      valueMapping,
+      currentStatement.value.rank,
+    )
+    resetStatement()
+  }
+
+  const resetStatement = () => {
+    currentStatement.value = {
+      property: {
+        id: 'P1' as PropertyId,
+        label: '',
+        dataType: 'string' as WikibaseDataType,
+      },
+      value: {
+        type: 'column' as const,
+        source: '',
+        dataType: 'string' as WikibaseDataType,
+      },
+      rank: 'normal' as StatementRank,
+    }
+  }
+
+  return {
+    // State
+    currentStatement,
+
+    // Options
+    valueTypes,
+    dataTypes,
+    rankOptions,
+
+    // Computed
+    canSaveStatement,
+    sourceLabel,
+    sourcePlaceholder,
+    sourceValue,
+
+    // Methods
+    resetStatement,
+    saveCurrentStatement,
+  }
+}
