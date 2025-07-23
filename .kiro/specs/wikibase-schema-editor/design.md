@@ -28,6 +28,7 @@ The schema editor follows a hierarchical component structure:
 graph TD
     A[WikibaseSchemaEditor] --> B[SchemaToolbar]
     A --> C[ColumnPalette]
+    C --> C1[ColumnItem]
     A --> D[SchemaCanvas]
     D --> E[ItemEditor]
     E --> F[TermsEditor]
@@ -50,12 +51,14 @@ graph TD
   - Provides validation feedback
 
 #### 2. ColumnPalette
-- **Purpose**: Displays available data columns as draggable elements
+- **Purpose**: Displays available data columns as draggable elements with optional sample data
 - **Responsibilities**:
   - Fetches column information from project data
   - Renders columns as draggable chips/badges
   - Provides visual feedback during drag operations
-  - Shows column data types and sample values
+  - Shows column data types and conditionally shows sample values
+  - Manages sample data visibility toggle state
+  - Provides toggle button interface for showing/hiding sample data
 
 #### 3. SchemaCanvas
 - **Purpose**: Main editing area where schema structure is built
@@ -102,6 +105,14 @@ graph TD
   - Provides interfaces to add/remove qualifiers/references
   - Property selection for qualifier/reference properties
   - Value mapping for qualifier/reference values
+
+#### 9. ColumnItem
+- **Purpose**: Individual draggable column element within the ColumnPalette
+- **Responsibilities**:
+  - Renders individual column as draggable chip
+  - Shows column name and data type
+  - Conditionally displays sample data based on parent toggle state
+  - Handles drag start/end events for the column
 
 ### Data Models
 
@@ -415,16 +426,64 @@ AutoImport({
 
 ## VueUse Implementation Details
 
+### ColumnPalette Container with Sample Data Toggle
+
+```vue
+<!-- ColumnPalette.vue - Container component with sample data toggle -->
+<script setup lang="ts">
+// Note: Vue, VueUse, and PrimeVue components are auto-imported
+// No need to import: ref, computed, Button, etc.
+
+const props = defineProps<{
+  columns: ColumnInfo[]
+}>()
+
+// Sample data visibility state (hidden by default)
+const showSampleData = ref(false)
+
+const toggleSampleData = () => {
+  showSampleData.value = !showSampleData.value
+}
+</script>
+
+<template>
+  <div class="column-palette">
+    <!-- Toggle button at the top -->
+    <div class="flex justify-between items-center mb-4">
+      <h3 class="text-lg font-semibold">Columns</h3>
+      <Button
+        :icon="showSampleData ? 'pi pi-eye-slash' : 'pi pi-eye'"
+        :label="showSampleData ? 'Hide Samples' : 'Show Samples'"
+        size="small"
+        severity="secondary"
+        @click="toggleSampleData"
+      />
+    </div>
+    
+    <!-- Column items -->
+    <div class="flex flex-wrap gap-2">
+      <ColumnItem
+        v-for="column in columns"
+        :key="column.name"
+        :column-info="column"
+        :show-sample-data="showSampleData"
+      />
+    </div>
+  </div>
+</template>
+```
+
 ### Column Dragging with UseDraggable Component and HTML5 DataTransfer
 
 ```vue
-<!-- ColumnPalette.vue - Making columns draggable with data transfer -->
+<!-- ColumnItem.vue - Individual draggable column component -->
 <script setup lang="ts">
 // Note: Vue, VueUse, and PrimeVue components are auto-imported
 // No need to import: ref, computed, Chip, etc.
 
 const props = defineProps<{
   columnInfo: ColumnInfo
+  showSampleData: boolean
 }>()
 
 const dragDropStore = useDragDropStore() // Auto-imported from stores
@@ -482,9 +541,12 @@ const handleDragEnd = (event: DragEvent) => {
         </template>
       </Chip>
       
-      <div v-if="columnInfo.sampleValues?.length" class="text-xs text-surface-600 mt-1">
-        Sample: {{ columnInfo.sampleValues.slice(0, 2).join(', ') }}
-        <span v-if="columnInfo.sampleValues.length > 2">...</span>
+      <div 
+        v-if="showSampleData && columnInfo.sampleValues?.length" 
+        class="text-xs text-surface-600 mt-1"
+      >
+        Sample: {{ columnInfo.sampleValues.slice(0, 3).join(', ') }}
+        <span v-if="columnInfo.sampleValues.length > 3">...</span>
       </div>
     </div>
   </UseDraggable>

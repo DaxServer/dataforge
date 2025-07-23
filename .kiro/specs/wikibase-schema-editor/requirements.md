@@ -28,6 +28,9 @@ The Wikibase Schema Editor is a visual interface that allows users to create and
 2. WHEN the dataset has columns THEN the system SHALL show each column name as a draggable element
 3. WHEN the user drags a column name THEN the system SHALL provide visual feedback indicating valid drop targets
 4. IF the dataset has no columns THEN the system SHALL display an appropriate message indicating no data is available
+5. WHEN the column palette loads THEN the system SHALL hide sample data by default
+6. WHEN the user clicks the sample data toggle button THEN the system SHALL show or hide sample data for all columns
+7. WHEN sample data is visible THEN the system SHALL display up to 3 sample values per column below the column name
 
 ### Requirement 3
 

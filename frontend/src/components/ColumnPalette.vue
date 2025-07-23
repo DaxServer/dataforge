@@ -6,22 +6,25 @@ const { convertProjectColumnsToColumnInfo } = useColumnConversion()
 const { formatDataTypeDisplayName, generateColumnTooltip, getDataTypeIcon, getDataTypeSeverity } =
   useColumnDataTypeIndicators()
 
-const columns = computed(() => {
+// Sample data visibility state (hidden by default)
+const showSampleData = ref(false)
+
+const dataColumns = computed(() => {
   return convertProjectColumnsToColumnInfo(projectStore.columns, projectStore.data)
 })
 
-const handleDragStart = (event: DragEvent, _column: ColumnInfo) => {
+const handleDragStart = (event: DragEvent, dataCol: ColumnInfo) => {
   if (!event.dataTransfer) return
 
   // Set column data in DataTransfer for drop zones to access
-  event.dataTransfer.setData('application/x-column-data', JSON.stringify(_column))
-  event.dataTransfer.setData('text/plain', _column.name) // Fallback
+  event.dataTransfer.setData('application/x-column-data', JSON.stringify(dataCol))
+  event.dataTransfer.setData('text/plain', dataCol.name) // Fallback
 
   // Set drag effect
   event.dataTransfer.effectAllowed = 'copy'
 
   // Set dragged column data in store
-  dragDropStore.startDrag(_column)
+  dragDropStore.startDrag(dataCol)
 }
 
 const handleDragEnd = () => {
@@ -32,8 +35,8 @@ const handleDragEnd = () => {
 const formatSampleValues = (sampleValues: string[]) => {
   if (!sampleValues || sampleValues.length === 0) return ''
 
-  const displayValues = sampleValues.slice(0, 2).join(', ')
-  const hasMore = sampleValues.length > 2
+  const displayValues = sampleValues.slice(0, 3).join(', ')
+  const hasMore = sampleValues.length > 3
 
   return `Sample: ${displayValues}${hasMore ? '...' : ''}`
 }
@@ -41,14 +44,29 @@ const formatSampleValues = (sampleValues: string[]) => {
 
 <template>
   <div class="column-palette p-4">
-    <div class="mb-4">
-      <h3 class="text-lg font-semibold text-surface-900 mb-2">Data Columns</h3>
-      <p class="text-sm text-surface-600">Drag columns to map them to Wikibase schema elements</p>
+    <!-- Header with toggle switch -->
+    <div class="flex justify-between items-center mb-4">
+      <div>
+        <h3 class="text-lg font-semibold text-surface-900 mb-1">Data Columns</h3>
+      </div>
+      <div class="flex items-center gap-2">
+        <label
+          for="sample-toggle"
+          class="text-sm font-medium text-surface-700"
+        >
+          Show Samples
+        </label>
+        <ToggleSwitch
+          id="sample-toggle"
+          v-model="showSampleData"
+          data-testid="sample-toggle-switch"
+        />
+      </div>
     </div>
 
     <!-- Empty state -->
     <div
-      v-if="!columns || columns.length === 0"
+      v-if="!dataColumns || dataColumns.length === 0"
       data-testid="empty-state"
       class="text-center py-8 px-4 border-2 border-dashed border-surface-300 rounded-lg"
     >
@@ -65,7 +83,7 @@ const formatSampleValues = (sampleValues: string[]) => {
       class="flex flex-wrap gap-3"
     >
       <div
-        v-for="col in columns"
+        v-for="col in dataColumns"
         :key="col.name"
         :data-testid="'column-chip'"
         :class="{
@@ -105,8 +123,9 @@ const formatSampleValues = (sampleValues: string[]) => {
           </div>
 
           <div
-            v-if="col.sampleValues && col.sampleValues.length > 0"
+            v-if="showSampleData && col.sampleValues && col.sampleValues.length > 0"
             class="text-xs text-surface-600"
+            data-testid="sample-values"
             :title="`Sample values: ${col.sampleValues.slice(0, 5).join(', ')}${col.sampleValues.length > 5 ? '...' : ''}`"
           >
             {{ formatSampleValues(col.sampleValues) }}

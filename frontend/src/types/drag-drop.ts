@@ -1,4 +1,4 @@
-import type { Ref, ComputedRef } from 'vue'
+import type { Ref } from 'vue'
 import type { ColumnInfo, WikibaseDataType } from '@frontend/types/wikibase-schema'
 
 // Schema editor specific drag and drop context (from design document)

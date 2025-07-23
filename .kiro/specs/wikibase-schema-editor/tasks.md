@@ -40,14 +40,16 @@
   - Write tests for displaying available data columns
   - Write tests for draggable column elements
   - Write tests for empty dataset state handling
+  - Write tests for sample data toggle functionality
+  - Write tests for sample data visibility state management
   - Implement ColumnPalette component
-  - _Requirements: 2.1, 2.2, 2.4_
+  - _Requirements: 2.1, 2.2, 2.4, 2.5, 2.6_
 
 - [x] 8. Create column data type indicators
   - Write tests for column data type display and tooltips
   - Write tests for sample value display functionality
   - Implement column data type indicators and tooltips
-  - _Requirements: 8.2_
+  - _Requirements: 8.2, 2.7_
 
 - [x] 9. Build basic WikibaseSchemaEditor container
   - Write tests for main container component initialization
@@ -61,7 +63,7 @@
   - Implement basic ItemEditor component structure
   - _Requirements: 1.1, 1.2_
 
-- [ ] 11. Build TermsEditor component with TDD
+- [x] 11. Build TermsEditor component with TDD
   - Write tests for Labels, Descriptions, and Aliases drop zones
   - Write tests for multilingual configuration interface
   - Implement TermsEditor component with drop zone functionality
