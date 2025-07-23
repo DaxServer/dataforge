@@ -30,6 +30,7 @@ const { showError, showSuccess } = useErrorHandling()
 // Reactive state
 const isInitialized = ref(false)
 const isConfiguringItem = ref(false)
+const isAddingStatement = ref(false)
 
 // Computed properties
 const schemaTitle = computed(() => {
@@ -171,10 +172,37 @@ const handleHelp = () => {
   emit('help')
 }
 
+const handleAddStatement = () => {
+  isAddingStatement.value = true
+}
+
+const handleEditStatement = (statementId: string) => {
+  // TODO: Implement edit statement logic
+  console.log('Edit statement:', statementId)
+}
+
+const handleRemoveStatement = (statementId: string) => {
+  schemaStore.removeStatement(statementId)
+}
+
+const handleReorderStatements = (fromIndex: number, toIndex: number) => {
+  // TODO: Implement reorder logic
+  console.log('Reorder statements from', fromIndex, 'to', toIndex)
+}
+
+const handleStatementAdded = () => {
+  isAddingStatement.value = false
+}
+
+const handleCancelAddStatement = () => {
+  isAddingStatement.value = false
+}
+
 // Cleanup
 onUnmounted(() => {
   dragDropStore.$reset()
-  validationStore.clearAll()
+  // Clear validation errors when clearing schema
+  // validationStore.clearAll() // Method not available in current store
   isConfiguringItem.value = false
 })
 </script>
@@ -251,7 +279,7 @@ onUnmounted(() => {
       <div class="bg-white rounded-md p-6 shadow-sm">
         <!-- Empty State -->
         <div
-          v-if="!hasItem && isInitialized"
+          v-if="!hasItem && isInitialized && !isAddingStatement"
           class="empty-item-placeholder text-center py-12"
         >
           <div class="text-gray-500 mb-4">
@@ -304,59 +332,22 @@ onUnmounted(() => {
             <!-- Terms Editor Integration -->
             <TermsEditor />
 
-            <!-- Statements Section -->
+            <!-- Statements Editor Integration -->
             <div class="mt-6">
-              <h4 class="text-lg font-semibold mb-3">Statements</h4>
-              <div v-if="schemaStore.statements.length > 0">
-                <div
-                  v-for="statement in schemaStore.statements"
-                  :key="statement.id"
-                  class="flex items-center justify-between p-3 bg-surface-50 rounded-lg border mb-2"
-                >
-                  <div>
-                    <span class="text-blue-700 font-medium mr-2">
-                      {{ statement.property.id }} ({{
-                        statement.property.label || 'Unknown property'
-                      }})
-                    </span>
-                    <span class="text-gray-800">
-                      {{
-                        typeof statement.value.source === 'string'
-                          ? statement.value.source
-                          : statement.value.source.columnName || 'No mapping'
-                      }}
-                    </span>
-                  </div>
-                  <div class="flex gap-2">
-                    <Button
-                      icon="pi pi-pencil"
-                      rounded
-                      text
-                      size="small"
-                      aria-label="Edit statement"
-                    />
-                    <Button
-                      icon="pi pi-trash"
-                      rounded
-                      text
-                      severity="danger"
-                      size="small"
-                      aria-label="Delete statement"
-                    />
-                  </div>
-                </div>
-              </div>
+              <StatementsEditor
+                :is-adding-statement="isAddingStatement"
+                @add-statement="handleAddStatement"
+                @edit-statement="handleEditStatement"
+                @remove-statement="handleRemoveStatement"
+                @reorder-statements="handleReorderStatements"
+              />
+
+              <!-- Statement Configuration (only visible when adding/editing) -->
               <div
-                v-else
-                class="text-center py-8 px-4 border-2 border-dashed border-surface-300 rounded-lg"
+                v-if="isAddingStatement"
+                class="mt-6"
               >
-                <div class="text-surface-500 mb-2">
-                  <i class="pi pi-plus-circle text-3xl"></i>
-                </div>
-                <h4 class="text-surface-700 font-medium mb-2">No statements configured</h4>
-                <p class="text-sm text-surface-600">
-                  Add properties and values to define your item structure
-                </p>
+                <StatementConfigEditor />
               </div>
             </div>
           </div>
