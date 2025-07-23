@@ -43,7 +43,7 @@ const formatSampleValues = (sampleValues: string[]) => {
 </script>
 
 <template>
-  <div class="column-palette p-4">
+  <div class="column-palette h-full p-4">
     <!-- Header with toggle switch -->
     <div class="flex justify-between items-center mb-4">
       <div>
@@ -64,24 +64,10 @@ const formatSampleValues = (sampleValues: string[]) => {
       </div>
     </div>
 
-    <!-- Empty state -->
-    <div
-      v-if="!dataColumns || dataColumns.length === 0"
-      data-testid="empty-state"
-      class="text-center py-8 px-4 border-2 border-dashed border-surface-300 rounded-lg"
-    >
-      <div class="text-surface-500 mb-2">
-        <i class="pi pi-database text-3xl"></i>
-      </div>
-      <h4 class="text-surface-700 font-medium mb-2">No data columns available</h4>
-      <p class="text-sm text-surface-600">Load a dataset to see available columns for mapping</p>
-    </div>
-
-    <!-- Column chips -->
-    <div
-      v-else
-      class="flex flex-wrap gap-3"
-    >
+    <!-- Content Area -->
+    <div>
+      <!-- Column chips -->
+      <div class="flex flex-wrap gap-3">
       <div
         v-for="col in dataColumns"
         :key="col.name"
@@ -140,6 +126,7 @@ const formatSampleValues = (sampleValues: string[]) => {
           </div>
         </div>
       </div>
+    </div>
     </div>
   </div>
 </template>
