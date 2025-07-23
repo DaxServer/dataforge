@@ -150,6 +150,8 @@ When reviewing code for compliance, check in this order:
 - Frontend tests in `__tests__/` subdirectories
 - Integration tests for API endpoints
 - Unit tests for composables and utilities
+- Do not mock, but test real implementation
+- Do not create any logic in tests, only test behavior
 
 ### Test Naming
 - Descriptive test names that explain the behavior being tested
