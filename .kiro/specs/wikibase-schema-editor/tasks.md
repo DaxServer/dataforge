@@ -87,7 +87,7 @@
   - Implement StatementsEditor container component
   - _Requirements: 4.1_
 
-- [ ] 15. Create statement hierarchical display
+- [x] 15. Create statement hierarchical display
   - Write tests for hierarchical structure rendering
   - Write tests for property-value relationship display
   - Implement hierarchical display for statements
