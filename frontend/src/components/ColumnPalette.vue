@@ -68,65 +68,66 @@ const formatSampleValues = (sampleValues: string[]) => {
     <div>
       <!-- Column chips -->
       <div class="flex flex-wrap gap-3">
-      <div
-        v-for="col in dataColumns"
-        :key="col.name"
-        :data-testid="'column-chip'"
-        :class="{
-          'opacity-50': dragDropStore.isDragging && dragDropStore.draggedColumn?.name === col.name,
-          'cursor-grab': !dragDropStore.isDragging,
-          'cursor-grabbing':
-            dragDropStore.isDragging && dragDropStore.draggedColumn?.name === col.name,
-        }"
-        class="column-chip transition-opacity duration-200 hover:-translate-y-0.5 active:translate-y-0"
-        draggable="true"
-        @dragstart="handleDragStart($event, col)"
-        @dragend="handleDragEnd"
-      >
         <div
-          class="bg-white border border-surface-300 rounded-lg p-3 shadow-sm hover:shadow-md transition-shadow"
-          :title="generateColumnTooltip(col)"
+          v-for="col in dataColumns"
+          :key="col.name"
+          :data-testid="'column-chip'"
+          :class="{
+            'opacity-50':
+              dragDropStore.isDragging && dragDropStore.draggedColumn?.name === col.name,
+            'cursor-grab': !dragDropStore.isDragging,
+            'cursor-grabbing':
+              dragDropStore.isDragging && dragDropStore.draggedColumn?.name === col.name,
+          }"
+          class="column-chip transition-opacity duration-200 hover:-translate-y-0.5 active:translate-y-0"
+          draggable="true"
+          @dragstart="handleDragStart($event, col)"
+          @dragend="handleDragEnd"
         >
-          <div class="flex items-center gap-2 mb-2">
-            <i
-              :class="getDataTypeIcon(col.dataType)"
-              class="text-surface-600 text-sm"
-              :title="`${formatDataTypeDisplayName(col.dataType)} column`"
-            ></i>
-            <span class="font-medium text-surface-900">{{ col.name }}</span>
-            <Chip
-              :label="formatDataTypeDisplayName(col.dataType)"
-              size="small"
-              :severity="getDataTypeSeverity(col.dataType)"
-              class="text-xs"
-              :title="`Database type: ${col.dataType}`"
-            />
-            <i
-              v-if="col.nullable"
-              class="pi pi-question-circle text-surface-400 text-xs"
-              title="This column allows null values"
-            ></i>
-          </div>
-
           <div
-            v-if="showSampleData && col.sampleValues && col.sampleValues.length > 0"
-            class="text-xs text-surface-600"
-            data-testid="sample-values"
-            :title="`Sample values: ${col.sampleValues.slice(0, 5).join(', ')}${col.sampleValues.length > 5 ? '...' : ''}`"
+            class="bg-white border border-surface-300 rounded-lg p-3 shadow-sm hover:shadow-md transition-shadow"
+            :title="generateColumnTooltip(col)"
           >
-            {{ formatSampleValues(col.sampleValues) }}
-          </div>
+            <div class="flex items-center gap-2 mb-2">
+              <i
+                :class="getDataTypeIcon(col.dataType)"
+                class="text-surface-600 text-sm"
+                :title="`${formatDataTypeDisplayName(col.dataType)} column`"
+              ></i>
+              <span class="font-medium text-surface-900">{{ col.name }}</span>
+              <Chip
+                :label="formatDataTypeDisplayName(col.dataType)"
+                size="small"
+                :severity="getDataTypeSeverity(col.dataType)"
+                class="text-xs"
+                :title="`Database type: ${col.dataType}`"
+              />
+              <i
+                v-if="col.nullable"
+                class="pi pi-question-circle text-surface-400 text-xs"
+                title="This column allows null values"
+              ></i>
+            </div>
 
-          <div
-            v-if="col.uniqueCount !== undefined"
-            class="text-xs text-surface-500 mt-1"
-            :title="`This column has ${col.uniqueCount.toLocaleString()} unique values`"
-          >
-            {{ col.uniqueCount.toLocaleString() }} unique values
+            <div
+              v-if="showSampleData && col.sampleValues && col.sampleValues.length > 0"
+              class="text-xs text-surface-600"
+              data-testid="sample-values"
+              :title="`Sample values: ${col.sampleValues.slice(0, 5).join(', ')}${col.sampleValues.length > 5 ? '...' : ''}`"
+            >
+              {{ formatSampleValues(col.sampleValues) }}
+            </div>
+
+            <div
+              v-if="col.uniqueCount !== undefined"
+              class="text-xs text-surface-500 mt-1"
+              :title="`This column has ${col.uniqueCount.toLocaleString()} unique values`"
+            >
+              {{ col.uniqueCount.toLocaleString() }} unique values
+            </div>
           </div>
         </div>
       </div>
-    </div>
     </div>
   </div>
 </template>
