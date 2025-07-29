@@ -93,7 +93,7 @@
   - Implement hierarchical display for statements
   - _Requirements: 4.6_
 
-- [ ] 16. Build property selection interface
+- [x] 16. Build property selection interface
   - Write tests for property selection with P-ID validation
   - Write tests for property autocomplete functionality
   - Implement property selection interface

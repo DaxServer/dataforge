@@ -257,6 +257,7 @@ declare global {
   const useProjectListComposable: typeof import('./src/composables/useProjectListComposable')['useProjectListComposable']
   const useProjectListStore: typeof import('./src/stores/project-list.store')['useProjectListStore']
   const useProjectStore: typeof import('./src/stores/project.store')['useProjectStore']
+  const usePropertySelection: typeof import('./src/composables/usePropertySelection')['usePropertySelection']
   const useRafFn: typeof import('@vueuse/core')['useRafFn']
   const useRefHistory: typeof import('@vueuse/core')['useRefHistory']
   const useResizeObserver: typeof import('@vueuse/core')['useResizeObserver']
@@ -626,6 +627,7 @@ declare module 'vue' {
     readonly useProjectListComposable: UnwrapRef<typeof import('./src/composables/useProjectListComposable')['useProjectListComposable']>
     readonly useProjectListStore: UnwrapRef<typeof import('./src/stores/project-list.store')['useProjectListStore']>
     readonly useProjectStore: UnwrapRef<typeof import('./src/stores/project.store')['useProjectStore']>
+    readonly usePropertySelection: UnwrapRef<typeof import('./src/composables/usePropertySelection')['usePropertySelection']>
     readonly useRafFn: UnwrapRef<typeof import('@vueuse/core')['useRafFn']>
     readonly useRefHistory: UnwrapRef<typeof import('@vueuse/core')['useRefHistory']>
     readonly useResizeObserver: UnwrapRef<typeof import('@vueuse/core')['useResizeObserver']>

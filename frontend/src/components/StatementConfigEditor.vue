@@ -11,6 +11,11 @@ const {
   sourceValue,
   resetStatement,
 } = useStatementConfig()
+
+// Property selection handler
+const handlePropertySelection = (property: PropertyReference | null) => {
+  currentStatement.value.property = property
+}
 </script>
 
 <template>
@@ -22,37 +27,14 @@ const {
         Property Configuration
       </h3>
 
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <!-- Property ID -->
+      <div class="grid grid-cols-1 gap-4">
+        <!-- Property Selection -->
         <div class="space-y-2">
-          <label class="text-sm font-medium text-surface-700">Property ID</label>
-          <InputText
-            v-model="currentStatement.property.id"
-            placeholder="P123"
-            class="w-full"
-          />
-        </div>
-
-        <!-- Property Label -->
-        <div class="space-y-2">
-          <label class="text-sm font-medium text-surface-700">Property Label</label>
-          <InputText
-            v-model="currentStatement.property.label"
-            placeholder="Property name"
-            class="w-full"
-          />
-        </div>
-
-        <!-- Property Data Type -->
-        <div class="space-y-2">
-          <label class="text-sm font-medium text-surface-700">Property Data Type</label>
-          <Select
-            v-model="currentStatement.property.dataType"
-            :options="dataTypes"
-            option-label="label"
-            option-value="value"
-            placeholder="Select data type"
-            class="w-full"
+          <label class="text-sm font-medium text-surface-700">Property</label>
+          <PropertySelector
+            :model-value="currentStatement.property"
+            placeholder="Search for a property..."
+            @update="handlePropertySelection"
           />
         </div>
       </div>

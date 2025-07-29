@@ -1,3 +1,4 @@
+import { ref, computed, watch } from 'vue'
 import type {
   PropertyReference,
   ValueMapping,
@@ -5,26 +6,23 @@ import type {
   StatementRank,
 } from '@frontend/types/wikibase-schema'
 import { useSchemaStore } from '@frontend/stores/schema.store'
-import { ref, computed, watch } from 'vue'
 import { PropertyId } from '@backend/types/wikibase-schema'
+
+const createDefaultStatement = () => ({
+  property: null as PropertyReference | null,
+  value: {
+    type: 'column' as const,
+    source: '',
+    dataType: 'string' as WikibaseDataType,
+  } as ValueMapping,
+  rank: 'normal' as StatementRank,
+})
 
 export const useStatementConfig = () => {
   const schemaStore = useSchemaStore()
 
   // Current statement being edited
-  const currentStatement = ref({
-    property: {
-      id: 'P1' as PropertyId,
-      label: '',
-      dataType: 'string' as WikibaseDataType,
-    } as PropertyReference,
-    value: {
-      type: 'column' as const,
-      source: '',
-      dataType: 'string' as WikibaseDataType,
-    } as ValueMapping,
-    rank: 'normal' as StatementRank,
-  })
+  const currentStatement = ref(createDefaultStatement())
 
   // Available options
   const valueTypes = [
@@ -94,7 +92,8 @@ export const useStatementConfig = () => {
         ? currentStatement.value.value.source.trim() !== ''
         : false
 
-    return (
+    return !!(
+      currentStatement.value.property &&
       currentStatement.value.property.id &&
       hasSource &&
       currentStatement.value.property.id.startsWith('P')
@@ -117,7 +116,7 @@ export const useStatementConfig = () => {
   )
 
   const saveCurrentStatement = () => {
-    if (!canSaveStatement.value) return
+    if (!canSaveStatement.value || !currentStatement.value.property) return
 
     // Ensure source is properly typed based on value type
     const valueMapping: ValueMapping = {
@@ -136,23 +135,10 @@ export const useStatementConfig = () => {
       valueMapping,
       currentStatement.value.rank,
     )
-    resetStatement()
   }
 
   const resetStatement = () => {
-    currentStatement.value = {
-      property: {
-        id: 'P1' as PropertyId,
-        label: '',
-        dataType: 'string' as WikibaseDataType,
-      },
-      value: {
-        type: 'column' as const,
-        source: '',
-        dataType: 'string' as WikibaseDataType,
-      },
-      rank: 'normal' as StatementRank,
-    }
+    currentStatement.value = createDefaultStatement()
   }
 
   return {
