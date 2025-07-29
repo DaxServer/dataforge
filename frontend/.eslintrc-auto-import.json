@@ -316,6 +316,7 @@
     "useProjectListComposable": true,
     "useProjectListStore": true,
     "useProjectStore": true,
+    "usePropertySelection": true,
     "useRafFn": true,
     "useRefHistory": true,
     "useResizeObserver": true,

@@ -2,11 +2,7 @@ import { describe, it, expect, beforeEach } from 'bun:test'
 import { createPinia, setActivePinia } from 'pinia'
 import { useStatementConfig } from '@frontend/composables/useStatementConfig'
 import { useSchemaStore } from '@frontend/stores/schema.store'
-import type {
-  PropertyReference,
-  ValueMapping,
-  StatementRank,
-} from '@frontend/types/wikibase-schema'
+import { PropertyId } from '@backend/types/wikibase-schema'
 
 describe('useStatementConfig', () => {
   beforeEach(() => {
@@ -26,9 +22,7 @@ describe('useStatementConfig', () => {
       sourceValue,
     } = useStatementConfig()
 
-    expect(currentStatement.value.property.id).toBe('P1')
-    expect(currentStatement.value.property.label).toBe('')
-    expect(currentStatement.value.property.dataType).toBe('string')
+    expect(currentStatement.value.property).toBeNull()
     expect(currentStatement.value.value.type).toBe('column')
     expect(currentStatement.value.value.source).toBe('')
     expect(currentStatement.value.value.dataType).toBe('string')
@@ -45,11 +39,15 @@ describe('useStatementConfig', () => {
   it('should validate statement correctly', () => {
     const { currentStatement, canSaveStatement, sourceValue } = useStatementConfig()
 
-    // Initially invalid
+    // Initially invalid (no property)
     expect(canSaveStatement.value).toBe(false)
 
-    // Set property ID
-    currentStatement.value.property.id = 'P123' as `P${number}`
+    // Set property
+    currentStatement.value.property = {
+      id: 'P123' as PropertyId,
+      label: 'test property',
+      dataType: 'string',
+    }
     expect(canSaveStatement.value).toBe(false)
 
     // Set source value
@@ -57,11 +55,11 @@ describe('useStatementConfig', () => {
     expect(canSaveStatement.value).toBe(true)
 
     // Invalid property ID
-    currentStatement.value.property.id = 'invalid' as `P${number}`
+    currentStatement.value.property.id = 'invalid' as PropertyId
     expect(canSaveStatement.value).toBe(false)
 
     // Reset to valid property ID
-    currentStatement.value.property.id = 'P456' as `P${number}`
+    currentStatement.value.property.id = 'P456' as PropertyId
     expect(canSaveStatement.value).toBe(true)
 
     // Empty source
@@ -70,6 +68,10 @@ describe('useStatementConfig', () => {
 
     // Whitespace only source
     sourceValue.value = '   '
+    expect(canSaveStatement.value).toBe(false)
+
+    // Null property
+    currentStatement.value.property = null
     expect(canSaveStatement.value).toBe(false)
   })
 
@@ -110,9 +112,11 @@ describe('useStatementConfig', () => {
     const { currentStatement, resetStatement, sourceValue } = useStatementConfig()
 
     // Modify values
-    currentStatement.value.property.id = 'P999' as `P${number}`
-    currentStatement.value.property.label = 'Test Property'
-    currentStatement.value.property.dataType = 'number'
+    currentStatement.value.property = {
+      id: 'P999' as PropertyId,
+      label: 'Test Property',
+      dataType: 'string',
+    }
     sourceValue.value = 'test_source'
     currentStatement.value.value.dataType = 'string'
     currentStatement.value.rank = 'preferred'
@@ -121,9 +125,7 @@ describe('useStatementConfig', () => {
     resetStatement()
 
     // Check all values are reset
-    expect(currentStatement.value.property.id).toBe('P1')
-    expect(currentStatement.value.property.label).toBe('')
-    expect(currentStatement.value.property.dataType).toBe('string')
+    expect(currentStatement.value.property).toBeNull()
     expect(currentStatement.value.value.type).toBe('column')
     expect(currentStatement.value.value.source).toBe('')
     expect(currentStatement.value.value.dataType).toBe('string')
@@ -131,120 +133,78 @@ describe('useStatementConfig', () => {
   })
 
   it('should auto-save statement when complete', async () => {
-    // Create a mock implementation for addStatement
-    let addedProperty: PropertyReference | null = null
-    let addedValueMapping: ValueMapping | null = null
-    let addedRank: StatementRank | null = null
-
-    // Get the store and replace the addStatement method
     const store = useSchemaStore()
-    const originalAddStatement = store.addStatement
-    store.addStatement = (property, valueMapping, rank = 'normal') => {
-      addedProperty = property
-      addedValueMapping = valueMapping
-      addedRank = rank
-      return originalAddStatement(property, valueMapping, rank)
-    }
+    const { currentStatement, sourceValue, canSaveStatement, resetStatement } = useStatementConfig()
 
-    // Initialize the composable
-    const { currentStatement, sourceValue, canSaveStatement } = useStatementConfig()
+    // Reset to ensure clean state
+    resetStatement()
 
     // Initially should not be able to save
     expect(canSaveStatement.value).toBe(false)
+    expect(store.statements).toHaveLength(0)
 
     // Set up valid statement data
-    currentStatement.value.property.id = 'P123' as `P${number}`
-    currentStatement.value.property.label = 'Test Property'
-    currentStatement.value.property.dataType = 'string'
+    currentStatement.value.property = {
+      id: 'P123' as PropertyId,
+      label: 'Test Property',
+      dataType: 'string',
+    }
     sourceValue.value = 'test_column'
     currentStatement.value.value.dataType = 'string'
     currentStatement.value.rank = 'preferred'
-
-    // Test column type (should create object source)
     currentStatement.value.value.type = 'column'
 
     // Wait for auto-save to trigger
     await new Promise((resolve) => setTimeout(resolve, 0))
 
-    // Verify the arguments passed to addStatement
-    expect(addedProperty).toEqual({
-      id: 'P123',
-      label: 'Test Property',
-      dataType: 'string',
-    })
-
-    expect(addedValueMapping).toEqual({
-      type: 'column',
-      source: {
-        columnName: 'test_column',
-        dataType: 'string',
-      },
-      dataType: 'string',
-    })
-
-    expect(addedRank).toBe('preferred')
-
-    // Restore original method
-    store.addStatement = originalAddStatement
+    // Verify statement was added to store
+    expect(store.statements).toHaveLength(1)
+    expect(store.statements[0]?.property.id).toBe('P123')
+    expect(store.statements[0]?.property.label).toBe('Test Property')
+    expect(store.statements[0]?.rank).toBe('preferred')
   })
 
   it('should not auto-save when statement is invalid', async () => {
-    // Create a flag to track if addStatement was called
-    let addStatementCalled = false
-
-    // Get the store and replace the addStatement method
     const store = useSchemaStore()
-    const originalAddStatement = store.addStatement
-    store.addStatement = (property, valueMapping, rank) => {
-      addStatementCalled = true
-      return originalAddStatement(property, valueMapping, rank)
-    }
+    const { currentStatement, canSaveStatement, resetStatement } = useStatementConfig()
 
-    // Initialize the composable
-    const { currentStatement, sourceValue, canSaveStatement } = useStatementConfig()
+    // Reset to ensure clean state
+    resetStatement()
 
     // Should not be able to save initially
     expect(canSaveStatement.value).toBe(false)
+    expect(store.statements).toHaveLength(0)
 
     // Wait to ensure no auto-save happens
     await new Promise((resolve) => setTimeout(resolve, 0))
-    expect(addStatementCalled).toBe(false)
+    expect(store.statements).toHaveLength(0)
 
-    // Set only property ID (still incomplete)
-    currentStatement.value.property.id = 'P123' as `P${number}`
+    // Set only property (still incomplete without source)
+    currentStatement.value.property = {
+      id: 'P123' as PropertyId,
+      label: 'Test Property',
+      dataType: 'string',
+    }
     expect(canSaveStatement.value).toBe(false)
 
     // Wait to ensure no auto-save happens
     await new Promise((resolve) => setTimeout(resolve, 0))
-    expect(addStatementCalled).toBe(false)
-
-    // Restore original method
-    store.addStatement = originalAddStatement
+    expect(store.statements).toHaveLength(0)
   })
 
   it('should manually save current statement', () => {
-    // Create a mock implementation for addStatement
-    let addedProperty: PropertyReference | null = null
-    let addedValueMapping: ValueMapping | null = null
-    let addedRank: StatementRank | null = null
-
-    // Get the store and replace the addStatement method
     const store = useSchemaStore()
-    const originalAddStatement = store.addStatement
-    store.addStatement = (property, valueMapping, rank = 'normal') => {
-      addedProperty = property
-      addedValueMapping = valueMapping
-      addedRank = rank
-      return originalAddStatement(property, valueMapping, rank)
-    }
-
-    // Initialize the composable
     const { currentStatement, sourceValue, saveCurrentStatement } = useStatementConfig()
 
+    // Initially no statements in store
+    expect(store.statements).toHaveLength(0)
+
     // Set up valid statement data
-    currentStatement.value.property.id = 'P123' as `P${number}`
-    currentStatement.value.property.label = 'Test Property'
-    currentStatement.value.property.dataType = 'string'
+    currentStatement.value.property = {
+      id: 'P123' as PropertyId,
+      label: 'Test Property',
+      dataType: 'string',
+    }
     sourceValue.value = 'test_column'
     currentStatement.value.value.dataType = 'string'
     currentStatement.value.rank = 'preferred'
@@ -253,25 +213,11 @@ describe('useStatementConfig', () => {
     // Manually save the statement
     saveCurrentStatement()
 
-    // Verify the arguments passed to addStatement
-    expect(addedProperty).toEqual({
-      id: 'P123',
-      label: 'Test Property',
-      dataType: 'string',
-    })
-
-    expect(addedValueMapping).toEqual({
-      type: 'column',
-      source: {
-        columnName: 'test_column',
-        dataType: 'string',
-      },
-      dataType: 'string',
-    })
-
-    expect(addedRank).toBe('preferred')
-
-    // Restore original method
-    store.addStatement = originalAddStatement
+    // Verify statement was added to store
+    expect(store.statements).toHaveLength(1)
+    expect(store.statements[0]?.property.id).toBe('P123')
+    expect(store.statements[0]?.property.label).toBe('Test Property')
+    expect(store.statements[0]?.rank).toBe('preferred')
+    expect(store.statements[0]?.value.type).toBe('column')
   })
 })

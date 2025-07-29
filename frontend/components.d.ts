@@ -8,6 +8,7 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
+    AutoComplete: typeof import('primevue/autocomplete')['default']
     Button: typeof import('primevue/button')['default']
     Chip: typeof import('primevue/chip')['default']
     Column: typeof import('primevue/column')['default']
@@ -27,6 +28,7 @@ declare module 'vue' {
     Paginator: typeof import('primevue/paginator')['default']
     ProgressSpinner: typeof import('primevue/progressspinner')['default']
     ProjectView: typeof import('./src/views/ProjectView.vue')['default']
+    PropertySelector: typeof import('./src/components/PropertySelector.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     SchemaDropZone: typeof import('./src/components/SchemaDropZone.vue')['default']
