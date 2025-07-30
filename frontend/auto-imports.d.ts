@@ -281,6 +281,8 @@ declare global {
   const useSpeechRecognition: typeof import('@vueuse/core')['useSpeechRecognition']
   const useSpeechSynthesis: typeof import('@vueuse/core')['useSpeechSynthesis']
   const useStatementConfig: typeof import('./src/composables/useStatementConfig')['useStatementConfig']
+  const useStatementDropZone: typeof import('./src/composables/useStatementDropZone')['useStatementDropZone']
+  const useStatementEditor: typeof import('./src/composables/useStatementEditor')['useStatementEditor']
   const useStepper: typeof import('@vueuse/core')['useStepper']
   const useStorage: typeof import('@vueuse/core')['useStorage']
   const useStorageAsync: typeof import('@vueuse/core')['useStorageAsync']
@@ -313,6 +315,7 @@ declare global {
   const useVModels: typeof import('@vueuse/core')['useVModels']
   const useValidationErrors: typeof import('./src/composables/useValidationErrors')['useValidationErrors']
   const useValidationStore: typeof import('./src/stores/validation.store')['useValidationStore']
+  const useValueMapping: typeof import('./src/composables/useValueMapping')['useValueMapping']
   const useVibrate: typeof import('@vueuse/core')['useVibrate']
   const useVirtualList: typeof import('@vueuse/core')['useVirtualList']
   const useWakeLock: typeof import('@vueuse/core')['useWakeLock']
@@ -651,6 +654,8 @@ declare module 'vue' {
     readonly useSpeechRecognition: UnwrapRef<typeof import('@vueuse/core')['useSpeechRecognition']>
     readonly useSpeechSynthesis: UnwrapRef<typeof import('@vueuse/core')['useSpeechSynthesis']>
     readonly useStatementConfig: UnwrapRef<typeof import('./src/composables/useStatementConfig')['useStatementConfig']>
+    readonly useStatementDropZone: UnwrapRef<typeof import('./src/composables/useStatementDropZone')['useStatementDropZone']>
+    readonly useStatementEditor: UnwrapRef<typeof import('./src/composables/useStatementEditor')['useStatementEditor']>
     readonly useStepper: UnwrapRef<typeof import('@vueuse/core')['useStepper']>
     readonly useStorage: UnwrapRef<typeof import('@vueuse/core')['useStorage']>
     readonly useStorageAsync: UnwrapRef<typeof import('@vueuse/core')['useStorageAsync']>
@@ -683,6 +688,7 @@ declare module 'vue' {
     readonly useVModels: UnwrapRef<typeof import('@vueuse/core')['useVModels']>
     readonly useValidationErrors: UnwrapRef<typeof import('./src/composables/useValidationErrors')['useValidationErrors']>
     readonly useValidationStore: UnwrapRef<typeof import('./src/stores/validation.store')['useValidationStore']>
+    readonly useValueMapping: UnwrapRef<typeof import('./src/composables/useValueMapping')['useValueMapping']>
     readonly useVibrate: UnwrapRef<typeof import('@vueuse/core')['useVibrate']>
     readonly useVirtualList: UnwrapRef<typeof import('@vueuse/core')['useVirtualList']>
     readonly useWakeLock: UnwrapRef<typeof import('@vueuse/core')['useWakeLock']>

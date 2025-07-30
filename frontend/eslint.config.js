@@ -61,6 +61,7 @@ export default tseslint.config(
     rules: {
       'vue/multi-word-component-names': 'off',
       'vue/singleline-html-element-content-newline': 'off',
+      'vue/html-indent': 'off',
       'comma-dangle': ['error', 'always-multiline'],
       'prettier/prettier': ['error', { trailingComma: 'all' }],
     },

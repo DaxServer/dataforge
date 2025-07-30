@@ -152,6 +152,7 @@ When reviewing code for compliance, check in this order:
 - Unit tests for composables and utilities
 - Do not mock, but test real implementation
 - Do not create any logic in tests, only test behavior
+- Do not create unit tests for Vue components
 
 ### Test Naming
 - Descriptive test names that explain the behavior being tested

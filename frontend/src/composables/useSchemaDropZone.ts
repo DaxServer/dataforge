@@ -7,10 +7,10 @@ import { useDragDropHandlers } from '@frontend/composables/useDragDropHandlers'
 /**
  * Composable for handling schema drop zone functionality
  */
-export const useSchemaDropZone = (
-  termType: 'label' | 'description' | 'alias',
-  languageCode: string,
-) => {
+export const useSchemaDropZone = () => {
+  // Configuration state
+  const termType = ref<'label' | 'description' | 'alias'>('label')
+  const languageCode = ref<string>('en')
   const dragDropStore = useDragDropStore()
   const schemaStore = useSchemaStore()
   const {
@@ -40,8 +40,8 @@ export const useSchemaDropZone = (
     }
 
     // For aliases, also check for duplicates
-    if (termType === 'alias') {
-      const existingAliases = schemaStore.aliases[languageCode] || []
+    if (termType.value === 'alias') {
+      const existingAliases = schemaStore.aliases[languageCode.value] || []
       const isDuplicate = existingAliases.some(
         (alias) =>
           alias.columnName === draggedColumn.value!.name &&
@@ -101,13 +101,13 @@ export const useSchemaDropZone = (
       dataType: dataCol.dataType,
     }
 
-    if (termType === 'label') {
-      schemaStore.addLabelMapping(languageCode, columnMapping)
-    } else if (termType === 'description') {
-      schemaStore.addDescriptionMapping(languageCode, columnMapping)
-    } else if (termType === 'alias') {
+    if (termType.value === 'label') {
+      schemaStore.addLabelMapping(languageCode.value, columnMapping)
+    } else if (termType.value === 'description') {
+      schemaStore.addDescriptionMapping(languageCode.value, columnMapping)
+    } else if (termType.value === 'alias') {
       // Check for duplicates before adding alias
-      const existingAliases = schemaStore.aliases[languageCode] || []
+      const existingAliases = schemaStore.aliases[languageCode.value] || []
       const isDuplicate = existingAliases.some(
         (alias) =>
           alias.columnName === columnMapping.columnName &&
@@ -115,13 +115,26 @@ export const useSchemaDropZone = (
       )
 
       if (!isDuplicate) {
-        schemaStore.addAliasMapping(languageCode, columnMapping)
+        schemaStore.addAliasMapping(languageCode.value, columnMapping)
       }
       // Silently ignore duplicates - this is expected behavior
     }
   }
 
+  // Configuration methods
+  const setTermType = (newTermType: 'label' | 'description' | 'alias') => {
+    termType.value = newTermType
+  }
+
+  const setLanguageCode = (newLanguageCode: string) => {
+    languageCode.value = newLanguageCode
+  }
+
   return {
+    // Configuration state
+    termType,
+    languageCode,
+
     // Reactive state
     isOverDropZone,
     isValidDropState,
@@ -134,5 +147,9 @@ export const useSchemaDropZone = (
     handleDragLeave,
     handleDrop,
     addColumnMapping,
+
+    // Configuration methods
+    setTermType,
+    setLanguageCode,
   }
 }

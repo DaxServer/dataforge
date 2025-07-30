@@ -24,8 +24,34 @@ const props = defineProps({
   },
 })
 
-const { handleDragOver, handleDragEnter, handleDragLeave, handleDrop, dropZoneClasses } =
-  useSchemaDropZone(props.termType as 'label' | 'description' | 'alias', props.languageCode)
+const {
+  handleDragOver,
+  handleDragEnter,
+  handleDragLeave,
+  handleDrop,
+  dropZoneClasses,
+  setTermType,
+  setLanguageCode,
+} = useSchemaDropZone()
+
+// Set configuration from props
+setTermType(props.termType as 'label' | 'description' | 'alias')
+setLanguageCode(props.languageCode)
+
+// Watch for prop changes
+watch(
+  () => props.termType,
+  (newTermType) => {
+    setTermType(newTermType as 'label' | 'description' | 'alias')
+  },
+)
+
+watch(
+  () => props.languageCode,
+  (newLanguageCode) => {
+    setLanguageCode(newLanguageCode)
+  },
+)
 </script>
 
 <template>

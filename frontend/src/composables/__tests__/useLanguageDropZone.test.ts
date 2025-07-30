@@ -10,8 +10,10 @@ describe('useLanguageDropZone Composable', () => {
 
   describe('label term type', () => {
     test('should initialize with default state', () => {
-      const { selectedLanguage, hasExistingMappings, mappingDisplayData } =
-        useLanguageDropZone('label')
+      const { selectedLanguage, hasExistingMappings, mappingDisplayData, setTermType } =
+        useLanguageDropZone()
+
+      setTermType('label')
 
       expect(selectedLanguage.value).toBe('en')
       expect(hasExistingMappings.value).toBe(false)
@@ -20,7 +22,9 @@ describe('useLanguageDropZone Composable', () => {
 
     test('should detect existing mappings reactively', () => {
       const schemaStore = useSchemaStore()
-      const { hasExistingMappings } = useLanguageDropZone('label')
+      const { hasExistingMappings, setTermType } = useLanguageDropZone()
+
+      setTermType('label')
 
       expect(hasExistingMappings.value).toBe(false)
 
@@ -34,7 +38,9 @@ describe('useLanguageDropZone Composable', () => {
 
     test('should transform mappings into display format', () => {
       const schemaStore = useSchemaStore()
-      const { mappingDisplayData } = useLanguageDropZone('label')
+      const { mappingDisplayData, setTermType } = useLanguageDropZone()
+
+      setTermType('label')
 
       schemaStore.addLabelMapping('en', {
         columnName: 'title_en',
@@ -50,7 +56,9 @@ describe('useLanguageDropZone Composable', () => {
 
     test('should handle dynamic language codes', () => {
       const schemaStore = useSchemaStore()
-      const { mappingDisplayData } = useLanguageDropZone('label')
+      const { mappingDisplayData, setTermType } = useLanguageDropZone()
+
+      setTermType('label')
 
       schemaStore.addLabelMapping('xyz', {
         columnName: 'title_xyz',
@@ -64,7 +72,9 @@ describe('useLanguageDropZone Composable', () => {
 
     test('should remove mappings correctly', () => {
       const schemaStore = useSchemaStore()
-      const { removeMapping, hasExistingMappings } = useLanguageDropZone('label')
+      const { removeMapping, hasExistingMappings, setTermType } = useLanguageDropZone()
+
+      setTermType('label')
 
       schemaStore.addLabelMapping('en', {
         columnName: 'title',
@@ -82,7 +92,9 @@ describe('useLanguageDropZone Composable', () => {
   describe('description term type', () => {
     test('should work with descriptions store property', () => {
       const schemaStore = useSchemaStore()
-      const { hasExistingMappings, mappingDisplayData } = useLanguageDropZone('description')
+      const { hasExistingMappings, mappingDisplayData, setTermType } = useLanguageDropZone()
+
+      setTermType('description')
 
       expect(hasExistingMappings.value).toBe(false)
 
@@ -98,7 +110,9 @@ describe('useLanguageDropZone Composable', () => {
 
     test('should remove description mappings correctly', () => {
       const schemaStore = useSchemaStore()
-      const { removeMapping, hasExistingMappings } = useLanguageDropZone('description')
+      const { removeMapping, hasExistingMappings, setTermType } = useLanguageDropZone()
+
+      setTermType('description')
 
       schemaStore.addDescriptionMapping('en', {
         columnName: 'description',
@@ -116,7 +130,9 @@ describe('useLanguageDropZone Composable', () => {
   describe('alias term type', () => {
     test('should work with aliases store property', () => {
       const schemaStore = useSchemaStore()
-      const { hasExistingMappings, mappingDisplayData } = useLanguageDropZone('alias')
+      const { hasExistingMappings, mappingDisplayData, setTermType } = useLanguageDropZone()
+
+      setTermType('alias')
 
       expect(hasExistingMappings.value).toBe(false)
 
@@ -131,7 +147,9 @@ describe('useLanguageDropZone Composable', () => {
 
     test('should remove alias mappings correctly', () => {
       const schemaStore = useSchemaStore()
-      const { removeMapping } = useLanguageDropZone('alias')
+      const { removeMapping, setTermType } = useLanguageDropZone()
+
+      setTermType('alias')
 
       const mapping1 = { columnName: 'alias1', dataType: 'VARCHAR' }
       const mapping2 = { columnName: 'alias2', dataType: 'VARCHAR' }
@@ -146,7 +164,9 @@ describe('useLanguageDropZone Composable', () => {
 
     test('should clean up empty alias arrays', () => {
       const schemaStore = useSchemaStore()
-      const { removeMapping, hasExistingMappings } = useLanguageDropZone('alias')
+      const { removeMapping, hasExistingMappings, setTermType } = useLanguageDropZone()
+
+      setTermType('alias')
 
       const mapping = { columnName: 'alias1', dataType: 'VARCHAR' }
       schemaStore.addAliasMapping('en', mapping)
@@ -162,7 +182,9 @@ describe('useLanguageDropZone Composable', () => {
   describe('reactivity', () => {
     test('should update hasExistingMappings when store changes', () => {
       const schemaStore = useSchemaStore()
-      const { hasExistingMappings } = useLanguageDropZone('label')
+      const { hasExistingMappings, setTermType } = useLanguageDropZone()
+
+      setTermType('label')
 
       expect(hasExistingMappings.value).toBe(false)
 
@@ -180,7 +202,9 @@ describe('useLanguageDropZone Composable', () => {
 
     test('should update mappingDisplayData when store changes', () => {
       const schemaStore = useSchemaStore()
-      const { mappingDisplayData } = useLanguageDropZone('label')
+      const { mappingDisplayData, setTermType } = useLanguageDropZone()
+
+      setTermType('label')
 
       expect(mappingDisplayData.value).toHaveLength(0)
 
