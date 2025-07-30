@@ -104,7 +104,7 @@ const handleValueTypeChangeWithEmit = (newType: 'column' | 'constant' | 'express
   emitUpdate()
 }
 
-const handleDataTypeChangeWithEmit = (newDataType: any) => {
+const handleDataTypeChangeWithEmit = (newDataType: WikibaseDataType) => {
   handleDataTypeChange(newDataType)
   emitUpdate()
 }
@@ -204,7 +204,9 @@ watch(
             :icon="option.icon"
             :severity="localStatement.value.type === option.value ? 'primary' : 'secondary'"
             size="small"
-            @click="handleValueTypeChangeWithEmit(option.value as any)"
+            @click="
+              handleValueTypeChangeWithEmit(option.value as 'column' | 'constant' | 'expression')
+            "
           />
         </div>
       </div>
@@ -354,7 +356,7 @@ watch(
           <span class="text-xs">{{ localStatement.value.dataType }}</span>
           <Tag
             :value="localStatement.rank"
-            :severity="rankOptions.find((r) => r.value === localStatement.rank)?.severity as any"
+            :severity="rankOptions.find((r) => r.value === localStatement.rank)?.severity"
             size="small"
           />
         </div>

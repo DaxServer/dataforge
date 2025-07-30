@@ -46,7 +46,9 @@ describe('useValueMapping', () => {
     test('should create column value mapping from column info', () => {
       const { createValueMappingFromColumn } = useValueMapping()
 
-      const mapping = createValueMappingFromColumn(testColumns[0]!)
+      const firstColumn = testColumns[0]
+      expect(firstColumn).toBeDefined()
+      const mapping = createValueMappingFromColumn(firstColumn!)
 
       expect(mapping.type).toBe('column')
       expect(mapping.source).toEqual({
@@ -60,7 +62,9 @@ describe('useValueMapping', () => {
       const { createValueMappingFromColumn } = useValueMapping()
 
       // Test with URL which should be compatible with VARCHAR
-      const mapping = createValueMappingFromColumn(testColumns[0]!, 'url')
+      const firstColumn = testColumns[0]
+      expect(firstColumn).toBeDefined()
+      const mapping = createValueMappingFromColumn(firstColumn!, 'url')
 
       expect(mapping.type).toBe('column')
       expect(mapping.dataType).toBe('url')
@@ -130,7 +134,9 @@ describe('useValueMapping', () => {
     test('should update column source and auto-suggest data type', () => {
       const { currentMapping, updateColumnSource } = useValueMapping()
 
-      updateColumnSource(testColumns[1]!)
+      const secondColumn = testColumns[1]
+      expect(secondColumn).toBeDefined()
+      updateColumnSource(secondColumn!)
 
       expect(currentMapping.value.source).toEqual({
         columnName: 'birth_date',
@@ -145,7 +151,9 @@ describe('useValueMapping', () => {
       updateValueType('constant')
       const originalSource = currentMapping.value.source
 
-      updateColumnSource(testColumns[0]!)
+      const firstColumn = testColumns[0]
+      expect(firstColumn).toBeDefined()
+      updateColumnSource(firstColumn!)
 
       expect(currentMapping.value.source).toBe(originalSource) // Should not change
     })
@@ -304,7 +312,9 @@ describe('useValueMapping', () => {
       expect(isValidMapping.value).toBe(false)
 
       // Should be valid after selecting column
-      updateColumnSource(testColumns[0]!)
+      const firstColumn = testColumns[0]
+      expect(firstColumn).toBeDefined()
+      updateColumnSource(firstColumn!)
       expect(isValidMapping.value).toBe(true)
     })
 
