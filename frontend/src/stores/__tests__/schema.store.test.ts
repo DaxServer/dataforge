@@ -357,7 +357,7 @@ describe('useSchemaStore', () => {
 
       const statementId = store.addStatement(property, valueMapping)
 
-      expect(mockBuildStatement).toHaveBeenCalledWith(property, valueMapping, 'normal')
+      expect(mockBuildStatement).toHaveBeenCalledWith(property, valueMapping, 'normal', [], [])
       expect(statementId).toBe('mock-statement-id')
       expect(store.statements).toHaveLength(1)
       expect(store.isDirty).toBe(true)

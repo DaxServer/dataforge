@@ -111,20 +111,20 @@
   - Implement data type validation for statement values
   - _Requirements: 4.5, 8.5_
 
-- [ ] 19. Build statement rank selection
+- [x] 19. Build statement rank selection
   - Write tests for rank selection interface
   - Write tests for rank visual indicators
   - Write tests for default rank assignment
   - Implement statement rank selection functionality
   - _Requirements: 5.1, 5.2, 5.3, 5.4, 5.5_
 
-- [ ] 20. Create QualifiersEditor component
+- [x] 20. Create QualifiersEditor component
   - Write tests for adding and removing qualifiers
   - Write tests for qualifier property selection
   - Implement QualifiersEditor component structure
   - _Requirements: 6.1, 6.2_
 
-- [ ] 21. Build qualifier value mapping
+- [x] 21. Build qualifier value mapping
   - Write tests for qualifier value mapping with columns
   - Write tests for qualifier value type support
   - Implement qualifier value mapping functionality

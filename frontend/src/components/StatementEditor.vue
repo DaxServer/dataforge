@@ -5,6 +5,7 @@ interface StatementEditorProps {
     property: PropertyReference | null
     value: ValueMapping
     rank: StatementRank
+    qualifiers?: QualifierSchemaMapping[]
   }
   availableColumns?: ColumnInfo[]
   disabled?: boolean
@@ -22,6 +23,7 @@ const props = withDefaults(defineProps<StatementEditorProps>(), {
       dataType: 'string',
     },
     rank: 'normal',
+    qualifiers: [],
   }),
   availableColumns: () => [],
   disabled: false,
@@ -34,6 +36,7 @@ interface StatementEditorEmits {
       property: PropertyReference | null
       value: ValueMapping
       rank: StatementRank
+      qualifiers?: QualifierSchemaMapping[]
     },
   ]
   save: []
@@ -86,9 +89,18 @@ setOnColumnDrop((_column) => {
   emitUpdate()
 })
 
+// Generate a temporary statement ID for qualifier management
+const tempStatementId = ref(crypto.randomUUID())
+
+// Local qualifiers state
+const localQualifiers = ref<QualifierSchemaMapping[]>(props.modelValue?.qualifiers || [])
+
 // Methods
 const emitUpdate = () => {
-  emit('update:modelValue', { ...localStatement.value })
+  emit('update:modelValue', {
+    ...localStatement.value,
+    qualifiers: localQualifiers.value,
+  })
 }
 
 const handleSave = () => {
@@ -141,6 +153,30 @@ const handleClearColumn = () => {
   }
 }
 
+// Qualifier handling methods
+const handleAddQualifier = (statementId: string, qualifier: QualifierSchemaMapping) => {
+  localQualifiers.value.push(qualifier)
+  emitUpdate()
+}
+
+const handleRemoveQualifier = (statementId: string, qualifierIndex: number) => {
+  if (qualifierIndex >= 0 && qualifierIndex < localQualifiers.value.length) {
+    localQualifiers.value.splice(qualifierIndex, 1)
+    emitUpdate()
+  }
+}
+
+const handleUpdateQualifier = (
+  statementId: string,
+  qualifierIndex: number,
+  qualifier: QualifierSchemaMapping,
+) => {
+  if (qualifierIndex >= 0 && qualifierIndex < localQualifiers.value.length) {
+    localQualifiers.value[qualifierIndex] = qualifier
+    emitUpdate()
+  }
+}
+
 // Watch for external changes
 watch(
   () => props.modelValue,
@@ -155,6 +191,15 @@ watch(
   () => props.availableColumns,
   (newColumns) => {
     setAvailableColumns(newColumns)
+  },
+  { deep: true, immediate: true },
+)
+
+// Watch for qualifiers changes
+watch(
+  () => props.modelValue?.qualifiers,
+  (newQualifiers) => {
+    localQualifiers.value = newQualifiers || []
   },
   { deep: true, immediate: true },
 )
@@ -377,6 +422,19 @@ watch(
       </div>
     </div>
 
+    <!-- Qualifiers Section -->
+    <div class="border-t border-surface-200 pt-6">
+      <QualifiersEditor
+        :statement-id="tempStatementId"
+        :qualifiers="localQualifiers"
+        :available-columns="availableColumns"
+        :disabled="disabled"
+        @add-qualifier="handleAddQualifier"
+        @remove-qualifier="handleRemoveQualifier"
+        @update-qualifier="handleUpdateQualifier"
+      />
+    </div>
+
     <!-- Preview -->
     <div
       v-if="isValidStatement"
@@ -411,6 +469,34 @@ watch(
             :severity="rankOptions.find((r) => r.value === localStatement.rank)?.severity"
             size="small"
           />
+        </div>
+
+        <!-- Qualifiers Preview -->
+        <div
+          v-if="localQualifiers.length > 0"
+          class="ml-8 mt-2 space-y-1"
+        >
+          <div class="text-xs text-surface-500 font-medium">Qualifiers:</div>
+          <div
+            v-for="(qualifier, index) in localQualifiers"
+            :key="`preview-qualifier-${index}`"
+            class="flex items-center gap-2 text-xs text-surface-600"
+          >
+            <i class="pi pi-angle-right text-surface-400" />
+            <span class="font-medium">
+              {{ qualifier.property.label || qualifier.property.id }}:
+            </span>
+            <Tag
+              :value="
+                qualifier.value.type === 'column'
+                  ? qualifier.value.source.columnName
+                  : qualifier.value.source
+              "
+              size="small"
+              severity="secondary"
+            />
+            <span class="text-surface-400">{{ qualifier.value.dataType }}</span>
+          </div>
         </div>
       </div>
     </div>

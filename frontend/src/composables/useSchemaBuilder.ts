@@ -79,14 +79,16 @@ export const useSchemaBuilder = () => {
     property: PropertyReference,
     valueMapping: ValueMapping,
     rank: StatementRank = 'normal',
+    qualifiers: QualifierSchemaMapping[] = [],
+    references: ReferenceSchemaMapping[] = [],
   ): StatementSchemaMapping => {
     return {
       id: crypto.randomUUID(),
       property,
       value: valueMapping,
       rank,
-      qualifiers: [],
-      references: [],
+      qualifiers,
+      references,
     }
   }
 
