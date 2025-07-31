@@ -232,7 +232,7 @@ describe('useStatementEditor', () => {
       handleColumnDrop(dateColumn)
 
       expect(localStatement.value.value.type).toBe('column')
-      expect((localStatement.value.value.source as any).columnName).toBe('birth_date')
+      expect(localStatement.value.value.source).toHaveProperty('columnName', 'birth_date')
       expect(localStatement.value.value.dataType).toBe('time')
     })
   })

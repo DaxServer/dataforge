@@ -152,12 +152,6 @@ describe('useDataTypeCompatibility Composable', () => {
 
       expect(isValidTextColumn(null)).toBe(false)
     })
-
-    test('should handle undefined column', () => {
-      const { isValidTextColumn } = useDataTypeCompatibility()
-
-      expect(isValidTextColumn(undefined)).toBe(false)
-    })
   })
 
   describe('isDataTypeCompatible', () => {

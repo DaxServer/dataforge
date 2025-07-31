@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach } from 'bun:test'
 import { createPinia, setActivePinia } from 'pinia'
 import { useDragDropStore } from '@frontend/stores/drag-drop.store'
-import type { ColumnInfo } from '@frontend/types/wikibase-schema'
+import type { ColumnInfo, WikibaseDataType } from '@frontend/types/wikibase-schema'
 import type { DropTarget } from '@frontend/types/drag-drop'
 
 describe('useDragDropStore', () => {
@@ -299,7 +299,7 @@ describe('useDragDropStore', () => {
 
   describe('Data Type Compatibility', () => {
     it('should handle all supported data types', () => {
-      const testCases = [
+      const testCases: { dataType: string; expectedTargets: WikibaseDataType[] }[] = [
         {
           dataType: 'VARCHAR',
           expectedTargets: ['string', 'url', 'external-id', 'monolingualtext'],
@@ -324,7 +324,7 @@ describe('useDragDropStore', () => {
         const targets: DropTarget[] = expectedTargets.map((type, index) => ({
           type: 'statement',
           path: `item.statements[${index}].value`,
-          acceptedTypes: [type as any],
+          acceptedTypes: [type],
           propertyId: `P${index + 1}`,
         }))
 

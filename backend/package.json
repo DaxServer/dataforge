@@ -11,7 +11,7 @@
     "start": "bun src/index.ts",
     "build": "bun build ./src/index.ts --outdir dist --target bun",
     "lint": "eslint --ext .ts",
-    "typecheck": "bun tsc --noEmit --skipLibCheck"
+    "typecheck": "tsc"
   },
   "dependencies": {
     "@bogeychan/elysia-logger": "^0.1.8",

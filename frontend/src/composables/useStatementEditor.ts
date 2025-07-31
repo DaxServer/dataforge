@@ -202,7 +202,7 @@ export const useStatementEditor = () => {
     // Auto-suggest compatible data type
     const compatibleTypes = getCompatibleWikibaseTypes(_column.dataType)
     const suggestedDataType: WikibaseDataType =
-      compatibleTypes[0] ?? ((localStatement.value.value.dataType || 'string') as WikibaseDataType)
+      compatibleTypes[0] ?? (localStatement.value.value.dataType || 'string')
 
     // Set to column type and map the column
     localStatement.value.value = {

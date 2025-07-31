@@ -2,7 +2,11 @@ import { describe, test, expect, beforeEach } from 'bun:test'
 import { createTestingPinia } from '@pinia/testing'
 import { setActivePinia } from 'pinia'
 import { useSchemaStore } from '@frontend/stores/schema.store'
-import type { PropertyReference, ValueMapping } from '@frontend/types/wikibase-schema'
+import type {
+  PropertyReference,
+  ValueMapping,
+  WikibaseDataType,
+} from '@frontend/types/wikibase-schema'
 
 /**
  * StatementsEditor Component Tests
@@ -32,7 +36,7 @@ const createPropertyWithoutLabel = (): PropertyReference => ({
 const createColumnValueMapping = (
   columnName = 'type_column',
   columnDataType = 'VARCHAR',
-  dataType = 'wikibase-item',
+  dataType: WikibaseDataType = 'wikibase-item',
 ): ValueMapping => ({
   type: 'column',
   source: { columnName, dataType: columnDataType },

@@ -1,11 +1,24 @@
 {
-  "extends": "../tsconfig.base.json",
-  "references": [
-    {
-      "path": "tsconfig.vite.json"
+  "extends": [
+    "../tsconfig.base.json",
+    "@vue/tsconfig/tsconfig.dom.json"
+  ],
+  "exclude": [
+    "vite.config.*",
+    "vitest.config.*"
+  ],
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@frontend": ["./src"],
+      "@frontend/*": ["./src/*"],
+      "@backend": ["../backend/src"],
+      "@backend/*": ["../backend/src/*"],
+      "@backend/tests/*": ["../backend/tests/*"]
     },
-    {
-      "path": "tsconfig.app.json"
-    }
-  ]
+    "lib": [
+      "esnext",
+      "dom"
+    ]
+  }
 }

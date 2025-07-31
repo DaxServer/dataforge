@@ -6,13 +6,12 @@ import type {
   StatementRank,
 } from '@frontend/types/wikibase-schema'
 import { useSchemaStore } from '@frontend/stores/schema.store'
-import { PropertyId } from '@backend/types/wikibase-schema'
 
 const createDefaultStatement = () => ({
   property: null as PropertyReference | null,
   value: {
     type: 'column' as const,
-    source: '',
+    source: { columnName: '', dataType: 'VARCHAR' },
     dataType: 'string' as WikibaseDataType,
   } as ValueMapping,
   rank: 'normal' as StatementRank,
@@ -118,16 +117,23 @@ export const useStatementConfig = () => {
   const saveCurrentStatement = () => {
     if (!canSaveStatement.value || !currentStatement.value.property) return
 
-    // Ensure source is properly typed based on value type
-    const valueMapping: ValueMapping = {
-      ...currentStatement.value.value,
-      source:
-        currentStatement.value.value.type === 'column'
-          ? {
-              columnName: currentStatement.value.value.source as string,
-              dataType: currentStatement.value.value.dataType,
-            }
-          : (currentStatement.value.value.source as string),
+    const type = currentStatement.value.value.type
+    const source = currentStatement.value.value.source
+    const dataType = currentStatement.value.value.dataType
+
+    let valueMapping: ValueMapping
+    if (type === 'column') {
+      valueMapping = {
+        type,
+        source: typeof source === 'string' ? { columnName: source, dataType: 'VARCHAR' } : source,
+        dataType,
+      }
+    } else {
+      valueMapping = {
+        type,
+        source,
+        dataType,
+      } as ValueMapping
     }
 
     schemaStore.addStatement(

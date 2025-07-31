@@ -21,7 +21,7 @@ const mockBuildStatement = mock(
 const mockParseSchema = mock()
 
 // Mock the module at the module level
-mock.module('@frontend/composables/useSchemaBuilder', () => ({
+await mock.module('@frontend/composables/useSchemaBuilder', () => ({
   useSchemaBuilder: () => ({
     buildStatement: mockBuildStatement,
     parseSchema: mockParseSchema,

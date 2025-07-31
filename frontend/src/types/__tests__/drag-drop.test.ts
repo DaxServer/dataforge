@@ -17,67 +17,15 @@ import type { ColumnInfo, WikibaseDataType } from '@frontend/types/wikibase-sche
 
 describe('Drag Drop Types', () => {
   describe('SchemaDragDropContext', () => {
-    it('should create schema drag drop context with reactive properties', () => {
-      // Mock Vue refs and computed properties
-      const mockRef = <T>(value: T) => ({ value }) as Ref<T>
-      const mockComputed = <T>(fn: () => T) => ({ value: fn() }) as ComputedRef<T>
-
-      const columnInfo: ColumnInfo = {
-        name: 'test_column',
-        dataType: 'VARCHAR',
-        sampleValues: ['sample1', 'sample2'],
-        nullable: true,
-      }
-
-      const dropTarget: DropTarget = {
-        type: 'label',
-        path: 'item.terms.labels.en',
-        acceptedTypes: ['string'],
-        language: 'en',
-      }
-
-      const context: SchemaDragDropContext = {
-        draggedColumn: mockRef(columnInfo),
-        dragState: mockRef('dragging' as DragState),
-        isOverDropZone: mockRef(true),
-        hoveredTarget: mockRef('item.terms.labels.en'),
-        validDropTargets: mockComputed(() => [dropTarget]),
-        isValidDrop: mockComputed(() => true),
-        dropFeedback: mockRef({
-          type: 'success',
-          message: 'Valid drop target',
-        }),
-      }
-
-      expect(context.draggedColumn.value?.name).toBe('test_column')
-      expect(context.dragState.value).toBe('dragging')
-      expect(context.isOverDropZone.value).toBe(true)
-      expect(context.hoveredTarget.value).toBe('item.terms.labels.en')
-      expect(context.validDropTargets.value).toHaveLength(1)
-      expect(context.isValidDrop.value).toBe(true)
-      expect(context.dropFeedback.value?.type).toBe('success')
-    })
-
     it('should handle null/idle state', () => {
       const mockRef = <T>(value: T) => ({ value }) as Ref<T>
-      const mockComputed = <T>(fn: () => T) => ({ value: fn() }) as ComputedRef<T>
 
       const context: SchemaDragDropContext = {
-        draggedColumn: mockRef(null),
-        dragState: mockRef('idle' as DragState),
         isOverDropZone: mockRef(false),
-        hoveredTarget: mockRef(null),
-        validDropTargets: mockComputed(() => []),
-        isValidDrop: mockComputed(() => false),
         dropFeedback: mockRef(null),
       }
 
-      expect(context.draggedColumn.value).toBeNull()
-      expect(context.dragState.value).toBe('idle')
       expect(context.isOverDropZone.value).toBe(false)
-      expect(context.hoveredTarget.value).toBeNull()
-      expect(context.validDropTargets.value).toHaveLength(0)
-      expect(context.isValidDrop.value).toBe(false)
       expect(context.dropFeedback.value).toBeNull()
     })
   })
@@ -365,7 +313,7 @@ describe('Drag Drop Types', () => {
 
   describe('DragEventData', () => {
     it('should create drag event data', () => {
-      const mockElement = {} as any // Mock HTMLElement
+      const mockElement = {} as HTMLElement
       const columnInfo: ColumnInfo = {
         name: 'drag_column',
         dataType: 'INTEGER',

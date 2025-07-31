@@ -24,7 +24,7 @@ export const useProjectStore = defineStore('project', () => {
     const { data: rows, error } = await api.project({ projectId }).get({ query: { offset, limit } })
 
     if (error) {
-      showError(error.value as any)
+      showError(error.value)
       isLoading.value = false
       return
     }

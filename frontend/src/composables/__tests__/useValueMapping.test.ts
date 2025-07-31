@@ -196,7 +196,7 @@ describe('useValueMapping', () => {
         dataType: 'string',
       }
 
-      const suggestedType = autoSuggestDataType(stringProperty, testColumns[0]!)
+      const suggestedType = autoSuggestDataType(stringProperty, testColumns[0])
       expect(suggestedType).toBe('string')
 
       // Incompatible property and column
@@ -206,7 +206,7 @@ describe('useValueMapping', () => {
         dataType: 'quantity',
       }
 
-      const fallbackType = autoSuggestDataType(quantityProperty, testColumns[0]!)
+      const fallbackType = autoSuggestDataType(quantityProperty, testColumns[0])
       expect(fallbackType).toBe('string') // Falls back to first compatible
     })
 

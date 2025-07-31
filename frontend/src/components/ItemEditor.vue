@@ -1,7 +1,4 @@
 <script setup lang="ts">
-import type { ItemId } from '@backend/types/wikibase-schema'
-import type { ColumnMapping } from '@frontend/types/wikibase-schema'
-
 interface ItemEditorEmits {
   'edit-item': []
   'delete-item': []
@@ -12,9 +9,6 @@ const emit = defineEmits<ItemEditorEmits>()
 
 // Store instances
 const schemaStore = useSchemaStore()
-
-// Composables
-const { showError } = useErrorHandling()
 
 // Internal state
 const internalItemId = ref<string>('')
@@ -28,10 +22,6 @@ const hasItem = computed(() => {
     Object.keys(schemaStore.descriptions).length > 0 ||
     schemaStore.statements.length > 0
   )
-})
-
-const displayItemId = computed(() => {
-  return schemaStore.itemId || internalItemId.value
 })
 
 const itemHeaderText = computed(() => {
@@ -69,18 +59,6 @@ const statementsDisplayText = computed(() => {
   return schemaStore.statements.length === 0
     ? 'No statements configured'
     : `${schemaStore.statements.length} statements`
-})
-
-const shouldShowTermsSection = computed(() => {
-  return (
-    Object.keys(schemaStore.labels).length > 0 ||
-    Object.keys(schemaStore.descriptions).length > 0 ||
-    Object.keys(schemaStore.aliases).length > 0
-  )
-})
-
-const shouldShowStatementsSection = computed(() => {
-  return schemaStore.statements.length > 0
 })
 
 // Watchers
