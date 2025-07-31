@@ -93,8 +93,10 @@ export const useSchemaStore = defineStore('schema', () => {
     property: PropertyReference,
     valueMapping: ValueMapping,
     rank: StatementRank = 'normal',
+    qualifiers: QualifierSchemaMapping[] = [],
+    references: ReferenceSchemaMapping[] = [],
   ): string => {
-    const statement = buildStatement(property, valueMapping, rank)
+    const statement = buildStatement(property, valueMapping, rank, qualifiers, references)
     statements.value.push(statement)
     markDirty()
 
@@ -115,6 +117,33 @@ export const useSchemaStore = defineStore('schema', () => {
 
     if (statement) {
       statement.rank = rank
+      markDirty()
+    }
+  }
+
+  const updateStatementQualifiers = (statementId: string, qualifiers: QualifierSchemaMapping[]) => {
+    const statement = statements.value.find((s) => s.id === statementId)
+
+    if (statement) {
+      statement.qualifiers = qualifiers
+      markDirty()
+    }
+  }
+
+  const addQualifierToStatement = (statementId: string, qualifier: QualifierSchemaMapping) => {
+    const statement = statements.value.find((s) => s.id === statementId)
+
+    if (statement) {
+      statement.qualifiers.push(qualifier)
+      markDirty()
+    }
+  }
+
+  const removeQualifierFromStatement = (statementId: string, qualifierIndex: number) => {
+    const statement = statements.value.find((s) => s.id === statementId)
+
+    if (statement && qualifierIndex >= 0 && qualifierIndex < statement.qualifiers.length) {
+      statement.qualifiers.splice(qualifierIndex, 1)
       markDirty()
     }
   }
@@ -181,6 +210,9 @@ export const useSchemaStore = defineStore('schema', () => {
     addStatement,
     removeStatement,
     updateStatementRank,
+    updateStatementQualifiers,
+    addQualifierToStatement,
+    removeQualifierFromStatement,
     markAsSaved,
     $reset,
     setLoading,

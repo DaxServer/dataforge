@@ -31,6 +31,7 @@ declare module 'vue' {
     ProgressSpinner: typeof import('primevue/progressspinner')['default']
     ProjectView: typeof import('./src/views/ProjectView.vue')['default']
     PropertySelector: typeof import('./src/components/PropertySelector.vue')['default']
+    QualifiersEditor: typeof import('./src/components/QualifiersEditor.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     SchemaDropZone: typeof import('./src/components/SchemaDropZone.vue')['default']

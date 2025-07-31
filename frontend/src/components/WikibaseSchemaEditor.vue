@@ -43,6 +43,14 @@ const isConfiguringItem = ref(false)
 const isAddingStatement = ref(false)
 const editingStatementId = ref<string | null>(null)
 
+// Local statement state with qualifiers
+const currentStatementWithQualifiers = ref<{
+  property: PropertyReference | null
+  value: ValueMapping
+  rank: StatementRank
+  qualifiers?: QualifierSchemaMapping[]
+} | null>(null)
+
 // Computed properties
 const schemaTitle = computed(() => {
   return schemaStore.schemaName || 'Wikibase Schema'
@@ -227,9 +235,24 @@ const handleReorderStatements = (fromIndex: number, toIndex: number) => {
 }
 
 // Statement editor event handlers
+const handleStatementUpdate = (statement: {
+  property: PropertyReference | null
+  value: ValueMapping
+  rank: StatementRank
+  qualifiers?: QualifierSchemaMapping[]
+}) => {
+  currentStatementWithQualifiers.value = statement
+  // Also update the composable state for backward compatibility
+  initializeStatement({
+    property: statement.property,
+    value: statement.value,
+    rank: statement.rank,
+  })
+}
+
 const handleStatementSave = () => {
-  const currentStatement = getStatement()
-  if (!currentStatement.property) return
+  const currentStatement = currentStatementWithQualifiers.value
+  if (!currentStatement?.property) return
 
   if (editingStatementId.value) {
     // Update existing statement
@@ -242,6 +265,7 @@ const handleStatementSave = () => {
         property: currentStatement.property,
         value: currentStatement.value,
         rank: currentStatement.rank,
+        qualifiers: currentStatement.qualifiers || [],
       }
     }
   } else {
@@ -250,6 +274,7 @@ const handleStatementSave = () => {
       currentStatement.property,
       currentStatement.value,
       currentStatement.rank,
+      currentStatement.qualifiers || [],
     )
   }
 
@@ -260,6 +285,7 @@ const handleStatementSave = () => {
 const handleCancelStatementEdit = () => {
   isAddingStatement.value = false
   editingStatementId.value = null
+  currentStatementWithQualifiers.value = null
   resetStatement()
 }
 
@@ -415,7 +441,7 @@ onUnmounted(() => {
                 <StatementEditor
                   :model-value="localStatement"
                   :available-columns="availableColumns"
-                  @update:model-value="initializeStatement"
+                  @update:model-value="handleStatementUpdate"
                   @save="handleStatementSave"
                   @cancel="handleCancelStatementEdit"
                 />
