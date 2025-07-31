@@ -28,9 +28,6 @@ const emit = defineEmits<{
   allCleared: []
 }>()
 
-// Use the validation store for state management
-const validationStore = useValidationStore()
-
 // Use the composable for utility functions
 const { formatErrorMessage } = useValidationErrors()
 
@@ -41,10 +38,10 @@ const {
   hasErrors,
   hasWarnings,
   hasAnyIssues,
-  clearAll: clearAllErrors,
   clearError,
   clearErrorsForPath,
-} = validationStore
+  $reset,
+} = useValidationStore()
 
 // Filter errors based on path filter
 const errors = computed(() => {
@@ -88,7 +85,7 @@ const clearAll = () => {
   if (props.pathFilter) {
     clearErrorsForPath(props.pathFilter)
   } else {
-    clearAllErrors()
+    $reset()
   }
   emit('allCleared')
 }

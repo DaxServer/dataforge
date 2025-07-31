@@ -254,12 +254,16 @@ const handleStatementSave = () => {
       (s) => s.id === editingStatementId.value,
     )
     if (statementIndex !== -1) {
-      schemaStore.statements[statementIndex] = {
-        ...schemaStore.statements[statementIndex],
-        property: currentStatement.property,
-        value: currentStatement.value,
-        rank: currentStatement.rank,
-        qualifiers: currentStatement.qualifiers || [],
+      const existingStatement = schemaStore.statements[statementIndex]
+      if (existingStatement) {
+        schemaStore.statements[statementIndex] = {
+          id: existingStatement.id,
+          property: currentStatement.property,
+          value: currentStatement.value,
+          rank: currentStatement.rank,
+          qualifiers: currentStatement.qualifiers || [],
+          references: existingStatement.references,
+        }
       }
     }
   } else {
