@@ -105,7 +105,7 @@
   - Implement value mapping functionality for statements
   - _Requirements: 4.3, 4.4_
 
-- [ ] 18. Add data type validation for statements
+- [x] 18. Add data type validation for statements
   - Write tests for data type compatibility checking
   - Write tests for validation error display
   - Implement data type validation for statement values

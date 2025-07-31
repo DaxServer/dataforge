@@ -15,17 +15,21 @@ export const useStatementEditor = () => {
   const { isDataTypeCompatible, getCompatibleWikibaseTypes } = useDataTypeCompatibility()
 
   // Default statement structure
-  const createDefaultStatement = () => ({
-    property: null as PropertyReference | null,
+  const createDefaultStatement = (): {
+    property: PropertyReference | null
+    value: ValueMapping
+    rank: StatementRank
+  } => ({
+    property: null,
     value: {
-      type: 'column' as const,
+      type: 'column',
       source: {
         columnName: '',
         dataType: 'VARCHAR',
       },
-      dataType: 'string' as WikibaseDataType,
-    },
-    rank: 'normal' as StatementRank,
+      dataType: 'string',
+    } as ValueMapping,
+    rank: 'normal',
   })
 
   // Local statement state
@@ -101,19 +105,17 @@ export const useStatementEditor = () => {
   const sourceValue = computed({
     get: () => {
       if (localStatement.value.value.type === 'column') {
-        const source = localStatement.value.value.source
-        return typeof source === 'object' ? source.columnName || '' : ''
+        return localStatement.value.value.source.columnName || ''
       }
-      return typeof localStatement.value.value.source === 'string'
-        ? localStatement.value.value.source
-        : ''
+      return localStatement.value.value.source || ''
     },
     set: (value: string) => {
       if (localStatement.value.value.type !== 'column') {
         // Create a new value mapping with the correct type
         localStatement.value.value = {
-          ...localStatement.value.value,
+          type: localStatement.value.value.type,
           source: value,
+          dataType: localStatement.value.value.dataType,
         }
       }
     },
@@ -124,12 +126,10 @@ export const useStatementEditor = () => {
     const hasProperty = !!localStatement.value.property?.id
     let hasSource = false
 
-    if (isColumnType.value) {
-      const source = localStatement.value.value.source
-      hasSource = typeof source === 'object' && !!source.columnName
+    if (localStatement.value.value.type === 'column') {
+      hasSource = !!localStatement.value.value.source.columnName
     } else {
-      const source = localStatement.value.value.source
-      hasSource = typeof source === 'string' && !!source.trim()
+      hasSource = !!localStatement.value.value.source.trim()
     }
 
     return hasProperty && hasSource
@@ -137,20 +137,20 @@ export const useStatementEditor = () => {
 
   // Data type compatibility
   const compatibleDataTypes = computed(() => {
-    if (!isColumnType.value) return wikibaseDataTypes
+    if (localStatement.value.value.type !== 'column') return wikibaseDataTypes
 
     const source = localStatement.value.value.source
-    if (typeof source !== 'object' || !source.dataType) return wikibaseDataTypes
+    if (!source.dataType) return wikibaseDataTypes
 
     const compatible = getCompatibleWikibaseTypes(source.dataType)
     return wikibaseDataTypes.filter((type) => compatible.includes(type.value))
   })
 
   const dataTypeValidationMessage = computed(() => {
-    if (!isColumnType.value) return null
+    if (localStatement.value.value.type !== 'column') return null
 
     const source = localStatement.value.value.source
-    if (typeof source !== 'object' || !source.dataType) return null
+    if (!source.dataType) return null
 
     const isCompatible = isDataTypeCompatible(source.dataType, [
       localStatement.value.value.dataType,
@@ -186,7 +186,7 @@ export const useStatementEditor = () => {
         type: newType,
         source: '',
         dataType: currentDataType,
-      } as ValueMapping
+      }
     }
   }
 
@@ -199,6 +199,11 @@ export const useStatementEditor = () => {
   }
 
   const handleColumnDrop = (_column: ColumnInfo) => {
+    // Auto-suggest compatible data type
+    const compatibleTypes = getCompatibleWikibaseTypes(_column.dataType)
+    const suggestedDataType: WikibaseDataType =
+      compatibleTypes[0] ?? ((localStatement.value.value.dataType || 'string') as WikibaseDataType)
+
     // Set to column type and map the column
     localStatement.value.value = {
       type: 'column',
@@ -206,13 +211,7 @@ export const useStatementEditor = () => {
         columnName: _column.name,
         dataType: _column.dataType,
       },
-      dataType: localStatement.value.value.dataType,
-    }
-
-    // Auto-suggest compatible data type
-    const compatibleTypes = getCompatibleWikibaseTypes(_column.dataType)
-    if (compatibleTypes.length > 0) {
-      localStatement.value.value.dataType = compatibleTypes[0]
+      dataType: suggestedDataType,
     }
   }
 
