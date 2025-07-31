@@ -228,12 +228,11 @@ export const wikibaseRoutes = new Elysia({ prefix: '/api/project/:projectId/sche
     async ({ db, params: { schemaId }, status }) => {
       await db().run('DELETE FROM _meta_wikibase_schema WHERE id = ?', [schemaId])
 
-      // @ts-expect-error
-      return status(204, new Response(null))
+      return status(204, undefined)
     },
     {
       response: {
-        204: t.Null(),
+        204: t.Void(),
         404: ApiError,
         500: ApiError,
       },
