@@ -22,15 +22,26 @@ const emit = defineEmits<WikibaseSchemaEditorEmits>()
 const schemaStore = useSchemaStore()
 const dragDropStore = useDragDropStore()
 const validationStore = useValidationStore()
+const projectStore = useProjectStore()
 
 // Composables
 const { loadSchema, createSchema, updateSchema } = useSchemaApi()
 const { showError, showSuccess } = useErrorHandling()
+const { convertProjectColumnsToColumnInfo } = useColumnConversion()
+const {
+  localStatement,
+  isValidStatement,
+  setAvailableColumns,
+  initializeStatement,
+  resetStatement,
+  getStatement,
+} = useStatementEditor()
 
 // Reactive state
 const isInitialized = ref(false)
 const isConfiguringItem = ref(false)
 const isAddingStatement = ref(false)
+const editingStatementId = ref<string | null>(null)
 
 // Computed properties
 const schemaTitle = computed(() => {
@@ -50,6 +61,19 @@ const hasItem = computed(() => {
 
 const canSave = computed(() => {
   return schemaStore.isDirty && !schemaStore.isLoading
+})
+
+// Available columns for statement editor
+const availableColumns = computed(() => {
+  const columns = convertProjectColumnsToColumnInfo(projectStore.columns, projectStore.data)
+  // Update the composable with available columns
+  setAvailableColumns(columns)
+  return columns
+})
+
+// Check if we're in statement editing mode
+const isEditingStatement = computed(() => {
+  return isAddingStatement.value || editingStatementId.value !== null
 })
 
 // Lifecycle
@@ -173,12 +197,24 @@ const handleHelp = () => {
 }
 
 const handleAddStatement = () => {
+  // Reset statement editor to default state
+  resetStatement()
+  editingStatementId.value = null
   isAddingStatement.value = true
 }
 
 const handleEditStatement = (statementId: string) => {
-  // TODO: Implement edit statement logic
-  console.log('Edit statement:', statementId)
+  const statement = schemaStore.statements.find((s) => s.id === statementId)
+  if (statement) {
+    // Load existing statement data for editing
+    initializeStatement({
+      property: statement.property,
+      value: { ...statement.value },
+      rank: statement.rank,
+    })
+    editingStatementId.value = statementId
+    isAddingStatement.value = false
+  }
 }
 
 const handleRemoveStatement = (statementId: string) => {
@@ -186,16 +222,45 @@ const handleRemoveStatement = (statementId: string) => {
 }
 
 const handleReorderStatements = (fromIndex: number, toIndex: number) => {
-  // TODO: Implement reorder logic
+  // TODO: Implement reorder logic in schema store
   console.log('Reorder statements from', fromIndex, 'to', toIndex)
 }
 
-const handleStatementAdded = () => {
-  isAddingStatement.value = false
+// Statement editor event handlers
+const handleStatementSave = () => {
+  const currentStatement = getStatement()
+  if (!currentStatement.property) return
+
+  if (editingStatementId.value) {
+    // Update existing statement
+    const statementIndex = schemaStore.statements.findIndex(
+      (s) => s.id === editingStatementId.value,
+    )
+    if (statementIndex !== -1) {
+      schemaStore.statements[statementIndex] = {
+        ...schemaStore.statements[statementIndex],
+        property: currentStatement.property,
+        value: currentStatement.value,
+        rank: currentStatement.rank,
+      }
+    }
+  } else {
+    // Add new statement
+    schemaStore.addStatement(
+      currentStatement.property,
+      currentStatement.value,
+      currentStatement.rank,
+    )
+  }
+
+  // Close statement editor
+  handleCancelStatementEdit()
 }
 
-const handleCancelAddStatement = () => {
+const handleCancelStatementEdit = () => {
   isAddingStatement.value = false
+  editingStatementId.value = null
+  resetStatement()
 }
 
 // Cleanup
@@ -342,12 +407,18 @@ onUnmounted(() => {
                 @reorder-statements="handleReorderStatements"
               />
 
-              <!-- Statement Configuration (only visible when adding/editing) -->
+              <!-- Statement Editor (only visible when adding/editing) -->
               <div
-                v-if="isAddingStatement"
+                v-if="isEditingStatement"
                 class="mt-6"
               >
-                <StatementConfigEditor />
+                <StatementEditor
+                  :model-value="localStatement"
+                  :available-columns="availableColumns"
+                  @update:model-value="initializeStatement"
+                  @save="handleStatementSave"
+                  @cancel="handleCancelStatementEdit"
+                />
               </div>
             </div>
           </div>

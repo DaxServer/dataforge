@@ -99,7 +99,7 @@
   - Implement property selection interface
   - _Requirements: 4.2, 8.4_
 
-- [ ] 17. Create StatementEditor value mapping
+- [x] 17. Create StatementEditor value mapping
   - Write tests for value mapping configuration
   - Write tests for different value types support
   - Implement value mapping functionality for statements

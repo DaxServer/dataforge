@@ -12,8 +12,17 @@ describe('useSchemaDropZone Composable', () => {
 
   describe('initialization', () => {
     test('should initialize with default state', () => {
-      const { isOverDropZone, isValidDropState, isInvalidDropState, dropZoneClasses } =
-        useSchemaDropZone('label', 'en')
+      const {
+        isOverDropZone,
+        isValidDropState,
+        isInvalidDropState,
+        dropZoneClasses,
+        setTermType,
+        setLanguageCode,
+      } = useSchemaDropZone()
+
+      setTermType('label')
+      setLanguageCode('en')
 
       expect(isOverDropZone.value).toBe(false)
       expect(isValidDropState.value).toBe(false)
@@ -27,7 +36,10 @@ describe('useSchemaDropZone Composable', () => {
   describe('drag state reactivity', () => {
     test('should update isValidDropState when valid column is dragged', () => {
       const dragDropStore = useDragDropStore()
-      const { isValidDropState } = useSchemaDropZone('label', 'en')
+      const { isValidDropState, setTermType, setLanguageCode } = useSchemaDropZone()
+
+      setTermType('label')
+      setLanguageCode('en')
 
       expect(isValidDropState.value).toBe(false)
 
@@ -45,7 +57,10 @@ describe('useSchemaDropZone Composable', () => {
 
     test('should update isInvalidDropState when invalid column is dragged', () => {
       const dragDropStore = useDragDropStore()
-      const { isInvalidDropState } = useSchemaDropZone('label', 'en')
+      const { isInvalidDropState, setTermType, setLanguageCode } = useSchemaDropZone()
+
+      setTermType('label')
+      setLanguageCode('en')
 
       expect(isInvalidDropState.value).toBe(false)
 
@@ -63,10 +78,16 @@ describe('useSchemaDropZone Composable', () => {
 
     test('should treat duplicate alias as invalid drop', () => {
       const dragDropStore = useDragDropStore()
-      const { isValidDropState, isInvalidDropState, addColumnMapping } = useSchemaDropZone(
-        'alias',
-        'en',
-      )
+      const {
+        isValidDropState,
+        isInvalidDropState,
+        addColumnMapping,
+        setTermType,
+        setLanguageCode,
+      } = useSchemaDropZone()
+
+      setTermType('alias')
+      setLanguageCode('en')
 
       const columnData: ColumnInfo = {
         name: 'alias_column',
@@ -87,7 +108,10 @@ describe('useSchemaDropZone Composable', () => {
 
     test('should update dropZoneClasses based on drag state', () => {
       const dragDropStore = useDragDropStore()
-      const { dropZoneClasses } = useSchemaDropZone('label', 'en')
+      const { dropZoneClasses, setTermType, setLanguageCode } = useSchemaDropZone()
+
+      setTermType('label')
+      setLanguageCode('en')
 
       const validColumn: ColumnInfo = {
         name: 'title',
@@ -118,7 +142,10 @@ describe('useSchemaDropZone Composable', () => {
   describe('drag event handlers', () => {
     test('should handle drag over event with valid column', () => {
       const dragDropStore = useDragDropStore()
-      const { handleDragOver } = useSchemaDropZone('label', 'en')
+      const { handleDragOver, setTermType, setLanguageCode } = useSchemaDropZone()
+
+      setTermType('label')
+      setLanguageCode('en')
 
       // Set up a valid text column
       const validColumn: ColumnInfo = {
@@ -143,7 +170,10 @@ describe('useSchemaDropZone Composable', () => {
 
     test('should handle drag over event with invalid column', () => {
       const dragDropStore = useDragDropStore()
-      const { handleDragOver } = useSchemaDropZone('label', 'en')
+      const { handleDragOver, setTermType, setLanguageCode } = useSchemaDropZone()
+
+      setTermType('label')
+      setLanguageCode('en')
 
       // Set up an invalid column (non-text type)
       const invalidColumn: ColumnInfo = {
@@ -167,7 +197,10 @@ describe('useSchemaDropZone Composable', () => {
     })
 
     test('should handle drag over event with no dragged column', () => {
-      const { handleDragOver } = useSchemaDropZone('label', 'en')
+      const { handleDragOver, setTermType, setLanguageCode } = useSchemaDropZone()
+
+      setTermType('label')
+      setLanguageCode('en')
 
       const mockEvent = {
         preventDefault: () => {},
@@ -182,7 +215,10 @@ describe('useSchemaDropZone Composable', () => {
 
     test('should show none cursor for duplicate alias column', () => {
       const dragDropStore = useDragDropStore()
-      const { handleDragOver, addColumnMapping } = useSchemaDropZone('alias', 'en')
+      const { handleDragOver, addColumnMapping, setTermType, setLanguageCode } = useSchemaDropZone()
+
+      setTermType('alias')
+      setLanguageCode('en')
 
       const columnData: ColumnInfo = {
         name: 'alias_column',
@@ -211,7 +247,10 @@ describe('useSchemaDropZone Composable', () => {
     })
 
     test('should handle drag enter event', () => {
-      const { handleDragEnter, isOverDropZone } = useSchemaDropZone('label', 'en')
+      const { handleDragEnter, isOverDropZone, setTermType, setLanguageCode } = useSchemaDropZone()
+
+      setTermType('label')
+      setLanguageCode('en')
 
       expect(isOverDropZone.value).toBe(false)
 
@@ -221,7 +260,10 @@ describe('useSchemaDropZone Composable', () => {
     })
 
     test('should handle drag leave event', () => {
-      const { handleDragLeave, isOverDropZone } = useSchemaDropZone('label', 'en')
+      const { handleDragLeave, isOverDropZone, setTermType, setLanguageCode } = useSchemaDropZone()
+
+      setTermType('label')
+      setLanguageCode('en')
 
       isOverDropZone.value = true
 
@@ -232,7 +274,10 @@ describe('useSchemaDropZone Composable', () => {
 
     test('should handle drop event with valid column data', () => {
       const schemaStore = useSchemaStore()
-      const { handleDrop, isOverDropZone } = useSchemaDropZone('label', 'en')
+      const { handleDrop, isOverDropZone, setTermType, setLanguageCode } = useSchemaDropZone()
+
+      setTermType('label')
+      setLanguageCode('en')
 
       isOverDropZone.value = true
 
@@ -265,7 +310,10 @@ describe('useSchemaDropZone Composable', () => {
 
     test('should handle drop event with invalid column data', () => {
       const schemaStore = useSchemaStore()
-      const { handleDrop } = useSchemaDropZone('label', 'en')
+      const { handleDrop, setTermType, setLanguageCode } = useSchemaDropZone()
+
+      setTermType('label')
+      setLanguageCode('en')
 
       const columnData = {
         name: 'count',
@@ -295,7 +343,10 @@ describe('useSchemaDropZone Composable', () => {
   describe('term type specific behavior', () => {
     test('should add label mapping for label term type', () => {
       const schemaStore = useSchemaStore()
-      const { addColumnMapping } = useSchemaDropZone('label', 'en')
+      const { addColumnMapping, setTermType, setLanguageCode } = useSchemaDropZone()
+
+      setTermType('label')
+      setLanguageCode('en')
 
       const columnData: ColumnInfo = {
         name: 'title',
@@ -313,7 +364,10 @@ describe('useSchemaDropZone Composable', () => {
 
     test('should add description mapping for description term type', () => {
       const schemaStore = useSchemaStore()
-      const { addColumnMapping } = useSchemaDropZone('description', 'en')
+      const { addColumnMapping, setTermType, setLanguageCode } = useSchemaDropZone()
+
+      setTermType('description')
+      setLanguageCode('en')
 
       const columnData: ColumnInfo = {
         name: 'description',
@@ -331,7 +385,10 @@ describe('useSchemaDropZone Composable', () => {
 
     test('should add alias mapping for alias term type', () => {
       const schemaStore = useSchemaStore()
-      const { addColumnMapping } = useSchemaDropZone('alias', 'en')
+      const { addColumnMapping, setTermType, setLanguageCode } = useSchemaDropZone()
+
+      setTermType('alias')
+      setLanguageCode('en')
 
       const columnData: ColumnInfo = {
         name: 'alias',
@@ -350,7 +407,10 @@ describe('useSchemaDropZone Composable', () => {
 
     test('should prevent duplicate alias mappings for the same language', () => {
       const schemaStore = useSchemaStore()
-      const { addColumnMapping } = useSchemaDropZone('alias', 'en')
+      const { addColumnMapping, setTermType, setLanguageCode } = useSchemaDropZone()
+
+      setTermType('alias')
+      setLanguageCode('en')
 
       const columnData: ColumnInfo = {
         name: 'alias_column',
@@ -371,8 +431,13 @@ describe('useSchemaDropZone Composable', () => {
 
     test('should allow same column for different languages in aliases', () => {
       const schemaStore = useSchemaStore()
-      const enAliasZone = useSchemaDropZone('alias', 'en')
-      const frAliasZone = useSchemaDropZone('alias', 'fr')
+      const enAliasZone = useSchemaDropZone()
+      const frAliasZone = useSchemaDropZone()
+
+      enAliasZone.setTermType('alias')
+      enAliasZone.setLanguageCode('en')
+      frAliasZone.setTermType('alias')
+      frAliasZone.setLanguageCode('fr')
 
       const columnData: ColumnInfo = {
         name: 'alias_column',
@@ -395,7 +460,10 @@ describe('useSchemaDropZone Composable', () => {
 
   describe('hover state management', () => {
     test('should update dropZoneClasses when hovering over drop zone', () => {
-      const { dropZoneClasses, isOverDropZone } = useSchemaDropZone('label', 'en')
+      const { dropZoneClasses, isOverDropZone, setTermType, setLanguageCode } = useSchemaDropZone()
+
+      setTermType('label')
+      setLanguageCode('en')
 
       expect(dropZoneClasses.value['border-primary-400 bg-primary-50']).toBe(false)
 
@@ -406,7 +474,10 @@ describe('useSchemaDropZone Composable', () => {
 
     test('should combine hover and drag states in dropZoneClasses', () => {
       const dragDropStore = useDragDropStore()
-      const { dropZoneClasses, isOverDropZone } = useSchemaDropZone('label', 'en')
+      const { dropZoneClasses, isOverDropZone, setTermType, setLanguageCode } = useSchemaDropZone()
+
+      setTermType('label')
+      setLanguageCode('en')
 
       const validColumn: ColumnInfo = {
         name: 'title',

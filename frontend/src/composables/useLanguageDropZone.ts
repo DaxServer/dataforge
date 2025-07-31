@@ -6,9 +6,12 @@ import { useTermsEditor } from '@frontend/composables/useTermsEditor'
 /**
  * Composable for handling language drop zone functionality
  */
-export const useLanguageDropZone = (termType: 'label' | 'description' | 'alias') => {
+export const useLanguageDropZone = () => {
   const schemaStore = useSchemaStore()
   const { getAcceptedLanguages } = useTermsEditor()
+
+  // Configuration state
+  const termType = ref<'label' | 'description' | 'alias'>('label')
 
   // Reactive state
   const selectedLanguage = ref('en')
@@ -17,9 +20,9 @@ export const useLanguageDropZone = (termType: 'label' | 'description' | 'alias')
   // Check if there are any existing mappings using computed
   const hasExistingMappings = computed(() => {
     const storeProperty =
-      termType === 'label'
+      termType.value === 'label'
         ? schemaStore.labels
-        : termType === 'description'
+        : termType.value === 'description'
           ? schemaStore.descriptions
           : schemaStore.aliases
 
@@ -35,9 +38,9 @@ export const useLanguageDropZone = (termType: 'label' | 'description' | 'alias')
   // Transform mappings into display format using computed
   const mappingDisplayData = computed(() => {
     const storeProperty =
-      termType === 'label'
+      termType.value === 'label'
         ? schemaStore.labels
-        : termType === 'description'
+        : termType.value === 'description'
           ? schemaStore.descriptions
           : schemaStore.aliases
 
@@ -51,7 +54,7 @@ export const useLanguageDropZone = (termType: 'label' | 'description' | 'alias')
     for (const languageCode in storeProperty) {
       const mapping = storeProperty[languageCode]
       if (mapping) {
-        if (termType === 'alias') {
+        if (termType.value === 'alias') {
           items.push({
             languageCode,
             mappings: mapping as ColumnMapping[],
@@ -72,16 +75,24 @@ export const useLanguageDropZone = (termType: 'label' | 'description' | 'alias')
 
   // Remove mapping actions - direct store calls
   const removeMapping = (languageCode: string, mapping?: ColumnMapping) => {
-    if (termType === 'label') {
+    if (termType.value === 'label') {
       schemaStore.removeLabelMapping(languageCode)
-    } else if (termType === 'description') {
+    } else if (termType.value === 'description') {
       schemaStore.removeDescriptionMapping(languageCode)
-    } else if (termType === 'alias' && mapping) {
+    } else if (termType.value === 'alias' && mapping) {
       schemaStore.removeAliasMapping(languageCode, mapping)
     }
   }
 
+  // Configuration methods
+  const setTermType = (newTermType: 'label' | 'description' | 'alias') => {
+    termType.value = newTermType
+  }
+
   return {
+    // Configuration state
+    termType,
+
     // Reactive state
     selectedLanguage,
     acceptedLanguages,
@@ -90,5 +101,8 @@ export const useLanguageDropZone = (termType: 'label' | 'description' | 'alias')
 
     // Actions
     removeMapping,
+
+    // Configuration methods
+    setTermType,
   }
 }

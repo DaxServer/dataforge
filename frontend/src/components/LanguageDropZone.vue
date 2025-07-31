@@ -9,12 +9,25 @@ interface LanguageDropZoneProps {
 const props = defineProps<LanguageDropZoneProps>()
 
 const {
+  termType,
   selectedLanguage,
   acceptedLanguages,
   hasExistingMappings,
   mappingDisplayData,
   removeMapping,
-} = useLanguageDropZone(props.termType)
+  setTermType,
+} = useLanguageDropZone()
+
+// Set the term type from props
+setTermType(props.termType)
+
+// Watch for prop changes
+watch(
+  () => props.termType,
+  (newTermType) => {
+    setTermType(newTermType)
+  },
+)
 </script>
 
 <template>

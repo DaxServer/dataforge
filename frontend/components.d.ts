@@ -10,6 +10,7 @@ declare module 'vue' {
   export interface GlobalComponents {
     AutoComplete: typeof import('primevue/autocomplete')['default']
     Button: typeof import('primevue/button')['default']
+    Card: typeof import('primevue/card')['default']
     Chip: typeof import('primevue/chip')['default']
     Column: typeof import('primevue/column')['default']
     ColumnPalette: typeof import('./src/components/ColumnPalette.vue')['default']
@@ -19,6 +20,7 @@ declare module 'vue' {
     DataTable: typeof import('primevue/datatable')['default']
     DataTabPanel: typeof import('./src/components/DataTabPanel.vue')['default']
     DefaultLayout: typeof import('./src/layouts/DefaultLayout.vue')['default']
+    FileUpload: typeof import('primevue/fileupload')['default']
     Header: typeof import('./src/components/Header.vue')['default']
     InputText: typeof import('primevue/inputtext')['default']
     ItemEditor: typeof import('./src/components/ItemEditor.vue')['default']
@@ -36,6 +38,7 @@ declare module 'vue' {
     Select: typeof import('primevue/select')['default']
     Sidebar: typeof import('./src/components/Sidebar.vue')['default']
     StatementConfigEditor: typeof import('./src/components/StatementConfigEditor.vue')['default']
+    StatementEditor: typeof import('./src/components/StatementEditor.vue')['default']
     StatementsEditor: typeof import('./src/components/StatementsEditor.vue')['default']
     Tab: typeof import('primevue/tab')['default']
     TabList: typeof import('primevue/tablist')['default']
