@@ -121,11 +121,22 @@ export interface PropertyReference {
   dataType: string
 }
 
-export interface ValueMapping {
-  type: 'column' | 'constant' | 'expression'
-  source: ColumnMapping | string
-  dataType: WikibaseDataType
-}
+export type ValueMapping =
+  | {
+      type: 'column'
+      source: ColumnMapping
+      dataType: WikibaseDataType
+    }
+  | {
+      type: 'constant'
+      source: string
+      dataType: WikibaseDataType
+    }
+  | {
+      type: 'expression'
+      source: string
+      dataType: WikibaseDataType
+    }
 
 export interface QualifierSchemaMapping {
   property: PropertyReference

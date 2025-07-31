@@ -72,6 +72,14 @@ const {
   setOnColumnDrop,
 } = useStatementDropZone()
 
+const {
+  getValidationMessage,
+  getValidationClasses,
+  getValidationIcon,
+  isValidationValid,
+  getValidationSeverity,
+} = useStatementValidationDisplay()
+
 // Set up the column drop callback
 setOnColumnDrop((_column) => {
   handleColumnDrop(_column)
@@ -121,9 +129,13 @@ const handleSourceValueChange = (value: string | undefined) => {
 
 const handleClearColumn = () => {
   if (localStatement.value.value.type === 'column') {
-    localStatement.value.value.source = {
-      columnName: '',
-      dataType: 'VARCHAR',
+    localStatement.value.value = {
+      type: 'column',
+      source: {
+        columnName: '',
+        dataType: 'VARCHAR',
+      },
+      dataType: localStatement.value.value.dataType,
     }
     emitUpdate()
   }
@@ -162,7 +174,9 @@ watch(
         />
         <Button
           label="Save"
-          :disabled="!isValidStatement"
+          :disabled="
+            !isValidStatement || !isValidationValid(localStatement.value, localStatement.property)
+          "
           size="small"
           @click="handleSave"
         />
@@ -232,9 +246,7 @@ watch(
             <!-- Show dropped column info if column is selected -->
             <div
               v-if="
-                localStatement.value.source &&
-                typeof localStatement.value.source === 'object' &&
-                localStatement.value.source.columnName
+                localStatement.value.type === 'column' && localStatement.value.source.columnName
               "
               class="flex items-center justify-center gap-3"
             >
@@ -294,17 +306,57 @@ watch(
           option-label="label"
           option-value="value"
           placeholder="Select data type..."
-          class="w-full"
+          :class="[
+            'w-full',
+            !isValidationValid(localStatement.value, localStatement.property) ? 'p-invalid' : '',
+          ]"
+          :severity="getValidationSeverity(localStatement.value, localStatement.property)"
           @update:model-value="handleDataTypeChangeWithEmit"
         />
 
-        <!-- Data Type Validation Message -->
+        <!-- Enhanced Data Type Validation Message -->
         <div
-          v-if="dataTypeValidationMessage"
-          class="flex items-center gap-2 text-sm text-red-600"
+          v-if="getValidationMessage(localStatement.value, localStatement.property)"
+          class="validation-message"
         >
-          <i class="pi pi-exclamation-triangle" />
-          <span>{{ dataTypeValidationMessage }}</span>
+          <div
+            :class="[
+              'flex items-start gap-2 text-sm p-3 rounded-lg border',
+              getValidationClasses(localStatement.value, localStatement.property),
+            ]"
+          >
+            <i
+              v-if="getValidationIcon(localStatement.value, localStatement.property)"
+              :class="[
+                getValidationIcon(localStatement.value, localStatement.property)?.icon,
+                getValidationIcon(localStatement.value, localStatement.property)?.class,
+                'mt-0.5 flex-shrink-0',
+              ]"
+            />
+            <div class="flex-1">
+              <div class="font-medium">
+                {{ getValidationMessage(localStatement.value, localStatement.property)?.message }}
+              </div>
+              <div
+                v-if="
+                  getValidationMessage(localStatement.value, localStatement.property)?.suggestions
+                "
+                class="mt-1 text-xs opacity-75"
+              >
+                <div
+                  v-for="suggestion in getValidationMessage(
+                    localStatement.value,
+                    localStatement.property,
+                  )?.suggestions"
+                  :key="suggestion"
+                  class="flex items-center gap-1"
+                >
+                  <i class="pi pi-lightbulb" />
+                  <span>{{ suggestion }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -346,8 +398,8 @@ watch(
           <i class="pi pi-arrow-right text-xs" />
           <Tag
             :value="
-              isColumnType
-                ? (localStatement.value.source as any)?.columnName
+              localStatement.value.type === 'column'
+                ? localStatement.value.source.columnName
                 : localStatement.value.source
             "
             size="small"

@@ -81,7 +81,7 @@ export const useSchemaBuilder = () => {
     rank: StatementRank = 'normal',
   ): StatementSchemaMapping => {
     return {
-      id: Bun.randomUUIDv7(),
+      id: crypto.randomUUID(),
       property,
       value: valueMapping,
       rank,
@@ -95,7 +95,7 @@ export const useSchemaBuilder = () => {
    */
   const createEmptySchema = (projectId: string, wikibaseUrl: string): WikibaseSchemaMapping => {
     return buildSchema(
-      Bun.randomUUIDv7(),
+      crypto.randomUUID(),
       projectId,
       'Untitled Schema',
       wikibaseUrl,
