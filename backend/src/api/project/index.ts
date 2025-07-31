@@ -273,8 +273,7 @@ export const projectRoutes = new Elysia({ prefix: '/api/project' })
         return status(404, ApiErrorHandler.notFoundErrorWithData('Project', projectId))
       }
 
-      // @ts-expect-error
-      return status(204, new Response(null))
+      return status(204, undefined)
     },
     ProjectDeleteSchema,
   )
