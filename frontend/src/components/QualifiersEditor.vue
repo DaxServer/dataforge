@@ -199,60 +199,97 @@ setOnColumnDrop((columnInfo) => {
     <div
       v-if="hasQualifiers"
       class="space-y-2"
+      data-testid="qualifiers-list"
     >
+      <!-- Qualifiers Display Container -->
       <div
-        v-for="(qualifier, index) in qualifiers"
-        :key="`qualifier-${index}`"
-        class="flex items-center justify-between p-3 bg-surface-50 border border-surface-200 rounded-lg"
+        class="border-l-4 border-primary-200 pl-4 bg-gradient-to-r from-primary-25 to-transparent"
       >
-        <div class="flex items-center gap-3 flex-1">
-          <!-- Property Info -->
-          <div class="flex items-center gap-2">
-            <Tag
-              :value="qualifier.property.id"
-              size="small"
-              severity="info"
-            />
-            <span class="font-medium text-surface-900">
-              {{ qualifier.property.label || qualifier.property.id }}
-            </span>
+        <div class="space-y-3">
+          <!-- Qualifiers Header -->
+          <div class="flex items-center gap-2 text-sm font-medium text-primary-700 mb-3">
+            <i class="pi pi-angle-right text-xs" />
+            <span>Statement qualifiers</span>
           </div>
 
-          <!-- Arrow -->
-          <i class="pi pi-arrow-right text-surface-400 text-sm" />
+          <!-- Individual Qualifiers -->
+          <div
+            v-for="(qualifier, index) in qualifiers"
+            :key="`qualifier-${index}`"
+            class="relative"
+            data-testid="qualifier-item"
+          >
+            <!-- Connector Line -->
+            <div class="absolute left-0 top-0 bottom-0 w-px bg-primary-200" />
 
-          <!-- Value Info -->
-          <div class="flex items-center gap-2">
-            <i
-              :class="getValueTypeIcon(qualifier.value.type)"
-              class="text-surface-600 text-sm"
-            />
-            <Tag
-              :value="
-                qualifier.value.type === 'column'
-                  ? qualifier.value.source.columnName
-                  : qualifier.value.source
-              "
-              size="small"
-              severity="secondary"
-            />
-            <span class="text-xs text-surface-500">
-              {{ qualifier.value.dataType }}
-            </span>
+            <!-- Qualifier Content -->
+            <div
+              class="flex items-center justify-between p-3 ml-4 bg-surface-50 border border-surface-200 rounded-lg shadow-sm hover:shadow-md transition-shadow"
+            >
+              <div class="flex items-center gap-3 flex-1">
+                <!-- Qualifier Indicator -->
+                <div class="flex items-center gap-1 text-primary-600">
+                  <i class="pi pi-angle-right text-xs" />
+                  <span class="text-xs font-medium">Q{{ index + 1 }}</span>
+                </div>
+
+                <!-- Property Info -->
+                <div
+                  class="flex items-center gap-2"
+                  data-testid="qualifier-property"
+                >
+                  <Tag
+                    :value="qualifier.property.id"
+                    size="small"
+                    severity="info"
+                  />
+                  <span class="font-medium text-surface-900">
+                    {{ qualifier.property.label || qualifier.property.id }}
+                  </span>
+                </div>
+
+                <!-- Relationship Arrow -->
+                <i class="pi pi-arrow-right text-surface-400 text-sm" />
+
+                <!-- Value Info -->
+                <div
+                  class="flex items-center gap-2"
+                  data-testid="qualifier-value"
+                >
+                  <i
+                    :class="getValueTypeIcon(qualifier.value.type)"
+                    class="text-surface-600 text-sm"
+                  />
+                  <Tag
+                    :value="
+                      qualifier.value.type === 'column'
+                        ? qualifier.value.source.columnName
+                        : qualifier.value.source
+                    "
+                    size="small"
+                    severity="secondary"
+                  />
+                  <span class="text-xs text-surface-500">
+                    {{ qualifier.value.dataType }}
+                  </span>
+                </div>
+              </div>
+
+              <!-- Actions -->
+              <div class="flex items-center gap-1">
+                <Button
+                  v-tooltip="'Remove qualifier'"
+                  icon="pi pi-trash"
+                  size="small"
+                  severity="danger"
+                  text
+                  :disabled="disabled"
+                  data-testid="remove-qualifier-button"
+                  @click="removeQualifier(index)"
+                />
+              </div>
+            </div>
           </div>
-        </div>
-
-        <!-- Actions -->
-        <div class="flex items-center gap-1">
-          <Button
-            v-tooltip="'Remove qualifier'"
-            icon="pi pi-trash"
-            size="small"
-            severity="danger"
-            text
-            :disabled="disabled"
-            @click="removeQualifier(index)"
-          />
         </div>
       </div>
     </div>
@@ -399,6 +436,7 @@ setOnColumnDrop((columnInfo) => {
     <div
       v-if="shouldShowEmptyState"
       class="text-center py-8 border-2 border-dashed border-surface-200 rounded-lg bg-surface-25"
+      data-testid="qualifiers-empty-state"
     >
       <div class="space-y-3">
         <div class="text-surface-400">

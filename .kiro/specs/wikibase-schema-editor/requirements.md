@@ -79,7 +79,7 @@ The Wikibase Schema Editor is a visual interface that allows users to create and
 2. WHEN the user adds a qualifier THEN the system SHALL require selection of a qualifier property (P-ID)
 3. WHEN a qualifier is created THEN the system SHALL allow mapping data columns to the qualifier's value
 4. WHEN the user defines a qualifier THEN the system SHALL support the same value types as main statements
-5. WHEN qualifiers are configured THEN the system SHALL display them nested under their parent statement
+5. WHEN qualifiers are configured THEN the system SHALL display them within their parent statement
 
 ### Requirement 7
 
