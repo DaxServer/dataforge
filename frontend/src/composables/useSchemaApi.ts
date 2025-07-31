@@ -36,8 +36,8 @@ export const useSchemaApi = () => {
     if (apiError) {
       showError(apiError.value as ApiError)
       schemaStore.$reset()
-    } else if (data && (data as any).data) {
-      loadSchemaIntoStore((data as any).data)
+    } else if (data && data.data) {
+      loadSchemaIntoStore(data.data as WikibaseSchemaMapping)
     } else {
       showError({
         errors: [{ code: 'NOT_FOUND', message: 'Schema not found' }],
@@ -62,7 +62,7 @@ export const useSchemaApi = () => {
     if (apiError) {
       showError(apiError.value as ApiError)
     } else {
-      loadSchemaIntoStore((data as any).data)
+      loadSchemaIntoStore((data as any).data as WikibaseSchemaMapping)
       return (data as any).data
     }
   }
@@ -85,9 +85,9 @@ export const useSchemaApi = () => {
     if (apiError) {
       showError(apiError.value as ApiError)
     } else {
-      loadSchemaIntoStore((data as any).data)
+      loadSchemaIntoStore(data.data as WikibaseSchemaMapping)
       schemaStore.markAsSaved()
-      return (data as any).data
+      return data.data
     }
   }
 
@@ -120,11 +120,7 @@ export const useSchemaApi = () => {
       return []
     }
 
-    if (!data || !data.data) {
-      return []
-    }
-
-    return (data as any).data
+    return data?.data || []
   }
 
   return {

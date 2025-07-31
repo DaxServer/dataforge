@@ -39,7 +39,7 @@
       "dependencies": {
         "@elysiajs/eden": "catalog:",
         "@primeuix/themes": "^1.2.2",
-        "@unhead/vue": "^2.0.12",
+        "@unhead/vue": "^2.0.13",
         "@vueuse/core": "^13.6.0",
         "@vueuse/router": "^13.6.0",
         "escape-html": "^1.0.3",
@@ -72,7 +72,7 @@
         "elysia": "catalog:",
         "eslint": "catalog:",
         "eslint-plugin-prettier": "catalog:",
-        "eslint-plugin-vue": "^10.3.0",
+        "eslint-plugin-vue": "^10.4.0",
         "happy-dom": "^18.0.1",
         "prettier": "catalog:",
         "tailwindcss": "^4.1.11",

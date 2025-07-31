@@ -52,10 +52,9 @@ export const useValueMapping = () => {
   const sourceValue = computed({
     get: () => {
       if (currentMapping.value.type === 'column') {
-        const source = currentMapping.value.source as any
-        return source?.columnName || ''
+        return currentMapping.value.source?.columnName || ''
       }
-      return (currentMapping.value.source as string) || ''
+      return currentMapping.value.source || ''
     },
     set: (value: string) => {
       if (currentMapping.value.type === 'column') {
@@ -69,12 +68,12 @@ export const useValueMapping = () => {
 
   const isValidMapping = computed(() => {
     if (currentMapping.value.type === 'column') {
-      const source = currentMapping.value.source as any
+      const source = currentMapping.value.source
       return !!(source?.columnName && source?.dataType)
     }
 
     if (currentMapping.value.type === 'constant' || currentMapping.value.type === 'expression') {
-      return !!(currentMapping.value.source as string)?.trim()
+      return !!currentMapping.value.source?.trim()
     }
 
     return false
@@ -131,26 +130,34 @@ export const useValueMapping = () => {
   }
 
   const updateValueType = (newType: 'column' | 'constant' | 'expression') => {
-    const currentDataType = currentMapping.value.dataType
+    const dataType = currentMapping.value.dataType
 
-    currentMapping.value = {
-      type: newType,
-      source: newType === 'column' ? { columnName: '', dataType: 'VARCHAR' } : '',
-      dataType: currentDataType,
+    if (newType === 'column') {
+      currentMapping.value = {
+        type: 'column',
+        source: { columnName: '', dataType: 'VARCHAR' },
+        dataType,
+      }
+    } else {
+      currentMapping.value = {
+        type: newType,
+        source: '',
+        dataType,
+      } as ValueMapping
     }
   }
 
-  const updateColumnSource = (column: ColumnInfo) => {
+  const updateColumnSource = (columnInfo: ColumnInfo) => {
     if (currentMapping.value.type !== 'column') return
 
     currentMapping.value.source = {
-      columnName: column.name,
-      dataType: column.dataType,
+      columnName: columnInfo.name,
+      dataType: columnInfo.dataType,
     }
 
     // Auto-suggest compatible data type
-    const compatibleTypes = getCompatibleWikibaseTypes(column.dataType)
-    if (compatibleTypes.length > 0) {
+    const compatibleTypes = getCompatibleWikibaseTypes(columnInfo.dataType)
+    if (compatibleTypes.length > 0 && compatibleTypes[0]) {
       currentMapping.value.dataType = compatibleTypes[0]
     }
   }
@@ -164,19 +171,19 @@ export const useValueMapping = () => {
 
     // Check source
     if (mapping.type === 'column') {
-      const source = mapping.source as any
+      const source = mapping.source
       if (!source?.columnName) {
         errors.push('Column name is required')
       }
     } else if (mapping.type === 'constant' || mapping.type === 'expression') {
-      if (!mapping.source || (mapping.source as string).trim() === '') {
+      if (!mapping.source || mapping.source.trim() === '') {
         errors.push('Value source is required')
       }
     }
 
     // Check data type compatibility for column mappings
     if (mapping.type === 'column') {
-      const source = mapping.source as any
+      const source = mapping.source
       if (source?.dataType) {
         const isCompatible = isDataTypeCompatible(source.dataType, [mapping.dataType])
         if (!isCompatible) {

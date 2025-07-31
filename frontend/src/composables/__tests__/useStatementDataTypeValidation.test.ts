@@ -82,10 +82,10 @@ describe('useStatementDataTypeValidation', () => {
 
       expect(result.isValid).toBe(false)
       expect(result.errors).toHaveLength(1)
-      expect(result.errors[0].code).toBe('INCOMPATIBLE_DATA_TYPE')
-      expect(result.errors[0].context?.columnName).toBe('population')
-      expect(result.errors[0].context?.dataType).toBe('INTEGER')
-      expect(result.errors[0].context?.targetType).toBe('string')
+      expect(result.errors[0]?.code).toBe('INCOMPATIBLE_DATA_TYPE')
+      expect(result.errors[0]?.context?.columnName).toBe('population')
+      expect(result.errors[0]?.context?.dataType).toBe('INTEGER')
+      expect(result.errors[0]?.context?.targetType).toBe('string')
     })
 
     test('should detect incompatible VARCHAR column with quantity property', () => {
@@ -102,7 +102,7 @@ describe('useStatementDataTypeValidation', () => {
 
       expect(result.isValid).toBe(false)
       expect(result.errors).toHaveLength(1)
-      expect(result.errors[0].code).toBe('INCOMPATIBLE_DATA_TYPE')
+      expect(result.errors[0]?.code).toBe('INCOMPATIBLE_DATA_TYPE')
     })
 
     test('should detect incompatible BOOLEAN column with time property', () => {
@@ -119,7 +119,7 @@ describe('useStatementDataTypeValidation', () => {
 
       expect(result.isValid).toBe(false)
       expect(result.errors).toHaveLength(1)
-      expect(result.errors[0].code).toBe('INCOMPATIBLE_DATA_TYPE')
+      expect(result.errors[0]?.code).toBe('INCOMPATIBLE_DATA_TYPE')
     })
 
     test('should validate constant values without column compatibility check', () => {
@@ -167,7 +167,7 @@ describe('useStatementDataTypeValidation', () => {
 
       expect(result.isValid).toBe(false)
       expect(result.errors).toHaveLength(1)
-      expect(result.errors[0].code).toBe('INVALID_PROPERTY_ID')
+      expect(result.errors[0]?.code).toBe('INVALID_PROPERTY_ID')
     })
 
     test('should handle missing column source gracefully', () => {
@@ -184,7 +184,7 @@ describe('useStatementDataTypeValidation', () => {
 
       expect(result.isValid).toBe(false)
       expect(result.errors).toHaveLength(1)
-      expect(result.errors[0].code).toBe('MISSING_STATEMENT_VALUE')
+      expect(result.errors[0]?.code).toBe('MISSING_STATEMENT_VALUE')
     })
   })
 
@@ -202,9 +202,9 @@ describe('useStatementDataTypeValidation', () => {
       const warnings = getCompatibilityWarnings(valueMapping, property, 'statements[0].value')
 
       expect(warnings).toHaveLength(1)
-      expect(warnings[0].type).toBe('warning')
-      expect(warnings[0].code).toBe('INCOMPATIBLE_DATA_TYPE')
-      expect(warnings[0].message).toContain('may not be optimal')
+      expect(warnings[0]?.type).toBe('warning')
+      expect(warnings[0]?.code).toBe('INCOMPATIBLE_DATA_TYPE')
+      expect(warnings[0]?.message).toContain('may not be optimal')
     })
 
     test('should not provide warnings for optimal mappings', () => {
@@ -318,7 +318,7 @@ describe('useStatementDataTypeValidation', () => {
 
       expect(result.isValid).toBe(false)
       expect(result.errors).toHaveLength(1)
-      expect(result.errors[0].code).toBe('INCOMPATIBLE_DATA_TYPE')
+      expect(result.errors[0]?.code).toBe('INCOMPATIBLE_DATA_TYPE')
     })
 
     test('should validate statement with missing property', () => {
@@ -338,7 +338,7 @@ describe('useStatementDataTypeValidation', () => {
 
       expect(result.isValid).toBe(false)
       expect(result.errors).toHaveLength(1)
-      expect(result.errors[0].code).toBe('INVALID_PROPERTY_ID')
+      expect(result.errors[0]?.code).toBe('INVALID_PROPERTY_ID')
     })
   })
 })

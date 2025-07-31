@@ -1,3 +1,5 @@
+import type { ApiError } from '@backend/types/error-schemas'
+
 export const useProjectCreationComposable = () => {
   const router = useRouter()
   const { setIsCreating } = useCreateProjectStore()
@@ -32,13 +34,16 @@ export const useProjectCreationComposable = () => {
     setIsCreating(false)
 
     if (error) {
-      showError(error.value as any)
+      showError(error.value as ApiError)
       return
     }
 
     if ((data as any)?.data?.id) {
-      setTimeout(() => {
-        router.push({ name: 'ProjectView', params: { id: (data as any).data.id, tab: 'data' } })
+      setTimeout(async () => {
+        await router.push({
+          name: 'ProjectView',
+          params: { id: (data as any).data.id, tab: 'data' },
+        })
       }, 1000)
     } else {
       showError({

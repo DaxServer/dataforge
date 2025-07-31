@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import type { ColumnInfo, WikibaseDataType } from '@frontend/types/wikibase-schema'
+import type { ColumnInfo } from '@frontend/types/wikibase-schema'
 import type { DragState, DropTarget } from '@frontend/types/drag-drop'
 import { useDataTypeCompatibility } from '@frontend/composables/useDataTypeCompatibility'
 

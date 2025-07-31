@@ -3,6 +3,7 @@ import { createPinia, setActivePinia } from 'pinia'
 import { useStatementConfig } from '@frontend/composables/useStatementConfig'
 import { useSchemaStore } from '@frontend/stores/schema.store'
 import { PropertyId } from '@backend/types/wikibase-schema'
+import type { StatementRank } from '@frontend/types/wikibase-schema'
 
 describe('useStatementConfig', () => {
   beforeEach(() => {
@@ -24,9 +25,9 @@ describe('useStatementConfig', () => {
 
     expect(currentStatement.value.property).toBeNull()
     expect(currentStatement.value.value.type).toBe('column')
-    expect(currentStatement.value.value.source).toBe('')
+    expect(currentStatement.value.value.source).toEqual({ columnName: '', dataType: 'VARCHAR' })
     expect(currentStatement.value.value.dataType).toBe('string')
-    expect(currentStatement.value.rank).toBe('normal')
+    expect(currentStatement.value.rank).toBe('normal' as StatementRank)
     expect(canSaveStatement.value).toBe(false)
     expect(sourceLabel.value).toBe('Column Name')
     expect(sourcePlaceholder.value).toBe('column_name')
@@ -127,9 +128,10 @@ describe('useStatementConfig', () => {
     // Check all values are reset
     expect(currentStatement.value.property).toBeNull()
     expect(currentStatement.value.value.type).toBe('column')
-    expect(currentStatement.value.value.source).toBe('')
+    expect(currentStatement.value.value.source).toEqual({ columnName: '', dataType: 'VARCHAR' })
     expect(currentStatement.value.value.dataType).toBe('string')
-    expect(currentStatement.value.rank).toBe('normal')
+    // @ts-expect-error
+    expect(currentStatement.value.rank).toBe('normal' as StatementRank)
   })
 
   it('should auto-save statement when complete', async () => {

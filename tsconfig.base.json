@@ -1,8 +1,8 @@
 {
   "compilerOptions": {
     // Environment setup & latest features
-    "target": "ES2022",
-    "module": "ESNext",
+    "target": "esnext",
+    "module": "esnext",
     "jsx": "preserve",
 
     // Bundler mode
@@ -27,7 +27,6 @@
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "types": ["bun-types"],
     "baseUrl": ".",
     "paths": {
       "@backend": ["./backend/src"],
@@ -35,9 +34,6 @@
       "@backend/*": ["./backend/src/*"],
       "@frontend": ["./frontend/src"],
       "@frontend/*": ["./frontend/src/*"]
-    },
-    "typeRoots": [
-      "./node_modules/@types"
-    ]
+    }
   }
 }

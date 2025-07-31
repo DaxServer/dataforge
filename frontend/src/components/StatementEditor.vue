@@ -56,7 +56,6 @@ const {
   sourceValue,
   isValidStatement,
   compatibleDataTypes,
-  dataTypeValidationMessage,
   handlePropertyUpdate,
   handleValueTypeChange,
   handleDataTypeChange,

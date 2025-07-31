@@ -126,7 +126,7 @@ const handleColumnDrop = (columnInfo: ColumnInfo) => {
       columnName: columnInfo.name,
       dataType: columnInfo.dataType,
     },
-    dataType: suggestedDataType as WikibaseDataType,
+    dataType: suggestedDataType,
   }
 }
 

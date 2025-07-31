@@ -27,7 +27,7 @@ describe('useDragDropHandlers Composable', () => {
       const mockEvent = {
         preventDefault: () => {},
         dataTransfer: { dropEffect: '' },
-      } as DragEvent
+      } as unknown as DragEvent
 
       handler(mockEvent)
 
@@ -51,7 +51,7 @@ describe('useDragDropHandlers Composable', () => {
       const mockEvent = {
         preventDefault: () => {},
         dataTransfer: { dropEffect: '' },
-      } as DragEvent
+      } as unknown as DragEvent
 
       handler(mockEvent)
 
@@ -75,7 +75,7 @@ describe('useDragDropHandlers Composable', () => {
       const mockEvent = {
         preventDefault: () => {},
         dataTransfer: { dropEffect: '' },
-      } as DragEvent
+      } as unknown as DragEvent
 
       handler(mockEvent)
 
@@ -89,7 +89,7 @@ describe('useDragDropHandlers Composable', () => {
       const mockEvent = {
         preventDefault: () => {},
         dataTransfer: null,
-      } as DragEvent
+      } as unknown as DragEvent
 
       expect(() => handler(mockEvent)).not.toThrow()
     })
@@ -106,7 +106,7 @@ describe('useDragDropHandlers Composable', () => {
 
       const mockEvent = {
         preventDefault: () => {},
-      } as DragEvent
+      } as unknown as DragEvent
 
       handler(mockEvent)
 
@@ -190,10 +190,12 @@ describe('useDragDropHandlers Composable', () => {
         dataTransfer: {
           getData: () => JSON.stringify(validColumn),
         },
-      } as DragEvent
+      } as unknown as DragEvent
 
       handler(mockEvent)
 
+      expect(droppedColumn).not.toBeNull()
+      // @ts-expect-error
       expect(droppedColumn).toEqual(validColumn)
     })
 
@@ -222,7 +224,7 @@ describe('useDragDropHandlers Composable', () => {
         dataTransfer: {
           getData: () => JSON.stringify(invalidColumn),
         },
-      } as DragEvent
+      } as unknown as DragEvent
 
       handler(mockEvent)
 
@@ -246,10 +248,12 @@ describe('useDragDropHandlers Composable', () => {
         dataTransfer: {
           getData: () => '',
         },
-      } as DragEvent
+      } as unknown as DragEvent
 
       handler(mockEvent)
 
+      expect(errorMessage).not.toBeNull()
+      // @ts-expect-error
       expect(errorMessage).toBe('No column data found')
     })
   })

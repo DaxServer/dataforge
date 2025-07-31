@@ -51,7 +51,7 @@ describe('useStatementDropZone', () => {
           preventDefaultCalled = true
         },
         dataTransfer: { dropEffect: '' },
-      } as DragEvent
+      } as unknown as DragEvent
 
       handleDragOver(mockEvent)
 
@@ -68,7 +68,7 @@ describe('useStatementDropZone', () => {
           preventDefaultCalled = true
         },
         dataTransfer: { dropEffect: '' },
-      } as DragEvent
+      } as unknown as DragEvent
 
       handleDragOver(mockEvent)
 
@@ -83,7 +83,7 @@ describe('useStatementDropZone', () => {
 
       const mockEvent = {
         preventDefault: () => {},
-      } as DragEvent
+      } as unknown as DragEvent
 
       handleDragEnter(mockEvent)
 
@@ -106,7 +106,7 @@ describe('useStatementDropZone', () => {
       // Then leave
       const leaveEvent = {
         preventDefault: () => {},
-      } as DragEvent
+      } as unknown as DragEvent
 
       handleDragLeave(leaveEvent)
       expect(isOverDropZone.value).toBe(false)
@@ -131,7 +131,7 @@ describe('useStatementDropZone', () => {
             return ''
           },
         },
-      } as DragEvent
+      } as unknown as DragEvent
 
       handleDrop(mockEvent)
 
@@ -148,9 +148,9 @@ describe('useStatementDropZone', () => {
       const mockEvent = {
         preventDefault: () => {},
         dataTransfer: {
-          getData: () => '',
+          getData: () => 'invalid json',
         },
-      } as DragEvent
+      } as unknown as DragEvent
 
       handleDrop(mockEvent)
 
@@ -177,7 +177,7 @@ describe('useStatementDropZone', () => {
         dataTransfer: {
           getData: () => JSON.stringify(testColumn),
         },
-      } as DragEvent
+      } as unknown as DragEvent
 
       handleDrop(dropEvent)
 
@@ -250,7 +250,7 @@ describe('useStatementDropZone', () => {
         dataTransfer: {
           getData: () => JSON.stringify(testColumn),
         },
-      } as DragEvent
+      } as unknown as DragEvent
 
       handleDrop(mockEvent)
 

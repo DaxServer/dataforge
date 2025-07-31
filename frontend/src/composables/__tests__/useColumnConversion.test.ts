@@ -36,18 +36,18 @@ describe('useColumnConversion', () => {
     expect(result).toHaveLength(2)
 
     // Test first column (name)
-    expect(result[0].name).toBe('name')
-    expect(result[0].dataType).toBe('VARCHAR')
-    expect(result[0].sampleValues).toEqual(['John Doe', 'Jane Smith', 'Bob Johnson'])
-    expect(result[0].nullable).toBe(false)
-    expect(result[0].uniqueCount).toBe(3)
+    expect(result[0]?.name).toBe('name')
+    expect(result[0]?.dataType).toBe('VARCHAR')
+    expect(result[0]?.sampleValues).toEqual(['John Doe', 'Jane Smith', 'Bob Johnson'])
+    expect(result[0]?.nullable).toBe(false)
+    expect(result[0]?.uniqueCount).toBe(3)
 
     // Test second column (age)
-    expect(result[1].name).toBe('age')
-    expect(result[1].dataType).toBe('INTEGER')
-    expect(result[1].sampleValues).toEqual(['25', '30', '35'])
-    expect(result[1].nullable).toBe(false)
-    expect(result[1].uniqueCount).toBe(3)
+    expect(result[1]?.name).toBe('age')
+    expect(result[1]?.dataType).toBe('INTEGER')
+    expect(result[1]?.sampleValues).toEqual(['25', '30', '35'])
+    expect(result[1]?.nullable).toBe(false)
+    expect(result[1]?.uniqueCount).toBe(3)
   })
 
   test('should handle nullable columns correctly', () => {
@@ -71,9 +71,9 @@ describe('useColumnConversion', () => {
 
     const result = convertProjectColumnsToColumnInfo(projectColumns, sampleData)
 
-    expect(result[0].nullable).toBe(true)
-    expect(result[0].sampleValues).toEqual(['value1', 'value2'])
-    expect(result[0].uniqueCount).toBe(2) // Only non-null values counted
+    expect(result[0]?.nullable).toBe(true)
+    expect(result[0]?.sampleValues).toEqual(['value1', 'value2'])
+    expect(result[0]?.uniqueCount).toBe(2) // Only non-null values counted
   })
 
   test('should handle empty sample data', () => {
@@ -90,9 +90,9 @@ describe('useColumnConversion', () => {
 
     const result = convertProjectColumnsToColumnInfo(projectColumns, [])
 
-    expect(result[0].sampleValues).toEqual([])
-    expect(result[0].nullable).toBe(false)
-    expect(result[0].uniqueCount).toBeUndefined()
+    expect(result[0]?.sampleValues).toEqual([])
+    expect(result[0]?.nullable).toBe(false)
+    expect(result[0]?.uniqueCount).toBeUndefined()
   })
 
   test('should limit sample values to first 5 rows', () => {
@@ -113,8 +113,8 @@ describe('useColumnConversion', () => {
 
     const result = convertProjectColumnsToColumnInfo(projectColumns, sampleData)
 
-    expect(result[0].sampleValues).toHaveLength(5)
-    expect(result[0].sampleValues).toEqual(['value0', 'value1', 'value2', 'value3', 'value4'])
+    expect(result[0]?.sampleValues).toHaveLength(5)
+    expect(result[0]?.sampleValues).toEqual(['value0', 'value1', 'value2', 'value3', 'value4'])
   })
 
   test('should remove duplicate sample values', () => {
@@ -139,8 +139,8 @@ describe('useColumnConversion', () => {
 
     const result = convertProjectColumnsToColumnInfo(projectColumns, sampleData)
 
-    expect(result[0].sampleValues).toEqual(['A', 'B', 'C'])
-    expect(result[0].uniqueCount).toBe(3)
+    expect(result[0]?.sampleValues).toEqual(['A', 'B', 'C'])
+    expect(result[0]?.uniqueCount).toBe(3)
   })
 
   test('should convert all values to strings', () => {
@@ -164,8 +164,8 @@ describe('useColumnConversion', () => {
 
     const result = convertProjectColumnsToColumnInfo(projectColumns, sampleData)
 
-    expect(result[0].sampleValues).toEqual(['123', 'true', 'string', '45.67'])
-    expect(result[0].sampleValues.every((val) => typeof val === 'string')).toBe(true)
+    expect(result[0]?.sampleValues).toEqual(['123', 'true', 'string', '45.67'])
+    expect(result[0]?.sampleValues.every((val) => typeof val === 'string')).toBe(true)
   })
 
   test('should handle columns not present in sample data', () => {
@@ -184,8 +184,8 @@ describe('useColumnConversion', () => {
 
     const result = convertProjectColumnsToColumnInfo(projectColumns, sampleData)
 
-    expect(result[0].sampleValues).toEqual([])
-    expect(result[0].nullable).toBe(true) // All values are undefined, so nullable
-    expect(result[0].uniqueCount).toBeUndefined()
+    expect(result[0]?.sampleValues).toEqual([])
+    expect(result[0]?.nullable).toBe(true) // All values are undefined, so nullable
+    expect(result[0]?.uniqueCount).toBeUndefined()
   })
 })

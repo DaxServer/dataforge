@@ -28,14 +28,8 @@ const projectStore = useProjectStore()
 const { loadSchema, createSchema, updateSchema } = useSchemaApi()
 const { showError, showSuccess } = useErrorHandling()
 const { convertProjectColumnsToColumnInfo } = useColumnConversion()
-const {
-  localStatement,
-  isValidStatement,
-  setAvailableColumns,
-  initializeStatement,
-  resetStatement,
-  getStatement,
-} = useStatementEditor()
+const { localStatement, setAvailableColumns, initializeStatement, resetStatement } =
+  useStatementEditor()
 
 // Reactive state
 const isInitialized = ref(false)
@@ -315,7 +309,7 @@ onUnmounted(() => {
             v-if="schemaStore.isLoading"
             class="toolbar-loading"
           >
-            <i class="pi pi-spin pi-spinner text-gray-500"></i>
+            <i class="pi pi-spin pi-spinner text-gray-500" />
           </div>
         </div>
 
@@ -374,7 +368,7 @@ onUnmounted(() => {
           class="empty-item-placeholder text-center py-12"
         >
           <div class="text-gray-500 mb-4">
-            <i class="pi pi-box text-4xl"></i>
+            <i class="pi pi-box text-4xl" />
           </div>
           <h3 class="text-lg font-medium text-gray-700 mb-2">No item configured</h3>
           <p class="text-gray-500 mb-4">
@@ -455,7 +449,7 @@ onUnmounted(() => {
           v-else-if="!isInitialized"
           class="text-center py-12"
         >
-          <i class="pi pi-spin pi-spinner text-2xl text-gray-500"></i>
+          <i class="pi pi-spin pi-spinner text-2xl text-gray-500" />
           <p class="text-gray-500 mt-2">Loading schema editor...</p>
         </div>
       </div>

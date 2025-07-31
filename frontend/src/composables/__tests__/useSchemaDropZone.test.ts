@@ -162,7 +162,7 @@ describe('useSchemaDropZone Composable', () => {
         dataTransfer: {
           dropEffect: '',
         },
-      } as DragEvent
+      } as unknown as DragEvent
 
       expect(() => handleDragOver(mockEvent)).not.toThrow()
       expect(mockEvent.dataTransfer!.dropEffect).toBe('copy')
@@ -190,7 +190,7 @@ describe('useSchemaDropZone Composable', () => {
         dataTransfer: {
           dropEffect: '',
         },
-      } as DragEvent
+      } as unknown as DragEvent
 
       expect(() => handleDragOver(mockEvent)).not.toThrow()
       expect(mockEvent.dataTransfer!.dropEffect).toBe('none')
@@ -207,7 +207,7 @@ describe('useSchemaDropZone Composable', () => {
         dataTransfer: {
           dropEffect: '',
         },
-      } as DragEvent
+      } as unknown as DragEvent
 
       expect(() => handleDragOver(mockEvent)).not.toThrow()
       expect(mockEvent.dataTransfer!.dropEffect).toBe('none')
@@ -239,7 +239,7 @@ describe('useSchemaDropZone Composable', () => {
         dataTransfer: {
           dropEffect: '',
         },
-      } as DragEvent
+      } as unknown as DragEvent
 
       handleDragOver(mockEvent)
 
@@ -298,14 +298,14 @@ describe('useSchemaDropZone Composable', () => {
             return ''
           },
         },
-      } as DragEvent
+      } as unknown as DragEvent
 
       handleDrop(mockEvent)
 
       expect(isOverDropZone.value).toBe(false)
       expect(schemaStore.labels.en).toBeDefined()
-      expect(schemaStore.labels.en.columnName).toBe('title')
-      expect(schemaStore.labels.en.dataType).toBe('VARCHAR')
+      expect(schemaStore.labels.en?.columnName).toBe('title')
+      expect(schemaStore.labels.en?.dataType).toBe('VARCHAR')
     })
 
     test('should handle drop event with invalid column data', () => {
@@ -358,8 +358,8 @@ describe('useSchemaDropZone Composable', () => {
       addColumnMapping(columnData)
 
       expect(schemaStore.labels.en).toBeDefined()
-      expect(schemaStore.labels.en.columnName).toBe('title')
-      expect(schemaStore.labels.en.dataType).toBe('VARCHAR')
+      expect(schemaStore.labels.en?.columnName).toBe('title')
+      expect(schemaStore.labels.en?.dataType).toBe('VARCHAR')
     })
 
     test('should add description mapping for description term type', () => {
@@ -379,8 +379,8 @@ describe('useSchemaDropZone Composable', () => {
       addColumnMapping(columnData)
 
       expect(schemaStore.descriptions.en).toBeDefined()
-      expect(schemaStore.descriptions.en.columnName).toBe('description')
-      expect(schemaStore.descriptions.en.dataType).toBe('TEXT')
+      expect(schemaStore.descriptions.en?.columnName).toBe('description')
+      expect(schemaStore.descriptions.en?.dataType).toBe('TEXT')
     })
 
     test('should add alias mapping for alias term type', () => {
@@ -401,8 +401,8 @@ describe('useSchemaDropZone Composable', () => {
 
       expect(schemaStore.aliases.en).toBeDefined()
       expect(schemaStore.aliases.en).toHaveLength(1)
-      expect(schemaStore.aliases.en[0].columnName).toBe('alias')
-      expect(schemaStore.aliases.en[0].dataType).toBe('VARCHAR')
+      expect(schemaStore.aliases.en?.[0]?.columnName).toBe('alias')
+      expect(schemaStore.aliases.en?.[0]?.dataType).toBe('VARCHAR')
     })
 
     test('should prevent duplicate alias mappings for the same language', () => {
@@ -426,7 +426,7 @@ describe('useSchemaDropZone Composable', () => {
       // Should only have one mapping
       expect(schemaStore.aliases.en).toBeDefined()
       expect(schemaStore.aliases.en).toHaveLength(1)
-      expect(schemaStore.aliases.en[0].columnName).toBe('alias_column')
+      expect(schemaStore.aliases.en?.[0]?.columnName).toBe('alias_column')
     })
 
     test('should allow same column for different languages in aliases', () => {
@@ -453,8 +453,8 @@ describe('useSchemaDropZone Composable', () => {
       // Should have mappings for both languages
       expect(schemaStore.aliases.en).toHaveLength(1)
       expect(schemaStore.aliases.fr).toHaveLength(1)
-      expect(schemaStore.aliases.en[0].columnName).toBe('alias_column')
-      expect(schemaStore.aliases.fr[0].columnName).toBe('alias_column')
+      expect(schemaStore.aliases.en?.[0]?.columnName).toBe('alias_column')
+      expect(schemaStore.aliases.fr?.[0]?.columnName).toBe('alias_column')
     })
   })
 

@@ -7,6 +7,7 @@ interface PropertySelectorProps {
 }
 
 withDefaults(defineProps<PropertySelectorProps>(), {
+  modelValue: null,
   placeholder: 'Search for a property...',
   disabled: false,
 })

@@ -341,12 +341,16 @@ describe('createDropZoneConfig', () => {
     let dropCallbackCalled = false
     let droppedColumn: ColumnInfo | null = null
 
-    const config = context.createDropZoneConfig('item.terms.labels.en', ['string'], (column) => {
-      dropCallbackCalled = true
-      droppedColumn = column
-    })
+    const config = context.createDropZoneConfig(
+      'item.terms.labels.en',
+      ['string'],
+      (column: ColumnInfo, target: DropTarget) => {
+        dropCallbackCalled = true
+        droppedColumn = column
+      },
+    )
 
-    const mockColumnData = {
+    const mockColumnData: ColumnInfo = {
       name: 'test_column',
       dataType: 'VARCHAR',
       sampleValues: ['test'],
@@ -363,11 +367,13 @@ describe('createDropZoneConfig', () => {
           return ''
         },
       },
-    } as DragEvent
+    } as unknown as DragEvent
 
     config.onDrop(mockEvent)
 
     expect(dropCallbackCalled).toBe(true)
+    expect(droppedColumn).not.toBeNull()
+    // @ts-expect-error
     expect(droppedColumn).toEqual(mockColumnData)
   })
 
@@ -392,12 +398,12 @@ describe('createDropZoneConfig', () => {
         preventDefaultCalled = true
       },
       dataTransfer: { dropEffect: '' },
-    } as DragEvent
+    } as unknown as DragEvent
 
     config.onDragOver!(mockEvent)
 
     expect(preventDefaultCalled).toBe(true)
-    expect(mockEvent.dataTransfer.dropEffect).toBe('copy')
+    expect(mockEvent.dataTransfer!.dropEffect).toBe('copy')
   })
 
   it('should handle drag over events with invalid column', () => {
@@ -421,12 +427,12 @@ describe('createDropZoneConfig', () => {
         preventDefaultCalled = true
       },
       dataTransfer: { dropEffect: '' },
-    } as DragEvent
+    } as unknown as DragEvent
 
     config.onDragOver!(mockEvent)
 
     expect(preventDefaultCalled).toBe(true)
-    expect(mockEvent.dataTransfer.dropEffect).toBe('none')
+    expect(mockEvent.dataTransfer!.dropEffect).toBe('none')
   })
 
   it('should handle drag over events with no dragged column', () => {
@@ -439,11 +445,11 @@ describe('createDropZoneConfig', () => {
         preventDefaultCalled = true
       },
       dataTransfer: { dropEffect: '' },
-    } as DragEvent
+    } as unknown as DragEvent
 
     config.onDragOver!(mockEvent)
 
     expect(preventDefaultCalled).toBe(true)
-    expect(mockEvent.dataTransfer.dropEffect).toBe('none')
+    expect(mockEvent.dataTransfer!.dropEffect).toBe('none')
   })
 })

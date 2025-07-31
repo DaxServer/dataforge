@@ -1,10 +1,9 @@
 import { describe, it, expect, beforeEach } from 'bun:test'
-import { ref, computed } from 'vue'
+import { ref } from 'vue'
 import type {
   SchemaDragDropContext,
   DropTarget,
   DropFeedback,
-  DragState,
   DropValidation,
   DragEventData,
   DropEventData,
@@ -36,41 +35,21 @@ describe('Drag and Drop Context Types', () => {
 
   describe('Core Drag Drop Context', () => {
     it('should create and manage SchemaDragDropContext state', () => {
-      const draggedColumn = ref<ColumnInfo | null>(null)
-      const dragState = ref<DragState>('idle')
       const isOverDropZone = ref(false)
-      const hoveredTarget = ref<string | null>(null)
-      const validDropTargets = computed(() => [mockDropTarget])
-      const isValidDrop = computed(() => true)
       const dropFeedback = ref<DropFeedback | null>(null)
 
       const context: SchemaDragDropContext = {
-        draggedColumn,
-        dragState,
         isOverDropZone,
-        hoveredTarget,
-        validDropTargets,
-        isValidDrop,
         dropFeedback,
       }
 
       // Test initial state
-      expect(context.draggedColumn.value).toBeNull()
-      expect(context.dragState.value).toBe('idle')
       expect(context.isOverDropZone.value).toBe(false)
-      expect(context.hoveredTarget.value).toBeNull()
-
-      // Test drag state changes
-      context.draggedColumn.value = mockColumnInfo
-      context.dragState.value = 'dragging'
-      expect(context.draggedColumn.value).toEqual(mockColumnInfo)
-      expect(context.dragState.value).toBe('dragging')
+      expect(context.dropFeedback.value).toBeNull()
 
       // Test drop zone hover states
       context.isOverDropZone.value = true
-      context.hoveredTarget.value = 'item.terms.labels.en'
       expect(context.isOverDropZone.value).toBe(true)
-      expect(context.hoveredTarget.value).toBe('item.terms.labels.en')
 
       // Test validation feedback
       const feedback: DropFeedback = {
@@ -79,16 +58,12 @@ describe('Drag and Drop Context Types', () => {
       }
       context.dropFeedback.value = feedback
       expect(context.dropFeedback.value).toEqual(feedback)
-      expect(context.validDropTargets.value).toContain(mockDropTarget)
-      expect(context.isValidDrop.value).toBe(true)
 
       // Test cleanup
-      context.draggedColumn.value = null
-      context.dragState.value = 'idle'
       context.isOverDropZone.value = false
-      context.hoveredTarget.value = null
-      expect(context.draggedColumn.value).toBeNull()
-      expect(context.dragState.value).toBe('idle')
+      context.dropFeedback.value = null
+      expect(context.isOverDropZone.value).toBe(false)
+      expect(context.dropFeedback.value).toBeNull()
     })
   })
 

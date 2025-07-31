@@ -66,8 +66,9 @@ describe('useLanguageDropZone Composable', () => {
       })
 
       expect(mappingDisplayData.value).toHaveLength(1)
-      expect(mappingDisplayData.value[0].languageCode).toBe('xyz')
-      expect(mappingDisplayData.value[0].isArray).toBe(false)
+      expect(mappingDisplayData.value[0]).toBeDefined()
+      expect(mappingDisplayData.value[0]!.languageCode).toBe('xyz')
+      expect(mappingDisplayData.value[0]!.isArray).toBe(false)
     })
 
     test('should remove mappings correctly', () => {
@@ -105,7 +106,8 @@ describe('useLanguageDropZone Composable', () => {
 
       expect(hasExistingMappings.value).toBe(true)
       expect(mappingDisplayData.value).toHaveLength(1)
-      expect(mappingDisplayData.value[0].isArray).toBe(false)
+      expect(mappingDisplayData.value[0]).toBeDefined()
+      expect(mappingDisplayData.value[0]!.isArray).toBe(false)
     })
 
     test('should remove description mappings correctly', () => {
@@ -141,8 +143,9 @@ describe('useLanguageDropZone Composable', () => {
 
       expect(hasExistingMappings.value).toBe(true)
       expect(mappingDisplayData.value).toHaveLength(1)
-      expect(mappingDisplayData.value[0].isArray).toBe(true)
-      expect(mappingDisplayData.value[0].mappings).toHaveLength(2)
+      expect(mappingDisplayData.value[0]).toBeDefined()
+      expect(mappingDisplayData.value[0]!.isArray).toBe(true)
+      expect(mappingDisplayData.value[0]!.mappings).toHaveLength(2)
     })
 
     test('should remove alias mappings correctly', () => {
@@ -225,7 +228,8 @@ describe('useLanguageDropZone Composable', () => {
       schemaStore.removeLabelMapping('en')
 
       expect(mappingDisplayData.value).toHaveLength(1)
-      expect(mappingDisplayData.value[0].languageCode).toBe('es')
+      expect(mappingDisplayData.value[0]).toBeDefined()
+      expect(mappingDisplayData.value[0]!.languageCode).toBe('es')
     })
   })
 })

@@ -93,7 +93,7 @@ const formatSampleValues = (sampleValues: string[]) => {
                 :class="getDataTypeIcon(col.dataType)"
                 class="text-surface-600 text-sm"
                 :title="`${formatDataTypeDisplayName(col.dataType)} column`"
-              ></i>
+              />
               <span class="font-medium text-surface-900">{{ col.name }}</span>
               <Chip
                 :label="formatDataTypeDisplayName(col.dataType)"
@@ -106,7 +106,7 @@ const formatSampleValues = (sampleValues: string[]) => {
                 v-if="col.nullable"
                 class="pi pi-question-circle text-surface-400 text-xs"
                 title="This column allows null values"
-              ></i>
+              />
             </div>
 
             <div
