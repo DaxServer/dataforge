@@ -41,7 +41,7 @@ export const useStatementValidationDisplay = () => {
     const validationResult = validateStatementDataType(valueMapping, property, 'temp')
 
     if (validationResult.errors.length > 0) {
-      const error = validationResult.errors[0]
+      const error = validationResult.errors[0]!
       const suggestions: string[] = []
 
       // Add suggestions for data type compatibility errors
@@ -62,7 +62,7 @@ export const useStatementValidationDisplay = () => {
     // Check for warnings
     const warnings = getCompatibilityWarnings(valueMapping, property, 'temp')
     if (warnings.length > 0) {
-      const warning = warnings[0]
+      const warning = warnings[0]!
       const suggestions: string[] = []
 
       // Add suggestions for suboptimal mappings

@@ -112,18 +112,10 @@ export const useStatementEditor = () => {
     set: (value: string) => {
       if (localStatement.value.value.type !== 'column') {
         // Create a new value mapping with the correct type
-        if (localStatement.value.value.type === 'constant') {
-          localStatement.value.value = {
-            type: 'constant',
-            source: value,
-            dataType: localStatement.value.value.dataType,
-          }
-        } else if (localStatement.value.value.type === 'expression') {
-          localStatement.value.value = {
-            type: 'expression',
-            source: value,
-            dataType: localStatement.value.value.dataType,
-          }
+        localStatement.value.value = {
+          type: localStatement.value.value.type,
+          source: value,
+          dataType: localStatement.value.value.dataType,
         }
       }
     },
@@ -189,15 +181,9 @@ export const useStatementEditor = () => {
         source: { columnName: '', dataType: 'VARCHAR' },
         dataType: currentDataType,
       }
-    } else if (newType === 'constant') {
+    } else {
       localStatement.value.value = {
-        type: 'constant',
-        source: '',
-        dataType: currentDataType,
-      }
-    } else if (newType === 'expression') {
-      localStatement.value.value = {
-        type: 'expression',
+        type: newType,
         source: '',
         dataType: currentDataType,
       }
