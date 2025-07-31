@@ -473,28 +473,38 @@ watch(
         <!-- Qualifiers Preview -->
         <div
           v-if="localQualifiers.length > 0"
-          class="ml-8 mt-2 space-y-1"
+          class="ml-8 mt-3 border-l-2 border-primary-200 pl-3 bg-gradient-to-r from-primary-25 to-transparent rounded-r"
+          data-testid="qualifiers-preview"
         >
-          <div class="text-xs text-surface-500 font-medium">Qualifiers:</div>
-          <div
-            v-for="(qualifier, index) in localQualifiers"
-            :key="`preview-qualifier-${index}`"
-            class="flex items-center gap-2 text-xs text-surface-600"
-          >
-            <i class="pi pi-angle-right text-surface-400" />
-            <span class="font-medium">
-              {{ qualifier.property.label || qualifier.property.id }}:
-            </span>
-            <Tag
-              :value="
-                qualifier.value.type === 'column'
-                  ? qualifier.value.source.columnName
-                  : qualifier.value.source
-              "
-              size="small"
-              severity="secondary"
-            />
-            <span class="text-surface-400">{{ qualifier.value.dataType }}</span>
+          <div class="text-xs text-primary-700 font-medium mb-2 flex items-center gap-1">
+            <i class="pi pi-tags text-xs" />
+            <span>Qualifiers ({{ localQualifiers.length }}):</span>
+          </div>
+          <div class="space-y-2">
+            <div
+              v-for="(qualifier, index) in localQualifiers"
+              :key="`preview-qualifier-${index}`"
+              class="flex items-center gap-2 text-xs text-surface-600 p-2 bg-white/50 rounded border border-primary-100"
+              data-testid="qualifier-preview-item"
+            >
+              <div class="flex items-center gap-1 text-primary-600">
+                <i class="pi pi-angle-right text-xs" />
+                <span class="font-medium">Q{{ index + 1 }}</span>
+              </div>
+              <span class="font-medium">
+                {{ qualifier.property.label || qualifier.property.id }}:
+              </span>
+              <Tag
+                :value="
+                  qualifier.value.type === 'column'
+                    ? qualifier.value.source.columnName
+                    : qualifier.value.source
+                "
+                size="small"
+                severity="secondary"
+              />
+              <span class="text-surface-400">{{ qualifier.value.dataType }}</span>
+            </div>
           </div>
         </div>
       </div>

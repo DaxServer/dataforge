@@ -130,9 +130,9 @@
   - Implement qualifier value mapping functionality
   - _Requirements: 6.3, 6.4_
 
-- [ ] 22. Add qualifier nested display
-  - Write tests for nested display under parent statements
-  - Implement qualifier nested display functionality
+- [x] 22. Add qualifier display
+  - Write tests for qualifier display within statements
+  - Implement qualifier display functionality
   - _Requirements: 6.5_
 
 - [ ] 23. Create ReferencesEditor component
