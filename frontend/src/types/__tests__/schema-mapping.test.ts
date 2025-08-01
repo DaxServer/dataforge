@@ -136,12 +136,17 @@ describe('Schema Mapping Types', () => {
       }
 
       const reference: ReferenceSchemaMapping = {
-        property: { id: 'P854', label: 'reference URL', dataType: 'url' },
-        value: {
-          type: 'column',
-          source: { columnName: 'ref_url', dataType: 'VARCHAR' },
-          dataType: 'url',
-        },
+        id: 'ref-1',
+        snaks: [
+          {
+            property: { id: 'P854', label: 'reference URL', dataType: 'url' },
+            value: {
+              type: 'column',
+              source: { columnName: 'ref_url', dataType: 'VARCHAR' },
+              dataType: 'url',
+            },
+          },
+        ],
       }
 
       const statementMapping: StatementSchemaMapping = {
@@ -178,12 +183,17 @@ describe('Schema Mapping Types', () => {
         ],
         references: [
           {
-            property: { id: 'P854', label: 'reference URL', dataType: 'url' },
-            value: {
-              type: 'column',
-              source: { columnName: 'ref_url', dataType: 'VARCHAR' },
-              dataType: 'url',
-            },
+            id: 'ref-1',
+            snaks: [
+              {
+                property: { id: 'P854', label: 'reference URL', dataType: 'url' },
+                value: {
+                  type: 'column',
+                  source: { columnName: 'ref_url', dataType: 'VARCHAR' },
+                  dataType: 'url',
+                },
+              },
+            ],
           },
         ],
       })

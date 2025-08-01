@@ -289,22 +289,31 @@ const getRankIcon = (rank: string) => {
                     <div
                       v-for="(reference, rIndex) in statement.references"
                       :key="`${statement.id}-reference-${rIndex}`"
-                      class="flex items-center gap-2 text-sm text-surface-600 py-1"
+                      class="space-y-1"
                     >
-                      <i class="pi pi-angle-right text-xs text-surface-400" />
-                      <span class="font-medium">
-                        {{ reference.property.label || reference.property.id }}:
-                      </span>
-                      <Tag
-                        :value="
-                          typeof reference.value.source === 'string'
-                            ? reference.value.source
-                            : reference.value.source.columnName
-                        "
-                        size="small"
-                        severity="secondary"
-                      />
-                      <span class="text-surface-400">{{ reference.value.dataType }}</span>
+                      <div class="text-xs text-surface-500 font-medium">
+                        Reference {{ rIndex + 1 }} ({{ reference.snaks.length }} properties)
+                      </div>
+                      <div
+                        v-for="(snak, snakIndex) in reference.snaks"
+                        :key="`${reference.id}-snak-${snakIndex}`"
+                        class="flex items-center gap-2 text-sm text-surface-600 py-1 ml-2"
+                      >
+                        <i class="pi pi-angle-right text-xs text-surface-400" />
+                        <span class="font-medium">
+                          {{ snak.property.label || snak.property.id }}:
+                        </span>
+                        <Tag
+                          :value="
+                            typeof snak.value.source === 'string'
+                              ? snak.value.source
+                              : snak.value.source.columnName
+                          "
+                          size="small"
+                          severity="secondary"
+                        />
+                        <span class="text-surface-400">{{ snak.value.dataType }}</span>
+                      </div>
                     </div>
                   </div>
                 </div>

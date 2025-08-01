@@ -11,7 +11,7 @@ describe('ReferencesEditor Component Compilation', () => {
   test('should compile without TypeScript errors', async () => {
     // This test will fail at compile time if there are TypeScript errors
     const { default: ReferencesEditor } = await import('@frontend/components/ReferencesEditor.vue')
-    
+
     expect(ReferencesEditor).toBeDefined()
     expect(ReferencesEditor).toBeTruthy()
   })

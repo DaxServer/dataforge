@@ -141,7 +141,7 @@
   - Implement ReferencesEditor component structure
   - _Requirements: 7.1, 7.2_
 
-- [ ] 24. Build reference value mapping
+- [x] 24. Build reference value mapping
   - Write tests for reference value mapping with appropriate data types
   - Write tests for citation data support
   - Implement reference value mapping functionality
