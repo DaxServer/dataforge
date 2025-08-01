@@ -2,12 +2,12 @@ import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import type {
   StatementSchemaMapping,
-  ColumnMapping,
   PropertyReference,
   ValueMapping,
   StatementRank,
-  Label,
+  PropertyValueMap,
 } from '@frontend/types/wikibase-schema'
+import type { UUID } from 'crypto'
 import { useSchemaBuilder } from '@frontend/composables/useSchemaBuilder'
 import { ItemId } from '@backend/types/wikibase-schema'
 
@@ -93,9 +93,9 @@ export const useSchemaStore = defineStore('schema', () => {
     property: PropertyReference,
     valueMapping: ValueMapping,
     rank: StatementRank = 'normal',
-    qualifiers: QualifierSchemaMapping[] = [],
-    references: ReferenceSchemaMapping[] = [],
-  ): string => {
+    qualifiers: PropertyValueMap[] = [],
+    references: PropertyValueMap[] = [],
+  ): UUID => {
     const statement = buildStatement(property, valueMapping, rank, qualifiers, references)
     statements.value.push(statement)
     markDirty()
@@ -103,7 +103,7 @@ export const useSchemaStore = defineStore('schema', () => {
     return statement.id
   }
 
-  const removeStatement = (statementId: string) => {
+  const removeStatement = (statementId: UUID) => {
     const index = statements.value.findIndex((s) => s.id === statementId)
 
     if (index !== -1) {
@@ -121,7 +121,7 @@ export const useSchemaStore = defineStore('schema', () => {
     }
   }
 
-  const updateStatementQualifiers = (statementId: string, qualifiers: QualifierSchemaMapping[]) => {
+  const updateStatementQualifiers = (statementId: string, qualifiers: PropertyValueMap[]) => {
     const statement = statements.value.find((s) => s.id === statementId)
 
     if (statement) {
@@ -130,7 +130,7 @@ export const useSchemaStore = defineStore('schema', () => {
     }
   }
 
-  const addQualifierToStatement = (statementId: string, qualifier: QualifierSchemaMapping) => {
+  const addQualifierToStatement = (statementId: string, qualifier: PropertyValueMap) => {
     const statement = statements.value.find((s) => s.id === statementId)
 
     if (statement) {

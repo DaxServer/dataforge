@@ -4,6 +4,12 @@ import { setActivePinia } from 'pinia'
 import { useSchemaApi } from '@frontend/composables/useSchemaApi'
 import { useSchemaStore } from '@frontend/stores/schema.store'
 import type { WikibaseSchemaMapping } from '@frontend/types/wikibase-schema'
+import type { UUID } from 'crypto'
+
+// Test UUIDs for consistent testing
+const TEST_SCHEMA_ID = Bun.randomUUIDv7() as UUID
+const TEST_PROJECT_ID = Bun.randomUUIDv7() as UUID
+const TEST_SCHEMA_789_ID = Bun.randomUUIDv7() as UUID
 
 // Create mock functions
 const mockSchemaPost = mock()
@@ -49,8 +55,8 @@ const originalUseErrorHandling = (globalThis as any).useErrorHandling
 const originalUseSchemaStore = (globalThis as any).useSchemaStore
 
 const mockSchema: WikibaseSchemaMapping = {
-  id: 'schema-123',
-  projectId: 'project-456',
+  id: TEST_SCHEMA_ID,
+  projectId: TEST_PROJECT_ID,
   name: 'Test Schema',
   wikibase: '',
   item: {
@@ -72,7 +78,7 @@ const mockSchema: WikibaseSchemaMapping = {
 
 const mockCreatedSchema: WikibaseSchemaMapping = {
   ...mockSchema,
-  id: 'schema-789',
+  id: TEST_SCHEMA_789_ID,
   name: 'New Schema',
 }
 

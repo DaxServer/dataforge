@@ -100,7 +100,6 @@ The Wikibase Schema Editor is a visual interface that allows users to create and
 #### Acceptance Criteria
 
 1. WHEN the user creates invalid mappings THEN the system SHALL display clear error messages
-2. WHEN hovering over schema elements THEN the system SHALL show tooltips with additional information
-3. WHEN the schema is incomplete THEN the system SHALL highlight required fields that need attention
-4. WHEN the user maps columns THEN the system SHALL provide autocomplete suggestions for property names
-5. IF there are data type mismatches THEN the system SHALL warn the user and suggest corrections
+2. WHEN the schema is incomplete THEN the system SHALL highlight required fields that need attention
+3. WHEN the user maps columns THEN the system SHALL provide autocomplete suggestions for property names
+4. IF there are data type mismatches THEN the system SHALL warn the user and suggest corrections

@@ -2,11 +2,7 @@ import { describe, test, expect, beforeEach, mock } from 'bun:test'
 import { createTestingPinia } from '@pinia/testing'
 import { setActivePinia } from 'pinia'
 import { ref, computed } from 'vue'
-import type {
-  QualifierSchemaMapping,
-  PropertyReference,
-  ValueMapping,
-} from '@frontend/types/wikibase-schema'
+import type { PropertyReference, ValueMapping } from '@frontend/types/wikibase-schema'
 
 /**
  * StatementEditor Integration Tests
@@ -150,12 +146,12 @@ describe('StatementEditor Integration - Qualifier Display', () => {
                 dataType: 'time',
               },
             },
-          ] as QualifierSchemaMapping[],
+          ] as PropertyValueMap[],
         },
       }
 
       // Simulate the component's initialization logic
-      const localQualifiers = ref<QualifierSchemaMapping[]>(props.modelValue?.qualifiers || [])
+      const localQualifiers = ref<PropertyValueMap[]>(props.modelValue?.qualifiers || [])
 
       expect(localQualifiers.value.length).toBe(1)
       expect(localQualifiers.value[0]?.property.id).toBe('P580')
@@ -163,11 +159,11 @@ describe('StatementEditor Integration - Qualifier Display', () => {
     })
 
     test('should handle qualifier updates through event handlers', () => {
-      const localQualifiers = ref<QualifierSchemaMapping[]>([])
+      const localQualifiers = ref<PropertyValueMap[]>([])
       const tempStatementId = 'test-statement-id'
 
       // Simulate the event handlers from the component
-      const handleAddQualifier = (statementId: string, qualifier: QualifierSchemaMapping) => {
+      const handleAddQualifier = (statementId: string, qualifier: PropertyValueMap) => {
         localQualifiers.value.push(qualifier)
         // Simulate emitUpdate call
         return {
@@ -185,7 +181,7 @@ describe('StatementEditor Integration - Qualifier Display', () => {
       const handleUpdateQualifier = (
         statementId: string,
         qualifierIndex: number,
-        qualifier: QualifierSchemaMapping,
+        qualifier: PropertyValueMap,
       ) => {
         if (qualifierIndex >= 0 && qualifierIndex < localQualifiers.value.length) {
           localQualifiers.value[qualifierIndex] = qualifier
@@ -193,7 +189,7 @@ describe('StatementEditor Integration - Qualifier Display', () => {
       }
 
       // Test adding a qualifier
-      const newQualifier: QualifierSchemaMapping = {
+      const newQualifier: PropertyValueMap = {
         property: {
           id: 'P580',
           label: 'start time',
@@ -214,7 +210,7 @@ describe('StatementEditor Integration - Qualifier Display', () => {
       expect(result.qualifiers.length).toBe(1)
 
       // Test updating a qualifier
-      const updatedQualifier: QualifierSchemaMapping = {
+      const updatedQualifier: PropertyValueMap = {
         ...newQualifier,
         property: {
           ...newQualifier.property,
@@ -231,10 +227,10 @@ describe('StatementEditor Integration - Qualifier Display', () => {
     })
 
     test('should sync qualifiers when props change', () => {
-      const localQualifiers = ref<QualifierSchemaMapping[]>([])
+      const localQualifiers = ref<PropertyValueMap[]>([])
 
       // Simulate the watcher logic
-      const syncQualifiersFromProps = (newQualifiers: QualifierSchemaMapping[] | undefined) => {
+      const syncQualifiersFromProps = (newQualifiers: PropertyValueMap[] | undefined) => {
         localQualifiers.value = newQualifiers || []
       }
 
@@ -242,7 +238,7 @@ describe('StatementEditor Integration - Qualifier Display', () => {
       expect(localQualifiers.value.length).toBe(0)
 
       // Simulate props change with qualifiers
-      const qualifiers: QualifierSchemaMapping[] = [
+      const qualifiers: PropertyValueMap[] = [
         {
           property: { id: 'P580', label: 'start time', dataType: 'time' },
           value: {
@@ -276,7 +272,7 @@ describe('StatementEditor Integration - Qualifier Display', () => {
     test('should determine preview visibility based on statement validity and qualifiers', () => {
       // Simulate the component's computed properties
       const isValidStatement = ref(true)
-      const localQualifiers = ref<QualifierSchemaMapping[]>([])
+      const localQualifiers = ref<PropertyValueMap[]>([])
 
       // Preview should show when statement is valid
       const shouldShowPreview = computed(() => isValidStatement.value)
@@ -305,7 +301,7 @@ describe('StatementEditor Integration - Qualifier Display', () => {
     })
 
     test('should format qualifier preview data correctly', () => {
-      const qualifiers: QualifierSchemaMapping[] = [
+      const qualifiers: PropertyValueMap[] = [
         {
           property: { id: 'P580', label: 'start time', dataType: 'time' },
           value: {
@@ -321,7 +317,7 @@ describe('StatementEditor Integration - Qualifier Display', () => {
       ]
 
       // Simulate the template logic for displaying qualifiers
-      const formatQualifierForPreview = (qualifier: QualifierSchemaMapping, index: number) => {
+      const formatQualifierForPreview = (qualifier: PropertyValueMap, index: number) => {
         return {
           number: `Q${index + 1}`,
           propertyLabel: qualifier.property.label || qualifier.property.id,
@@ -370,7 +366,7 @@ describe('StatementEditor Integration - Qualifier Display', () => {
         rank: 'normal' as const,
       })
 
-      const localQualifiers = ref<QualifierSchemaMapping[]>([
+      const localQualifiers = ref<PropertyValueMap[]>([
         {
           property: { id: 'P580', label: 'start time', dataType: 'time' },
           value: {

@@ -3,8 +3,11 @@ import { useReferenceValueMapping } from '@frontend/composables/useReferenceValu
 import type {
   ColumnInfo,
   ReferenceSchemaMapping,
-  ReferenceSnakSchemaMapping,
+  PropertyValueMap,
 } from '@frontend/types/wikibase-schema'
+import type { UUID } from 'crypto'
+
+const TEST_REFERENCE_ID: UUID = Bun.randomUUIDv7() as UUID
 
 /**
  * useReferenceValueMapping Composable Tests
@@ -56,7 +59,7 @@ describe('useReferenceValueMapping', () => {
   test('should create citation reference', () => {
     const { createCitationReference } = useReferenceValueMapping()
 
-    const snaks: ReferenceSnakSchemaMapping[] = [
+    const snaks: PropertyValueMap[] = [
       {
         property: {
           id: 'P123',
@@ -83,7 +86,7 @@ describe('useReferenceValueMapping', () => {
   test('should validate reference snak mapping', () => {
     const { validateReferenceSnakMapping } = useReferenceValueMapping()
 
-    const validSnak: ReferenceSnakSchemaMapping = {
+    const validSnak: PropertyValueMap = {
       property: {
         id: 'P123',
         label: 'test property',
@@ -108,7 +111,7 @@ describe('useReferenceValueMapping', () => {
     const { validateReferenceMapping } = useReferenceValueMapping()
 
     const validReference: ReferenceSchemaMapping = {
-      id: 'test-ref',
+      id: TEST_REFERENCE_ID,
       snaks: [
         {
           property: {

@@ -1,4 +1,5 @@
 import type { ItemId, PropertyId } from '@backend/types/wikibase-schema'
+import type { UUID } from 'crypto'
 
 /**
  * Frontend-specific Wikibase schema types for the DataForge application
@@ -55,8 +56,8 @@ export const ValidationMessages: Record<ValidationErrorCode, string> = {
 
 // Core schema mapping interfaces
 export interface WikibaseSchemaMapping {
-  id: string
-  projectId: string
+  id: UUID
+  projectId: UUID
   name: string
   wikibase: string
   item: ItemSchemaMapping
@@ -107,12 +108,12 @@ export interface TransformationParameter {
 }
 
 export interface StatementSchemaMapping {
-  id: string
+  id: UUID
   property: PropertyReference
   value: ValueMapping
   rank: StatementRank
-  qualifiers: QualifierSchemaMapping[]
-  references: ReferenceSchemaMapping[]
+  qualifiers: PropertyValueMap[]
+  references: PropertyValueMap[]
 }
 
 export interface PropertyReference {
@@ -138,21 +139,15 @@ export type ValueMapping =
       dataType: WikibaseDataType
     }
 
-export interface QualifierSchemaMapping {
-  property: PropertyReference
-  value: ValueMapping
-}
-
-// Reference snak (property-value pair within a reference)
-export interface ReferenceSnakSchemaMapping {
+export interface PropertyValueMap {
   property: PropertyReference
   value: ValueMapping
 }
 
 // A complete reference containing multiple property-value pairs
 export interface ReferenceSchemaMapping {
-  id: string // Unique identifier for this reference
-  snaks: ReferenceSnakSchemaMapping[] // Array of property-value pairs in this reference
+  id: UUID // Unique identifier for this reference
+  snaks: PropertyValueMap[] // Array of property-value pairs in this reference
 }
 
 export type StatementRank = 'preferred' | 'normal' | 'deprecated'

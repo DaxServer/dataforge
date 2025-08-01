@@ -373,7 +373,7 @@ declare global {
   export type { ProjectFile, FileSelectEvent, FileRemoveEvent, ApiClient } from './src/types/index'
   import('./src/types/index')
   // @ts-ignore
-  export type { ValidationErrorType, ValidationErrorCode, ValidationError, ValidationResult, ValidationContext, WikibaseSchemaMapping, ItemSchemaMapping, Label, TermsSchemaMapping, ColumnMapping, TransformationRule, TransformationFunction, TransformationParameter, StatementSchemaMapping, PropertyReference, ValueMapping, QualifierSchemaMapping, ReferenceSnakSchemaMapping, ReferenceSchemaMapping, StatementRank, WikibaseDataType, ColumnInfo, ValidationRule, SchemaMapping, ColumnReference, ValueSchemaMapping, ValidatedSchemaMapping } from './src/types/wikibase-schema'
+  export type { ValidationErrorType, ValidationErrorCode, ValidationError, ValidationResult, ValidationContext, WikibaseSchemaMapping, ItemSchemaMapping, Label, TermsSchemaMapping, ColumnMapping, TransformationRule, TransformationFunction, TransformationParameter, StatementSchemaMapping, PropertyReference, ValueMapping, PropertyValueMap, ReferenceSchemaMapping, StatementRank, WikibaseDataType, ColumnInfo, ValidationRule, SchemaMapping, ColumnReference, ValueSchemaMapping, ValidatedSchemaMapping } from './src/types/wikibase-schema'
   import('./src/types/wikibase-schema')
 }
 

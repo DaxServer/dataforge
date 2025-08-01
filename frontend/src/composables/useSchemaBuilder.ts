@@ -8,7 +8,9 @@ import type {
   PropertyReference,
   ValueMapping,
   StatementRank,
+  PropertyValueMap,
 } from '@frontend/types/wikibase-schema'
+import type { UUID } from 'crypto'
 
 /**
  * Composable for building and constructing complete schema objects
@@ -19,7 +21,7 @@ export const useSchemaBuilder = () => {
    */
   const buildSchema = (
     id: string,
-    projectId: string,
+    projectId: UUID,
     name: string,
     wikibaseUrl: string,
     labels: Label,
@@ -32,7 +34,7 @@ export const useSchemaBuilder = () => {
     const now = new Date().toISOString()
 
     return {
-      id,
+      id: id as UUID,
       projectId,
       name,
       wikibase: wikibaseUrl,
@@ -79,11 +81,11 @@ export const useSchemaBuilder = () => {
     property: PropertyReference,
     valueMapping: ValueMapping,
     rank: StatementRank = 'normal',
-    qualifiers: QualifierSchemaMapping[] = [],
-    references: ReferenceSchemaMapping[] = [],
+    qualifiers: PropertyValueMap[] = [],
+    references: PropertyValueMap[] = [],
   ): StatementSchemaMapping => {
     return {
-      id: crypto.randomUUID(),
+      id: crypto.randomUUID() as UUID,
       property,
       value: valueMapping,
       rank,
@@ -95,7 +97,7 @@ export const useSchemaBuilder = () => {
   /**
    * Creates a new empty schema with default values
    */
-  const createEmptySchema = (projectId: string, wikibaseUrl: string): WikibaseSchemaMapping => {
+  const createEmptySchema = (projectId: UUID, wikibaseUrl: string): WikibaseSchemaMapping => {
     return buildSchema(
       crypto.randomUUID(),
       projectId,
