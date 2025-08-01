@@ -147,9 +147,8 @@
   - Implement reference value mapping functionality
   - _Requirements: 7.3, 7.5_
 
-- [ ] 25. Add reference citation display
-  - Write tests for citation display under statements
-  - Implement reference citation display functionality
+- [x] 25. Integrate reference display
+  - Integrate reference display functionality with other components
   - _Requirements: 7.4_
 
 - [ ] 26. Implement real-time validation
