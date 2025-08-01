@@ -5,7 +5,7 @@ interface StatementEditorProps {
     property: PropertyReference | null
     value: ValueMapping
     rank: StatementRank
-    qualifiers?: QualifierSchemaMapping[]
+    qualifiers?: PropertyValueMap[]
     references?: ReferenceSchemaMapping[]
   }
   availableColumns?: ColumnInfo[]
@@ -38,7 +38,7 @@ interface StatementEditorEmits {
       property: PropertyReference | null
       value: ValueMapping
       rank: StatementRank
-      qualifiers?: QualifierSchemaMapping[]
+      qualifiers?: PropertyValueMap[]
       references?: ReferenceSchemaMapping[]
     },
   ]
@@ -95,7 +95,7 @@ setOnColumnDrop((_column) => {
 const tempStatementId = ref(crypto.randomUUID())
 
 // Local qualifiers state
-const localQualifiers = ref<QualifierSchemaMapping[]>(props.modelValue?.qualifiers || [])
+const localQualifiers = ref<PropertyValueMap[]>(props.modelValue?.qualifiers || [])
 
 // Local references state
 const localReferences = ref<ReferenceSchemaMapping[]>(props.modelValue?.references || [])
@@ -160,12 +160,12 @@ const handleClearColumn = () => {
 }
 
 // Qualifier handling methods
-const handleAddQualifier = (statementId: string, qualifier: QualifierSchemaMapping) => {
+const handleAddQualifier = (statementId: UUID, qualifier: PropertyValueMap) => {
   localQualifiers.value.push(qualifier)
   emitUpdate()
 }
 
-const handleRemoveQualifier = (statementId: string, qualifierIndex: number) => {
+const handleRemoveQualifier = (statementId: UUID, qualifierIndex: number) => {
   if (qualifierIndex >= 0 && qualifierIndex < localQualifiers.value.length) {
     localQualifiers.value.splice(qualifierIndex, 1)
     emitUpdate()
@@ -173,9 +173,9 @@ const handleRemoveQualifier = (statementId: string, qualifierIndex: number) => {
 }
 
 const handleUpdateQualifier = (
-  statementId: string,
+  statementId: UUID,
   qualifierIndex: number,
-  qualifier: QualifierSchemaMapping,
+  qualifier: PropertyValueMap,
 ) => {
   if (qualifierIndex >= 0 && qualifierIndex < localQualifiers.value.length) {
     localQualifiers.value[qualifierIndex] = qualifier
@@ -184,12 +184,12 @@ const handleUpdateQualifier = (
 }
 
 // Reference handling methods
-const handleAddReference = (statementId: string, reference: ReferenceSchemaMapping) => {
+const handleAddReference = (statementId: UUID, reference: ReferenceSchemaMapping) => {
   localReferences.value.push(reference)
   emitUpdate()
 }
 
-const handleRemoveReference = (statementId: string, referenceIndex: number) => {
+const handleRemoveReference = (statementId: UUID, referenceIndex: number) => {
   if (referenceIndex >= 0 && referenceIndex < localReferences.value.length) {
     localReferences.value.splice(referenceIndex, 1)
     emitUpdate()
@@ -197,7 +197,7 @@ const handleRemoveReference = (statementId: string, referenceIndex: number) => {
 }
 
 const handleUpdateReference = (
-  statementId: string,
+  statementId: UUID,
   referenceIndex: number,
   reference: ReferenceSchemaMapping,
 ) => {
@@ -208,9 +208,9 @@ const handleUpdateReference = (
 }
 
 const handleAddSnakToReference = (
-  statementId: string,
+  statementId: UUID,
   referenceIndex: number,
-  snak: ReferenceSnakSchemaMapping,
+  snak: PropertyValueMap,
 ) => {
   if (referenceIndex >= 0 && referenceIndex < localReferences.value.length) {
     const reference = localReferences.value[referenceIndex]
@@ -222,7 +222,7 @@ const handleAddSnakToReference = (
 }
 
 const handleRemoveSnakFromReference = (
-  statementId: string,
+  statementId: UUID,
   referenceIndex: number,
   snakIndex: number,
 ) => {

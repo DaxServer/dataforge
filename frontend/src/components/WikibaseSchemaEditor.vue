@@ -1,20 +1,10 @@
 <script setup lang="ts">
-interface WikibaseSchemaEditorProps {
-  projectId?: string
-  schemaId?: string
-}
-
 interface WikibaseSchemaEditorEmits {
   'add-item': []
   preview: []
   save: []
   help: []
 }
-
-const props = withDefaults(defineProps<WikibaseSchemaEditorProps>(), {
-  projectId: '',
-  schemaId: '',
-})
 
 const emit = defineEmits<WikibaseSchemaEditorEmits>()
 
@@ -28,8 +18,7 @@ const projectStore = useProjectStore()
 const { loadSchema, createSchema, updateSchema } = useSchemaApi()
 const { showError, showSuccess } = useErrorHandling()
 const { convertProjectColumnsToColumnInfo } = useColumnConversion()
-const { localStatement, setAvailableColumns, initializeStatement, resetStatement } =
-  useStatementEditor()
+const { setAvailableColumns, initializeStatement, resetStatement } = useStatementEditor()
 
 // Reactive state
 const isInitialized = ref(false)
@@ -42,7 +31,7 @@ const currentStatementWithQualifiers = ref<{
   property: PropertyReference | null
   value: ValueMapping
   rank: StatementRank
-  qualifiers?: QualifierSchemaMapping[]
+  qualifiers?: PropertyValueMap[]
 }>({
   property: null,
   value: {
@@ -102,9 +91,9 @@ const initializeEditor = async () => {
     initializeDragDropTargets()
 
     // Load existing schema if schemaId is provided
-    if (props.projectId && props.schemaId) {
-      await loadSchema(props.projectId, props.schemaId)
-    } else if (props.projectId) {
+    if (schemaStore.projectId && schemaStore.schemaId) {
+      await loadSchema(schemaStore.projectId, schemaStore.schemaId)
+    } else if (schemaStore.projectId) {
       // Initialize with default empty item structure
       initializeEmptySchema()
     }
@@ -118,7 +107,7 @@ const initializeEditor = async () => {
 }
 
 const initializeEmptySchema = () => {
-  schemaStore.projectId = props.projectId
+  schemaStore.projectId = crypto.randomUUID()
   schemaStore.schemaName = 'Untitled Schema'
   schemaStore.wikibase = 'https://www.wikidata.org'
   // Item will be created when user clicks "Add item"
@@ -168,12 +157,12 @@ const handlePreview = () => {
 }
 
 const handleSave = async () => {
-  if (!canSave.value) return
+  if (!canSave.value || !schemaStore.projectId) return
 
   try {
     if (schemaStore.schemaId) {
       // Update existing schema
-      await updateSchema(props.projectId, schemaStore.schemaId, {
+      await updateSchema(schemaStore.projectId, schemaStore.schemaId, {
         id: schemaStore.schemaId,
         projectId: schemaStore.projectId,
         name: schemaStore.schemaName,
@@ -192,7 +181,7 @@ const handleSave = async () => {
       })
     } else {
       // Create new schema
-      await createSchema(props.projectId, {
+      await createSchema(schemaStore.projectId, {
         name: schemaStore.schemaName,
         wikibase: schemaStore.wikibase,
       })
@@ -230,7 +219,7 @@ const handleAddStatement = () => {
   isAddingStatement.value = true
 }
 
-const handleEditStatement = (statementId: string) => {
+const handleEditStatement = (statementId: UUID) => {
   const statement = schemaStore.statements.find((s) => s.id === statementId)
   if (statement) {
     // Load existing statement data for editing including qualifiers
@@ -250,7 +239,7 @@ const handleEditStatement = (statementId: string) => {
   }
 }
 
-const handleRemoveStatement = (statementId: string) => {
+const handleRemoveStatement = (statementId: UUID) => {
   schemaStore.removeStatement(statementId)
 }
 
@@ -264,7 +253,7 @@ const handleStatementUpdate = (statement: {
   property: PropertyReference | null
   value: ValueMapping
   rank: StatementRank
-  qualifiers?: QualifierSchemaMapping[]
+  qualifiers?: PropertyValueMap[]
 }) => {
   currentStatementWithQualifiers.value = statement
   // Also update the composable state for backward compatibility

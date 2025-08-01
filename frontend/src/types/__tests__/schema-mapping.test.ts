@@ -1,4 +1,5 @@
 import { describe, it, expect } from 'bun:test'
+import type { UUID } from 'crypto'
 import type {
   WikibaseSchemaMapping,
   TermsSchemaMapping,
@@ -6,8 +7,6 @@ import type {
   StatementSchemaMapping,
   PropertyReference,
   ValueMapping,
-  QualifierSchemaMapping,
-  ReferenceSchemaMapping,
   ColumnInfo,
   WikibaseDataType,
   StatementRank,
@@ -21,14 +20,26 @@ import type {
   ValidatedSchemaMapping,
   ValidationError,
   ValidationResult,
+  PropertyValueMap,
+  ReferenceSchemaMapping,
 } from '@frontend/types/wikibase-schema'
+
+// Test UUIDs for consistent testing
+const TEST_SCHEMA_ID = Bun.randomUUIDv7() as UUID
+const TEST_PROJECT_ID = Bun.randomUUIDv7() as UUID
+const TEST_STATEMENT_ID = Bun.randomUUIDv7() as UUID
+const TEST_VALIDATED_SCHEMA_ID = Bun.randomUUIDv7() as UUID
+const TEST_PROJECT_123_ID = Bun.randomUUIDv7() as UUID
+const TEST_STMT_PREFERRED_ID = Bun.randomUUIDv7() as UUID
+const TEST_STMT_NORMAL_ID = Bun.randomUUIDv7() as UUID
+const TEST_STMT_DEPRECATED_ID = Bun.randomUUIDv7() as UUID
 
 describe('Schema Mapping Types', () => {
   describe('Core Schema Types', () => {
     it('should create WikibaseSchemaMapping with and without optional fields', () => {
       const baseSchema = {
-        id: 'schema-123',
-        projectId: 'project-456',
+        id: TEST_SCHEMA_ID,
+        projectId: TEST_PROJECT_ID,
         name: 'Test Schema',
         wikibase: 'https://test.wikibase.org',
         item: {
@@ -50,8 +61,8 @@ describe('Schema Mapping Types', () => {
 
       expect(schemaWithId.item.id).toBe('Q123')
       expect(schemaWithoutId.item.id).toBeUndefined()
-      expect(schemaWithId.id).toBe('schema-123')
-      expect(schemaWithoutId.projectId).toBe('project-456')
+      expect(schemaWithId.id).toBe(TEST_SCHEMA_ID)
+      expect(schemaWithoutId.projectId).toBe(TEST_PROJECT_ID)
     })
   })
 
@@ -126,7 +137,7 @@ describe('Schema Mapping Types', () => {
         dataType: 'string',
       }
 
-      const qualifier: QualifierSchemaMapping = {
+      const qualifier: PropertyValueMap = {
         property: { id: 'P456', dataType: 'string' },
         value: {
           type: 'column',
@@ -136,7 +147,7 @@ describe('Schema Mapping Types', () => {
       }
 
       const reference: ReferenceSchemaMapping = {
-        id: 'ref-1',
+        id: Bun.randomUUIDv7() as UUID,
         snaks: [
           {
             property: { id: 'P854', label: 'reference URL', dataType: 'url' },
@@ -150,7 +161,7 @@ describe('Schema Mapping Types', () => {
       }
 
       const statementMapping: StatementSchemaMapping = {
-        id: 'stmt-1',
+        id: TEST_STATEMENT_ID,
         property: propertyRef,
         value: valueMapping,
         rank: 'normal',
@@ -159,7 +170,7 @@ describe('Schema Mapping Types', () => {
       }
 
       expect(statementMapping).toEqual({
-        id: 'stmt-1',
+        id: TEST_STATEMENT_ID,
         property: {
           id: 'P123',
           label: 'Test Property',
@@ -183,7 +194,7 @@ describe('Schema Mapping Types', () => {
         ],
         references: [
           {
-            id: 'ref-1',
+            id: expect.any(String),
             snaks: [
               {
                 property: { id: 'P854', label: 'reference URL', dataType: 'url' },
@@ -200,11 +211,15 @@ describe('Schema Mapping Types', () => {
     })
 
     it('should handle different statement ranks', () => {
-      const ranks: StatementRank[] = ['preferred', 'normal', 'deprecated']
+      const testCases = [
+        { rank: 'preferred' as StatementRank, id: TEST_STMT_PREFERRED_ID },
+        { rank: 'normal' as StatementRank, id: TEST_STMT_NORMAL_ID },
+        { rank: 'deprecated' as StatementRank, id: TEST_STMT_DEPRECATED_ID },
+      ]
 
-      ranks.forEach((rank) => {
+      testCases.forEach(({ rank, id }) => {
         const statementMapping: StatementSchemaMapping = {
-          id: `stmt-${rank}`,
+          id,
           property: { id: 'P123', dataType: 'string' },
           value: {
             type: 'constant',
@@ -453,8 +468,8 @@ describe('Schema Mapping Types', () => {
 
       // Test schemas for validation
       const schemaWithLabels: WikibaseSchemaMapping = {
-        id: 'test',
-        projectId: 'test',
+        id: TEST_SCHEMA_ID,
+        projectId: TEST_PROJECT_ID,
         name: 'test',
         wikibase: 'test',
         item: {
@@ -532,8 +547,8 @@ describe('Schema Mapping Types', () => {
 
     it('should create ValidatedSchemaMapping with validation results', () => {
       const baseSchema: WikibaseSchemaMapping = {
-        id: 'validated-schema',
-        projectId: 'project-123',
+        id: TEST_VALIDATED_SCHEMA_ID,
+        projectId: TEST_PROJECT_123_ID,
         name: 'Validated Schema',
         wikibase: 'https://test.wikibase.org',
         item: {
@@ -570,7 +585,7 @@ describe('Schema Mapping Types', () => {
       expect(validatedSchema.validation.isValid).toBe(true)
       expect(validatedSchema.validation.warnings).toHaveLength(1)
       expect(validatedSchema.completeness).toBe(75)
-      expect(validatedSchema.id).toBe('validated-schema')
+      expect(validatedSchema.id).toBe(TEST_VALIDATED_SCHEMA_ID)
     })
   })
 })

@@ -1,10 +1,6 @@
-import { describe, test, expect, beforeEach, mock } from 'bun:test'
+import { describe, test, expect } from 'bun:test'
 import { ref } from 'vue'
-import type {
-  QualifierSchemaMapping,
-  PropertyReference,
-  ValueMapping,
-} from '@frontend/types/wikibase-schema'
+import type { PropertyReference, ValueMapping } from '@frontend/types/wikibase-schema'
 
 /**
  * StatementEditor - Qualifier Display Tests
@@ -17,7 +13,7 @@ describe('StatementEditor - Qualifier Display Logic', () => {
   describe('qualifier preview display logic', () => {
     test('should determine when to show qualifiers preview section', () => {
       // Test the logic for showing/hiding qualifiers preview
-      const shouldShowQualifiersPreview = (qualifiers: QualifierSchemaMapping[]) => {
+      const shouldShowQualifiersPreview = (qualifiers: PropertyValueMap[]) => {
         return qualifiers.length > 0
       }
 
@@ -25,7 +21,7 @@ describe('StatementEditor - Qualifier Display Logic', () => {
       expect(shouldShowQualifiersPreview([])).toBe(false)
 
       // With qualifiers - should show
-      const qualifiers: QualifierSchemaMapping[] = [
+      const qualifiers: PropertyValueMap[] = [
         {
           property: {
             id: 'P580',
@@ -47,7 +43,7 @@ describe('StatementEditor - Qualifier Display Logic', () => {
     })
 
     test('should format qualifier display information correctly', () => {
-      const qualifier: QualifierSchemaMapping = {
+      const qualifier: PropertyValueMap = {
         property: {
           id: 'P580',
           label: 'start time',
@@ -81,7 +77,7 @@ describe('StatementEditor - Qualifier Display Logic', () => {
       expect(getValueDisplayText(qualifier.value)).toBe('start_date')
 
       // Test with constant value
-      const constantQualifier: QualifierSchemaMapping = {
+      const constantQualifier: PropertyValueMap = {
         property: {
           id: 'P582',
           label: 'end time',
@@ -98,7 +94,7 @@ describe('StatementEditor - Qualifier Display Logic', () => {
     })
 
     test('should handle qualifier numbering for display', () => {
-      const qualifiers: QualifierSchemaMapping[] = [
+      const qualifiers: PropertyValueMap[] = [
         {
           property: { id: 'P580', label: 'start time', dataType: 'time' },
           value: {
@@ -137,13 +133,13 @@ describe('StatementEditor - Qualifier Display Logic', () => {
   describe('qualifier reactivity and state management', () => {
     test('should handle qualifier state updates correctly', () => {
       // Simulate the reactive state management for qualifiers
-      const localQualifiers = ref<QualifierSchemaMapping[]>([])
+      const localQualifiers = ref<PropertyValueMap[]>([])
 
       // Initially empty
       expect(localQualifiers.value.length).toBe(0)
 
       // Add a qualifier
-      const newQualifier: QualifierSchemaMapping = {
+      const newQualifier: PropertyValueMap = {
         property: {
           id: 'P580',
           label: 'start time',
@@ -181,7 +177,7 @@ describe('StatementEditor - Qualifier Display Logic', () => {
 
     test('should sync qualifiers from props correctly', () => {
       // Test the watcher logic for syncing qualifiers from props
-      const syncQualifiersFromProps = (propsQualifiers: QualifierSchemaMapping[] | undefined) => {
+      const syncQualifiersFromProps = (propsQualifiers: PropertyValueMap[] | undefined) => {
         return propsQualifiers || []
       }
 
@@ -192,7 +188,7 @@ describe('StatementEditor - Qualifier Display Logic', () => {
       expect(syncQualifiersFromProps([])).toEqual([])
 
       // Test with actual qualifiers
-      const qualifiers: QualifierSchemaMapping[] = [
+      const qualifiers: PropertyValueMap[] = [
         {
           property: { id: 'P580', label: 'start time', dataType: 'time' },
           value: {
@@ -210,9 +206,9 @@ describe('StatementEditor - Qualifier Display Logic', () => {
 
   describe('qualifier event handling', () => {
     test('should handle add qualifier events correctly', () => {
-      const localQualifiers = ref<QualifierSchemaMapping[]>([])
+      const localQualifiers = ref<PropertyValueMap[]>([])
 
-      const handleAddQualifier = (statementId: string, qualifier: QualifierSchemaMapping) => {
+      const handleAddQualifier = (statementId: string, qualifier: PropertyValueMap) => {
         localQualifiers.value.push(qualifier)
         return {
           statementId,
@@ -220,7 +216,7 @@ describe('StatementEditor - Qualifier Display Logic', () => {
         }
       }
 
-      const newQualifier: QualifierSchemaMapping = {
+      const newQualifier: PropertyValueMap = {
         property: { id: 'P580', label: 'start time', dataType: 'time' },
         value: {
           type: 'column',
@@ -238,7 +234,7 @@ describe('StatementEditor - Qualifier Display Logic', () => {
     })
 
     test('should handle remove qualifier events correctly', () => {
-      const localQualifiers = ref<QualifierSchemaMapping[]>([
+      const localQualifiers = ref<PropertyValueMap[]>([
         {
           property: { id: 'P580', label: 'start time', dataType: 'time' },
           value: {
@@ -274,7 +270,7 @@ describe('StatementEditor - Qualifier Display Logic', () => {
     })
 
     test('should handle update qualifier events correctly', () => {
-      const localQualifiers = ref<QualifierSchemaMapping[]>([
+      const localQualifiers = ref<PropertyValueMap[]>([
         {
           property: { id: 'P580', label: 'start time', dataType: 'time' },
           value: {
@@ -288,7 +284,7 @@ describe('StatementEditor - Qualifier Display Logic', () => {
       const handleUpdateQualifier = (
         statementId: string,
         qualifierIndex: number,
-        qualifier: QualifierSchemaMapping,
+        qualifier: PropertyValueMap,
       ) => {
         if (qualifierIndex >= 0 && qualifierIndex < localQualifiers.value.length) {
           localQualifiers.value[qualifierIndex] = qualifier
@@ -297,7 +293,7 @@ describe('StatementEditor - Qualifier Display Logic', () => {
         return { success: false, updatedQualifier: null }
       }
 
-      const updatedQualifier: QualifierSchemaMapping = {
+      const updatedQualifier: PropertyValueMap = {
         property: { id: 'P580', label: 'updated start time', dataType: 'time' },
         value: {
           type: 'column',

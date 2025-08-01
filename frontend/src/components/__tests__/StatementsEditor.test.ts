@@ -7,6 +7,9 @@ import type {
   ValueMapping,
   WikibaseDataType,
 } from '@frontend/types/wikibase-schema'
+import type { UUID } from 'crypto'
+
+const NON_EXISTENT_ID: UUID = Bun.randomUUIDv7() as UUID
 
 /**
  * StatementsEditor Component Tests
@@ -168,7 +171,7 @@ describe('StatementsEditor Component Logic', () => {
       const valueMapping = createColumnValueMapping()
 
       store.addStatement(property, valueMapping)
-      store.removeStatement('non-existent-id')
+      store.removeStatement(NON_EXISTENT_ID)
 
       expect(store.statements).toHaveLength(1)
     })

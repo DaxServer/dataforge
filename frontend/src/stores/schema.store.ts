@@ -2,20 +2,21 @@ import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import type {
   StatementSchemaMapping,
-  ColumnMapping,
   PropertyReference,
   ValueMapping,
   StatementRank,
-  Label,
+  PropertyValueMap,
+  ReferenceSchemaMapping,
 } from '@frontend/types/wikibase-schema'
+import type { UUID } from 'crypto'
 import { useSchemaBuilder } from '@frontend/composables/useSchemaBuilder'
 import { ItemId } from '@backend/types/wikibase-schema'
 
 export const useSchemaStore = defineStore('schema', () => {
   const { buildStatement } = useSchemaBuilder()
 
-  const schemaId = ref<string | null>(null)
-  const projectId = ref<string>('')
+  const schemaId = ref<UUID | null>(null)
+  const projectId = ref<UUID | null>(null)
   const schemaName = ref<string>('')
   const wikibase = ref<string>('')
   const itemId = ref<ItemId | null>(null)
@@ -93,9 +94,9 @@ export const useSchemaStore = defineStore('schema', () => {
     property: PropertyReference,
     valueMapping: ValueMapping,
     rank: StatementRank = 'normal',
-    qualifiers: QualifierSchemaMapping[] = [],
+    qualifiers: PropertyValueMap[] = [],
     references: ReferenceSchemaMapping[] = [],
-  ): string => {
+  ): UUID => {
     const statement = buildStatement(property, valueMapping, rank, qualifiers, references)
     statements.value.push(statement)
     markDirty()
@@ -103,7 +104,7 @@ export const useSchemaStore = defineStore('schema', () => {
     return statement.id
   }
 
-  const removeStatement = (statementId: string) => {
+  const removeStatement = (statementId: UUID) => {
     const index = statements.value.findIndex((s) => s.id === statementId)
 
     if (index !== -1) {
@@ -112,7 +113,7 @@ export const useSchemaStore = defineStore('schema', () => {
     }
   }
 
-  const updateStatementRank = (statementId: string, rank: StatementRank) => {
+  const updateStatementRank = (statementId: UUID, rank: StatementRank) => {
     const statement = statements.value.find((s) => s.id === statementId)
 
     if (statement) {
@@ -121,7 +122,7 @@ export const useSchemaStore = defineStore('schema', () => {
     }
   }
 
-  const updateStatementQualifiers = (statementId: string, qualifiers: QualifierSchemaMapping[]) => {
+  const updateStatementQualifiers = (statementId: UUID, qualifiers: PropertyValueMap[]) => {
     const statement = statements.value.find((s) => s.id === statementId)
 
     if (statement) {
@@ -130,7 +131,7 @@ export const useSchemaStore = defineStore('schema', () => {
     }
   }
 
-  const addQualifierToStatement = (statementId: string, qualifier: QualifierSchemaMapping) => {
+  const addQualifierToStatement = (statementId: UUID, qualifier: PropertyValueMap) => {
     const statement = statements.value.find((s) => s.id === statementId)
 
     if (statement) {
@@ -139,7 +140,7 @@ export const useSchemaStore = defineStore('schema', () => {
     }
   }
 
-  const removeQualifierFromStatement = (statementId: string, qualifierIndex: number) => {
+  const removeQualifierFromStatement = (statementId: UUID, qualifierIndex: number) => {
     const statement = statements.value.find((s) => s.id === statementId)
 
     if (statement && qualifierIndex >= 0 && qualifierIndex < statement.qualifiers.length) {
@@ -157,7 +158,7 @@ export const useSchemaStore = defineStore('schema', () => {
 
   const $reset = () => {
     schemaId.value = null
-    projectId.value = ''
+    projectId.value = null
     schemaName.value = ''
     wikibase.value = ''
     itemId.value = null

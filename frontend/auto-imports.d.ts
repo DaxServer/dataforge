@@ -9,6 +9,7 @@ declare global {
   const ApiKey: typeof import('./src/plugins/api')['ApiKey']
   const ApiPlugin: typeof import('./src/plugins/api')['ApiPlugin']
   const EffectScope: typeof import('vue')['EffectScope']
+  const UUID: typeof import('crypto')['UUID']
   const ValidationMessages: typeof import('./src/types/wikibase-schema')['ValidationMessages']
   const acceptHMRUpdate: typeof import('pinia')['acceptHMRUpdate']
   const api: typeof import('./src/plugins/api')['api']
@@ -358,6 +359,9 @@ declare global {
   export type { PageState } from 'primevue/paginator'
   import('primevue/paginator')
   // @ts-ignore
+  export type { UUID } from 'crypto'
+  import('crypto')
+  // @ts-ignore
   export type { ProjectColumn } from './src/composables/useColumnGeneration'
   import('./src/composables/useColumnGeneration')
   // @ts-ignore
@@ -373,7 +377,7 @@ declare global {
   export type { ProjectFile, FileSelectEvent, FileRemoveEvent, ApiClient } from './src/types/index'
   import('./src/types/index')
   // @ts-ignore
-  export type { ValidationErrorType, ValidationErrorCode, ValidationError, ValidationResult, ValidationContext, WikibaseSchemaMapping, ItemSchemaMapping, Label, TermsSchemaMapping, ColumnMapping, TransformationRule, TransformationFunction, TransformationParameter, StatementSchemaMapping, PropertyReference, ValueMapping, QualifierSchemaMapping, ReferenceSnakSchemaMapping, ReferenceSchemaMapping, StatementRank, WikibaseDataType, ColumnInfo, ValidationRule, SchemaMapping, ColumnReference, ValueSchemaMapping, ValidatedSchemaMapping } from './src/types/wikibase-schema'
+  export type { ValidationErrorType, ValidationErrorCode, ValidationError, ValidationResult, ValidationContext, WikibaseSchemaMapping, ItemSchemaMapping, Label, TermsSchemaMapping, ColumnMapping, TransformationRule, TransformationFunction, TransformationParameter, StatementSchemaMapping, PropertyReference, ValueMapping, PropertyValueMap, ReferenceSchemaMapping, StatementRank, WikibaseDataType, ColumnInfo, ValidationRule, SchemaMapping, ColumnReference, ValueSchemaMapping, ValidatedSchemaMapping } from './src/types/wikibase-schema'
   import('./src/types/wikibase-schema')
 }
 

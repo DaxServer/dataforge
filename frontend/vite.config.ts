@@ -47,6 +47,11 @@ export default defineConfig({
           from: 'primevue/usetoast',
           imports: ['useToast'],
         },
+        {
+          from: 'crypto',
+          imports: ['UUID'],
+          type: true,
+        },
       ],
       dts: true,
       dirs: ['src/**'],

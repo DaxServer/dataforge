@@ -28,7 +28,7 @@ export const useSchemaApi = () => {
   }
 
   // Actions
-  const loadSchema = async (projectId: string, schemaId: string) => {
+  const loadSchema = async (projectId: UUID, schemaId: UUID) => {
     schemaStore.setLoading(true)
 
     const { data, error: apiError } = await api.project({ projectId }).schemas({ schemaId }).get()
@@ -48,7 +48,7 @@ export const useSchemaApi = () => {
     schemaStore.setLoading(false)
   }
 
-  const createSchema = async (projectId: string, schemaData: CreateSchemaRequest) => {
+  const createSchema = async (projectId: UUID, schemaData: CreateSchemaRequest) => {
     schemaStore.setLoading(true)
 
     const { data, error: apiError } = await api.project({ projectId }).schemas.post({
@@ -68,8 +68,8 @@ export const useSchemaApi = () => {
   }
 
   const updateSchema = async (
-    projectId: string,
-    schemaId: string,
+    projectId: UUID,
+    schemaId: UUID,
     schemaData: WikibaseSchemaMapping,
   ) => {
     schemaStore.setLoading(true)
@@ -91,7 +91,7 @@ export const useSchemaApi = () => {
     }
   }
 
-  const deleteSchema = async (projectId: string, schemaId: string) => {
+  const deleteSchema = async (projectId: UUID, schemaId: UUID) => {
     schemaStore.setLoading(true)
 
     const { error: apiError } = await api.project({ projectId }).schemas({ schemaId }).delete()
@@ -108,7 +108,7 @@ export const useSchemaApi = () => {
     schemaStore.setLoading(false)
   }
 
-  const loadAllSchemas = async (projectId: string) => {
+  const loadAllSchemas = async (projectId: UUID) => {
     schemaStore.setLoading(true)
 
     const { data, error: apiError } = await api.project({ projectId }).schemas.get()

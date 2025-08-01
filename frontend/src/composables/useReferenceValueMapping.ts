@@ -3,7 +3,6 @@ import type {
   ColumnInfo,
   WikibaseDataType,
   ReferenceSchemaMapping,
-  ReferenceSnakSchemaMapping,
 } from '@frontend/types/wikibase-schema'
 
 /**
@@ -81,9 +80,9 @@ export const useReferenceValueMapping = () => {
   /**
    * Create a complete citation reference with multiple snaks
    */
-  const createCitationReference = (snaks: ReferenceSnakSchemaMapping[]): ReferenceSchemaMapping => {
+  const createCitationReference = (snaks: PropertyValueMap[]): ReferenceSchemaMapping => {
     return {
-      id: `ref-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      id: crypto.randomUUID(),
       snaks,
     }
   }
@@ -92,7 +91,7 @@ export const useReferenceValueMapping = () => {
    * Validate a reference snak mapping
    */
   const validateReferenceSnakMapping = (
-    snak: ReferenceSnakSchemaMapping,
+    snak: PropertyValueMap,
   ): { isValid: boolean; errors: string[] } => {
     const errors: string[] = []
 

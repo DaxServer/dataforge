@@ -97,7 +97,7 @@
   - Write tests for property selection with P-ID validation
   - Write tests for property autocomplete functionality
   - Implement property selection interface
-  - _Requirements: 4.2, 8.4_
+  - _Requirements: 4.2, 8.3_
 
 - [x] 17. Create StatementEditor value mapping
   - Write tests for value mapping configuration
@@ -109,7 +109,7 @@
   - Write tests for data type compatibility checking
   - Write tests for validation error display
   - Implement data type validation for statement values
-  - _Requirements: 4.5, 8.5_
+  - _Requirements: 4.5, 8.4_
 
 - [x] 19. Build statement rank selection
   - Write tests for rank selection interface
@@ -161,27 +161,15 @@
   - Write tests for schema completeness checking
   - Write tests for required field highlighting
   - Implement schema completeness validation
-  - _Requirements: 8.3_
-
-- [ ] 28. Add drag operation visual feedback
-  - Write tests for visual feedback indicating valid drop targets during drag
-  - Write tests for drop zone highlighting and invalid target indication
-  - Implement drag operation visual feedback system
-  - _Requirements: 2.3_
-
-- [ ] 29. Add visual feedback system
-  - Write tests for hover states and tooltips
-  - Write tests for general UI feedback and animations
-  - Implement comprehensive visual feedback system
   - _Requirements: 8.2_
 
-- [ ] 30. Integrate schema persistence
+- [ ] 28. Integrate schema persistence
   - Write tests for auto-save functionality
   - Write tests for optimistic updates and rollback
   - Implement schema persistence integration
   - _Requirements: 1.3_
 
-- [ ] 31. Create end-to-end workflow tests
+- [ ] 29. Create end-to-end workflow tests
   - Write integration tests for complete schema creation workflow
   - Write tests for drag-and-drop across all components
   - Write tests for validation across multiple components

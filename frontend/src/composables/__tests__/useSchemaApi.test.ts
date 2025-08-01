@@ -4,6 +4,12 @@ import { setActivePinia } from 'pinia'
 import { useSchemaApi } from '@frontend/composables/useSchemaApi'
 import { useSchemaStore } from '@frontend/stores/schema.store'
 import type { WikibaseSchemaMapping } from '@frontend/types/wikibase-schema'
+import type { UUID } from 'crypto'
+
+// Test UUIDs for consistent testing
+const TEST_SCHEMA_ID = Bun.randomUUIDv7() as UUID
+const TEST_PROJECT_ID = Bun.randomUUIDv7() as UUID
+const TEST_SCHEMA_789_ID = Bun.randomUUIDv7() as UUID
 
 // Create mock functions
 const mockSchemaPost = mock()
@@ -49,8 +55,8 @@ const originalUseErrorHandling = (globalThis as any).useErrorHandling
 const originalUseSchemaStore = (globalThis as any).useSchemaStore
 
 const mockSchema: WikibaseSchemaMapping = {
-  id: 'schema-123',
-  projectId: 'project-456',
+  id: TEST_SCHEMA_ID,
+  projectId: TEST_PROJECT_ID,
   name: 'Test Schema',
   wikibase: '',
   item: {
@@ -72,7 +78,7 @@ const mockSchema: WikibaseSchemaMapping = {
 
 const mockCreatedSchema: WikibaseSchemaMapping = {
   ...mockSchema,
-  id: 'schema-789',
+  id: TEST_SCHEMA_789_ID,
   name: 'New Schema',
 }
 
@@ -135,9 +141,9 @@ describe('useSchemaApi', () => {
       const { loadSchema } = useSchemaApi()
       const store = useSchemaStore()
 
-      await loadSchema('project-456', 'schema-123')
+      await loadSchema(TEST_PROJECT_ID, TEST_SCHEMA_ID)
 
-      expect(mockApi.project).toHaveBeenCalledWith({ projectId: 'project-456' })
+      expect(mockApi.project).toHaveBeenCalledWith({ projectId: TEST_PROJECT_ID })
       expect(mockSchemaIdGet).toHaveBeenCalledTimes(1)
       expect(store.setLoading).toHaveBeenCalledWith(true)
       expect(store.setLoading).toHaveBeenLastCalledWith(false)
@@ -157,7 +163,7 @@ describe('useSchemaApi', () => {
       const { loadSchema } = useSchemaApi()
       const store = useSchemaStore()
 
-      await loadSchema('project-456', 'schema-123')
+      await loadSchema(TEST_PROJECT_ID, TEST_SCHEMA_ID)
 
       expect(mockShowError).toHaveBeenCalledWith('Schema not found')
       expect(store.$reset).toHaveBeenCalled()
@@ -174,7 +180,7 @@ describe('useSchemaApi', () => {
       const { loadSchema } = useSchemaApi()
       const store = useSchemaStore()
 
-      await loadSchema('project-456', 'schema-123')
+      await loadSchema(TEST_PROJECT_ID, TEST_SCHEMA_ID)
 
       expect(mockShowError).toHaveBeenCalledWith({
         errors: [{ code: 'NOT_FOUND', message: 'Schema not found' }],
@@ -195,14 +201,14 @@ describe('useSchemaApi', () => {
       const { createSchema } = useSchemaApi()
       const store = useSchemaStore()
 
-      await createSchema('project-456', {
+      await createSchema(TEST_PROJECT_ID, {
         name: 'New Schema',
         wikibase: 'https://www.wikidata.org',
       })
 
-      expect(mockApi.project).toHaveBeenCalledWith({ projectId: 'project-456' })
+      expect(mockApi.project).toHaveBeenCalledWith({ projectId: TEST_PROJECT_ID })
       expect(mockSchemaPost).toHaveBeenCalledWith({
-        projectId: 'project-456',
+        projectId: TEST_PROJECT_ID,
         name: 'New Schema',
         wikibase: 'https://www.wikidata.org',
       })
@@ -223,7 +229,7 @@ describe('useSchemaApi', () => {
       const { createSchema } = useSchemaApi()
       const store = useSchemaStore()
 
-      await createSchema('project-456', {
+      await createSchema(TEST_PROJECT_ID, {
         name: '',
         wikibase: 'invalid-url',
       })
@@ -249,9 +255,9 @@ describe('useSchemaApi', () => {
         name: 'Updated Schema',
       }
 
-      await updateSchema('project-456', 'schema-123', updatedData)
+      await updateSchema(TEST_PROJECT_ID, TEST_SCHEMA_ID, updatedData)
 
-      expect(mockApi.project).toHaveBeenCalledWith({ projectId: 'project-456' })
+      expect(mockApi.project).toHaveBeenCalledWith({ projectId: TEST_PROJECT_ID })
       expect(mockSchemaIdPut).toHaveBeenCalledWith({
         name: updatedData.name,
         wikibase: updatedData.wikibase,
@@ -276,7 +282,7 @@ describe('useSchemaApi', () => {
       const store = useSchemaStore()
 
       // Update the schema
-      await updateSchema('project-456', 'schema-123', mockSchema)
+      await updateSchema(TEST_PROJECT_ID, TEST_SCHEMA_ID, mockSchema)
 
       expect(store.schemaId).toBe(mockUpdatedSchema.id)
       expect(store.projectId).toBe(mockUpdatedSchema.projectId)
@@ -296,7 +302,7 @@ describe('useSchemaApi', () => {
       const { updateSchema } = useSchemaApi()
       const store = useSchemaStore()
 
-      await updateSchema('project-456', 'schema-123', mockSchema)
+      await updateSchema(TEST_PROJECT_ID, TEST_SCHEMA_ID, mockSchema)
 
       expect(mockShowError).toHaveBeenCalledWith('Update failed')
       expect(store.setLoading).toHaveBeenCalledWith(true)
@@ -314,9 +320,9 @@ describe('useSchemaApi', () => {
 
       const { loadAllSchemas } = useSchemaApi()
 
-      const result = await loadAllSchemas('project-456')
+      const result = await loadAllSchemas(TEST_PROJECT_ID)
 
-      expect(mockApi.project).toHaveBeenCalledWith({ projectId: 'project-456' })
+      expect(mockApi.project).toHaveBeenCalledWith({ projectId: TEST_PROJECT_ID })
       expect(mockSchemasGet).toHaveBeenCalledTimes(1)
       expect(result).toEqual(mockSchemas)
     })
@@ -329,7 +335,7 @@ describe('useSchemaApi', () => {
 
       const { loadAllSchemas } = useSchemaApi()
 
-      const result = await loadAllSchemas('project-456')
+      const result = await loadAllSchemas(TEST_PROJECT_ID)
 
       expect(mockShowError).toHaveBeenCalledWith('Failed to load schemas')
       expect(result).toEqual([])
@@ -343,7 +349,7 @@ describe('useSchemaApi', () => {
 
       const { loadAllSchemas } = useSchemaApi()
 
-      const result = await loadAllSchemas('project-456')
+      const result = await loadAllSchemas(TEST_PROJECT_ID)
 
       expect(result).toEqual([])
     })
@@ -360,11 +366,11 @@ describe('useSchemaApi', () => {
       const store = useSchemaStore()
 
       // Set up the store to have a matching schema ID
-      store.schemaId = 'schema-123'
+      store.schemaId = TEST_SCHEMA_ID
 
-      await deleteSchema('project-456', 'schema-123')
+      await deleteSchema(TEST_PROJECT_ID, TEST_SCHEMA_ID)
 
-      expect(mockApi.project).toHaveBeenCalledWith({ projectId: 'project-456' })
+      expect(mockApi.project).toHaveBeenCalledWith({ projectId: TEST_PROJECT_ID })
       expect(mockSchemaIdDelete).toHaveBeenCalledTimes(1)
       expect(store.$reset).toHaveBeenCalled()
       expect(store.setLoading).toHaveBeenCalledWith(true)
@@ -380,7 +386,7 @@ describe('useSchemaApi', () => {
       const { deleteSchema } = useSchemaApi()
       const store = useSchemaStore()
 
-      await deleteSchema('project-456', 'schema-123')
+      await deleteSchema(TEST_PROJECT_ID, TEST_SCHEMA_ID)
 
       expect(mockShowError).toHaveBeenCalledWith('Delete failed')
       expect(store.setLoading).toHaveBeenCalledWith(true)
@@ -398,7 +404,7 @@ describe('useSchemaApi', () => {
       const { loadSchema } = useSchemaApi()
       const store = useSchemaStore()
 
-      await loadSchema('project-456', 'schema-123')
+      await loadSchema(TEST_PROJECT_ID, TEST_SCHEMA_ID)
 
       // Verify that store actions were called with correct parameters
       expect(store.setLoading).toHaveBeenNthCalledWith(1, true)
@@ -410,8 +416,8 @@ describe('useSchemaApi', () => {
       const store = useSchemaStore()
 
       // Set initial store state
-      store.schemaId = 'existing-schema'
-      store.projectId = 'project-456'
+      store.schemaId = TEST_SCHEMA_ID
+      store.projectId = TEST_PROJECT_ID
 
       mockSchemaIdDelete.mockResolvedValueOnce({
         data: null,
@@ -420,7 +426,7 @@ describe('useSchemaApi', () => {
 
       const { deleteSchema } = useSchemaApi()
 
-      await deleteSchema('project-456', 'existing-schema')
+      await deleteSchema(TEST_PROJECT_ID, TEST_SCHEMA_ID)
 
       // Verify store methods were called
       expect(store.$reset).toHaveBeenCalled()
@@ -435,7 +441,7 @@ describe('useSchemaApi', () => {
       const { createSchema } = useSchemaApi()
       const store = useSchemaStore()
 
-      await createSchema('project-456', {
+      await createSchema(TEST_PROJECT_ID, {
         name: '',
         wikibase: 'invalid',
       })

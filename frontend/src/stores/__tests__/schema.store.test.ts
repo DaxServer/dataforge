@@ -7,11 +7,15 @@ import type {
   PropertyReference,
   ValueMapping,
 } from '@frontend/types/wikibase-schema'
+import type { UUID } from 'crypto'
+
+// Test UUID for consistent testing
+const TEST_STATEMENT_ID: UUID = Bun.randomUUIDv7() as UUID
 
 // Mock the useSchemaBuilder composable
 const mockBuildStatement = mock(
   (property: PropertyReference, valueMapping: ValueMapping, rank = 'normal') => ({
-    id: 'mock-statement-id',
+    id: TEST_STATEMENT_ID,
     property,
     value: valueMapping,
     rank,
@@ -61,7 +65,7 @@ describe('useSchemaStore', () => {
 
     it('should have individual properties with correct initial values', () => {
       expect(store.schemaId).toBeNull()
-      expect(store.projectId).toBe('')
+      expect(store.projectId).toBeNull()
       expect(store.schemaName).toBe('')
       expect(store.wikibase).toBe('')
       expect(store.itemId).toBeNull()
@@ -358,7 +362,7 @@ describe('useSchemaStore', () => {
       const statementId = store.addStatement(property, valueMapping)
 
       expect(mockBuildStatement).toHaveBeenCalledWith(property, valueMapping, 'normal', [], [])
-      expect(statementId).toBe('mock-statement-id')
+      expect(statementId).toBe(TEST_STATEMENT_ID)
       expect(store.statements).toHaveLength(1)
       expect(store.isDirty).toBe(true)
     })
