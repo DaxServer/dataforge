@@ -6,6 +6,7 @@ interface StatementEditorProps {
     value: ValueMapping
     rank: StatementRank
     qualifiers?: QualifierSchemaMapping[]
+    references?: ReferenceSchemaMapping[]
   }
   availableColumns?: ColumnInfo[]
   disabled?: boolean
@@ -24,6 +25,7 @@ const props = withDefaults(defineProps<StatementEditorProps>(), {
     },
     rank: 'normal',
     qualifiers: [],
+    references: [],
   }),
   availableColumns: () => [],
   disabled: false,
@@ -37,6 +39,7 @@ interface StatementEditorEmits {
       value: ValueMapping
       rank: StatementRank
       qualifiers?: QualifierSchemaMapping[]
+      references?: ReferenceSchemaMapping[]
     },
   ]
   save: []
@@ -94,11 +97,15 @@ const tempStatementId = ref(crypto.randomUUID())
 // Local qualifiers state
 const localQualifiers = ref<QualifierSchemaMapping[]>(props.modelValue?.qualifiers || [])
 
+// Local references state
+const localReferences = ref<ReferenceSchemaMapping[]>(props.modelValue?.references || [])
+
 // Methods
 const emitUpdate = () => {
   emit('update:modelValue', {
     ...localStatement.value,
     qualifiers: localQualifiers.value,
+    references: localReferences.value,
   })
 }
 
@@ -176,6 +183,62 @@ const handleUpdateQualifier = (
   }
 }
 
+// Reference handling methods
+const handleAddReference = (statementId: string, reference: ReferenceSchemaMapping) => {
+  localReferences.value.push(reference)
+  emitUpdate()
+}
+
+const handleRemoveReference = (statementId: string, referenceIndex: number) => {
+  if (referenceIndex >= 0 && referenceIndex < localReferences.value.length) {
+    localReferences.value.splice(referenceIndex, 1)
+    emitUpdate()
+  }
+}
+
+const handleUpdateReference = (
+  statementId: string,
+  referenceIndex: number,
+  reference: ReferenceSchemaMapping,
+) => {
+  if (referenceIndex >= 0 && referenceIndex < localReferences.value.length) {
+    localReferences.value[referenceIndex] = reference
+    emitUpdate()
+  }
+}
+
+const handleAddSnakToReference = (
+  statementId: string,
+  referenceIndex: number,
+  snak: ReferenceSnakSchemaMapping,
+) => {
+  if (referenceIndex >= 0 && referenceIndex < localReferences.value.length) {
+    const reference = localReferences.value[referenceIndex]
+    if (reference) {
+      reference.snaks.push(snak)
+      emitUpdate()
+    }
+  }
+}
+
+const handleRemoveSnakFromReference = (
+  statementId: string,
+  referenceIndex: number,
+  snakIndex: number,
+) => {
+  const reference = localReferences.value[referenceIndex]
+  if (
+    referenceIndex >= 0 &&
+    referenceIndex < localReferences.value.length &&
+    reference &&
+    snakIndex >= 0 &&
+    snakIndex < reference.snaks.length
+  ) {
+    reference.snaks.splice(snakIndex, 1)
+    emitUpdate()
+  }
+}
+
 // Watch for external changes
 watch(
   () => props.modelValue,
@@ -199,6 +262,15 @@ watch(
   () => props.modelValue?.qualifiers,
   (newQualifiers) => {
     localQualifiers.value = newQualifiers || []
+  },
+  { deep: true, immediate: true },
+)
+
+// Watch for references changes
+watch(
+  () => props.modelValue?.references,
+  (newReferences) => {
+    localReferences.value = newReferences || []
   },
   { deep: true, immediate: true },
 )
@@ -434,6 +506,21 @@ watch(
       />
     </div>
 
+    <!-- References Section -->
+    <div class="border-t border-surface-200 pt-6">
+      <ReferencesEditor
+        :statement-id="tempStatementId"
+        :references="localReferences"
+        :available-columns="availableColumns"
+        :disabled="disabled"
+        @add-reference="handleAddReference"
+        @remove-reference="handleRemoveReference"
+        @update-reference="handleUpdateReference"
+        @add-snak-to-reference="handleAddSnakToReference"
+        @remove-snak-from-reference="handleRemoveSnakFromReference"
+      />
+    </div>
+
     <!-- Preview -->
     <div
       v-if="isValidStatement"
@@ -504,6 +591,59 @@ watch(
                 severity="secondary"
               />
               <span class="text-surface-400">{{ qualifier.value.dataType }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- References Preview -->
+        <div
+          v-if="localReferences.length > 0"
+          class="ml-8 mt-3 border-l-2 border-orange-200 pl-3 bg-gradient-to-r from-orange-25 to-transparent rounded-r"
+          data-testid="references-preview"
+        >
+          <div class="text-xs text-orange-700 font-medium mb-2 flex items-center gap-1">
+            <i class="pi pi-bookmark text-xs" />
+            <span>References ({{ localReferences.length }}):</span>
+          </div>
+          <div class="space-y-3">
+            <div
+              v-for="(reference, refIndex) in localReferences"
+              :key="`preview-reference-${reference.id}`"
+              class="p-2 bg-white/50 rounded border border-orange-100"
+              data-testid="reference-preview-item"
+            >
+              <div class="flex items-center gap-1 text-orange-600 mb-2">
+                <i class="pi pi-bookmark text-xs" />
+                <span class="font-medium text-xs">R{{ refIndex + 1 }}</span>
+                <span class="text-xs text-surface-500">
+                  ({{ reference.snaks.length }}
+                  {{ reference.snaks.length === 1 ? 'property' : 'properties' }})
+                </span>
+              </div>
+              <div class="space-y-1 ml-3">
+                <div
+                  v-for="(snak, snakIndex) in reference.snaks"
+                  :key="`preview-snak-${refIndex}-${snakIndex}`"
+                  class="flex items-center gap-2 text-xs text-surface-600"
+                  data-testid="reference-snak-preview-item"
+                >
+                  <div class="flex items-center gap-1 text-orange-600">
+                    <i class="pi pi-angle-right text-xs" />
+                    <span class="font-medium">R{{ refIndex + 1 }}.{{ snakIndex + 1 }}</span>
+                  </div>
+                  <span class="font-medium">{{ snak.property.label || snak.property.id }}:</span>
+                  <Tag
+                    :value="
+                      snak.value.type === 'column'
+                        ? snak.value.source.columnName
+                        : snak.value.source
+                    "
+                    size="small"
+                    severity="secondary"
+                  />
+                  <span class="text-surface-400">{{ snak.value.dataType }}</span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
