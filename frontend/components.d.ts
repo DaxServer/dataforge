@@ -32,6 +32,7 @@ declare module 'vue' {
     ProjectView: typeof import('./src/views/ProjectView.vue')['default']
     PropertySelector: typeof import('./src/components/PropertySelector.vue')['default']
     QualifiersEditor: typeof import('./src/components/QualifiersEditor.vue')['default']
+    ReferencesEditor: typeof import('./src/components/ReferencesEditor.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     SchemaDropZone: typeof import('./src/components/SchemaDropZone.vue')['default']

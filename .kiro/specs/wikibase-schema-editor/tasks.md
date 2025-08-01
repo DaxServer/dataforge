@@ -135,7 +135,7 @@
   - Implement qualifier display functionality
   - _Requirements: 6.5_
 
-- [ ] 23. Create ReferencesEditor component
+- [x] 23. Create ReferencesEditor component
   - Write tests for adding and removing references
   - Write tests for reference property selection
   - Implement ReferencesEditor component structure
