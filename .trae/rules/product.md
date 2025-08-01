@@ -1,1 +1,1 @@
-/Users/sriharithalla/projects/dataforge/.kiro/steering/product.md
+../../.kiro/steering/product.md

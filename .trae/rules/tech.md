@@ -1,1 +1,1 @@
-/Users/sriharithalla/projects/dataforge/.kiro/steering/tech.md
+../../.kiro/steering/tech.md
