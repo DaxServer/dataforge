@@ -319,7 +319,6 @@ declare global {
   const useValidationErrors: typeof import('./src/composables/useValidationErrors')['useValidationErrors']
   const useValidationStore: typeof import('./src/stores/validation.store')['useValidationStore']
   const useValueMapping: typeof import('./src/composables/useValueMapping')['useValueMapping']
-  const useValueValidation: typeof import('./src/composables/useValueValidation')['useValueValidation']
   const useVibrate: typeof import('@vueuse/core')['useVibrate']
   const useVirtualList: typeof import('@vueuse/core')['useVirtualList']
   const useWakeLock: typeof import('@vueuse/core')['useWakeLock']

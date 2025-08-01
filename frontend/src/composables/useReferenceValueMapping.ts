@@ -1,9 +1,7 @@
-import { ref } from 'vue'
 import type {
   ValueMapping,
   ColumnInfo,
   WikibaseDataType,
-  PropertyReference,
   ReferenceSchemaMapping,
   ReferenceSnakSchemaMapping,
 } from '@frontend/types/wikibase-schema'
@@ -13,14 +11,14 @@ import type {
  */
 export const useReferenceValueMapping = () => {
   // Data type compatibility mapping for reference properties
-  const referenceDataTypeCompatibility = ref<Record<string, string[]>>({
+  const referenceDataTypeCompatibility: Record<string, string[]> = {
     url: ['VARCHAR', 'TEXT', 'STRING'],
     time: ['DATE', 'DATETIME', 'TIMESTAMP'],
     'wikibase-item': ['VARCHAR', 'TEXT', 'STRING'],
     string: ['VARCHAR', 'TEXT', 'STRING'],
     'external-id': ['VARCHAR', 'TEXT', 'STRING'],
     quantity: ['INTEGER', 'DECIMAL', 'NUMERIC', 'FLOAT'],
-  })
+  }
 
   /**
    * Check if a column data type is compatible with a reference property data type
@@ -29,8 +27,7 @@ export const useReferenceValueMapping = () => {
     columnDataType: string,
     referencePropertyDataType: string,
   ): boolean => {
-    const acceptedColumnTypes =
-      referenceDataTypeCompatibility.value[referencePropertyDataType] || []
+    const acceptedColumnTypes = referenceDataTypeCompatibility[referencePropertyDataType] || []
     return acceptedColumnTypes.includes(columnDataType.toUpperCase())
   }
 
