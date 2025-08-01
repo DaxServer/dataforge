@@ -1,8 +1,8 @@
 <script setup lang="ts">
 // Props
 interface QualifiersEditorProps {
-  statementId: string
-  qualifiers?: QualifierSchemaMapping[]
+  statementId: UUID
+  qualifiers?: PropertyValueMap[]
   availableColumns?: ColumnInfo[]
   disabled?: boolean
 }
@@ -15,13 +15,9 @@ const props = withDefaults(defineProps<QualifiersEditorProps>(), {
 
 // Emits
 interface QualifiersEditorEmits {
-  'add-qualifier': [statementId: string, qualifier: QualifierSchemaMapping]
-  'remove-qualifier': [statementId: string, qualifierIndex: number]
-  'update-qualifier': [
-    statementId: string,
-    qualifierIndex: number,
-    qualifier: QualifierSchemaMapping,
-  ]
+  'add-qualifier': [statementId: UUID, qualifier: PropertyValueMap]
+  'remove-qualifier': [statementId: UUID, qualifierIndex: number]
+  'update-qualifier': [statementId: UUID, qualifierIndex: number, qualifier: PropertyValueMap]
 }
 
 const emit = defineEmits<QualifiersEditorEmits>()
@@ -133,7 +129,7 @@ const handleColumnDrop = (columnInfo: ColumnInfo) => {
 const addQualifier = () => {
   if (!canAddQualifier.value || !selectedProperty.value || !selectedValue.value) return
 
-  const qualifier: QualifierSchemaMapping = {
+  const qualifier: PropertyValueMap = {
     property: selectedProperty.value,
     value: selectedValue.value,
   }

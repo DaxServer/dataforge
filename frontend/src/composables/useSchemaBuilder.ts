@@ -9,6 +9,7 @@ import type {
   ValueMapping,
   StatementRank,
   PropertyValueMap,
+  ReferenceSchemaMapping,
 } from '@frontend/types/wikibase-schema'
 import type { UUID } from 'crypto'
 
@@ -20,7 +21,7 @@ export const useSchemaBuilder = () => {
    * Constructs a complete WikibaseSchemaMapping
    */
   const buildSchema = (
-    id: string,
+    id: UUID,
     projectId: UUID,
     name: string,
     wikibaseUrl: string,
@@ -34,7 +35,7 @@ export const useSchemaBuilder = () => {
     const now = new Date().toISOString()
 
     return {
-      id: id as UUID,
+      id,
       projectId,
       name,
       wikibase: wikibaseUrl,
@@ -82,10 +83,10 @@ export const useSchemaBuilder = () => {
     valueMapping: ValueMapping,
     rank: StatementRank = 'normal',
     qualifiers: PropertyValueMap[] = [],
-    references: PropertyValueMap[] = [],
+    references: ReferenceSchemaMapping[] = [],
   ): StatementSchemaMapping => {
     return {
-      id: crypto.randomUUID() as UUID,
+      id: crypto.randomUUID(),
       property,
       value: valueMapping,
       rank,

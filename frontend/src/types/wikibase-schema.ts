@@ -113,7 +113,7 @@ export interface StatementSchemaMapping {
   value: ValueMapping
   rank: StatementRank
   qualifiers: PropertyValueMap[]
-  references: PropertyValueMap[]
+  references: ReferenceSchemaMapping[]
 }
 
 export interface PropertyReference {

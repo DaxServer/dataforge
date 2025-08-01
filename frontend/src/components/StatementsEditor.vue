@@ -9,8 +9,8 @@ defineProps<StatementsEditorProps>()
 // Define emits
 interface StatementsEditorEmits {
   'add-statement': []
-  'edit-statement': [statementId: string]
-  'remove-statement': [statementId: string]
+  'edit-statement': [statementId: UUID]
+  'remove-statement': [statementId: UUID]
   'reorder-statements': [fromIndex: number, toIndex: number]
 }
 
@@ -46,11 +46,11 @@ const handleAddStatement = () => {
   emit('add-statement')
 }
 
-const handleEditStatement = (statementId: string) => {
+const handleEditStatement = (statementId: UUID) => {
   emit('edit-statement', statementId)
 }
 
-const handleRemoveStatement = (statementId: string) => {
+const handleRemoveStatement = (statementId: UUID) => {
   emit('remove-statement', statementId)
   schemaStore.removeStatement(statementId)
 }

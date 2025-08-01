@@ -1,7 +1,7 @@
 <script setup lang="ts">
 interface WikibaseSchemaEditorProps {
-  projectId?: string
-  schemaId?: string
+  projectId?: UUID
+  schemaId?: UUID
 }
 
 interface WikibaseSchemaEditorEmits {
@@ -12,8 +12,8 @@ interface WikibaseSchemaEditorEmits {
 }
 
 const props = withDefaults(defineProps<WikibaseSchemaEditorProps>(), {
-  projectId: '',
-  schemaId: '',
+  projectId: crypto.randomUUID(),
+  schemaId: crypto.randomUUID(),
 })
 
 const emit = defineEmits<WikibaseSchemaEditorEmits>()
@@ -28,8 +28,7 @@ const projectStore = useProjectStore()
 const { loadSchema, createSchema, updateSchema } = useSchemaApi()
 const { showError, showSuccess } = useErrorHandling()
 const { convertProjectColumnsToColumnInfo } = useColumnConversion()
-const { localStatement, setAvailableColumns, initializeStatement, resetStatement } =
-  useStatementEditor()
+const { setAvailableColumns, initializeStatement, resetStatement } = useStatementEditor()
 
 // Reactive state
 const isInitialized = ref(false)
@@ -42,7 +41,7 @@ const currentStatementWithQualifiers = ref<{
   property: PropertyReference | null
   value: ValueMapping
   rank: StatementRank
-  qualifiers?: QualifierSchemaMapping[]
+  qualifiers?: PropertyValueMap[]
 }>({
   property: null,
   value: {
@@ -175,7 +174,7 @@ const handleSave = async () => {
       // Update existing schema
       await updateSchema(props.projectId, schemaStore.schemaId, {
         id: schemaStore.schemaId,
-        projectId: schemaStore.projectId,
+        projectId: props.projectId,
         name: schemaStore.schemaName,
         wikibase: schemaStore.wikibase,
         item: {
@@ -230,7 +229,7 @@ const handleAddStatement = () => {
   isAddingStatement.value = true
 }
 
-const handleEditStatement = (statementId: string) => {
+const handleEditStatement = (statementId: UUID) => {
   const statement = schemaStore.statements.find((s) => s.id === statementId)
   if (statement) {
     // Load existing statement data for editing including qualifiers
@@ -250,7 +249,7 @@ const handleEditStatement = (statementId: string) => {
   }
 }
 
-const handleRemoveStatement = (statementId: string) => {
+const handleRemoveStatement = (statementId: UUID) => {
   schemaStore.removeStatement(statementId)
 }
 
@@ -264,7 +263,7 @@ const handleStatementUpdate = (statement: {
   property: PropertyReference | null
   value: ValueMapping
   rank: StatementRank
-  qualifiers?: QualifierSchemaMapping[]
+  qualifiers?: PropertyValueMap[]
 }) => {
   currentStatementWithQualifiers.value = statement
   // Also update the composable state for backward compatibility

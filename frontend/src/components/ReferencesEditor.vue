@@ -1,7 +1,7 @@
 <script setup lang="ts">
 // Props
 interface ReferencesEditorProps {
-  statementId: string
+  statementId: UUID
   references?: ReferenceSchemaMapping[]
   availableColumns?: ColumnInfo[]
   disabled?: boolean
@@ -15,19 +15,11 @@ const props = withDefaults(defineProps<ReferencesEditorProps>(), {
 
 // Emits
 interface ReferencesEditorEmits {
-  'add-reference': [statementId: string, reference: ReferenceSchemaMapping]
-  'remove-reference': [statementId: string, referenceIndex: number]
-  'update-reference': [
-    statementId: string,
-    referenceIndex: number,
-    reference: ReferenceSchemaMapping,
-  ]
-  'add-snak-to-reference': [
-    statementId: string,
-    referenceIndex: number,
-    snak: ReferenceSnakSchemaMapping,
-  ]
-  'remove-snak-from-reference': [statementId: string, referenceIndex: number, snakIndex: number]
+  'add-reference': [statementId: UUID, reference: ReferenceSchemaMapping]
+  'remove-reference': [statementId: UUID, referenceIndex: number]
+  'update-reference': [statementId: UUID, referenceIndex: number, reference: ReferenceSchemaMapping]
+  'add-snak-to-reference': [statementId: UUID, referenceIndex: number, snak: PropertyValueMap]
+  'remove-snak-from-reference': [statementId: UUID, referenceIndex: number, snakIndex: number]
 }
 
 const emit = defineEmits<ReferencesEditorEmits>()
@@ -50,11 +42,7 @@ const { selectedProperty, selectProperty, clearSelection } = usePropertySelectio
 // Use existing value type options from StatementEditor composable
 const { valueTypeOptions } = useStatementEditor()
 
-const {
-  createReferenceValueMappingFromColumn,
-  validateReferenceMapping,
-  isReferenceDataTypeCompatible,
-} = useReferenceValueMapping()
+const { createReferenceValueMappingFromColumn } = useReferenceValueMapping()
 
 // Validation
 const isValidReferenceProperty = (property: PropertyReference | null): boolean => {
@@ -146,7 +134,7 @@ const addReference = () => {
   if (!canAddSnak.value || !selectedProperty.value || !selectedValue.value) return
 
   // Create a new reference with the first snak
-  const snak: ReferenceSnakSchemaMapping = {
+  const snak: PropertyValueMap = {
     property: selectedProperty.value,
     value: selectedValue.value,
   }
@@ -169,7 +157,7 @@ const addSnakToReference = () => {
   )
     return
 
-  const snak: ReferenceSnakSchemaMapping = {
+  const snak: PropertyValueMap = {
     property: selectedProperty.value,
     value: selectedValue.value,
   }

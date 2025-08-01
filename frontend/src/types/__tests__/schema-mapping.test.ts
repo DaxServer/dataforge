@@ -21,6 +21,7 @@ import type {
   ValidationError,
   ValidationResult,
   PropertyValueMap,
+  ReferenceSchemaMapping,
 } from '@frontend/types/wikibase-schema'
 
 // Test UUIDs for consistent testing
@@ -145,13 +146,18 @@ describe('Schema Mapping Types', () => {
         },
       }
 
-      const reference: PropertyValueMap = {
-        property: { id: 'P854', label: 'reference URL', dataType: 'url' },
-        value: {
-          type: 'column',
-          source: { columnName: 'ref_url', dataType: 'VARCHAR' },
-          dataType: 'url',
-        },
+      const reference: ReferenceSchemaMapping = {
+        id: Bun.randomUUIDv7() as UUID,
+        snaks: [
+          {
+            property: { id: 'P854', label: 'reference URL', dataType: 'url' },
+            value: {
+              type: 'column',
+              source: { columnName: 'ref_url', dataType: 'VARCHAR' },
+              dataType: 'url',
+            },
+          },
+        ],
       }
 
       const statementMapping: StatementSchemaMapping = {
@@ -188,12 +194,17 @@ describe('Schema Mapping Types', () => {
         ],
         references: [
           {
-            property: { id: 'P854', label: 'reference URL', dataType: 'url' },
-            value: {
-              type: 'column',
-              source: { columnName: 'ref_url', dataType: 'VARCHAR' },
-              dataType: 'url',
-            },
+            id: expect.any(String),
+            snaks: [
+              {
+                property: { id: 'P854', label: 'reference URL', dataType: 'url' },
+                value: {
+                  type: 'column',
+                  source: { columnName: 'ref_url', dataType: 'VARCHAR' },
+                  dataType: 'url',
+                },
+              },
+            ],
           },
         ],
       })

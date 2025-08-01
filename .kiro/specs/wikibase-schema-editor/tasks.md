@@ -163,13 +163,13 @@
   - Implement schema completeness validation
   - _Requirements: 8.2_
 
-- [ ] 30. Integrate schema persistence
+- [ ] 28. Integrate schema persistence
   - Write tests for auto-save functionality
   - Write tests for optimistic updates and rollback
   - Implement schema persistence integration
   - _Requirements: 1.3_
 
-- [ ] 31. Create end-to-end workflow tests
+- [ ] 29. Create end-to-end workflow tests
   - Write integration tests for complete schema creation workflow
   - Write tests for drag-and-drop across all components
   - Write tests for validation across multiple components

@@ -65,7 +65,7 @@ describe('useSchemaStore', () => {
 
     it('should have individual properties with correct initial values', () => {
       expect(store.schemaId).toBeNull()
-      expect(store.projectId).toBe('')
+      expect(store.projectId).toBeNull()
       expect(store.schemaName).toBe('')
       expect(store.wikibase).toBe('')
       expect(store.itemId).toBeNull()
