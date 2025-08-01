@@ -41,6 +41,7 @@ declare module 'vue' {
     Sidebar: typeof import('./src/components/Sidebar.vue')['default']
     StatementConfigEditor: typeof import('./src/components/StatementConfigEditor.vue')['default']
     StatementEditor: typeof import('./src/components/StatementEditor.vue')['default']
+    StatementPreview: typeof import('./src/components/StatementPreview.vue')['default']
     StatementsEditor: typeof import('./src/components/StatementsEditor.vue')['default']
     Tab: typeof import('primevue/tab')['default']
     TabList: typeof import('primevue/tablist')['default']

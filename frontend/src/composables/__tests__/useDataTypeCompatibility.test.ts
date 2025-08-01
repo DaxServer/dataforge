@@ -3,10 +3,15 @@ import type { ColumnInfo } from '@frontend/types/wikibase-schema'
 import { useDataTypeCompatibility } from '@frontend/composables/useDataTypeCompatibility'
 
 describe('useDataTypeCompatibility Composable', () => {
+  const {
+    isValidTextColumn,
+    isDataTypeCompatible,
+    getCompatibleWikibaseTypes,
+    textCompatibleTypes,
+  } = useDataTypeCompatibility()
+
   describe('isValidTextColumn', () => {
     test('should validate VARCHAR columns', () => {
-      const { isValidTextColumn } = useDataTypeCompatibility()
-
       const column: ColumnInfo = {
         name: 'title',
         dataType: 'VARCHAR',
@@ -18,8 +23,6 @@ describe('useDataTypeCompatibility Composable', () => {
     })
 
     test('should validate TEXT columns', () => {
-      const { isValidTextColumn } = useDataTypeCompatibility()
-
       const column: ColumnInfo = {
         name: 'description',
         dataType: 'TEXT',
@@ -31,8 +34,6 @@ describe('useDataTypeCompatibility Composable', () => {
     })
 
     test('should validate STRING columns', () => {
-      const { isValidTextColumn } = useDataTypeCompatibility()
-
       const column: ColumnInfo = {
         name: 'name',
         dataType: 'STRING',
@@ -44,8 +45,6 @@ describe('useDataTypeCompatibility Composable', () => {
     })
 
     test('should validate CHAR columns', () => {
-      const { isValidTextColumn } = useDataTypeCompatibility()
-
       const column: ColumnInfo = {
         name: 'code',
         dataType: 'CHAR',
@@ -57,8 +56,6 @@ describe('useDataTypeCompatibility Composable', () => {
     })
 
     test('should reject INTEGER columns', () => {
-      const { isValidTextColumn } = useDataTypeCompatibility()
-
       const column: ColumnInfo = {
         name: 'count',
         dataType: 'INTEGER',
@@ -70,8 +67,6 @@ describe('useDataTypeCompatibility Composable', () => {
     })
 
     test('should reject DECIMAL columns', () => {
-      const { isValidTextColumn } = useDataTypeCompatibility()
-
       const column: ColumnInfo = {
         name: 'price',
         dataType: 'DECIMAL',
@@ -83,8 +78,6 @@ describe('useDataTypeCompatibility Composable', () => {
     })
 
     test('should reject BOOLEAN columns', () => {
-      const { isValidTextColumn } = useDataTypeCompatibility()
-
       const column: ColumnInfo = {
         name: 'active',
         dataType: 'BOOLEAN',
@@ -96,8 +89,6 @@ describe('useDataTypeCompatibility Composable', () => {
     })
 
     test('should reject DATE columns', () => {
-      const { isValidTextColumn } = useDataTypeCompatibility()
-
       const column: ColumnInfo = {
         name: 'created_at',
         dataType: 'DATE',
@@ -109,8 +100,6 @@ describe('useDataTypeCompatibility Composable', () => {
     })
 
     test('should reject TIMESTAMP columns', () => {
-      const { isValidTextColumn } = useDataTypeCompatibility()
-
       const column: ColumnInfo = {
         name: 'updated_at',
         dataType: 'TIMESTAMP',
@@ -122,8 +111,6 @@ describe('useDataTypeCompatibility Composable', () => {
     })
 
     test('should handle case insensitivity for varchar', () => {
-      const { isValidTextColumn } = useDataTypeCompatibility()
-
       const column: ColumnInfo = {
         name: 'title',
         dataType: 'varchar',
@@ -135,8 +122,6 @@ describe('useDataTypeCompatibility Composable', () => {
     })
 
     test('should handle case insensitivity for text', () => {
-      const { isValidTextColumn } = useDataTypeCompatibility()
-
       const column: ColumnInfo = {
         name: 'description',
         dataType: 'text',
@@ -148,79 +133,57 @@ describe('useDataTypeCompatibility Composable', () => {
     })
 
     test('should handle null column', () => {
-      const { isValidTextColumn } = useDataTypeCompatibility()
-
       expect(isValidTextColumn(null)).toBe(false)
     })
   })
 
   describe('isDataTypeCompatible', () => {
     test('should check VARCHAR compatibility with string types', () => {
-      const { isDataTypeCompatible } = useDataTypeCompatibility()
-
       const result = isDataTypeCompatible('VARCHAR', ['string'])
       expect(result).toBe(true)
     })
 
     test('should check VARCHAR compatibility with url types', () => {
-      const { isDataTypeCompatible } = useDataTypeCompatibility()
-
       const result = isDataTypeCompatible('VARCHAR', ['url'])
       expect(result).toBe(true)
     })
 
     test('should check VARCHAR incompatibility with quantity types', () => {
-      const { isDataTypeCompatible } = useDataTypeCompatibility()
-
       const result = isDataTypeCompatible('VARCHAR', ['quantity'])
       expect(result).toBe(false)
     })
 
     test('should check INTEGER compatibility with quantity types', () => {
-      const { isDataTypeCompatible } = useDataTypeCompatibility()
-
       const result = isDataTypeCompatible('INTEGER', ['quantity'])
       expect(result).toBe(true)
     })
 
     test('should check INTEGER incompatibility with string types', () => {
-      const { isDataTypeCompatible } = useDataTypeCompatibility()
-
       const result = isDataTypeCompatible('INTEGER', ['string'])
       expect(result).toBe(false)
     })
 
     test('should check DATE compatibility with time types', () => {
-      const { isDataTypeCompatible } = useDataTypeCompatibility()
-
       const result = isDataTypeCompatible('DATE', ['time'])
       expect(result).toBe(true)
     })
 
     test('should check DATE incompatibility with string types', () => {
-      const { isDataTypeCompatible } = useDataTypeCompatibility()
-
       const result = isDataTypeCompatible('DATE', ['string'])
       expect(result).toBe(false)
     })
 
     test('should handle multiple accepted types', () => {
-      const { isDataTypeCompatible } = useDataTypeCompatibility()
-
       const result = isDataTypeCompatible('VARCHAR', ['string', 'url', 'external-id'])
       expect(result).toBe(true)
     })
 
     test('should handle empty accepted types array', () => {
-      const { isDataTypeCompatible } = useDataTypeCompatibility()
-
       const result = isDataTypeCompatible('VARCHAR', [])
       expect(result).toBe(false)
     })
 
     test('should handle unknown column type', () => {
-      const { isDataTypeCompatible } = useDataTypeCompatibility()
-
       const result = isDataTypeCompatible('UNKNOWN_TYPE', ['string'])
       expect(result).toBe(false)
     })
@@ -228,8 +191,6 @@ describe('useDataTypeCompatibility Composable', () => {
 
   describe('textCompatibleTypes', () => {
     test('should expose reactive text compatible types', () => {
-      const { textCompatibleTypes } = useDataTypeCompatibility()
-
       expect(textCompatibleTypes.value).toContain('VARCHAR')
       expect(textCompatibleTypes.value).toContain('TEXT')
       expect(textCompatibleTypes.value).toContain('STRING')
@@ -237,8 +198,6 @@ describe('useDataTypeCompatibility Composable', () => {
     })
 
     test('should be readonly reactive reference', () => {
-      const { textCompatibleTypes } = useDataTypeCompatibility()
-
       // Should be a reactive reference
       expect(textCompatibleTypes.value).toBeDefined()
       expect(Array.isArray(textCompatibleTypes.value)).toBe(true)
@@ -247,8 +206,6 @@ describe('useDataTypeCompatibility Composable', () => {
 
   describe('getCompatibleWikibaseTypes', () => {
     test('should return compatible types for VARCHAR', () => {
-      const { getCompatibleWikibaseTypes } = useDataTypeCompatibility()
-
       const result = getCompatibleWikibaseTypes('VARCHAR')
       expect(result).toContain('string')
       expect(result).toContain('url')
@@ -257,37 +214,27 @@ describe('useDataTypeCompatibility Composable', () => {
     })
 
     test('should return compatible types for TEXT', () => {
-      const { getCompatibleWikibaseTypes } = useDataTypeCompatibility()
-
       const result = getCompatibleWikibaseTypes('TEXT')
       expect(result).toContain('string')
       expect(result).toContain('monolingualtext')
     })
 
     test('should return compatible types for INTEGER', () => {
-      const { getCompatibleWikibaseTypes } = useDataTypeCompatibility()
-
       const result = getCompatibleWikibaseTypes('INTEGER')
       expect(result).toContain('quantity')
     })
 
     test('should return compatible types for DATE', () => {
-      const { getCompatibleWikibaseTypes } = useDataTypeCompatibility()
-
       const result = getCompatibleWikibaseTypes('DATE')
       expect(result).toContain('time')
     })
 
     test('should return empty array for unknown type', () => {
-      const { getCompatibleWikibaseTypes } = useDataTypeCompatibility()
-
       const result = getCompatibleWikibaseTypes('UNKNOWN_TYPE')
       expect(result).toEqual([])
     })
 
     test('should handle case insensitivity', () => {
-      const { getCompatibleWikibaseTypes } = useDataTypeCompatibility()
-
       const result = getCompatibleWikibaseTypes('varchar')
       expect(result).toContain('string')
       expect(result).toContain('url')
