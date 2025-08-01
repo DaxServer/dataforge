@@ -338,7 +338,7 @@ setOnColumnDrop((columnInfo) => {
           :disabled="disabled"
           @update="handlePropertyChange"
         />
-        
+
         <!-- Common reference properties suggestions -->
         <div class="flex flex-wrap gap-1 mt-2">
           <Button
@@ -349,7 +349,7 @@ setOnColumnDrop((columnInfo) => {
             severity="secondary"
             text
             class="text-xs"
-            @click="handlePropertyChange(commonProp)"
+            @click="handlePropertyChange(commonProp as PropertyReference)"
           />
         </div>
       </div>
