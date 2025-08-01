@@ -22,12 +22,19 @@ interface ReferencesEditorEmits {
     referenceIndex: number,
     reference: ReferenceSchemaMapping,
   ]
+  'add-snak-to-reference': [
+    statementId: string,
+    referenceIndex: number,
+    snak: ReferenceSnakSchemaMapping,
+  ]
+  'remove-snak-from-reference': [statementId: string, referenceIndex: number, snakIndex: number]
 }
 
 const emit = defineEmits<ReferencesEditorEmits>()
 
 // Local state for adding new reference
 const isAddingReference = ref(false)
+const isAddingSnakToReference = ref<number | null>(null) // Index of reference we're adding a snak to
 const selectedValue = ref<ValueMapping | null>(null)
 
 // Computed properties
@@ -43,14 +50,11 @@ const { selectedProperty, selectProperty, clearSelection } = usePropertySelectio
 // Use existing value type options from StatementEditor composable
 const { valueTypeOptions } = useStatementEditor()
 
-// Common referenroperties for suggestions
-const commonReferenceProperties = [
-  { id: 'P248', label: 'stated in', dataType: 'wikibase-item' },
-  { id: 'P854', label: 'reference URL', dataType: 'url' },
-  { id: 'P813', label: 'retrieved', dataType: 'time' },
-  { id: 'P577', label: 'publication date', dataType: 'time' },
-  { id: 'P50', label: 'author', dataType: 'wikibase-item' },
-]
+const {
+  createReferenceValueMappingFromColumn,
+  validateReferenceMapping,
+  isReferenceDataTypeCompatible,
+} = useReferenceValueMapping()
 
 // Validation
 const isValidReferenceProperty = (property: PropertyReference | null): boolean => {
@@ -67,7 +71,7 @@ const isValidReferenceValue = (value: ValueMapping | null): boolean => {
   return typeof value.source === 'string' && !!value.source.trim()
 }
 
-const canAddReference = computed(
+const canAddSnak = computed(
   () =>
     isValidReferenceProperty(selectedProperty.value) && isValidReferenceValue(selectedValue.value),
 )
@@ -75,12 +79,21 @@ const canAddReference = computed(
 // Methods
 const startAddingReference = () => {
   isAddingReference.value = true
+  isAddingSnakToReference.value = null
+  clearSelection()
+  selectedValue.value = null
+}
+
+const startAddingSnakToReference = (referenceIndex: number) => {
+  isAddingSnakToReference.value = referenceIndex
+  isAddingReference.value = false
   clearSelection()
   selectedValue.value = null
 }
 
 const cancelAddingReference = () => {
   isAddingReference.value = false
+  isAddingSnakToReference.value = null
   clearSelection()
   selectedValue.value = null
 }
@@ -122,35 +135,55 @@ const handleValueTypeChange = (newType: 'column' | 'constant' | 'expression') =>
 const handleColumnDrop = (columnInfo: ColumnInfo) => {
   if (!selectedProperty.value) return
 
-  // Use existing data type compatibility logic
-  const { getCompatibleWikibaseTypes } = useDataTypeCompatibility()
-  const compatibleTypes = getCompatibleWikibaseTypes(columnInfo.dataType)
-  const suggestedDataType = compatibleTypes[0] || 'string'
-
-  selectedValue.value = {
-    type: 'column',
-    source: {
-      columnName: columnInfo.name,
-      dataType: columnInfo.dataType,
-    },
-    dataType: suggestedDataType,
-  }
+  // Use enhanced reference value mapping for better citation data support
+  selectedValue.value = createReferenceValueMappingFromColumn(
+    columnInfo,
+    selectedProperty.value.dataType,
+  )
 }
 
 const addReference = () => {
-  if (!canAddReference.value || !selectedProperty.value || !selectedValue.value) return
+  if (!canAddSnak.value || !selectedProperty.value || !selectedValue.value) return
 
-  const reference: ReferenceSchemaMapping = {
+  // Create a new reference with the first snak
+  const snak: ReferenceSnakSchemaMapping = {
     property: selectedProperty.value,
     value: selectedValue.value,
+  }
+
+  const reference: ReferenceSchemaMapping = {
+    id: `ref-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+    snaks: [snak],
   }
 
   emit('add-reference', props.statementId, reference)
   cancelAddingReference()
 }
 
+const addSnakToReference = () => {
+  if (
+    !canAddSnak.value ||
+    !selectedProperty.value ||
+    !selectedValue.value ||
+    isAddingSnakToReference.value === null
+  )
+    return
+
+  const snak: ReferenceSnakSchemaMapping = {
+    property: selectedProperty.value,
+    value: selectedValue.value,
+  }
+
+  emit('add-snak-to-reference', props.statementId, isAddingSnakToReference.value, snak)
+  cancelAddingReference()
+}
+
 const removeReference = (referenceIndex: number) => {
   emit('remove-reference', props.statementId, referenceIndex)
+}
+
+const removeSnakFromReference = (referenceIndex: number, snakIndex: number) => {
+  emit('remove-snak-from-reference', props.statementId, referenceIndex, snakIndex)
 }
 
 const getValueTypeIcon = (valueType: string): string => {
@@ -170,6 +203,9 @@ const getValueDisplayText = (value: ValueMapping): string => {
   }
   return typeof value.source === 'string' ? value.source : 'No mapping'
 }
+
+const getSnakNumber = (referenceIndex: number, snakIndex: number): string =>
+  `R${referenceIndex + 1}.${snakIndex + 1}`
 
 // Drop zone handlers for column mapping using the same pattern as StatementEditor
 const {
@@ -218,53 +254,80 @@ setOnColumnDrop((columnInfo) => {
     <!-- Existing References List -->
     <div
       v-if="hasReferences"
-      class="space-y-2"
+      class="space-y-4"
       data-testid="references-list"
     >
-      <!-- References Display Container -->
+      <!-- Individual References -->
       <div
-        class="border-l-4 border-orange-200 pl-4 bg-gradient-to-r from-orange-25 to-transparent"
+        v-for="(reference, referenceIndex) in references"
+        :key="`reference-${reference.id}`"
+        class="border-l-4 border-orange-200 pl-4 bg-gradient-to-r from-orange-25 to-transparent rounded-r-lg"
+        data-testid="reference-item"
       >
-        <div class="space-y-3">
-          <!-- References Header -->
-          <div class="flex items-center gap-2 text-sm font-medium text-orange-700 mb-3">
-            <i class="pi pi-angle-right text-xs" />
-            <span>Statement references</span>
+        <div class="space-y-3 py-3">
+          <!-- Reference Header -->
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2 text-sm font-medium text-orange-700">
+              <i class="pi pi-bookmark text-xs" />
+              <span>{{ getReferenceNumber(referenceIndex) }}</span>
+              <span class="text-xs text-surface-500 font-normal">
+                ({{ reference.snaks.length }}
+                {{ reference.snaks.length === 1 ? 'property' : 'properties' }})
+              </span>
+            </div>
+
+            <div class="flex items-center gap-1">
+              <Button
+                v-tooltip="'Add property to this reference'"
+                icon="pi pi-plus"
+                size="small"
+                severity="secondary"
+                text
+                :disabled="disabled"
+                @click="startAddingSnakToReference(referenceIndex)"
+              />
+              <Button
+                v-tooltip="'Remove entire reference'"
+                icon="pi pi-trash"
+                size="small"
+                severity="danger"
+                text
+                :disabled="disabled"
+                data-testid="remove-reference-button"
+                @click="removeReference(referenceIndex)"
+              />
+            </div>
           </div>
 
-          <!-- Individual References -->
-          <div
-            v-for="(reference, index) in references"
-            :key="`reference-${index}`"
-            class="relative"
-            data-testid="reference-item"
-          >
-            <!-- Connector Line -->
-            <div class="absolute left-0 top-0 bottom-0 w-px bg-orange-200" />
-
-            <!-- Reference Content -->
+          <!-- Reference Snaks (Property-Value Pairs) -->
+          <div class="space-y-2 ml-4">
             <div
-              class="flex items-center justify-between p-3 ml-4 bg-surface-50 border border-surface-200 rounded-lg shadow-sm hover:shadow-md transition-shadow"
+              v-for="(snak, snakIndex) in reference.snaks"
+              :key="`snak-${referenceIndex}-${snakIndex}`"
+              class="flex items-center justify-between p-3 bg-surface-50 border border-surface-200 rounded-lg shadow-sm hover:shadow-md transition-shadow"
+              data-testid="reference-snak"
             >
               <div class="flex items-center gap-3 flex-1">
-                <!-- Reference Indicator -->
+                <!-- Snak Indicator -->
                 <div class="flex items-center gap-1 text-orange-600">
                   <i class="pi pi-angle-right text-xs" />
-                  <span class="text-xs font-medium">{{ getReferenceNumber(index) }}</span>
+                  <span class="text-xs font-medium">
+                    {{ getSnakNumber(referenceIndex, snakIndex) }}
+                  </span>
                 </div>
 
                 <!-- Property Info -->
                 <div
                   class="flex items-center gap-2"
-                  data-testid="reference-property"
+                  data-testid="snak-property"
                 >
                   <Tag
-                    :value="reference.property.id"
+                    :value="snak.property.id"
                     size="small"
                     severity="info"
                   />
                   <span class="font-medium text-surface-900">
-                    {{ getPropertyDisplayText(reference.property) }}
+                    {{ getPropertyDisplayText(snak.property) }}
                   </span>
                 </div>
 
@@ -274,34 +337,34 @@ setOnColumnDrop((columnInfo) => {
                 <!-- Value Info -->
                 <div
                   class="flex items-center gap-2"
-                  data-testid="reference-value"
+                  data-testid="snak-value"
                 >
                   <i
-                    :class="getValueTypeIcon(reference.value.type)"
+                    :class="getValueTypeIcon(snak.value.type)"
                     class="text-surface-600 text-sm"
                   />
                   <Tag
-                    :value="getValueDisplayText(reference.value)"
+                    :value="getValueDisplayText(snak.value)"
                     size="small"
                     severity="secondary"
                   />
                   <span class="text-xs text-surface-500">
-                    {{ reference.value.dataType }}
+                    {{ snak.value.dataType }}
                   </span>
                 </div>
               </div>
 
-              <!-- Actions -->
+              <!-- Snak Actions -->
               <div class="flex items-center gap-1">
                 <Button
-                  v-tooltip="'Remove reference'"
-                  icon="pi pi-trash"
+                  v-tooltip="'Remove this property from reference'"
+                  icon="pi pi-times"
                   size="small"
                   severity="danger"
                   text
                   :disabled="disabled"
-                  data-testid="remove-reference-button"
-                  @click="removeReference(index)"
+                  data-testid="remove-snak-button"
+                  @click="removeSnakFromReference(referenceIndex, snakIndex)"
                 />
               </div>
             </div>
@@ -310,13 +373,19 @@ setOnColumnDrop((columnInfo) => {
       </div>
     </div>
 
-    <!-- Add Reference Form -->
+    <!-- Add Reference/Snak Form -->
     <div
-      v-if="isAddingReference"
+      v-if="isAddingReference || isAddingSnakToReference !== null"
       class="border border-surface-200 rounded-lg p-4 bg-surface-25 space-y-4"
     >
       <div class="flex items-center justify-between mb-4">
-        <h5 class="font-medium text-surface-900">Add New Reference</h5>
+        <h5 class="font-medium text-surface-900">
+          {{
+            isAddingReference
+              ? 'Add New Reference'
+              : `Add Property to ${getReferenceNumber(isAddingSnakToReference!)}`
+          }}
+        </h5>
         <Button
           icon="pi pi-times"
           size="small"
@@ -334,24 +403,10 @@ setOnColumnDrop((columnInfo) => {
         </label>
         <PropertySelector
           :model-value="selectedProperty"
-          placeholder="Search for a reference property (e.g., P248, P854, P813)..."
+          placeholder="Search for a reference property..."
           :disabled="disabled"
           @update="handlePropertyChange"
         />
-
-        <!-- Common reference properties suggestions -->
-        <div class="flex flex-wrap gap-1 mt-2">
-          <Button
-            v-for="commonProp in commonReferenceProperties"
-            :key="commonProp.id"
-            :label="`${commonProp.id} - ${commonProp.label}`"
-            size="small"
-            severity="secondary"
-            text
-            class="text-xs"
-            @click="handlePropertyChange(commonProp as PropertyReference)"
-          />
-        </div>
       </div>
 
       <!-- Value Configuration -->
@@ -434,14 +489,20 @@ setOnColumnDrop((columnInfo) => {
           </div>
 
           <!-- Constant/Expression Input -->
-          <InputText
+          <div
             v-else-if="selectedValue"
-            v-model="selectedValue.source"
-            :placeholder="
-              selectedValue.type === 'constant' ? 'Enter constant value...' : 'Enter expression...'
-            "
-            class="w-full"
-          />
+            class="space-y-2"
+          >
+            <InputText
+              v-model="selectedValue.source"
+              :placeholder="
+                selectedValue.type === 'constant'
+                  ? 'Enter constant value...'
+                  : 'Enter expression...'
+              "
+              class="w-full"
+            />
+          </div>
         </div>
       </div>
 
@@ -454,10 +515,18 @@ setOnColumnDrop((columnInfo) => {
           @click="cancelAddingReference"
         />
         <Button
+          v-if="isAddingReference"
           label="Add Reference"
-          :disabled="!canAddReference"
+          :disabled="!canAddSnak"
           size="small"
           @click="addReference"
+        />
+        <Button
+          v-else-if="isAddingSnakToReference !== null"
+          label="Add Property"
+          :disabled="!canAddSnak"
+          size="small"
+          @click="addSnakToReference"
         />
       </div>
     </div>
@@ -477,9 +546,9 @@ setOnColumnDrop((columnInfo) => {
           <p class="text-sm text-surface-500">
             Add references to cite sources and provide provenance for this statement
           </p>
-        </div>
-        <div class="text-xs text-surface-400 mt-2">
-          Common reference properties: P248 (stated in), P854 (reference URL), P813 (retrieved)
+          <p class="text-xs text-surface-400 mt-2">
+            Each reference can contain multiple property-value pairs
+          </p>
         </div>
       </div>
     </div>

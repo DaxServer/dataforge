@@ -260,6 +260,7 @@ declare global {
   const usePropertySelection: typeof import('./src/composables/usePropertySelection')['usePropertySelection']
   const useRafFn: typeof import('@vueuse/core')['useRafFn']
   const useRefHistory: typeof import('@vueuse/core')['useRefHistory']
+  const useReferenceValueMapping: typeof import('./src/composables/useReferenceValueMapping')['useReferenceValueMapping']
   const useResizeObserver: typeof import('@vueuse/core')['useResizeObserver']
   const useRoute: typeof import('vue-router')['useRoute']
   const useRouteParams: typeof import('@vueuse/router')['useRouteParams']
@@ -318,6 +319,7 @@ declare global {
   const useValidationErrors: typeof import('./src/composables/useValidationErrors')['useValidationErrors']
   const useValidationStore: typeof import('./src/stores/validation.store')['useValidationStore']
   const useValueMapping: typeof import('./src/composables/useValueMapping')['useValueMapping']
+  const useValueValidation: typeof import('./src/composables/useValueValidation')['useValueValidation']
   const useVibrate: typeof import('@vueuse/core')['useVibrate']
   const useVirtualList: typeof import('@vueuse/core')['useVirtualList']
   const useWakeLock: typeof import('@vueuse/core')['useWakeLock']
@@ -372,7 +374,7 @@ declare global {
   export type { ProjectFile, FileSelectEvent, FileRemoveEvent, ApiClient } from './src/types/index'
   import('./src/types/index')
   // @ts-ignore
-  export type { ValidationErrorType, ValidationErrorCode, ValidationError, ValidationResult, ValidationContext, WikibaseSchemaMapping, ItemSchemaMapping, Label, TermsSchemaMapping, ColumnMapping, TransformationRule, TransformationFunction, TransformationParameter, StatementSchemaMapping, PropertyReference, ValueMapping, QualifierSchemaMapping, ReferenceSchemaMapping, StatementRank, WikibaseDataType, ColumnInfo, ValidationRule, SchemaMapping, ColumnReference, ValueSchemaMapping, ValidatedSchemaMapping } from './src/types/wikibase-schema'
+  export type { ValidationErrorType, ValidationErrorCode, ValidationError, ValidationResult, ValidationContext, WikibaseSchemaMapping, ItemSchemaMapping, Label, TermsSchemaMapping, ColumnMapping, TransformationRule, TransformationFunction, TransformationParameter, StatementSchemaMapping, PropertyReference, ValueMapping, QualifierSchemaMapping, ReferenceSnakSchemaMapping, ReferenceSchemaMapping, StatementRank, WikibaseDataType, ColumnInfo, ValidationRule, SchemaMapping, ColumnReference, ValueSchemaMapping, ValidatedSchemaMapping } from './src/types/wikibase-schema'
   import('./src/types/wikibase-schema')
 }
 
@@ -635,6 +637,7 @@ declare module 'vue' {
     readonly usePropertySelection: UnwrapRef<typeof import('./src/composables/usePropertySelection')['usePropertySelection']>
     readonly useRafFn: UnwrapRef<typeof import('@vueuse/core')['useRafFn']>
     readonly useRefHistory: UnwrapRef<typeof import('@vueuse/core')['useRefHistory']>
+    readonly useReferenceValueMapping: UnwrapRef<typeof import('./src/composables/useReferenceValueMapping')['useReferenceValueMapping']>
     readonly useResizeObserver: UnwrapRef<typeof import('@vueuse/core')['useResizeObserver']>
     readonly useRoute: UnwrapRef<typeof import('vue-router')['useRoute']>
     readonly useRouteParams: UnwrapRef<typeof import('@vueuse/router')['useRouteParams']>

@@ -143,9 +143,16 @@ export interface QualifierSchemaMapping {
   value: ValueMapping
 }
 
-export interface ReferenceSchemaMapping {
+// Reference snak (property-value pair within a reference)
+export interface ReferenceSnakSchemaMapping {
   property: PropertyReference
   value: ValueMapping
+}
+
+// A complete reference containing multiple property-value pairs
+export interface ReferenceSchemaMapping {
+  id: string // Unique identifier for this reference
+  snaks: ReferenceSnakSchemaMapping[] // Array of property-value pairs in this reference
 }
 
 export type StatementRank = 'preferred' | 'normal' | 'deprecated'
