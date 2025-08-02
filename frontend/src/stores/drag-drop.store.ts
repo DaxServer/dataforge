@@ -66,11 +66,11 @@ export const useDragDropStore = defineStore('dragDrop', () => {
   })
 
   // Actions
-  const startDrag = (_column: ColumnInfo) => {
-    draggedColumn.value = _column
+  const startDrag = (columnInfo: ColumnInfo) => {
+    draggedColumn.value = columnInfo
     dragState.value = 'dragging'
     // Calculate valid drop targets based on column data type
-    validDropTargets.value = calculateValidTargets(_column)
+    validDropTargets.value = calculateValidTargets(columnInfo)
   }
 
   const endDrag = () => {
@@ -93,10 +93,10 @@ export const useDragDropStore = defineStore('dragDrop', () => {
   }
 
   // Helper function to calculate valid drop targets for a column
-  const calculateValidTargets = (_column: ColumnInfo): string[] => {
-    if (!_column) return []
+  const calculateValidTargets = (columnInfo: ColumnInfo): string[] => {
+    if (!columnInfo) return []
 
-    const compatibleTypes = getCompatibleWikibaseTypes(_column.dataType)
+    const compatibleTypes = getCompatibleWikibaseTypes(columnInfo.dataType)
 
     return availableTargets.value
       .filter((target) => {
@@ -105,7 +105,7 @@ export const useDragDropStore = defineStore('dragDrop', () => {
         if (!isCompatible) return false
 
         // Check nullable constraints
-        if (target.isRequired && _column.nullable) return false
+        if (target.isRequired && columnInfo.nullable) return false
 
         // Additional validation based on target type
         switch (target.type) {
@@ -113,7 +113,7 @@ export const useDragDropStore = defineStore('dragDrop', () => {
           case 'alias': {
             // Check for reasonable length constraints
             const maxLength = target.type === 'label' ? 250 : 100
-            const hasLongValues = _column.sampleValues?.some((val) => val.length > maxLength)
+            const hasLongValues = columnInfo.sampleValues?.some((val) => val.length > maxLength)
             if (hasLongValues) return false
             break
           }
@@ -142,8 +142,8 @@ export const useDragDropStore = defineStore('dragDrop', () => {
   }
 
   // Method to get valid targets for a specific column
-  const getValidTargetsForColumn = (_column: ColumnInfo): DropTarget[] => {
-    const validPaths = calculateValidTargets(_column)
+  const getValidTargetsForColumn = (columnInfo: ColumnInfo): DropTarget[] => {
+    const validPaths = calculateValidTargets(columnInfo)
     return availableTargets.value.filter((target) => validPaths.includes(target.path))
   }
 
