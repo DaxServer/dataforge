@@ -12,124 +12,124 @@ describe('useDataTypeCompatibility Composable', () => {
 
   describe('isValidTextColumn', () => {
     test('should validate VARCHAR columns', () => {
-      const column: ColumnInfo = {
+      const columnInfo: ColumnInfo = {
         name: 'title',
         dataType: 'VARCHAR',
         sampleValues: ['Sample Title'],
         nullable: false,
       }
 
-      expect(isValidTextColumn(column)).toBe(true)
+      expect(isValidTextColumn(columnInfo)).toBe(true)
     })
 
     test('should validate TEXT columns', () => {
-      const column: ColumnInfo = {
+      const columnInfo: ColumnInfo = {
         name: 'description',
         dataType: 'TEXT',
         sampleValues: ['Sample Description'],
         nullable: false,
       }
 
-      expect(isValidTextColumn(column)).toBe(true)
+      expect(isValidTextColumn(columnInfo)).toBe(true)
     })
 
     test('should validate STRING columns', () => {
-      const column: ColumnInfo = {
+      const columnInfo: ColumnInfo = {
         name: 'name',
         dataType: 'STRING',
         sampleValues: ['Sample Name'],
         nullable: false,
       }
 
-      expect(isValidTextColumn(column)).toBe(true)
+      expect(isValidTextColumn(columnInfo)).toBe(true)
     })
 
     test('should validate CHAR columns', () => {
-      const column: ColumnInfo = {
+      const columnInfo: ColumnInfo = {
         name: 'code',
         dataType: 'CHAR',
         sampleValues: ['A'],
         nullable: false,
       }
 
-      expect(isValidTextColumn(column)).toBe(true)
+      expect(isValidTextColumn(columnInfo)).toBe(true)
     })
 
     test('should reject INTEGER columns', () => {
-      const column: ColumnInfo = {
+      const columnInfo: ColumnInfo = {
         name: 'count',
         dataType: 'INTEGER',
         sampleValues: ['123'],
         nullable: false,
       }
 
-      expect(isValidTextColumn(column)).toBe(false)
+      expect(isValidTextColumn(columnInfo)).toBe(false)
     })
 
     test('should reject DECIMAL columns', () => {
-      const column: ColumnInfo = {
+      const columnInfo: ColumnInfo = {
         name: 'price',
         dataType: 'DECIMAL',
         sampleValues: ['19.99'],
         nullable: false,
       }
 
-      expect(isValidTextColumn(column)).toBe(false)
+      expect(isValidTextColumn(columnInfo)).toBe(false)
     })
 
     test('should reject BOOLEAN columns', () => {
-      const column: ColumnInfo = {
+      const columnInfo: ColumnInfo = {
         name: 'active',
         dataType: 'BOOLEAN',
         sampleValues: ['true'],
         nullable: false,
       }
 
-      expect(isValidTextColumn(column)).toBe(false)
+      expect(isValidTextColumn(columnInfo)).toBe(false)
     })
 
     test('should reject DATE columns', () => {
-      const column: ColumnInfo = {
+      const columnInfo: ColumnInfo = {
         name: 'created_at',
         dataType: 'DATE',
         sampleValues: ['2023-01-01'],
         nullable: false,
       }
 
-      expect(isValidTextColumn(column)).toBe(false)
+      expect(isValidTextColumn(columnInfo)).toBe(false)
     })
 
     test('should reject TIMESTAMP columns', () => {
-      const column: ColumnInfo = {
+      const columnInfo: ColumnInfo = {
         name: 'updated_at',
         dataType: 'TIMESTAMP',
         sampleValues: ['2023-01-01 12:00:00'],
         nullable: false,
       }
 
-      expect(isValidTextColumn(column)).toBe(false)
+      expect(isValidTextColumn(columnInfo)).toBe(false)
     })
 
     test('should handle case insensitivity for varchar', () => {
-      const column: ColumnInfo = {
+      const columnInfo: ColumnInfo = {
         name: 'title',
         dataType: 'varchar',
         sampleValues: ['Sample'],
         nullable: false,
       }
 
-      expect(isValidTextColumn(column)).toBe(true)
+      expect(isValidTextColumn(columnInfo)).toBe(true)
     })
 
     test('should handle case insensitivity for text', () => {
-      const column: ColumnInfo = {
+      const columnInfo: ColumnInfo = {
         name: 'description',
         dataType: 'text',
         sampleValues: ['Sample'],
         nullable: false,
       }
 
-      expect(isValidTextColumn(column)).toBe(true)
+      expect(isValidTextColumn(columnInfo)).toBe(true)
     })
 
     test('should handle null column', () => {

@@ -2,19 +2,22 @@ import { computed } from 'vue'
 import { useRealTimeValidation } from '@frontend/composables/useRealTimeValidation'
 import { useDragDropStore } from '@frontend/stores/drag-drop.store'
 import { useValidationStore } from '@frontend/stores/validation.store'
+import { useDropZoneStyling } from '@frontend/composables/useDropZoneStyling'
+import { useValidationCore } from '@frontend/composables/useValidationCore'
 import type { ColumnInfo } from '@frontend/types/wikibase-schema'
 import type { DropTarget } from '@frontend/types/drag-drop'
 
 /**
- * Composable for integrating real-time validation with UI components
- * Provides easy-to-use reactive properties and methods for schema validation UI
+ * Simplified UI composable that wraps shared validation and styling logic
  */
 export const useSchemaValidationUI = () => {
   const realTimeValidation = useRealTimeValidation()
   const dragDropStore = useDragDropStore()
   const validationStore = useValidationStore()
+  const { getDropZoneClasses, isValidDragForStyling } = useDropZoneStyling()
+  const { validateColumnForTarget } = useValidationCore()
 
-  // Computed properties for UI state
+  // Reactive state from stores
   const isDragInProgress = computed(() => dragDropStore.isDragging)
   const hasValidationErrors = computed(() => validationStore.hasErrors)
   const hasValidationWarnings = computed(() => validationStore.hasWarnings)
@@ -49,7 +52,7 @@ export const useSchemaValidationUI = () => {
     return realTimeValidation.getValidationFeedback(dragDropStore.draggedColumn, target)
   })
 
-  // Get validation status for a specific path
+  // Simplified methods using shared logic
   const getPathValidationStatus = (path: string) => {
     return {
       hasErrors: validationStore.hasErrorsForPath(path),
@@ -59,7 +62,6 @@ export const useSchemaValidationUI = () => {
     }
   }
 
-  // Get validation CSS classes for styling
   const getValidationClasses = (path: string) => {
     const status = getPathValidationStatus(path)
 
@@ -72,7 +74,6 @@ export const useSchemaValidationUI = () => {
     }
   }
 
-  // Get validation icon for a path
   const getValidationIcon = (path: string) => {
     const status = getPathValidationStatus(path)
 
@@ -93,66 +94,41 @@ export const useSchemaValidationUI = () => {
     }
   }
 
-  // Check if a column can be dropped on a target
-  const canDropColumn = (column: ColumnInfo, target: DropTarget): boolean => {
-    const validation = realTimeValidation.validateDragOperation(column, target)
-    return validation.isValid
+  const canDropColumn = (columnInfo: ColumnInfo, target: DropTarget): boolean => {
+    return validateColumnForTarget(columnInfo, target).isValid
   }
 
-  // Get drop zone classes based on current drag state
-  const getDropZoneClasses = (targetPath: string, acceptedTypes: string[]) => {
-    const baseClasses = ['drop-zone', 'transition-colors', 'duration-200']
-
-    if (!dragDropStore.draggedColumn) {
-      return [...baseClasses, 'border-surface-200']
+  const getDropZoneClassesForPath = (targetPath: string) => {
+    const target = dragDropStore.availableTargets.find((t) => t.path === targetPath)
+    if (!target) {
+      return ['drop-zone', 'transition-colors', 'border-surface-200']
     }
-
-    const isValidTarget = dragDropStore.validDropTargets.includes(targetPath)
-    const isHovered = dragDropStore.hoveredTarget === targetPath
-
-    if (isValidTarget) {
-      if (isHovered) {
-        return [...baseClasses, 'border-green-400', 'bg-green-50', 'border-2']
-      } else {
-        return [...baseClasses, 'border-green-300', 'bg-green-25', 'border-dashed']
-      }
-    } else {
-      if (isHovered) {
-        return [...baseClasses, 'border-red-400', 'bg-red-50', 'border-2']
-      } else {
-        return [...baseClasses, 'border-surface-200', 'opacity-50']
-      }
-    }
+    return getDropZoneClasses(target)
   }
 
-  // Start real-time validation (typically called in component setup)
+  const validateMapping = (columnInfo: ColumnInfo, target: DropTarget) => {
+    return realTimeValidation.validateDragOperation(columnInfo, target, true)
+  }
+
+  const getMappingSuggestions = (columnInfo: ColumnInfo, target: DropTarget): string[] => {
+    return realTimeValidation.getValidationSuggestions(columnInfo, target)
+  }
+
+  // Control methods
   const enableRealTimeValidation = () => {
     realTimeValidation.startRealTimeValidation()
   }
 
-  // Stop real-time validation (typically called in component cleanup)
   const disableRealTimeValidation = () => {
     realTimeValidation.stopRealTimeValidation()
   }
 
-  // Clear all validation errors
   const clearAllValidation = () => {
     validationStore.$reset()
   }
 
-  // Clear validation for a specific path
   const clearPathValidation = (path: string, exactMatch = false) => {
     validationStore.clearErrorsForPath(path, exactMatch)
-  }
-
-  // Validate a specific mapping and add to store
-  const validateMapping = (column: ColumnInfo, target: DropTarget) => {
-    return realTimeValidation.validateDragOperation(column, target, true)
-  }
-
-  // Get suggestions for improving a mapping
-  const getMappingSuggestions = (column: ColumnInfo, target: DropTarget): string[] => {
-    return realTimeValidation.getValidationSuggestions(column, target)
   }
 
   return {
@@ -164,6 +140,7 @@ export const useSchemaValidationUI = () => {
     validationWarningCount,
     currentDragValidation,
     currentDragFeedback,
+    isValidDragForStyling,
 
     // Validation methods
     getPathValidationStatus,
@@ -174,7 +151,7 @@ export const useSchemaValidationUI = () => {
     // UI helper methods
     getValidationClasses,
     getValidationIcon,
-    getDropZoneClasses,
+    getDropZoneClasses: getDropZoneClassesForPath,
 
     // Control methods
     enableRealTimeValidation,

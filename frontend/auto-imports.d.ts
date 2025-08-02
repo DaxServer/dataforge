@@ -188,6 +188,7 @@ declare global {
   const useDragDropStore: typeof import('./src/stores/drag-drop.store')['useDragDropStore']
   const useDraggable: typeof import('@vueuse/core')['useDraggable']
   const useDropZone: typeof import('@vueuse/core')['useDropZone']
+  const useDropZoneStyling: typeof import('./src/composables/useDropZoneStyling')['useDropZoneStyling']
   const useElementBounding: typeof import('@vueuse/core')['useElementBounding']
   const useElementByPoint: typeof import('@vueuse/core')['useElementByPoint']
   const useElementHover: typeof import('@vueuse/core')['useElementHover']
@@ -319,6 +320,7 @@ declare global {
   const useUserMedia: typeof import('@vueuse/core')['useUserMedia']
   const useVModel: typeof import('@vueuse/core')['useVModel']
   const useVModels: typeof import('@vueuse/core')['useVModels']
+  const useValidationCore: typeof import('./src/composables/useValidationCore')['useValidationCore']
   const useValidationErrors: typeof import('./src/composables/useValidationErrors')['useValidationErrors']
   const useValidationStore: typeof import('./src/stores/validation.store')['useValidationStore']
   const useValueMapping: typeof import('./src/composables/useValueMapping')['useValueMapping']
@@ -569,6 +571,7 @@ declare module 'vue' {
     readonly useDragDropStore: UnwrapRef<typeof import('./src/stores/drag-drop.store')['useDragDropStore']>
     readonly useDraggable: UnwrapRef<typeof import('@vueuse/core')['useDraggable']>
     readonly useDropZone: UnwrapRef<typeof import('@vueuse/core')['useDropZone']>
+    readonly useDropZoneStyling: UnwrapRef<typeof import('./src/composables/useDropZoneStyling')['useDropZoneStyling']>
     readonly useElementBounding: UnwrapRef<typeof import('@vueuse/core')['useElementBounding']>
     readonly useElementByPoint: UnwrapRef<typeof import('@vueuse/core')['useElementByPoint']>
     readonly useElementHover: UnwrapRef<typeof import('@vueuse/core')['useElementHover']>
@@ -700,6 +703,7 @@ declare module 'vue' {
     readonly useUserMedia: UnwrapRef<typeof import('@vueuse/core')['useUserMedia']>
     readonly useVModel: UnwrapRef<typeof import('@vueuse/core')['useVModel']>
     readonly useVModels: UnwrapRef<typeof import('@vueuse/core')['useVModels']>
+    readonly useValidationCore: UnwrapRef<typeof import('./src/composables/useValidationCore')['useValidationCore']>
     readonly useValidationErrors: UnwrapRef<typeof import('./src/composables/useValidationErrors')['useValidationErrors']>
     readonly useValidationStore: UnwrapRef<typeof import('./src/stores/validation.store')['useValidationStore']>
     readonly useValueMapping: UnwrapRef<typeof import('./src/composables/useValueMapping')['useValueMapping']>

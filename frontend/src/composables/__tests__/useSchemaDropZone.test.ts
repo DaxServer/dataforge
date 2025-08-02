@@ -28,8 +28,6 @@ describe('useSchemaDropZone Composable', () => {
       expect(isValidDropState.value).toBe(false)
       expect(isInvalidDropState.value).toBe(false)
       expect(dropZoneClasses.value['border-primary-400 bg-primary-50']).toBe(false)
-      expect(dropZoneClasses.value['border-green-400 bg-green-50']).toBe(false)
-      expect(dropZoneClasses.value['border-red-400 bg-red-50']).toBe(false)
     })
   })
 
@@ -274,6 +272,7 @@ describe('useSchemaDropZone Composable', () => {
 
     test('should handle drop event with valid column data', () => {
       const schemaStore = useSchemaStore()
+      const dragDropStore = useDragDropStore()
       const { handleDrop, isOverDropZone, setTermType, setLanguageCode } = useSchemaDropZone()
 
       setTermType('label')
@@ -287,6 +286,9 @@ describe('useSchemaDropZone Composable', () => {
         sampleValues: ['Sample'],
         nullable: false,
       }
+
+      // Set up drag state before calling handleDrop
+      dragDropStore.startDrag(columnData)
 
       const mockEvent = {
         preventDefault: () => {},
@@ -310,6 +312,7 @@ describe('useSchemaDropZone Composable', () => {
 
     test('should handle drop event with invalid column data', () => {
       const schemaStore = useSchemaStore()
+      const dragDropStore = useDragDropStore()
       const { handleDrop, setTermType, setLanguageCode } = useSchemaDropZone()
 
       setTermType('label')
@@ -321,6 +324,9 @@ describe('useSchemaDropZone Composable', () => {
         sampleValues: ['123'],
         nullable: false,
       }
+
+      // Set up drag state before calling handleDrop
+      dragDropStore.startDrag(columnData)
 
       const mockEvent = {
         preventDefault: () => {},

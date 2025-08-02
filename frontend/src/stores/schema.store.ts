@@ -54,8 +54,17 @@ export const useSchemaStore = defineStore('schema', () => {
       aliases.value[languageCode] = []
     }
 
-    aliases.value[languageCode].push(columnMapping)
-    markDirty()
+    // Check for duplicates before adding
+    const existingAliases = aliases.value[languageCode]
+    const isDuplicate = existingAliases.some(
+      (alias) =>
+        alias.columnName === columnMapping.columnName && alias.dataType === columnMapping.dataType,
+    )
+
+    if (!isDuplicate) {
+      aliases.value[languageCode].push(columnMapping)
+      markDirty()
+    }
   }
 
   const removeLabelMapping = (languageCode: string) => {
