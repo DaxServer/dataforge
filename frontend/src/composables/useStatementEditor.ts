@@ -198,9 +198,9 @@ export const useStatementEditor = () => {
     localStatement.value.rank = newRank
   }
 
-  const handleColumnDrop = (_column: ColumnInfo) => {
+  const handleColumnDrop = (columnInfo: ColumnInfo) => {
     // Auto-suggest compatible data type
-    const compatibleTypes = getCompatibleWikibaseTypes(_column.dataType)
+    const compatibleTypes = getCompatibleWikibaseTypes(columnInfo.dataType)
     const suggestedDataType: WikibaseDataType =
       compatibleTypes[0] ?? (localStatement.value.value.dataType || 'string')
 
@@ -208,8 +208,8 @@ export const useStatementEditor = () => {
     localStatement.value.value = {
       type: 'column',
       source: {
-        columnName: _column.name,
-        dataType: _column.dataType,
+        columnName: columnInfo.name,
+        dataType: columnInfo.dataType,
       },
       dataType: suggestedDataType,
     }
