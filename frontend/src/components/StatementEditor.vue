@@ -85,6 +85,9 @@ const {
   getValidationSeverity,
 } = useStatementValidationDisplay()
 
+// Schema validation UI for enhanced validation feedback
+const { getDropZoneClasses, currentDragFeedback } = useSchemaValidationUI()
+
 // Set up the column drop callback
 setOnColumnDrop((_column) => {
   handleColumnDrop(_column)
@@ -352,7 +355,7 @@ watch(
         <div v-if="isColumnType">
           <!-- Drop Zone for Columns -->
           <div
-            :class="dropZoneClasses"
+            :class="[dropZoneClasses, getDropZoneClasses('statement.value')]"
             class="border-2 border-dashed rounded-lg p-4 text-center transition-all duration-200 ease-in-out"
             @dragover="handleDragOver"
             @dragenter="handleDragEnter"
@@ -392,10 +395,23 @@ watch(
             <!-- Show drop zone message if no column selected -->
             <div
               v-else
-              class="flex items-center justify-center gap-2 text-surface-600"
+              class="flex flex-col items-center justify-center gap-2 text-surface-600"
             >
               <i class="pi pi-upload" />
               <span class="text-sm font-medium">Drop column here</span>
+
+              <!-- Real-time validation feedback -->
+              <div
+                v-if="currentDragFeedback"
+                class="mt-2 text-xs px-2 py-1 rounded"
+                :class="[
+                  currentDragFeedback.type === 'success'
+                    ? 'bg-green-100 text-green-700'
+                    : 'bg-red-100 text-red-700',
+                ]"
+              >
+                {{ currentDragFeedback.message }}
+              </div>
             </div>
           </div>
         </div>

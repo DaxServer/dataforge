@@ -3,75 +3,66 @@ import type { ColumnInfo } from '@frontend/types/wikibase-schema'
 import { useDragDropStore } from '@frontend/stores/drag-drop.store'
 import { useSchemaStore } from '@frontend/stores/schema.store'
 import { useDragDropHandlers } from '@frontend/composables/useDragDropHandlers'
+import { useValidationCore } from '@frontend/composables/useValidationCore'
+import { useDropZoneStyling } from '@frontend/composables/useDropZoneStyling'
 
 /**
- * Composable for handling schema drop zone functionality
+ * Simplified schema drop zone composable using shared validation and styling
  */
 export const useSchemaDropZone = () => {
   // Configuration state
   const termType = ref<'label' | 'description' | 'alias'>('label')
   const languageCode = ref<string>('en')
+
+  // Stores and shared composables
   const dragDropStore = useDragDropStore()
   const schemaStore = useSchemaStore()
-  const {
-    createDragEnterHandler,
-    createDragLeaveHandler,
-    createDropHandler,
-    validateColumnCompatibility,
-  } = useDragDropHandlers()
+  const { createDragEnterHandler, createDragLeaveHandler, createDropHandler } =
+    useDragDropHandlers()
+  const { validateForStyling, validateForDrop } = useValidationCore()
+  const { getDropZoneClassObject } = useDropZoneStyling()
 
-  // Text-based fields (labels, descriptions, aliases) accept string types
+  // Text-based fields accept string types
   const acceptedTypes: WikibaseDataType[] = ['string']
 
-  // Reactive state
+  // Local state
   const isOverDropZone = ref(false)
 
-  // Direct reactive references to drag store
-  const draggedColumn = computed(() => dragDropStore.draggedColumn)
-  const isDragging = computed(() => dragDropStore.isDragging)
-
-  // Reactive validation using shared logic
-  const isColumnValid = computed(() => {
-    if (!draggedColumn.value) return false
-
-    // First check basic type compatibility
-    if (!validateColumnCompatibility(draggedColumn.value, acceptedTypes)) {
-      return false
-    }
-
-    // For aliases, also check for duplicates
-    if (termType.value === 'alias') {
-      const existingAliases = schemaStore.aliases[languageCode.value] || []
-      const isDuplicate = existingAliases.some(
-        (alias) =>
-          alias.columnName === draggedColumn.value!.name &&
-          alias.dataType === draggedColumn.value!.dataType,
-      )
-      return !isDuplicate
-    }
-
-    return true
-  })
-
-  // Reactive CSS classes
-  const dropZoneClasses = computed(() => ({
-    'border-primary-400 bg-primary-50': isOverDropZone.value,
-    'border-green-400 bg-green-50': isDragging.value && isColumnValid.value,
-    'border-red-400 bg-red-50': isDragging.value && draggedColumn.value && !isColumnValid.value,
+  // Create target object for validation
+  const currentTarget = computed(() => ({
+    type: termType.value,
+    path: `item.terms.${termType.value}s.${languageCode.value}`,
+    acceptedTypes,
+    language: languageCode.value,
+    isRequired: false,
   }))
 
-  // Reactive drop states
-  const isValidDropState = computed(() => isDragging.value && isColumnValid.value)
-  const isInvalidDropState = computed(
-    () => isDragging.value && draggedColumn.value && !isColumnValid.value,
+  const isValidForDrop = computed(() => {
+    if (!dragDropStore.draggedColumn) return false
+    const existingAliases =
+      termType.value === 'alias' ? schemaStore.aliases[languageCode.value] || [] : undefined
+    return validateForDrop(dragDropStore.draggedColumn, currentTarget.value, existingAliases)
+      .isValid
+  })
+
+  // CSS classes using shared styling logic
+  const dropZoneClasses = computed(() =>
+    getDropZoneClassObject(currentTarget.value, isOverDropZone.value),
   )
 
-  // Event handlers using shared logic with custom validation for aliases
+  // Drop states for external consumption
+  const isValidDropState = computed(() => dragDropStore.isDragging && isValidForDrop.value)
+  const isInvalidDropState = computed(
+    () => dragDropStore.isDragging && dragDropStore.draggedColumn && !isValidForDrop.value,
+  )
+
+  // Event handlers
   const handleDragOver = (event: DragEvent): void => {
     event.preventDefault()
     if (event.dataTransfer) {
-      // Use the same validation logic as isColumnValid for consistent behavior
-      event.dataTransfer.dropEffect = isColumnValid.value ? 'copy' : 'none'
+      // Use drop validation for cursor behavior to include duplicate checking
+      event.dataTransfer.dropEffect =
+        dragDropStore.draggedColumn && isValidForDrop.value ? 'copy' : 'none'
     }
   }
 
@@ -87,14 +78,17 @@ export const useSchemaDropZone = () => {
     acceptedTypes,
     (columnInfo) => {
       isOverDropZone.value = false
-      addColumnMapping(columnInfo)
+      // Only add if drop validation passes (includes duplicate checking)
+      if (isValidForDrop.value) {
+        addColumnMapping(columnInfo)
+      }
     },
     () => {
       isOverDropZone.value = false
     },
   )
 
-  // Add column mapping action
+  // Simplified column mapping - duplicate checking handled by validation
   const addColumnMapping = (dataCol: ColumnInfo): void => {
     const columnMapping = {
       columnName: dataCol.name,
@@ -106,18 +100,7 @@ export const useSchemaDropZone = () => {
     } else if (termType.value === 'description') {
       schemaStore.addDescriptionMapping(languageCode.value, columnMapping)
     } else if (termType.value === 'alias') {
-      // Check for duplicates before adding alias
-      const existingAliases = schemaStore.aliases[languageCode.value] || []
-      const isDuplicate = existingAliases.some(
-        (alias) =>
-          alias.columnName === columnMapping.columnName &&
-          alias.dataType === columnMapping.dataType,
-      )
-
-      if (!isDuplicate) {
-        schemaStore.addAliasMapping(languageCode.value, columnMapping)
-      }
-      // Silently ignore duplicates - this is expected behavior
+      schemaStore.addAliasMapping(languageCode.value, columnMapping)
     }
   }
 
@@ -131,11 +114,13 @@ export const useSchemaDropZone = () => {
   }
 
   return {
-    // Configuration state
+    // Configuration
     termType,
     languageCode,
+    setTermType,
+    setLanguageCode,
 
-    // Reactive state
+    // State
     isOverDropZone,
     isValidDropState,
     isInvalidDropState,
@@ -147,9 +132,5 @@ export const useSchemaDropZone = () => {
     handleDragLeave,
     handleDrop,
     addColumnMapping,
-
-    // Configuration methods
-    setTermType,
-    setLanguageCode,
   }
 }

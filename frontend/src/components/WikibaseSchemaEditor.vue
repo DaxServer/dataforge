@@ -20,6 +20,17 @@ const { showError, showSuccess } = useErrorHandling()
 const { convertProjectColumnsToColumnInfo } = useColumnConversion()
 const { setAvailableColumns, initializeStatement, resetStatement } = useStatementEditor()
 
+// Schema validation UI composable
+const {
+  hasValidationErrors,
+  hasValidationWarnings,
+  validationErrorCount,
+  validationWarningCount,
+  enableRealTimeValidation,
+  disableRealTimeValidation,
+  clearAllValidation,
+} = useSchemaValidationUI()
+
 // Reactive state
 const isInitialized = ref(false)
 const isConfiguringItem = ref(false)
@@ -82,6 +93,8 @@ const isEditingStatement = computed(() => {
 // Lifecycle
 onMounted(async () => {
   await initializeEditor()
+  // Enable real-time validation
+  enableRealTimeValidation()
 })
 
 // Methods
@@ -322,8 +335,9 @@ const handleCancelStatementEdit = () => {
 // Cleanup
 onUnmounted(() => {
   dragDropStore.$reset()
-  // Clear validation errors when clearing schema
-  // validationStore.clearAll() // Method not available in current store
+  // Disable real-time validation and clear errors
+  disableRealTimeValidation()
+  clearAllValidation()
   isConfiguringItem.value = false
 })
 </script>
@@ -346,6 +360,28 @@ onUnmounted(() => {
             class="toolbar-loading"
           >
             <i class="pi pi-spin pi-spinner text-gray-500" />
+          </div>
+
+          <!-- Validation status indicator -->
+          <div
+            v-if="hasValidationErrors || hasValidationWarnings"
+            class="flex items-center gap-2 px-3 py-1 rounded-full text-sm"
+            :class="[
+              hasValidationErrors
+                ? 'bg-red-50 border border-red-200 text-red-700'
+                : 'bg-yellow-50 border border-yellow-200 text-yellow-700',
+            ]"
+          >
+            <i
+              :class="[hasValidationErrors ? 'pi pi-times-circle' : 'pi pi-exclamation-triangle']"
+            />
+            <span>
+              {{ validationErrorCount }} {{ validationErrorCount === 1 ? 'error' : 'errors' }}
+              <span v-if="hasValidationWarnings">
+                , {{ validationWarningCount }}
+                {{ validationWarningCount === 1 ? 'warning' : 'warnings' }}
+              </span>
+            </span>
           </div>
         </div>
 
@@ -388,12 +424,21 @@ onUnmounted(() => {
         </div>
       </div>
 
-      <!-- Validation Feedback -->
+      <!-- Validation Status Bar -->
+      <div class="mb-4">
+        <ValidationDisplay
+          mode="status"
+          :show-details="true"
+          :show-clear-all="true"
+        />
+      </div>
+
+      <!-- Detailed Validation Feedback -->
       <div
         v-if="validationStore.hasAnyIssues"
         class="mb-4"
       >
-        <ValidationErrorDisplay />
+        <ValidationDisplay mode="full" />
       </div>
 
       <!-- Schema Content -->

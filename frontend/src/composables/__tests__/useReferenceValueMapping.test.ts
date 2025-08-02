@@ -40,14 +40,14 @@ describe('useReferenceValueMapping', () => {
   test('should create reference value mapping from column', () => {
     const { createReferenceValueMappingFromColumn } = useReferenceValueMapping()
 
-    const column: ColumnInfo = {
+    const columnInfo: ColumnInfo = {
       name: 'test_column',
       dataType: 'VARCHAR',
       sampleValues: [],
       nullable: false,
     }
 
-    const mapping = createReferenceValueMappingFromColumn(column, 'string')
+    const mapping = createReferenceValueMappingFromColumn(columnInfo, 'string')
 
     expect(mapping.type).toBe('column')
     expect(mapping.source).toEqual({

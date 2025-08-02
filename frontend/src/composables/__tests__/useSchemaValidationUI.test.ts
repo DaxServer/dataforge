@@ -209,7 +209,7 @@ describe('useSchemaValidationUI', () => {
   describe('Drop Zone Classes', () => {
     it('should provide appropriate classes when no drag is in progress', () => {
       const ui = useSchemaValidationUI()
-      const classes = ui.getDropZoneClasses('item.terms.labels.en', ['string'])
+      const classes = ui.getDropZoneClasses('item.terms.labels.en')
 
       expect(classes).toContain('drop-zone')
       expect(classes).toContain('transition-colors')
@@ -238,14 +238,14 @@ describe('useSchemaValidationUI', () => {
       expect(dragDropStore.validDropTargets).toContain('item.terms.labels.en')
 
       // Valid target, not hovered
-      const validClasses = ui.getDropZoneClasses('item.terms.labels.en', ['string'])
+      const validClasses = ui.getDropZoneClasses('item.terms.labels.en')
       expect(validClasses).toContain('border-green-300')
       expect(validClasses).toContain('bg-green-25')
       expect(validClasses).toContain('border-dashed')
 
       // Valid target, hovered
       dragDropStore.setHoveredTarget('item.terms.labels.en')
-      const hoveredValidClasses = ui.getDropZoneClasses('item.terms.labels.en', ['string'])
+      const hoveredValidClasses = ui.getDropZoneClasses('item.terms.labels.en')
       expect(hoveredValidClasses).toContain('border-green-400')
       expect(hoveredValidClasses).toContain('bg-green-50')
       expect(hoveredValidClasses).toContain('border-2')
@@ -266,13 +266,13 @@ describe('useSchemaValidationUI', () => {
       dragDropStore.startDrag(incompatibleColumn)
 
       // Invalid target, not hovered
-      const invalidClasses = ui.getDropZoneClasses('item.terms.labels.en', ['string'])
+      const invalidClasses = ui.getDropZoneClasses('item.terms.labels.en')
       expect(invalidClasses).toContain('border-surface-200')
       expect(invalidClasses).toContain('opacity-50')
 
       // Invalid target, hovered
       dragDropStore.setHoveredTarget('item.terms.labels.en')
-      const hoveredInvalidClasses = ui.getDropZoneClasses('item.terms.labels.en', ['string'])
+      const hoveredInvalidClasses = ui.getDropZoneClasses('item.terms.labels.en')
       expect(hoveredInvalidClasses).toContain('border-red-400')
       expect(hoveredInvalidClasses).toContain('bg-red-50')
       expect(hoveredInvalidClasses).toContain('border-2')

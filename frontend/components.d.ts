@@ -49,10 +49,14 @@ declare module 'vue' {
     TabPanels: typeof import('primevue/tabpanels')['default']
     Tabs: typeof import('primevue/tabs')['default']
     Tag: typeof import('primevue/tag')['default']
+    TermSection: typeof import('./src/components/TermSection.vue')['default']
     TermsEditor: typeof import('./src/components/TermsEditor.vue')['default']
     Toast: typeof import('primevue/toast')['default']
     ToggleSwitch: typeof import('primevue/toggleswitch')['default']
+    ValidationDisplay: typeof import('./src/components/ValidationDisplay.vue')['default']
     ValidationErrorDisplay: typeof import('./src/components/ValidationErrorDisplay.vue')['default']
+    ValidationStatusBar: typeof import('./src/components/ValidationStatusBar.vue')['default']
+    ValidationSuggestions: typeof import('./src/components/ValidationSuggestions.vue')['default']
     WikibaseSchemaEditor: typeof import('./src/components/WikibaseSchemaEditor.vue')['default']
   }
   export interface GlobalDirectives {

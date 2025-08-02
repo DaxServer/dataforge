@@ -2,12 +2,13 @@ import { ref, computed, watch } from 'vue'
 import { useDragDropStore } from '@frontend/stores/drag-drop.store'
 import { useValidationStore } from '@frontend/stores/validation.store'
 import { useValidationErrors } from '@frontend/composables/useValidationErrors'
+import { useValidationCore } from '@frontend/composables/useValidationCore'
 import { useDataTypeCompatibility } from '@frontend/composables/useDataTypeCompatibility'
 import type {
   ColumnInfo,
-  WikibaseDataType,
   ValidationError,
   ValidationResult,
+  WikibaseDataType,
 } from '@frontend/types/wikibase-schema'
 import type { DropTarget, DropFeedback } from '@frontend/types/drag-drop'
 
@@ -33,7 +34,8 @@ interface DragValidationResult {
 export const useRealTimeValidation = () => {
   const dragDropStore = useDragDropStore()
   const validationStore = useValidationStore()
-  const { createError, createWarning } = useValidationErrors()
+  const { createError } = useValidationErrors()
+  const { validateColumnForTarget } = useValidationCore()
   const { isDataTypeCompatible } = useDataTypeCompatibility()
 
   // Local reactive state
@@ -63,116 +65,60 @@ export const useRealTimeValidation = () => {
     target: DropTarget,
     autoAddToStore = false,
   ): DragValidationResult => {
-    const errors: ValidationError[] = []
-    const warnings: ValidationError[] = []
-
     // Clear previous errors for this path if auto-adding to store
     if (autoAddToStore) {
       validationStore.clearErrorsForPath(target.path, true)
     }
 
-    // 1. Data type compatibility check
-    if (!isDataTypeCompatible(columnInfo.dataType, target.acceptedTypes)) {
+    // Use core validation logic
+    const validation = validateColumnForTarget(columnInfo, target)
+
+    if (!validation.isValid) {
       const error = createError(
-        'INCOMPATIBLE_DATA_TYPE',
+        getErrorCodeFromReason(validation.reason || 'unknown'),
         target.path,
         {
           columnName: columnInfo.name,
           dataType: columnInfo.dataType,
           targetType: target.acceptedTypes.join(', '),
         },
-        `Column type '${columnInfo.dataType}' is not compatible with target types: ${target.acceptedTypes.join(', ')}`,
+        validation.message || 'Validation failed',
       )
-      errors.push(error)
 
       if (autoAddToStore) {
         validationStore.addError(error)
       }
-    }
 
-    // 2. Nullable constraint check
-    if (target.isRequired && columnInfo.nullable) {
-      const error = createError(
-        'MISSING_REQUIRED_MAPPING',
-        target.path,
-        {
-          columnName: columnInfo.name,
-        },
-        'Required field cannot accept nullable column',
-      )
-      errors.push(error)
-
-      if (autoAddToStore) {
-        validationStore.addError(error)
+      return {
+        isValid: false,
+        errors: [error],
+        warnings: [],
       }
-    }
-
-    // 3. Target-specific validation
-    const targetSpecificErrors = validateByTargetType(columnInfo, target)
-    errors.push(...targetSpecificErrors)
-
-    if (autoAddToStore) {
-      targetSpecificErrors.forEach((error) => validationStore.addError(error))
     }
 
     return {
-      isValid: errors.length === 0,
-      errors,
-      warnings,
+      isValid: validation.isValid,
+      errors: [],
+      warnings: [],
     }
   }
 
   /**
-   * Validate based on target type (labels, statements, etc.)
+   * Map validation reasons to error codes
    */
-  const validateByTargetType = (columnInfo: ColumnInfo, target: DropTarget): ValidationError[] => {
-    const errors: ValidationError[] = []
-
-    switch (target.type) {
-      case 'label':
-      case 'alias': {
-        // Check length constraints for labels and aliases
-        const maxLength = target.type === 'label' ? 250 : 100
-        const hasLongValues = columnInfo.sampleValues?.some((val) => val.length > maxLength)
-
-        if (hasLongValues) {
-          errors.push(
-            createError(
-              'INCOMPATIBLE_DATA_TYPE',
-              target.path,
-              {
-                columnName: columnInfo.name,
-                targetType: target.type,
-              },
-              `${target.type} values should be shorter than ${maxLength} characters`,
-            ),
-          )
-        }
-        break
-      }
-
-      case 'statement':
-      case 'qualifier':
-      case 'reference': {
-        // These require property IDs
-        if (!target.propertyId) {
-          errors.push(
-            createError(
-              'INVALID_PROPERTY_ID',
-              target.path,
-              {
-                columnName: columnInfo.name,
-                targetType: target.type,
-              },
-              `${target.type} target must have a property ID`,
-            ),
-          )
-        }
-        break
-      }
+  const getErrorCodeFromReason = (reason: string) => {
+    switch (reason) {
+      case 'incompatible_data_type':
+        return 'INCOMPATIBLE_DATA_TYPE'
+      case 'nullable_required_field':
+        return 'MISSING_REQUIRED_MAPPING'
+      case 'length_constraint':
+        return 'INCOMPATIBLE_DATA_TYPE'
+      case 'missing_property_id':
+        return 'INVALID_PROPERTY_ID'
+      default:
+        return 'INCOMPATIBLE_DATA_TYPE'
     }
-
-    return errors
   }
 
   /**
