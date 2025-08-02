@@ -19,7 +19,7 @@ export const useSchemaDropZone = () => {
   const schemaStore = useSchemaStore()
   const { createDragEnterHandler, createDragLeaveHandler, createDropHandler } =
     useDragDropHandlers()
-  const { validateForStyling, validateForDrop } = useValidationCore()
+  const { validateForDrop } = useValidationCore()
   const { getDropZoneClassObject } = useDropZoneStyling()
 
   // Text-based fields accept string types

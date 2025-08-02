@@ -6,10 +6,21 @@ import type {
   ValidationResult,
 } from '@frontend/types/wikibase-schema'
 
+export interface ValidationRuleConfig {
+  id: string
+  name: string
+  fieldPath: string
+  message: string
+  severity: 'error' | 'warning'
+  enabled: boolean
+  validator: (value: unknown, context: unknown) => boolean
+}
+
 export const useValidationStore = defineStore('validation', () => {
   // State
   const errors = ref<ValidationError[]>([])
   const warnings = ref<ValidationError[]>([])
+  const rules = ref<ValidationRuleConfig[]>([])
 
   // Actions
   const addError = (error: ValidationError) => {
@@ -62,6 +73,7 @@ export const useValidationStore = defineStore('validation', () => {
   const $reset = () => {
     errors.value = []
     warnings.value = []
+    rules.value = []
   }
 
   // Getters
@@ -89,6 +101,50 @@ export const useValidationStore = defineStore('validation', () => {
     }
   }
 
+  // Rules Actions
+  const addRule = (rule: ValidationRuleConfig) => {
+    const existingIndex = rules.value.findIndex((r) => r.id === rule.id)
+    if (existingIndex >= 0) {
+      rules.value[existingIndex] = rule
+    } else {
+      rules.value.push(rule)
+    }
+  }
+
+  const removeRule = (ruleId: string) => {
+    const index = rules.value.findIndex((rule) => rule.id === ruleId)
+    if (index >= 0) {
+      rules.value.splice(index, 1)
+    }
+  }
+
+  const updateRule = (ruleId: string, updates: Partial<ValidationRuleConfig>) => {
+    const rule = rules.value.find((r) => r.id === ruleId)
+    if (rule) {
+      Object.assign(rule, updates)
+    }
+  }
+
+  const enableRule = (ruleId: string) => {
+    updateRule(ruleId, { enabled: true })
+  }
+
+  const disableRule = (ruleId: string) => {
+    updateRule(ruleId, { enabled: false })
+  }
+
+  const getRuleById = (ruleId: string) => {
+    return rules.value.find((rule) => rule.id === ruleId)
+  }
+
+  const getRulesByFieldPath = (fieldPath: string) => {
+    return enabledRules.value.filter((rule) => rule.fieldPath === fieldPath)
+  }
+
+  const clearAllRules = () => {
+    rules.value = []
+  }
+
   // Computed properties
   const hasErrors = computed(() => errors.value.length > 0)
   const hasWarnings = computed(() => warnings.value.length > 0)
@@ -97,10 +153,18 @@ export const useValidationStore = defineStore('validation', () => {
   const warningCount = computed(() => warnings.value.length)
   const totalIssueCount = computed(() => errorCount.value + warningCount.value)
 
+  // Rules Computed
+  const enabledRules = computed(() => rules.value.filter((rule) => rule.enabled))
+  const errorRules = computed(() => enabledRules.value.filter((rule) => rule.severity === 'error'))
+  const warningRules = computed(() =>
+    enabledRules.value.filter((rule) => rule.severity === 'warning'),
+  )
+
   return {
     // State
     errors: readonly(errors),
     warnings: readonly(warnings),
+    rules,
 
     // Actions
     addError,
@@ -109,6 +173,16 @@ export const useValidationStore = defineStore('validation', () => {
     clearErrorsForPath,
     clearErrorsByCode,
     $reset,
+
+    // Rules Actions
+    addRule,
+    removeRule,
+    updateRule,
+    enableRule,
+    disableRule,
+    getRuleById,
+    getRulesByFieldPath,
+    clearAllRules,
 
     // Getters
     getErrorsForPath,
@@ -124,5 +198,10 @@ export const useValidationStore = defineStore('validation', () => {
     errorCount,
     warningCount,
     totalIssueCount,
+
+    // Rules Computed
+    enabledRules,
+    errorRules,
+    warningRules,
   }
 })

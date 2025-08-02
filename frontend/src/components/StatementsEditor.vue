@@ -21,7 +21,6 @@ const schemaStore = useSchemaStore()
 
 // Computed properties
 const statements = computed(() => schemaStore.statements)
-const hasStatements = computed(() => statements.value.length > 0)
 
 // Group statements by property for display
 const statementsByProperty = computed(() => {
@@ -100,7 +99,7 @@ const getRankIcon = (rank: string) => {
 
     <!-- Statements List -->
     <div
-      v-if="hasStatements"
+      v-if="statements.length > 0"
       class="space-y-4"
     >
       <!-- Property Groups -->
@@ -326,7 +325,7 @@ const getRankIcon = (rank: string) => {
 
     <!-- Empty State -->
     <div
-      v-if="!hasStatements && !isAddingStatement"
+      v-if="statements.length === 0 && !isAddingStatement"
       class="text-center py-12 border-2 border-dashed border-surface-200 rounded-lg bg-surface-25"
     >
       <div class="space-y-3">
