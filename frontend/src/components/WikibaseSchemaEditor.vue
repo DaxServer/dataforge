@@ -21,15 +21,10 @@ const { convertProjectColumnsToColumnInfo } = useColumnConversion()
 const { setAvailableColumns, initializeStatement, resetStatement } = useStatementEditor()
 
 // Schema validation UI composable
-const {
-  hasValidationErrors,
-  hasValidationWarnings,
-  validationErrorCount,
-  validationWarningCount,
-  enableRealTimeValidation,
-  disableRealTimeValidation,
-  clearAllValidation,
-} = useSchemaValidationUI()
+const { enableAutoValidation, disableAutoValidation } = useSchemaValidationUI()
+
+// Real-time validation composable
+const { startRealTimeValidation, stopRealTimeValidation } = useRealTimeValidation()
 
 // Reactive state
 const isInitialized = ref(false)
@@ -94,7 +89,8 @@ const isEditingStatement = computed(() => {
 onMounted(async () => {
   await initializeEditor()
   // Enable real-time validation
-  enableRealTimeValidation()
+  enableAutoValidation()
+  startRealTimeValidation()
 })
 
 // Methods
@@ -336,8 +332,9 @@ const handleCancelStatementEdit = () => {
 onUnmounted(() => {
   dragDropStore.$reset()
   // Disable real-time validation and clear errors
-  disableRealTimeValidation()
-  clearAllValidation()
+  disableAutoValidation()
+  stopRealTimeValidation()
+  validationStore.$reset()
   isConfiguringItem.value = false
 })
 </script>
@@ -364,22 +361,25 @@ onUnmounted(() => {
 
           <!-- Validation status indicator -->
           <div
-            v-if="hasValidationErrors || hasValidationWarnings"
+            v-if="validationStore.hasErrors || validationStore.hasWarnings"
             class="flex items-center gap-2 px-3 py-1 rounded-full text-sm"
             :class="[
-              hasValidationErrors
+              validationStore.hasErrors
                 ? 'bg-red-50 border border-red-200 text-red-700'
                 : 'bg-yellow-50 border border-yellow-200 text-yellow-700',
             ]"
           >
             <i
-              :class="[hasValidationErrors ? 'pi pi-times-circle' : 'pi pi-exclamation-triangle']"
+              :class="[
+                validationStore.hasErrors ? 'pi pi-times-circle' : 'pi pi-exclamation-triangle',
+              ]"
             />
             <span>
-              {{ validationErrorCount }} {{ validationErrorCount === 1 ? 'error' : 'errors' }}
-              <span v-if="hasValidationWarnings">
-                , {{ validationWarningCount }}
-                {{ validationWarningCount === 1 ? 'warning' : 'warnings' }}
+              {{ validationStore.errorCount }}
+              {{ validationStore.errorCount === 1 ? 'error' : 'errors' }}
+              <span v-if="validationStore.hasWarnings">
+                , {{ validationStore.warningCount }}
+                {{ validationStore.warningCount === 1 ? 'warning' : 'warnings' }}
               </span>
             </span>
           </div>

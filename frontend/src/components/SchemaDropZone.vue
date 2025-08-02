@@ -34,22 +34,8 @@ const {
   setLanguageCode,
 } = useSchemaDropZone()
 
-// Schema validation UI for enhanced drop zone styling
-const { getDropZoneClasses, currentDragFeedback } = useSchemaValidationUI()
-
-// Computed drop zone classes that combine both systems
-const enhancedDropZoneClasses = computed(() => {
-  const targetPath = `item.terms.${props.termType}s.${props.languageCode}`
-  const validationClasses = getDropZoneClasses(targetPath)
-
-  // dropZoneClasses returns an object for Vue class binding
-  // validationClasses returns an array of class names
-  // We need to combine them properly
-  return [
-    dropZoneClasses.value, // Object for Vue class binding
-    ...validationClasses, // Array of class strings
-  ]
-})
+// Drag drop context for drag feedback
+const { dropFeedback } = useDragDropContext()
 
 // Set configuration from props
 setTermType(props.termType as 'label' | 'description' | 'alias')
@@ -75,8 +61,8 @@ watch(
   <div
     :data-testid="testId"
     :class="[
-      'grow flex flex-row items-center justify-center border-2 border-dashed rounded-lg text-center transition-colors',
-      enhancedDropZoneClasses,
+      'grow flex flex-row items-center justify-center border-2 border-dashed border-gray-400 rounded-lg text-center transition-colors',
+      dropZoneClasses,
     ]"
     @dragover="handleDragOver"
     @dragenter="handleDragEnter"
@@ -88,15 +74,13 @@ watch(
 
     <!-- Real-time validation feedback -->
     <div
-      v-if="currentDragFeedback"
+      v-if="dropFeedback"
       class="mt-2 text-xs px-2 py-1 rounded"
       :class="[
-        currentDragFeedback.type === 'success'
-          ? 'bg-green-100 text-green-700'
-          : 'bg-red-100 text-red-700',
+        dropFeedback.type === 'success' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700',
       ]"
     >
-      {{ currentDragFeedback.message }}
+      {{ dropFeedback.message }}
     </div>
   </div>
 </template>

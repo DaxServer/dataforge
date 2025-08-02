@@ -271,6 +271,7 @@ declare global {
   const useSSRWidth: typeof import('@vueuse/core')['useSSRWidth']
   const useSchemaApi: typeof import('./src/composables/useSchemaApi')['useSchemaApi']
   const useSchemaBuilder: typeof import('./src/composables/useSchemaBuilder')['useSchemaBuilder']
+  const useSchemaCompletenessValidation: typeof import('./src/composables/useSchemaCompletenessValidation')['useSchemaCompletenessValidation']
   const useSchemaDropZone: typeof import('./src/composables/useSchemaDropZone')['useSchemaDropZone']
   const useSchemaStore: typeof import('./src/stores/schema.store')['useSchemaStore']
   const useSchemaValidationUI: typeof import('./src/composables/useSchemaValidationUI')['useSchemaValidationUI']
@@ -371,6 +372,12 @@ declare global {
   // @ts-ignore
   export type { CreateSchemaRequest } from './src/composables/useSchemaApi'
   import('./src/composables/useSchemaApi')
+  // @ts-ignore
+  export type { SchemaCompletenessResult, RequiredFieldHighlight } from './src/composables/useSchemaCompletenessValidation'
+  import('./src/composables/useSchemaCompletenessValidation')
+  // @ts-ignore
+  export type { ValidationRuleConfig } from './src/stores/validation.store'
+  import('./src/stores/validation.store')
   // @ts-ignore
   export type { FrontendErrorCode, ExtendedErrorCode, ExtendedError } from './src/types/client-errors'
   import('./src/types/client-errors')
@@ -654,6 +661,7 @@ declare module 'vue' {
     readonly useSSRWidth: UnwrapRef<typeof import('@vueuse/core')['useSSRWidth']>
     readonly useSchemaApi: UnwrapRef<typeof import('./src/composables/useSchemaApi')['useSchemaApi']>
     readonly useSchemaBuilder: UnwrapRef<typeof import('./src/composables/useSchemaBuilder')['useSchemaBuilder']>
+    readonly useSchemaCompletenessValidation: UnwrapRef<typeof import('./src/composables/useSchemaCompletenessValidation')['useSchemaCompletenessValidation']>
     readonly useSchemaDropZone: UnwrapRef<typeof import('./src/composables/useSchemaDropZone')['useSchemaDropZone']>
     readonly useSchemaStore: UnwrapRef<typeof import('./src/stores/schema.store')['useSchemaStore']>
     readonly useSchemaValidationUI: UnwrapRef<typeof import('./src/composables/useSchemaValidationUI')['useSchemaValidationUI']>

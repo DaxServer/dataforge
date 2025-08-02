@@ -47,37 +47,31 @@ const emit = defineEmits<{
 // Use the composable for utility functions
 const { formatErrorMessage } = useValidationErrors()
 
-// Use schema validation UI for enhanced functionality
-const {
-  isDragInProgress,
-  hasValidationErrors,
-  hasValidationWarnings,
-  validationErrorCount,
-  validationWarningCount,
-  getValidationClasses,
-  clearPathValidation,
-  clearAllValidation,
-  validationStore,
-  currentDragFeedback,
-  getMappingSuggestions,
-} = useSchemaValidationUI()
+// Use validation store directly
+const validationStore = useValidationStore()
 
-// Destructure store properties for backward compatibility
-const { errors: allErrors, warnings: allWarnings, hasAnyIssues, clearError } = validationStore
+// Use schema validation UI for enhanced functionality
+const { getFieldHighlightClass } = useSchemaValidationUI()
+
+// Use real-time validation for drag feedback
+const { validationFeedback, getValidationSuggestions } = useRealTimeValidation()
+
+// Use drag-drop store for drag state
+const dragDropStore = useDragDropStore()
 
 // Filter errors based on path filter
 const errors = computed(() => {
   let filtered = props.pathFilter
-    ? allErrors.filter((error) => error.path.startsWith(props.pathFilter!))
-    : allErrors
+    ? validationStore.errors.filter((error) => error.path.startsWith(props.pathFilter!))
+    : validationStore.errors
 
   return filtered.slice(0, props.maxErrors)
 })
 
 const warnings = computed(() => {
   let filtered = props.pathFilter
-    ? allWarnings.filter((warning) => warning.path.startsWith(props.pathFilter!))
-    : allWarnings
+    ? validationStore.warnings.filter((warning) => warning.path.startsWith(props.pathFilter!))
+    : validationStore.warnings
 
   return filtered.slice(0, props.maxErrors)
 })
@@ -86,21 +80,19 @@ const errorCount = computed(() => errors.value.length)
 const warningCount = computed(() => warnings.value.length)
 
 // Status bar computed properties
-const hasAnyValidationIssues = computed(
-  () => hasValidationErrors.value || hasValidationWarnings.value,
-)
+const isDragInProgress = computed(() => dragDropStore.dragState !== 'idle')
 
 const statusMessage = computed(() => {
-  if (isDragInProgress.value && currentDragFeedback.value) {
-    return currentDragFeedback.value.message
+  if (isDragInProgress.value && validationFeedback.value) {
+    return validationFeedback.value.message
   }
 
-  if (hasValidationErrors.value) {
-    return `${validationErrorCount.value} validation ${validationErrorCount.value === 1 ? 'error' : 'errors'}`
+  if (validationStore.hasErrors) {
+    return `${validationStore.errorCount} validation ${validationStore.errorCount === 1 ? 'error' : 'errors'}`
   }
 
-  if (hasValidationWarnings.value) {
-    return `${validationWarningCount.value} validation ${validationWarningCount.value === 1 ? 'warning' : 'warnings'}`
+  if (validationStore.hasWarnings) {
+    return `${validationStore.warningCount} validation ${validationStore.warningCount === 1 ? 'warning' : 'warnings'}`
   }
 
   return 'Schema validation passed'
@@ -108,16 +100,16 @@ const statusMessage = computed(() => {
 
 const statusIcon = computed(() => {
   if (isDragInProgress.value) {
-    return currentDragFeedback.value?.type === 'success'
+    return validationFeedback.value?.type === 'success'
       ? 'pi pi-check-circle'
       : 'pi pi-times-circle'
   }
 
-  if (hasValidationErrors.value) {
+  if (validationStore.hasErrors) {
     return 'pi pi-times-circle'
   }
 
-  if (hasValidationWarnings.value) {
+  if (validationStore.hasWarnings) {
     return 'pi pi-exclamation-triangle'
   }
 
@@ -137,7 +129,7 @@ const statusClasses = computed(() => {
   ]
 
   if (isDragInProgress.value) {
-    const feedbackType = currentDragFeedback.value?.type
+    const feedbackType = validationFeedback.value?.type
     if (feedbackType === 'success') {
       return [...baseClasses, 'bg-green-50', 'border', 'border-green-200', 'text-green-700']
     } else if (feedbackType === 'error') {
@@ -147,11 +139,11 @@ const statusClasses = computed(() => {
     }
   }
 
-  if (hasValidationErrors.value) {
+  if (validationStore.hasErrors) {
     return [...baseClasses, 'bg-red-50', 'border', 'border-red-200', 'text-red-700']
   }
 
-  if (hasValidationWarnings.value) {
+  if (validationStore.hasWarnings) {
     return [...baseClasses, 'bg-yellow-50', 'border', 'border-yellow-200', 'text-yellow-700']
   }
 
@@ -162,7 +154,7 @@ const statusClasses = computed(() => {
 const suggestions = computed(() => {
   if (!props.columnInfo || !props.target) return []
 
-  const allSuggestions = getMappingSuggestions(props.columnInfo, props.target)
+  const allSuggestions = getValidationSuggestions(props.columnInfo, props.target)
   return allSuggestions.slice(0, props.maxSuggestions)
 })
 
@@ -171,25 +163,25 @@ const hasSuggestions = computed(() => suggestions.value.length > 0)
 // Methods
 const getErrorClasses = (error: ValidationError): string => {
   // Use the validation UI composable for consistent styling
-  const pathClasses = getValidationClasses(error.path)
-  return `p-3 rounded-lg border ${pathClasses.join(' ')}`
+  const highlightClass = getFieldHighlightClass(error.path)
+  return `p-3 rounded-lg border ${highlightClass}`
 }
 
 const dismissError = (error: ValidationError) => {
-  clearError(error)
+  validationStore.clearError(error)
   emit('errorDismissed', error)
 }
 
 const dismissWarning = (warning: ValidationError) => {
-  clearError(warning)
+  validationStore.clearError(warning)
   emit('warningDismissed', warning)
 }
 
 const clearAll = () => {
   if (props.pathFilter) {
-    clearPathValidation(props.pathFilter)
+    validationStore.clearErrorsForPath(props.pathFilter)
   } else {
-    clearAllValidation()
+    validationStore.$reset()
   }
   emit('allCleared')
 }
@@ -198,7 +190,7 @@ const clearAll = () => {
 <template>
   <!-- Full Error Display Mode -->
   <div
-    v-if="mode === 'full' && hasAnyIssues"
+    v-if="mode === 'full' && validationStore.hasAnyIssues"
     class="w-full"
   >
     <!-- Error Summary -->
@@ -208,16 +200,16 @@ const clearAll = () => {
     >
       <div class="flex items-center gap-2 text-sm">
         <i
-          v-if="hasValidationErrors"
+          v-if="validationStore.hasErrors"
           class="pi pi-exclamation-triangle text-red-500"
         />
         <i
-          v-else-if="hasValidationWarnings"
+          v-else-if="validationStore.hasWarnings"
           class="pi pi-info-circle text-yellow-500"
         />
         <span class="font-medium">
           {{ errorCount }} {{ errorCount === 1 ? 'error' : 'errors' }}
-          <span v-if="hasValidationWarnings">
+          <span v-if="validationStore.hasWarnings">
             , {{ warningCount }} {{ warningCount === 1 ? 'warning' : 'warnings' }}
           </span>
         </span>
@@ -295,7 +287,7 @@ const clearAll = () => {
 
     <!-- Clear All Button -->
     <div
-      v-if="showClearAll && hasAnyIssues"
+      v-if="showClearAll && validationStore.hasAnyIssues"
       class="mt-4 text-center"
     >
       <Button
@@ -311,7 +303,7 @@ const clearAll = () => {
 
   <!-- Status Bar Mode -->
   <div
-    v-else-if="mode === 'status' && (hasAnyValidationIssues || isDragInProgress || !compact)"
+    v-else-if="mode === 'status' && (validationStore.hasAnyIssues || isDragInProgress || !compact)"
     class="validation-status-bar"
   >
     <div :class="statusClasses">
@@ -320,28 +312,30 @@ const clearAll = () => {
 
       <!-- Detailed breakdown -->
       <div
-        v-if="showDetails && hasAnyValidationIssues && !isDragInProgress"
+        v-if="showDetails && validationStore.hasAnyIssues && !isDragInProgress"
         class="flex items-center gap-4 ml-2 text-xs"
       >
         <span
-          v-if="hasValidationErrors"
+          v-if="validationStore.hasErrors"
           class="flex items-center gap-1"
         >
           <i class="pi pi-times-circle text-red-500" />
-          {{ validationErrorCount }} {{ validationErrorCount === 1 ? 'error' : 'errors' }}
+          {{ validationStore.errorCount }}
+          {{ validationStore.errorCount === 1 ? 'error' : 'errors' }}
         </span>
         <span
-          v-if="hasValidationWarnings"
+          v-if="validationStore.hasWarnings"
           class="flex items-center gap-1"
         >
           <i class="pi pi-exclamation-triangle text-yellow-500" />
-          {{ validationWarningCount }} {{ validationWarningCount === 1 ? 'warning' : 'warnings' }}
+          {{ validationStore.warningCount }}
+          {{ validationStore.warningCount === 1 ? 'warning' : 'warnings' }}
         </span>
       </div>
 
       <!-- Clear all button -->
       <Button
-        v-if="showClearAll && hasAnyValidationIssues && !isDragInProgress"
+        v-if="showClearAll && validationStore.hasAnyIssues && !isDragInProgress"
         label="Clear All"
         icon="pi pi-trash"
         text

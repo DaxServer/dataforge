@@ -32,9 +32,9 @@ const selectedValue = ref<ValueMapping | null>(null)
 // Computed properties
 const references = computed(() => props.references || [])
 
-const hasReferences = computed(() => references.value.length > 0)
-
-const shouldShowEmptyState = computed(() => !hasReferences.value && !isAddingReference.value)
+const shouldShowEmptyState = computed(
+  () => references.value.length === 0 && !isAddingReference.value,
+)
 
 // Use existing property selection composable
 const { selectedProperty, selectProperty, clearSelection } = usePropertySelection()
@@ -220,7 +220,7 @@ setOnColumnDrop((columnInfo) => {
         <h4 class="text-md font-medium text-surface-900">
           References
           <span
-            v-if="hasReferences"
+            v-if="references.length > 0"
             class="text-sm text-surface-500 font-normal"
           >
             ({{ references.length }})
@@ -241,7 +241,7 @@ setOnColumnDrop((columnInfo) => {
 
     <!-- Existing References List -->
     <div
-      v-if="hasReferences"
+      v-if="references.length > 0"
       class="space-y-4"
       data-testid="references-list"
     >

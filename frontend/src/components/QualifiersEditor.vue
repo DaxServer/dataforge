@@ -31,9 +31,9 @@ const selectedValue = ref<ValueMapping | null>(null)
 // Computed properties
 const qualifiers = computed(() => props.qualifiers || [])
 
-const hasQualifiers = computed(() => qualifiers.value.length > 0)
-
-const shouldShowEmptyState = computed(() => !hasQualifiers.value && !isAddingQualifier.value)
+const shouldShowEmptyState = computed(
+  () => qualifiers.value.length === 0 && !isAddingQualifier.value,
+)
 
 // Use existing property selection composable
 const { selectedProperty, selectProperty, clearSelection } = usePropertySelection()
@@ -172,7 +172,7 @@ setOnColumnDrop((columnInfo) => {
         <h4 class="text-md font-medium text-surface-900">
           Qualifiers
           <span
-            v-if="hasQualifiers"
+            v-if="qualifiers.length > 0"
             class="text-sm text-surface-500 font-normal"
           >
             ({{ qualifiers.length }})
@@ -193,7 +193,7 @@ setOnColumnDrop((columnInfo) => {
 
     <!-- Existing Qualifiers List -->
     <div
-      v-if="hasQualifiers"
+      v-if="qualifiers.length > 0"
       class="space-y-2"
       data-testid="qualifiers-list"
     >

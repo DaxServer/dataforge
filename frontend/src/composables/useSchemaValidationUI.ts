@@ -1,167 +1,276 @@
-import { computed } from 'vue'
-import { useRealTimeValidation } from '@frontend/composables/useRealTimeValidation'
-import { useDragDropStore } from '@frontend/stores/drag-drop.store'
+import { watch, ref } from 'vue'
+import { useSchemaStore } from '@frontend/stores/schema.store'
 import { useValidationStore } from '@frontend/stores/validation.store'
-import { useDropZoneStyling } from '@frontend/composables/useDropZoneStyling'
-import { useValidationCore } from '@frontend/composables/useValidationCore'
-import type { ColumnInfo } from '@frontend/types/wikibase-schema'
-import type { DropTarget } from '@frontend/types/drag-drop'
+import { useValidationErrors } from '@frontend/composables/useValidationErrors'
+import { useSchemaCompletenessValidation } from '@frontend/composables/useSchemaCompletenessValidation'
+import type { ValidationError } from '@frontend/types/wikibase-schema'
 
 /**
- * Simplified UI composable that wraps shared validation and styling logic
+ * Interface for validation status
+ */
+interface ValidationStatus {
+  hasErrors: boolean
+  hasWarnings: boolean
+  errors: ValidationError[]
+  warnings: ValidationError[]
+}
+
+/**
+ * Interface for validation icon
+ */
+interface ValidationIcon {
+  icon: string
+  class: string
+}
+
+/**
+ * Composable for integrating schema completeness validation with the UI
+ * Handles validation error display, field highlighting, and reactive updates
  */
 export const useSchemaValidationUI = () => {
-  const realTimeValidation = useRealTimeValidation()
-  const dragDropStore = useDragDropStore()
+  const schemaStore = useSchemaStore()
   const validationStore = useValidationStore()
-  const { getDropZoneClasses, isValidDragForStyling } = useDropZoneStyling()
-  const { validateColumnForTarget } = useValidationCore()
+  const { createError } = useValidationErrors()
+  const { validateSchemaCompleteness, getRequiredFieldHighlights, isComplete } =
+    useSchemaCompletenessValidation()
 
-  // Reactive state from stores
-  const isDragInProgress = computed(() => dragDropStore.isDragging)
-  const hasValidationErrors = computed(() => validationStore.hasErrors)
-  const hasValidationWarnings = computed(() => validationStore.hasWarnings)
-  const validationErrorCount = computed(() => validationStore.errorCount)
-  const validationWarningCount = computed(() => validationStore.warningCount)
+  const isAutoValidationEnabled = ref(false)
+  let unwatchSchema: (() => void) | null = null
 
-  // Current drag validation state
-  const currentDragValidation = computed(() => {
-    if (!dragDropStore.draggedColumn || !dragDropStore.hoveredTarget) {
-      return null
+  /**
+   * Update validation errors in the validation store based on schema completeness
+   */
+  const updateValidationErrors = () => {
+    // Clear existing completeness validation errors
+    validationStore.clearErrorsByCode('MISSING_REQUIRED_MAPPING')
+
+    const highlights = getRequiredFieldHighlights()
+
+    // Add new validation errors for missing required fields
+    highlights.forEach((highlight) => {
+      const error: ValidationError = createError(
+        'MISSING_REQUIRED_MAPPING',
+        highlight.path,
+        {
+          schemaPath: highlight.path,
+        },
+        highlight.message,
+      )
+
+      if (highlight.severity === 'error') {
+        validationStore.addError(error)
+      } else {
+        validationStore.addWarning(error)
+      }
+    })
+  }
+
+  /**
+   * Get CSS class for field highlighting based on validation state
+   */
+  const getFieldHighlightClass = (fieldPath: string): string => {
+    if (validationStore.hasErrorsForPath(fieldPath)) {
+      return 'border-red-500 bg-red-50 focus:ring-red-500 focus:border-red-500'
     }
 
-    const target = dragDropStore.availableTargets.find(
-      (t) => t.path === dragDropStore.hoveredTarget,
-    )
-    if (!target) return null
-
-    return realTimeValidation.validateDragOperation(dragDropStore.draggedColumn, target)
-  })
-
-  // UI feedback for current drag operation
-  const currentDragFeedback = computed(() => {
-    if (!dragDropStore.draggedColumn || !dragDropStore.hoveredTarget) {
-      return null
+    if (validationStore.hasWarningsForPath(fieldPath)) {
+      return 'border-yellow-500 bg-yellow-50 focus:ring-yellow-500 focus:border-yellow-500'
     }
 
-    const target = dragDropStore.availableTargets.find(
-      (t) => t.path === dragDropStore.hoveredTarget,
+    return ''
+  }
+
+  /**
+   * Check if a field has validation errors
+   */
+  const hasFieldError = (fieldPath: string): boolean => {
+    return validationStore.hasErrorsForPath(fieldPath)
+  }
+
+  /**
+   * Check if a field has validation warnings
+   */
+  const hasFieldWarning = (fieldPath: string): boolean => {
+    return validationStore.hasWarningsForPath(fieldPath)
+  }
+
+  /**
+   * Get error message for a specific field
+   */
+  const getFieldErrorMessage = (fieldPath: string): string => {
+    const errors = validationStore.getErrorsForPath(fieldPath)
+    return errors.length > 0 ? errors[0]!.message : ''
+  }
+
+  /**
+   * Get warning message for a specific field
+   */
+  const getFieldWarningMessage = (fieldPath: string): string => {
+    const warnings = validationStore.getWarningsForPath(fieldPath)
+    return warnings.length > 0 ? warnings[0]!.message : ''
+  }
+
+  /**
+   * Get all validation messages for a field (errors and warnings)
+   */
+  const getFieldMessages = (fieldPath: string): { errors: string[]; warnings: string[] } => {
+    const errors = validationStore.getErrorsForPath(fieldPath).map((e) => e.message)
+    const warnings = validationStore.getWarningsForPath(fieldPath).map((w) => w.message)
+
+    return { errors, warnings }
+  }
+
+  /**
+   * Enable automatic validation updates when schema changes
+   */
+  const enableAutoValidation = () => {
+    if (isAutoValidationEnabled.value) return
+
+    isAutoValidationEnabled.value = true
+
+    // Initial validation
+    updateValidationErrors()
+
+    // Watch for schema changes and update validation
+    unwatchSchema = watch(
+      [
+        () => schemaStore.schemaName,
+        () => schemaStore.wikibase,
+        () => schemaStore.labels,
+        () => schemaStore.descriptions,
+        () => schemaStore.aliases,
+        () => schemaStore.statements,
+      ],
+      () => {
+        updateValidationErrors()
+      },
+      { deep: true },
     )
-    if (!target) return null
+  }
 
-    return realTimeValidation.getValidationFeedback(dragDropStore.draggedColumn, target)
-  })
+  /**
+   * Disable automatic validation updates
+   */
+  const disableAutoValidation = () => {
+    if (!isAutoValidationEnabled.value) return
 
-  // Simplified methods using shared logic
-  const getPathValidationStatus = (path: string) => {
+    isAutoValidationEnabled.value = false
+
+    if (unwatchSchema) {
+      unwatchSchema()
+      unwatchSchema = null
+    }
+  }
+
+  /**
+   * Manually trigger validation update
+   */
+  const triggerValidation = () => {
+    updateValidationErrors()
+  }
+
+  /**
+   * Clear all completeness validation errors
+   */
+  const clearValidationErrors = () => {
+    validationStore.clearErrorsByCode('MISSING_REQUIRED_MAPPING')
+  }
+
+  /**
+   * Get validation summary for display
+   */
+  const getValidationSummary = () => {
+    const result = validateSchemaCompleteness()
+
     return {
-      hasErrors: validationStore.hasErrorsForPath(path),
-      hasWarnings: validationStore.hasWarningsForPath(path),
-      errors: validationStore.getErrorsForPath(path),
-      warnings: validationStore.getWarningsForPath(path),
+      isComplete: result.isComplete,
+      totalErrors: validationStore.errorCount,
+      totalWarnings: validationStore.warningCount,
+      missingFieldsCount: result.missingRequiredFields.length,
+      requiredFieldHighlights: result.requiredFieldHighlights,
     }
   }
 
-  const getValidationClasses = (path: string) => {
-    const status = getPathValidationStatus(path)
-
-    if (status.hasErrors) {
-      return ['border-red-300', 'bg-red-50', 'text-red-900']
-    } else if (status.hasWarnings) {
-      return ['border-yellow-300', 'bg-yellow-50', 'text-yellow-900']
-    } else {
-      return ['border-surface-200', 'bg-surface-0']
+  /**
+   * Get field-specific validation state for component props
+   */
+  const getFieldValidationState = (fieldPath: string) => {
+    return {
+      hasError: hasFieldError(fieldPath),
+      hasWarning: hasFieldWarning(fieldPath),
+      errorMessage: getFieldErrorMessage(fieldPath),
+      warningMessage: getFieldWarningMessage(fieldPath),
+      highlightClass: getFieldHighlightClass(fieldPath),
+      isValid: !hasFieldError(fieldPath) && !hasFieldWarning(fieldPath),
     }
   }
 
-  const getValidationIcon = (path: string) => {
+  /**
+   * Get validation status for a specific path
+   */
+  const getPathValidationStatus = (path: string): ValidationStatus => {
+    const errors = validationStore.getErrorsForPath(path)
+    const warnings = validationStore.getWarningsForPath(path)
+
+    return {
+      hasErrors: errors.length > 0,
+      hasWarnings: warnings.length > 0,
+      errors,
+      warnings,
+    }
+  }
+
+  /**
+   * Get validation icon for a specific path
+   */
+  const getValidationIcon = (path: string): ValidationIcon | null => {
     const status = getPathValidationStatus(path)
 
     if (status.hasErrors) {
       return {
         icon: 'pi pi-times-circle',
         class: 'text-red-500',
-        severity: 'error' as const,
       }
-    } else if (status.hasWarnings) {
+    }
+
+    if (status.hasWarnings) {
       return {
         icon: 'pi pi-exclamation-triangle',
         class: 'text-yellow-500',
-        severity: 'warning' as const,
       }
-    } else {
-      return null
     }
-  }
 
-  const canDropColumn = (columnInfo: ColumnInfo, target: DropTarget): boolean => {
-    return validateColumnForTarget(columnInfo, target).isValid
-  }
-
-  const getDropZoneClassesForPath = (targetPath: string) => {
-    const target = dragDropStore.availableTargets.find((t) => t.path === targetPath)
-    if (!target) {
-      return ['drop-zone', 'transition-colors', 'border-surface-200']
-    }
-    return getDropZoneClasses(target)
-  }
-
-  const validateMapping = (columnInfo: ColumnInfo, target: DropTarget) => {
-    return realTimeValidation.validateDragOperation(columnInfo, target, true)
-  }
-
-  const getMappingSuggestions = (columnInfo: ColumnInfo, target: DropTarget): string[] => {
-    return realTimeValidation.getValidationSuggestions(columnInfo, target)
-  }
-
-  // Control methods
-  const enableRealTimeValidation = () => {
-    realTimeValidation.startRealTimeValidation()
-  }
-
-  const disableRealTimeValidation = () => {
-    realTimeValidation.stopRealTimeValidation()
-  }
-
-  const clearAllValidation = () => {
-    validationStore.$reset()
-  }
-
-  const clearPathValidation = (path: string, exactMatch = false) => {
-    validationStore.clearErrorsForPath(path, exactMatch)
+    return null
   }
 
   return {
-    // Reactive state
-    isDragInProgress,
-    hasValidationErrors,
-    hasValidationWarnings,
-    validationErrorCount,
-    validationWarningCount,
-    currentDragValidation,
-    currentDragFeedback,
-    isValidDragForStyling,
+    // Core validation methods
+    updateValidationErrors,
+    triggerValidation,
+    clearValidationErrors,
 
-    // Validation methods
+    // Field validation state
+    hasFieldError,
+    hasFieldWarning,
+    getFieldErrorMessage,
+    getFieldWarningMessage,
+    getFieldMessages,
+    getFieldHighlightClass,
+    getFieldValidationState,
+
+    // Path validation methods
     getPathValidationStatus,
-    canDropColumn,
-    validateMapping,
-    getMappingSuggestions,
-
-    // UI helper methods
-    getValidationClasses,
     getValidationIcon,
-    getDropZoneClasses: getDropZoneClassesForPath,
 
-    // Control methods
-    enableRealTimeValidation,
-    disableRealTimeValidation,
-    clearAllValidation,
-    clearPathValidation,
+    // Auto-validation control
+    enableAutoValidation,
+    disableAutoValidation,
+    isAutoValidationEnabled,
 
-    // Direct access to underlying composables
-    realTimeValidation,
-    dragDropStore,
-    validationStore,
+    // Validation summary
+    getValidationSummary,
+
+    // Reactive properties from completeness validation
+    isComplete,
   }
 }
