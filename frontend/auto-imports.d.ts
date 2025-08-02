@@ -260,6 +260,7 @@ declare global {
   const useProjectStore: typeof import('./src/stores/project.store')['useProjectStore']
   const usePropertySelection: typeof import('./src/composables/usePropertySelection')['usePropertySelection']
   const useRafFn: typeof import('@vueuse/core')['useRafFn']
+  const useRealTimeValidation: typeof import('./src/composables/useRealTimeValidation')['useRealTimeValidation']
   const useRefHistory: typeof import('@vueuse/core')['useRefHistory']
   const useReferenceValueMapping: typeof import('./src/composables/useReferenceValueMapping')['useReferenceValueMapping']
   const useResizeObserver: typeof import('@vueuse/core')['useResizeObserver']
@@ -271,6 +272,7 @@ declare global {
   const useSchemaBuilder: typeof import('./src/composables/useSchemaBuilder')['useSchemaBuilder']
   const useSchemaDropZone: typeof import('./src/composables/useSchemaDropZone')['useSchemaDropZone']
   const useSchemaStore: typeof import('./src/stores/schema.store')['useSchemaStore']
+  const useSchemaValidationUI: typeof import('./src/composables/useSchemaValidationUI')['useSchemaValidationUI']
   const useScreenOrientation: typeof import('@vueuse/core')['useScreenOrientation']
   const useScreenSafeArea: typeof import('@vueuse/core')['useScreenSafeArea']
   const useScriptTag: typeof import('@vueuse/core')['useScriptTag']
@@ -639,6 +641,7 @@ declare module 'vue' {
     readonly useProjectStore: UnwrapRef<typeof import('./src/stores/project.store')['useProjectStore']>
     readonly usePropertySelection: UnwrapRef<typeof import('./src/composables/usePropertySelection')['usePropertySelection']>
     readonly useRafFn: UnwrapRef<typeof import('@vueuse/core')['useRafFn']>
+    readonly useRealTimeValidation: UnwrapRef<typeof import('./src/composables/useRealTimeValidation')['useRealTimeValidation']>
     readonly useRefHistory: UnwrapRef<typeof import('@vueuse/core')['useRefHistory']>
     readonly useReferenceValueMapping: UnwrapRef<typeof import('./src/composables/useReferenceValueMapping')['useReferenceValueMapping']>
     readonly useResizeObserver: UnwrapRef<typeof import('@vueuse/core')['useResizeObserver']>
@@ -650,6 +653,7 @@ declare module 'vue' {
     readonly useSchemaBuilder: UnwrapRef<typeof import('./src/composables/useSchemaBuilder')['useSchemaBuilder']>
     readonly useSchemaDropZone: UnwrapRef<typeof import('./src/composables/useSchemaDropZone')['useSchemaDropZone']>
     readonly useSchemaStore: UnwrapRef<typeof import('./src/stores/schema.store')['useSchemaStore']>
+    readonly useSchemaValidationUI: UnwrapRef<typeof import('./src/composables/useSchemaValidationUI')['useSchemaValidationUI']>
     readonly useScreenOrientation: UnwrapRef<typeof import('@vueuse/core')['useScreenOrientation']>
     readonly useScreenSafeArea: UnwrapRef<typeof import('@vueuse/core')['useScreenSafeArea']>
     readonly useScriptTag: UnwrapRef<typeof import('@vueuse/core')['useScriptTag']>
