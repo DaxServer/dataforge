@@ -4,14 +4,18 @@ import { useLanguageDropZone } from '@frontend/composables/useLanguageDropZone'
 import { useSchemaStore } from '@frontend/stores/schema.store'
 
 describe('useLanguageDropZone Composable', () => {
+  let schemaStore: ReturnType<typeof useSchemaStore>
+  let composable: ReturnType<typeof useLanguageDropZone>
+
   beforeEach(() => {
     setActivePinia(createPinia())
+    schemaStore = useSchemaStore()
+    composable = useLanguageDropZone()
   })
 
   describe('label term type', () => {
     test('should initialize with default state', () => {
-      const { selectedLanguage, hasExistingMappings, mappingDisplayData, setTermType } =
-        useLanguageDropZone()
+      const { selectedLanguage, hasExistingMappings, mappingDisplayData, setTermType } = composable
 
       setTermType('label')
 
@@ -21,8 +25,7 @@ describe('useLanguageDropZone Composable', () => {
     })
 
     test('should detect existing mappings reactively', () => {
-      const schemaStore = useSchemaStore()
-      const { hasExistingMappings, setTermType } = useLanguageDropZone()
+      const { hasExistingMappings, setTermType } = composable
 
       setTermType('label')
 
@@ -37,8 +40,7 @@ describe('useLanguageDropZone Composable', () => {
     })
 
     test('should transform mappings into display format', () => {
-      const schemaStore = useSchemaStore()
-      const { mappingDisplayData, setTermType } = useLanguageDropZone()
+      const { mappingDisplayData, setTermType } = composable
 
       setTermType('label')
 
@@ -55,8 +57,7 @@ describe('useLanguageDropZone Composable', () => {
     })
 
     test('should handle dynamic language codes', () => {
-      const schemaStore = useSchemaStore()
-      const { mappingDisplayData, setTermType } = useLanguageDropZone()
+      const { mappingDisplayData, setTermType } = composable
 
       setTermType('label')
 
@@ -72,8 +73,7 @@ describe('useLanguageDropZone Composable', () => {
     })
 
     test('should remove mappings correctly', () => {
-      const schemaStore = useSchemaStore()
-      const { removeMapping, hasExistingMappings, setTermType } = useLanguageDropZone()
+      const { hasExistingMappings, removeMapping, setTermType } = composable
 
       setTermType('label')
 
@@ -92,8 +92,7 @@ describe('useLanguageDropZone Composable', () => {
 
   describe('description term type', () => {
     test('should work with descriptions store property', () => {
-      const schemaStore = useSchemaStore()
-      const { hasExistingMappings, mappingDisplayData, setTermType } = useLanguageDropZone()
+      const { hasExistingMappings, mappingDisplayData, setTermType } = composable
 
       setTermType('description')
 
@@ -111,8 +110,7 @@ describe('useLanguageDropZone Composable', () => {
     })
 
     test('should remove description mappings correctly', () => {
-      const schemaStore = useSchemaStore()
-      const { removeMapping, hasExistingMappings, setTermType } = useLanguageDropZone()
+      const { hasExistingMappings, removeMapping, setTermType } = composable
 
       setTermType('description')
 
@@ -131,8 +129,7 @@ describe('useLanguageDropZone Composable', () => {
 
   describe('alias term type', () => {
     test('should work with aliases store property', () => {
-      const schemaStore = useSchemaStore()
-      const { hasExistingMappings, mappingDisplayData, setTermType } = useLanguageDropZone()
+      const { hasExistingMappings, mappingDisplayData, setTermType } = composable
 
       setTermType('alias')
 
@@ -149,8 +146,7 @@ describe('useLanguageDropZone Composable', () => {
     })
 
     test('should remove alias mappings correctly', () => {
-      const schemaStore = useSchemaStore()
-      const { removeMapping, setTermType } = useLanguageDropZone()
+      const { removeMapping, setTermType } = composable
 
       setTermType('alias')
 
@@ -166,8 +162,7 @@ describe('useLanguageDropZone Composable', () => {
     })
 
     test('should clean up empty alias arrays', () => {
-      const schemaStore = useSchemaStore()
-      const { removeMapping, hasExistingMappings, setTermType } = useLanguageDropZone()
+      const { hasExistingMappings, removeMapping, setTermType } = composable
 
       setTermType('alias')
 
@@ -184,8 +179,7 @@ describe('useLanguageDropZone Composable', () => {
 
   describe('reactivity', () => {
     test('should update hasExistingMappings when store changes', () => {
-      const schemaStore = useSchemaStore()
-      const { hasExistingMappings, setTermType } = useLanguageDropZone()
+      const { hasExistingMappings, setTermType } = composable
 
       setTermType('label')
 
@@ -204,8 +198,7 @@ describe('useLanguageDropZone Composable', () => {
     })
 
     test('should update mappingDisplayData when store changes', () => {
-      const schemaStore = useSchemaStore()
-      const { mappingDisplayData, setTermType } = useLanguageDropZone()
+      const { mappingDisplayData, setTermType } = composable
 
       setTermType('label')
 

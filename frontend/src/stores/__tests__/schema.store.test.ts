@@ -142,6 +142,80 @@ describe('useSchemaStore', () => {
       expect(store.isDirty).toBe(true)
     })
 
+    it('should track configuration state changes', () => {
+      // Add configuration
+      store.addLabelMapping('en', { columnName: 'title', dataType: 'VARCHAR' })
+      expect(store.labels).toHaveProperty('en')
+    })
+
+    it('should react to store state changes', () => {
+      // Test reactive behavior with store updates
+      expect(store.labels).toEqual({})
+      expect(store.descriptions).toEqual({})
+      expect(store.statements).toHaveLength(0)
+
+      // Add configuration and verify store updates
+      store.addLabelMapping('en', { columnName: 'title', dataType: 'VARCHAR' })
+      expect(Object.keys(store.labels)).toHaveLength(1)
+      expect(store.labels.en?.columnName).toBe('title')
+
+      store.addDescriptionMapping('fr', { columnName: 'desc', dataType: 'TEXT' })
+      expect(Object.keys(store.descriptions)).toHaveLength(1)
+      expect(store.descriptions.fr?.columnName).toBe('desc')
+
+      store.addStatement(
+        { id: 'P31', label: 'instance of', dataType: 'wikibase-item' },
+        {
+          type: 'column',
+          source: { columnName: 'type', dataType: 'VARCHAR' },
+          dataType: 'wikibase-item',
+        },
+      )
+      expect(store.statements).toHaveLength(1)
+      expect(store.statements[0]?.property.id).toBe('P31')
+    })
+
+    it('should handle store reset correctly', () => {
+      // Add some configuration
+      store.addLabelMapping('en', { columnName: 'title', dataType: 'VARCHAR' })
+      store.addStatement(
+        { id: 'P31', label: 'instance of', dataType: 'wikibase-item' },
+        {
+          type: 'column',
+          source: { columnName: 'type', dataType: 'VARCHAR' },
+          dataType: 'wikibase-item',
+        },
+      )
+
+      expect(Object.keys(store.labels)).toHaveLength(1)
+      expect(store.statements).toHaveLength(1)
+
+      // Reset store
+      store.$reset()
+
+      expect(store.labels).toEqual({})
+      expect(store.descriptions).toEqual({})
+      expect(store.aliases).toEqual({})
+      expect(store.statements).toHaveLength(0)
+      expect(store.itemId).toBeNull()
+    })
+
+    it('should format statements display text correctly', () => {
+      store.addStatement(
+        { id: 'P31', label: 'instance of', dataType: 'wikibase-item' },
+        {
+          type: 'column',
+          source: { columnName: 'type_col', dataType: 'VARCHAR' },
+          dataType: 'wikibase-item',
+        },
+      )
+
+      const statement = store.statements[0]
+      expect(statement).toBeDefined()
+      expect(statement?.property.id).toBe('P31')
+      expect(statement?.property.label).toBe('instance of')
+    })
+
     it('should add label mapping', () => {
       const columnMapping: ColumnMapping = {
         columnName: 'title_column',
@@ -306,6 +380,306 @@ describe('useSchemaStore', () => {
       const statement = store.statements.find((s) => s.id === statementId)
       expect(statement?.rank).toBe('preferred')
       expect(store.isDirty).toBe(true)
+    })
+
+    it('should store statement rank correctly', () => {
+      const property: PropertyReference = {
+        id: 'P31',
+        label: 'instance of',
+        dataType: 'wikibase-item',
+      }
+      const valueMapping: ValueMapping = {
+        type: 'column',
+        source: { columnName: 'type_column', dataType: 'VARCHAR' },
+        dataType: 'wikibase-item',
+      }
+
+      store.addStatement(property, valueMapping, 'normal')
+
+      expect(store.statements[0]?.rank).toBe('normal')
+    })
+
+    it('should add multiple statements', () => {
+      const property1: PropertyReference = {
+        id: 'P31',
+        label: 'instance of',
+        dataType: 'wikibase-item',
+      }
+      const property2: PropertyReference = {
+        id: 'P569',
+        label: 'date of birth',
+        dataType: 'time',
+      }
+      const valueMapping1: ValueMapping = {
+        type: 'column',
+        source: { columnName: 'type_column', dataType: 'VARCHAR' },
+        dataType: 'wikibase-item',
+      }
+      const valueMapping2: ValueMapping = {
+        type: 'column',
+        source: { columnName: 'birth_date', dataType: 'DATE' },
+        dataType: 'time',
+      }
+
+      store.addStatement(property1, valueMapping1, 'preferred')
+      store.addStatement(property2, valueMapping2, 'normal')
+
+      expect(store.statements).toHaveLength(2)
+    })
+
+    it('should maintain statement order when adding multiple statements', () => {
+      const property1: PropertyReference = {
+        id: 'P31',
+        label: 'instance of',
+        dataType: 'wikibase-item',
+      }
+      const property2: PropertyReference = {
+        id: 'P569',
+        label: 'date of birth',
+        dataType: 'time',
+      }
+      const valueMapping: ValueMapping = {
+        type: 'column',
+        source: { columnName: 'test_column', dataType: 'VARCHAR' },
+        dataType: 'wikibase-item',
+      }
+
+      const id1 = store.addStatement(property1, valueMapping)
+      const id2 = store.addStatement(property2, { ...valueMapping, dataType: 'time' })
+
+      expect(store.statements[0]?.id).toBe(id1)
+      expect(store.statements[1]?.id).toBe(id2)
+      expect(store.statements[0]?.property.id).toBe('P31')
+      expect(store.statements[1]?.property.id).toBe('P569')
+    })
+
+    it('should handle removing non-existent statement', () => {
+      const property: PropertyReference = {
+        id: 'P31',
+        label: 'instance of',
+        dataType: 'wikibase-item',
+      }
+      const valueMapping: ValueMapping = {
+        type: 'column',
+        source: { columnName: 'type_column', dataType: 'VARCHAR' },
+        dataType: 'wikibase-item',
+      }
+      const nonExistentId = Bun.randomUUIDv7() as UUID
+
+      store.addStatement(property, valueMapping)
+      store.removeStatement(nonExistentId)
+
+      expect(store.statements).toHaveLength(1)
+    })
+
+    it('should store preferred rank', () => {
+      const property: PropertyReference = {
+        id: 'P31',
+        label: 'instance of',
+        dataType: 'wikibase-item',
+      }
+      const valueMapping: ValueMapping = {
+        type: 'column',
+        source: { columnName: 'test_column', dataType: 'VARCHAR' },
+        dataType: 'wikibase-item',
+      }
+
+      store.addStatement(property, valueMapping, 'preferred')
+
+      expect(store.statements[0]?.rank).toBe('preferred')
+    })
+
+    it('should store deprecated rank', () => {
+      const property: PropertyReference = {
+        id: 'P31',
+        label: 'instance of',
+        dataType: 'wikibase-item',
+      }
+      const valueMapping: ValueMapping = {
+        type: 'column',
+        source: { columnName: 'test_column', dataType: 'VARCHAR' },
+        dataType: 'wikibase-item',
+      }
+
+      store.addStatement(property, valueMapping, 'deprecated')
+
+      expect(store.statements[0]?.rank).toBe('deprecated')
+    })
+
+    it('should update statement rank to deprecated', () => {
+      const property: PropertyReference = {
+        id: 'P31',
+        label: 'instance of',
+        dataType: 'wikibase-item',
+      }
+      const valueMapping: ValueMapping = {
+        type: 'column',
+        source: { columnName: 'test_column', dataType: 'VARCHAR' },
+        dataType: 'wikibase-item',
+      }
+
+      const statementId = store.addStatement(property, valueMapping, 'preferred')
+      store.updateStatementRank(statementId, 'deprecated')
+
+      expect(store.statements[0]?.rank).toBe('deprecated')
+    })
+
+    it('should store property with label', () => {
+      const property: PropertyReference = {
+        id: 'P31',
+        label: 'instance of',
+        dataType: 'wikibase-item',
+      }
+      const valueMapping: ValueMapping = {
+        type: 'column',
+        source: { columnName: 'type_column', dataType: 'VARCHAR' },
+        dataType: 'wikibase-item',
+      }
+
+      store.addStatement(property, valueMapping, 'preferred')
+
+      expect(store.statements[0]?.property.label).toBe('instance of')
+      expect(store.statements[0]?.property.id).toBe('P31')
+    })
+
+    it('should store property without label', () => {
+      const property: PropertyReference = {
+        id: 'P999',
+        dataType: 'string',
+      }
+      const valueMapping: ValueMapping = {
+        type: 'column',
+        source: { columnName: 'test_column', dataType: 'VARCHAR' },
+        dataType: 'string',
+      }
+
+      store.addStatement(property, valueMapping)
+
+      expect(store.statements[0]?.property.label).toBeUndefined()
+      expect(store.statements[0]?.property.id).toBe('P999')
+    })
+
+    it('should store property data type', () => {
+      const property: PropertyReference = {
+        id: 'P31',
+        label: 'instance of',
+        dataType: 'wikibase-item',
+      }
+      const valueMapping: ValueMapping = {
+        type: 'column',
+        source: { columnName: 'type_column', dataType: 'VARCHAR' },
+        dataType: 'wikibase-item',
+      }
+
+      store.addStatement(property, valueMapping)
+
+      expect(store.statements[0]?.property.dataType).toBe('wikibase-item')
+    })
+
+    it('should store column value mapping', () => {
+      const property: PropertyReference = {
+        id: 'P31',
+        label: 'instance of',
+        dataType: 'wikibase-item',
+      }
+      const valueMapping: ValueMapping = {
+        type: 'column',
+        source: { columnName: 'type_column', dataType: 'VARCHAR' },
+        dataType: 'wikibase-item',
+      }
+
+      store.addStatement(property, valueMapping)
+
+      expect(store.statements[0]?.value.type).toBe('column')
+      expect((store.statements[0]?.value.source as any).columnName).toBe('type_column')
+    })
+
+    it('should store value data type', () => {
+      const property: PropertyReference = {
+        id: 'P31',
+        label: 'instance of',
+        dataType: 'wikibase-item',
+      }
+      const valueMapping: ValueMapping = {
+        type: 'column',
+        source: { columnName: 'type_column', dataType: 'VARCHAR' },
+        dataType: 'wikibase-item',
+      }
+
+      store.addStatement(property, valueMapping)
+
+      expect(store.statements[0]?.value.dataType).toBe('wikibase-item')
+    })
+
+    it('should create statement with unique id', () => {
+      const property: PropertyReference = {
+        id: 'P31',
+        label: 'instance of',
+        dataType: 'wikibase-item',
+      }
+      const valueMapping: ValueMapping = {
+        type: 'column',
+        source: { columnName: 'type_column', dataType: 'VARCHAR' },
+        dataType: 'wikibase-item',
+      }
+
+      store.addStatement(property, valueMapping)
+
+      expect(store.statements[0]?.id).toBeDefined()
+      expect(typeof store.statements[0]?.id).toBe('string')
+    })
+
+    it('should create statement with property object', () => {
+      const property: PropertyReference = {
+        id: 'P31',
+        label: 'instance of',
+        dataType: 'wikibase-item',
+      }
+      const valueMapping: ValueMapping = {
+        type: 'column',
+        source: { columnName: 'type_column', dataType: 'VARCHAR' },
+        dataType: 'wikibase-item',
+      }
+
+      store.addStatement(property, valueMapping)
+
+      expect(store.statements[0]?.property).toBeDefined()
+      expect(typeof store.statements[0]?.property).toBe('object')
+    })
+
+    it('should create statement with value object', () => {
+      const property: PropertyReference = {
+        id: 'P31',
+        label: 'instance of',
+        dataType: 'wikibase-item',
+      }
+      const valueMapping: ValueMapping = {
+        type: 'column',
+        source: { columnName: 'type_column', dataType: 'VARCHAR' },
+        dataType: 'wikibase-item',
+      }
+
+      store.addStatement(property, valueMapping)
+
+      expect(store.statements[0]?.value).toBeDefined()
+      expect(typeof store.statements[0]?.value).toBe('object')
+    })
+
+    it('should create statement with default normal rank', () => {
+      const property: PropertyReference = {
+        id: 'P31',
+        label: 'instance of',
+        dataType: 'wikibase-item',
+      }
+      const valueMapping: ValueMapping = {
+        type: 'column',
+        source: { columnName: 'type_column', dataType: 'VARCHAR' },
+        dataType: 'wikibase-item',
+      }
+
+      store.addStatement(property, valueMapping)
+
+      expect(store.statements[0]?.rank).toBe('normal')
     })
   })
 
