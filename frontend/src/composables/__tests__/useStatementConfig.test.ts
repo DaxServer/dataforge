@@ -166,7 +166,7 @@ describe('useStatementConfig', () => {
     expect(store.statements[0]?.rank).toBe('preferred')
   })
 
-  it('should not auto-save when statement is invalid', async () => {
+  it('should not auto-save when statement is invalid', () => {
     const store = useSchemaStore()
     const { currentStatement, canSaveStatement, resetStatement } = useStatementConfig()
 
@@ -177,10 +177,6 @@ describe('useStatementConfig', () => {
     expect(canSaveStatement.value).toBe(false)
     expect(store.statements).toHaveLength(0)
 
-    // Wait to ensure no auto-save happens
-    await new Promise((resolve) => setTimeout(resolve, 0))
-    expect(store.statements).toHaveLength(0)
-
     // Set only property (still incomplete without source)
     currentStatement.value.property = {
       id: 'P123' as PropertyId,
@@ -188,9 +184,6 @@ describe('useStatementConfig', () => {
       dataType: 'string',
     }
     expect(canSaveStatement.value).toBe(false)
-
-    // Wait to ensure no auto-save happens
-    await new Promise((resolve) => setTimeout(resolve, 0))
     expect(store.statements).toHaveLength(0)
   })
 

@@ -314,7 +314,7 @@ describe('useDragDropStore', () => {
       ]
 
       testCases.forEach(({ dataType, expectedTargets }) => {
-        const column: ColumnInfo = {
+        const columnInfo: ColumnInfo = {
           name: `test_${dataType.toLowerCase()}`,
           dataType,
           sampleValues: ['test'],
@@ -329,7 +329,7 @@ describe('useDragDropStore', () => {
         }))
 
         store.setAvailableTargets(targets)
-        store.startDrag(column)
+        store.startDrag(columnInfo)
 
         expect(store.validDropTargets.length).toBe(expectedTargets.length)
         store.endDrag()

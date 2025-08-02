@@ -117,8 +117,8 @@ describe('useStatementDropZone', () => {
     test('should call column drop callback with valid column data', () => {
       const { handleDrop, setOnColumnDrop } = useStatementDropZone()
 
-      setOnColumnDrop((column) => {
-        droppedColumn = column
+      setOnColumnDrop((columnInfo) => {
+        droppedColumn = columnInfo
       })
 
       const mockEvent = {
@@ -141,8 +141,8 @@ describe('useStatementDropZone', () => {
     test('should not call callback when no column data is provided', () => {
       const { handleDrop, setOnColumnDrop } = useStatementDropZone()
 
-      setOnColumnDrop((column) => {
-        droppedColumn = column
+      setOnColumnDrop((columnInfo) => {
+        droppedColumn = columnInfo
       })
 
       const mockEvent = {

@@ -81,10 +81,10 @@ export const useValueMapping = () => {
 
   // Methods
   const createValueMappingFromColumn = (
-    column: ColumnInfo,
+    columnInfo: ColumnInfo,
     targetDataType?: WikibaseDataType,
   ): ValueMapping => {
-    const compatibleTypes = getCompatibleWikibaseTypes(column.dataType)
+    const compatibleTypes = getCompatibleWikibaseTypes(columnInfo.dataType)
 
     let dataType: WikibaseDataType
     if (targetDataType) {
@@ -103,8 +103,8 @@ export const useValueMapping = () => {
     return {
       type: 'column',
       source: {
-        columnName: column.name,
-        dataType: column.dataType,
+        columnName: columnInfo.name,
+        dataType: columnInfo.dataType,
       },
       dataType,
     }
@@ -209,11 +209,11 @@ export const useValueMapping = () => {
 
   const autoSuggestDataType = (
     property: PropertyReference,
-    column?: ColumnInfo,
+    columnInfo?: ColumnInfo,
   ): WikibaseDataType => {
-    if (!column) return property.dataType as WikibaseDataType
+    if (!columnInfo) return property.dataType as WikibaseDataType
 
-    const compatibleTypes = getCompatibleWikibaseTypes(column.dataType)
+    const compatibleTypes = getCompatibleWikibaseTypes(columnInfo.dataType)
 
     // If property data type is compatible with column, use it
     if (compatibleTypes.includes(property.dataType as WikibaseDataType)) {

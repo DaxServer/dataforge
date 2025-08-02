@@ -60,14 +60,14 @@ export interface DropValidation {
 
 // Drag event data
 export interface DragEventData {
-  column: ColumnInfo
+  columnInfo: ColumnInfo
   sourceElement: HTMLElement
   timestamp: number
 }
 
 // Drop event data
 export interface DropEventData {
-  column: ColumnInfo
+  columnInfo: ColumnInfo
   target: DropTarget
   position: { x: number; y: number }
   timestamp: number

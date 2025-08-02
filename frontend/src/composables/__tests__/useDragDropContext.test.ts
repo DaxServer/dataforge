@@ -344,9 +344,9 @@ describe('createDropZoneConfig', () => {
     const config = context.createDropZoneConfig(
       'item.terms.labels.en',
       ['string'],
-      (column: ColumnInfo, target: DropTarget) => {
+      (columnInfo: ColumnInfo, target: DropTarget) => {
         dropCallbackCalled = true
-        droppedColumn = column
+        droppedColumn = columnInfo
       },
     )
 

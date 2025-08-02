@@ -27,7 +27,7 @@ export const useStatementDropZone = () => {
 
   // Reactive state
   const isOverDropZone = ref(false)
-  const onColumnDropCallback = ref<((column: ColumnInfo) => void) | null>(null)
+  const onColumnDropCallback = ref<((columnInfo: ColumnInfo) => void) | null>(null)
 
   // Direct reactive references to drag store
   const draggedColumn = computed(() => dragDropStore.draggedColumn)
@@ -71,7 +71,7 @@ export const useStatementDropZone = () => {
   )
 
   // Method to set the callback
-  const setOnColumnDrop = (callback: (column: ColumnInfo) => void) => {
+  const setOnColumnDrop = (callback: (columnInfo: ColumnInfo) => void) => {
     onColumnDropCallback.value = callback
   }
 

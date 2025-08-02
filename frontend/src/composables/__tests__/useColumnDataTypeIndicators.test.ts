@@ -41,14 +41,14 @@ describe('useColumnDataTypeIndicators', () => {
 
   describe('generateDataTypeTooltip', () => {
     test('should generate tooltip for basic column', () => {
-      const column: ColumnInfo = {
+      const columnInfo: ColumnInfo = {
         name: 'test_column',
         dataType: 'VARCHAR',
         sampleValues: ['sample1', 'sample2'],
         nullable: false,
       }
 
-      const tooltip = generateDataTypeTooltip(column)
+      const tooltip = generateDataTypeTooltip(columnInfo)
 
       expect(tooltip).toContain('Data Type: Text (VARCHAR)')
       expect(tooltip).toContain('Wikibase Compatible: string, url, external-id, monolingualtext')
@@ -56,7 +56,7 @@ describe('useColumnDataTypeIndicators', () => {
     })
 
     test('should include nullable information when applicable', () => {
-      const column: ColumnInfo = {
+      const columnInfo: ColumnInfo = {
         name: 'nullable_column',
         dataType: 'INTEGER',
         sampleValues: ['1', '2'],
@@ -64,7 +64,7 @@ describe('useColumnDataTypeIndicators', () => {
         uniqueCount: 100,
       }
 
-      const tooltip = generateDataTypeTooltip(column)
+      const tooltip = generateDataTypeTooltip(columnInfo)
 
       expect(tooltip).toContain('Data Type: Number (INTEGER)')
       expect(tooltip).toContain('Nullable: Yes')
@@ -73,21 +73,21 @@ describe('useColumnDataTypeIndicators', () => {
     })
 
     test('should handle incompatible data types', () => {
-      const column: ColumnInfo = {
+      const columnInfo: ColumnInfo = {
         name: 'boolean_column',
         dataType: 'BOOLEAN',
         sampleValues: ['true', 'false'],
         nullable: false,
       }
 
-      const tooltip = generateDataTypeTooltip(column)
+      const tooltip = generateDataTypeTooltip(columnInfo)
 
       expect(tooltip).toContain('Data Type: Boolean (BOOLEAN)')
       expect(tooltip).toContain('Wikibase Compatible: None (requires transformation)')
     })
 
     test('should format unique count with locale formatting', () => {
-      const column: ColumnInfo = {
+      const columnInfo: ColumnInfo = {
         name: 'large_column',
         dataType: 'VARCHAR',
         sampleValues: ['test'],
@@ -95,7 +95,7 @@ describe('useColumnDataTypeIndicators', () => {
         uniqueCount: 1234567,
       }
 
-      const tooltip = generateDataTypeTooltip(column)
+      const tooltip = generateDataTypeTooltip(columnInfo)
 
       expect(tooltip).toContain('Unique Values: 1,234,567')
     })
@@ -142,7 +142,7 @@ describe('useColumnDataTypeIndicators', () => {
 
   describe('generateColumnTooltip', () => {
     test('should combine data type and sample information', () => {
-      const column: ColumnInfo = {
+      const columnInfo: ColumnInfo = {
         name: 'test_column',
         dataType: 'VARCHAR',
         sampleValues: ['sample1', 'sample2'],
@@ -150,7 +150,7 @@ describe('useColumnDataTypeIndicators', () => {
         uniqueCount: 50,
       }
 
-      const tooltip = generateColumnTooltip(column)
+      const tooltip = generateColumnTooltip(columnInfo)
 
       expect(tooltip).toContain('Data Type: Text (VARCHAR)')
       expect(tooltip).toContain('Nullable: Yes')
@@ -160,14 +160,14 @@ describe('useColumnDataTypeIndicators', () => {
     })
 
     test('should handle columns with no sample data', () => {
-      const column: ColumnInfo = {
+      const columnInfo: ColumnInfo = {
         name: 'empty_column',
         dataType: 'INTEGER',
         sampleValues: [],
         nullable: false,
       }
 
-      const tooltip = generateColumnTooltip(column)
+      const tooltip = generateColumnTooltip(columnInfo)
 
       expect(tooltip).toContain('Data Type: Number (INTEGER)')
       expect(tooltip).toContain('Sample Values:')
