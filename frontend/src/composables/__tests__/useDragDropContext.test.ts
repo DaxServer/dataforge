@@ -165,7 +165,7 @@ describe('useDragDropContext', () => {
 
       expect(validation).toEqual({
         isValid: false,
-        reason: 'Statement target must have a property ID',
+        reason: 'statement target must have a property ID',
       })
     })
 

@@ -2,6 +2,7 @@ import { ref } from 'vue'
 import { useDragDropStore } from '@frontend/stores/drag-drop.store'
 import { useDataTypeCompatibility } from '@frontend/composables/useDataTypeCompatibility'
 import { useDragDropHandlers } from '@frontend/composables/useDragDropHandlers'
+import { useRealTimeValidation } from '@frontend/composables/useRealTimeValidation'
 import type {
   SchemaDragDropContext,
   DropTarget,
@@ -50,10 +51,11 @@ export const useDragDropContext = (): SchemaDragDropContext & {
     onDropCallback: (columnInfo: ColumnInfo, target: DropTarget) => Promise<void> | void,
   ) => DropZoneConfig
 } => {
-  // Use the global drag-drop store
+  // Use the global drag-drop store and real-time validation
   const store = useDragDropStore()
   const { isDataTypeCompatible } = useDataTypeCompatibility()
   const { createDragOverHandler } = useDragDropHandlers()
+  const realTimeValidation = useRealTimeValidation()
 
   const isOverDropZone = ref(false)
   const dropFeedback = ref<DropFeedback | null>(null)
@@ -102,16 +104,12 @@ export const useDragDropContext = (): SchemaDragDropContext & {
     isOverDropZone.value = true
     store.setHoveredTarget(targetPath)
 
-    // Update feedback based on validation
+    // Update feedback based on validation using real-time validation
     if (store.draggedColumn) {
       const target = store.availableTargets.find((t) => t.path === targetPath)
       if (target) {
-        const validation = validateDrop(store.draggedColumn, target)
-        dropFeedback.value = {
-          type: validation.isValid ? 'success' : 'error',
-          message:
-            validation.reason || (validation.isValid ? 'Valid drop target' : 'Invalid drop target'),
-        }
+        const feedback = realTimeValidation.getValidationFeedback(store.draggedColumn, target)
+        dropFeedback.value = feedback
       }
     }
   }
@@ -123,33 +121,20 @@ export const useDragDropContext = (): SchemaDragDropContext & {
   }
 
   const validateDrop = (columnInfo: ColumnInfo, target: DropTarget): DropValidation => {
-    // Check data type compatibility
-    const isCompatible = isDataTypeCompatible(columnInfo.dataType, target.acceptedTypes)
+    // Use the real-time validation system for consistency
+    const validation = realTimeValidation.validateDragOperation(columnInfo, target)
 
-    if (!isCompatible) {
+    if (validation.isValid) {
+      return {
+        isValid: true,
+        reason: 'Compatible mapping',
+      }
+    } else {
+      const primaryError = validation.errors[0]
       return {
         isValid: false,
-        reason: `Column type '${columnInfo.dataType}' is not compatible with target types: ${target.acceptedTypes.join(', ')}`,
+        reason: primaryError?.message || 'Invalid mapping',
       }
-    }
-
-    // Check for nullable constraints
-    if (target.isRequired && columnInfo.nullable) {
-      return {
-        isValid: false,
-        reason: 'Required field cannot accept nullable column',
-      }
-    }
-
-    // Additional validation based on target type
-    const typeValidation = validateByTargetType(columnInfo, target)
-    if (!typeValidation.isValid) {
-      return typeValidation
-    }
-
-    return {
-      isValid: true,
-      reason: 'Compatible mapping',
     }
   }
 
@@ -207,49 +192,6 @@ export const useDragDropContext = (): SchemaDragDropContext & {
     }
 
     return success
-  }
-
-  const validateByTargetType = (columnInfo: ColumnInfo, target: DropTarget): DropValidation => {
-    switch (target.type) {
-      case 'label':
-      case 'description':
-      case 'alias':
-        // Terms should be text-based and reasonably short for labels/aliases
-        if (target.type === 'label' || target.type === 'alias') {
-          const maxLength = target.type === 'label' ? 250 : 100
-          const hasLongValues = columnInfo.sampleValues?.some((val) => val.length > maxLength)
-          if (hasLongValues) {
-            return {
-              isValid: false,
-              reason: `${target.type} values should be shorter than ${maxLength} characters`,
-            }
-          }
-        }
-        break
-
-      case 'statement':
-        // Statements need property validation
-        if (!target.propertyId) {
-          return {
-            isValid: false,
-            reason: 'Statement target must have a property ID',
-          }
-        }
-        break
-
-      case 'qualifier':
-      case 'reference':
-        // Qualifiers and references also need property validation
-        if (!target.propertyId) {
-          return {
-            isValid: false,
-            reason: `${target.type} target must have a property ID`,
-          }
-        }
-        break
-    }
-
-    return { isValid: true }
   }
 
   /**
