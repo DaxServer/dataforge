@@ -46,8 +46,6 @@ export const useDropZoneStyling = () => {
     if (!dragDropStore.draggedColumn) {
       return {
         'border-primary-400 bg-primary-50': isOverDropZone,
-        'border-green-400 bg-green-50': false,
-        'border-red-400 bg-red-50': false,
       }
     }
 

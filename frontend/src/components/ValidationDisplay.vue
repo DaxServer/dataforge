@@ -54,9 +54,7 @@ const {
   hasValidationWarnings,
   validationErrorCount,
   validationWarningCount,
-  getPathValidationStatus,
   getValidationClasses,
-  getValidationIcon,
   clearPathValidation,
   clearAllValidation,
   validationStore,
@@ -195,10 +193,6 @@ const clearAll = () => {
   }
   emit('allCleared')
 }
-
-const handleClearAll = () => {
-  clearAllValidation()
-}
 </script>
 
 <template>
@@ -214,16 +208,16 @@ const handleClearAll = () => {
     >
       <div class="flex items-center gap-2 text-sm">
         <i
-          v-if="hasErrors"
+          v-if="hasValidationErrors"
           class="pi pi-exclamation-triangle text-red-500"
         />
         <i
-          v-else-if="hasWarnings"
+          v-else-if="hasValidationWarnings"
           class="pi pi-info-circle text-yellow-500"
         />
         <span class="font-medium">
           {{ errorCount }} {{ errorCount === 1 ? 'error' : 'errors' }}
-          <span v-if="hasWarnings">
+          <span v-if="hasValidationWarnings">
             , {{ warningCount }} {{ warningCount === 1 ? 'warning' : 'warnings' }}
           </span>
         </span>
@@ -354,7 +348,7 @@ const handleClearAll = () => {
         size="small"
         severity="secondary"
         class="ml-auto"
-        @click="handleClearAll"
+        @click="clearAll"
       />
     </div>
   </div>
