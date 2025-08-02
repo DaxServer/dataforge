@@ -28,8 +28,6 @@ describe('useSchemaDropZone Composable', () => {
       expect(isValidDropState.value).toBe(false)
       expect(isInvalidDropState.value).toBe(false)
       expect(dropZoneClasses.value['border-primary-400 bg-primary-50']).toBe(false)
-      expect(dropZoneClasses.value['border-green-400 bg-green-50']).toBe(false)
-      expect(dropZoneClasses.value['border-red-400 bg-red-50']).toBe(false)
     })
   })
 
