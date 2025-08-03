@@ -32,6 +32,22 @@ export const useSchemaStore = defineStore('schema', () => {
   const isDirty = ref(false)
   const lastSaved = ref<Date | null>(null)
 
+  // Computed
+  const canSave = computed(() => {
+    const hasContent = 
+      Object.keys(labels.value).length > 0 ||
+      Object.keys(descriptions.value).length > 0 ||
+      Object.keys(aliases.value).length > 0 ||
+      statements.value.length > 0
+
+    return (
+      projectId.value !== null && 
+      isDirty.value && 
+      !isLoading.value && 
+      hasContent
+    )
+  })
+
   // Actions
 
   const updateSchemaName = (name: string) => {
@@ -185,6 +201,8 @@ export const useSchemaStore = defineStore('schema', () => {
     isLoading.value = loading
   }
 
+
+
   // Helper functions
   const markDirty = () => {
     isDirty.value = true
@@ -208,6 +226,9 @@ export const useSchemaStore = defineStore('schema', () => {
     isLoading,
     isDirty,
     lastSaved,
+
+    // Computed
+    canSave,
 
     // Actions
     updateSchemaName,

@@ -273,6 +273,7 @@ declare global {
   const useSchemaBuilder: typeof import('./src/composables/useSchemaBuilder')['useSchemaBuilder']
   const useSchemaCompletenessValidation: typeof import('./src/composables/useSchemaCompletenessValidation')['useSchemaCompletenessValidation']
   const useSchemaDropZone: typeof import('./src/composables/useSchemaDropZone')['useSchemaDropZone']
+  const useSchemaPersistence: typeof import('./src/composables/useSchemaPersistence')['useSchemaPersistence']
   const useSchemaStore: typeof import('./src/stores/schema.store')['useSchemaStore']
   const useSchemaValidationUI: typeof import('./src/composables/useSchemaValidationUI')['useSchemaValidationUI']
   const useScreenOrientation: typeof import('@vueuse/core')['useScreenOrientation']
@@ -375,6 +376,9 @@ declare global {
   // @ts-ignore
   export type { SchemaCompletenessResult, RequiredFieldHighlight } from './src/composables/useSchemaCompletenessValidation'
   import('./src/composables/useSchemaCompletenessValidation')
+  // @ts-ignore
+  export type { SaveStatus } from './src/composables/useSchemaPersistence'
+  import('./src/composables/useSchemaPersistence')
   // @ts-ignore
   export type { ValidationRuleConfig } from './src/stores/validation.store'
   import('./src/stores/validation.store')
@@ -663,6 +667,7 @@ declare module 'vue' {
     readonly useSchemaBuilder: UnwrapRef<typeof import('./src/composables/useSchemaBuilder')['useSchemaBuilder']>
     readonly useSchemaCompletenessValidation: UnwrapRef<typeof import('./src/composables/useSchemaCompletenessValidation')['useSchemaCompletenessValidation']>
     readonly useSchemaDropZone: UnwrapRef<typeof import('./src/composables/useSchemaDropZone')['useSchemaDropZone']>
+    readonly useSchemaPersistence: UnwrapRef<typeof import('./src/composables/useSchemaPersistence')['useSchemaPersistence']>
     readonly useSchemaStore: UnwrapRef<typeof import('./src/stores/schema.store')['useSchemaStore']>
     readonly useSchemaValidationUI: UnwrapRef<typeof import('./src/composables/useSchemaValidationUI')['useSchemaValidationUI']>
     readonly useScreenOrientation: UnwrapRef<typeof import('@vueuse/core')['useScreenOrientation']>

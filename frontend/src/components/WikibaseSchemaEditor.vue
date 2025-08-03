@@ -15,7 +15,7 @@ const validationStore = useValidationStore()
 const projectStore = useProjectStore()
 
 // Composables
-const { loadSchema, createSchema, updateSchema } = useSchemaApi()
+const { loadSchema, createSchema } = useSchemaApi()
 const { showError, showSuccess } = useErrorHandling()
 const { convertProjectColumnsToColumnInfo } = useColumnConversion()
 const { setAvailableColumns, initializeStatement, resetStatement } = useStatementEditor()
@@ -25,6 +25,9 @@ const { enableAutoValidation, disableAutoValidation } = useSchemaValidationUI()
 
 // Real-time validation composable
 const { startRealTimeValidation, stopRealTimeValidation } = useRealTimeValidation()
+
+// Schema persistence composable
+const { saveSchema, canSave, isSaving, saveStatus, saveError } = useSchemaPersistence()
 
 // Reactive state
 const isInitialized = ref(false)
@@ -68,10 +71,6 @@ const hasItem = computed(() => {
   )
 })
 
-const canSave = computed(() => {
-  return schemaStore.isDirty && !schemaStore.isLoading
-})
-
 // Available columns for statement editor
 const availableColumns = computed(() => {
   const columns = convertProjectColumnsToColumnInfo(projectStore.columns, projectStore.data)
@@ -84,6 +83,8 @@ const availableColumns = computed(() => {
 const isEditingStatement = computed(() => {
   return isAddingStatement.value || editingStatementId.value !== null
 })
+
+
 
 // Lifecycle
 onMounted(async () => {
@@ -102,8 +103,8 @@ const initializeEditor = async () => {
     // Load existing schema if schemaId is provided
     if (schemaStore.projectId && schemaStore.schemaId) {
       await loadSchema(schemaStore.projectId, schemaStore.schemaId)
-    } else if (schemaStore.projectId) {
-      // Initialize with default empty item structure
+    } else {
+      // Initialize with default empty item structure for new schema
       initializeEmptySchema()
     }
 
@@ -116,9 +117,11 @@ const initializeEditor = async () => {
 }
 
 const initializeEmptySchema = () => {
-  schemaStore.projectId = crypto.randomUUID()
+  const route = useRoute()
+  schemaStore.projectId = route.params.id as string
   schemaStore.schemaName = 'Untitled Schema'
   schemaStore.wikibase = 'https://www.wikidata.org'
+  // Don't set isDirty = true here - only when user makes actual changes
   // Item will be created when user clicks "Add item"
 }
 
@@ -166,46 +169,39 @@ const handlePreview = () => {
 }
 
 const handleSave = async () => {
-  if (!canSave.value || !schemaStore.projectId) return
-
-  try {
-    if (schemaStore.schemaId) {
-      // Update existing schema
-      await updateSchema(schemaStore.projectId, schemaStore.schemaId, {
-        id: schemaStore.schemaId,
-        projectId: schemaStore.projectId,
-        name: schemaStore.schemaName,
-        wikibase: schemaStore.wikibase,
-        item: {
-          id: schemaStore.itemId ?? undefined,
-          terms: {
-            labels: schemaStore.labels,
-            descriptions: schemaStore.descriptions,
-            aliases: schemaStore.aliases,
-          },
-          statements: schemaStore.statements,
-        },
-        createdAt: schemaStore.createdAt,
-        updatedAt: new Date().toISOString(),
-      })
-    } else {
-      // Create new schema
-      await createSchema(schemaStore.projectId, {
-        name: schemaStore.schemaName,
-        wikibase: schemaStore.wikibase,
-      })
-    }
-
-    showSuccess('Schema saved successfully')
-  } catch (error) {
-    showError(createFrontendError('UI_STATE_ERROR', 'Failed to save schema'))
+  const result = await saveSchema()
+  
+  if (result.success) {
+    showSuccess(schemaStore.schemaId ? 'Schema saved successfully' : 'Schema created successfully')
+    emit('save')
+  } else {
+    showError(createFrontendError('UI_STATE_ERROR', typeof result.error === 'string' ? result.error : result.error?.message || 'Failed to save schema'))
   }
-
-  emit('save')
 }
 
 const handleHelp = () => {
   emit('help')
+}
+
+// Save button state helpers
+const getSaveButtonLabel = () => {
+  if (isSaving.value) return 'Saving...'
+  if (saveStatus.value === 'success' && !schemaStore.isDirty) return 'Saved'
+  if (saveStatus.value === 'error') return 'Save Failed'
+  return 'Save'
+}
+
+const getSaveButtonIcon = () => {
+  if (isSaving.value) return 'pi pi-spin pi-spinner'
+  if (saveStatus.value === 'success' && !schemaStore.isDirty) return 'pi pi-check'
+  if (saveStatus.value === 'error') return 'pi pi-times'
+  return 'pi pi-save'
+}
+
+const getSaveButtonSeverity = () => {
+  if (saveStatus.value === 'success' && !schemaStore.isDirty) return 'success'
+  if (saveStatus.value === 'error') return 'danger'
+  return undefined
 }
 
 const handleAddStatement = () => {
@@ -383,6 +379,8 @@ onUnmounted(() => {
               </span>
             </span>
           </div>
+
+
         </div>
 
         <div class="flex gap-2">
@@ -406,11 +404,13 @@ onUnmounted(() => {
           />
           <Button
             data-testid="save-btn"
-            label="Save"
-            icon="pi pi-save"
+            :label="getSaveButtonLabel()"
+            :icon="getSaveButtonIcon()"
+            :severity="getSaveButtonSeverity()"
             outlined
             size="small"
-            :disabled="!canSave"
+            :disabled="!canSave || isSaving"
+            :loading="isSaving"
             @click="handleSave"
           />
           <Button

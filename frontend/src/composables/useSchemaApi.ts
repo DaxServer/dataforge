@@ -17,10 +17,10 @@ export const useSchemaApi = () => {
     schemaStore.projectId = schema.projectId
     schemaStore.schemaName = schema.name
     schemaStore.wikibase = schema.wikibase
-    schemaStore.labels = schema.item.terms.labels
-    schemaStore.descriptions = schema.item.terms.descriptions
-    schemaStore.aliases = schema.item.terms.aliases
-    schemaStore.statements = schema.item.statements
+    schemaStore.labels = schema.item?.terms?.labels || {}
+    schemaStore.descriptions = schema.item?.terms?.descriptions || {}
+    schemaStore.aliases = schema.item?.terms?.aliases || {}
+    schemaStore.statements = schema.item?.statements || []
     schemaStore.createdAt = schema.createdAt
     schemaStore.updatedAt = schema.updatedAt
     schemaStore.isDirty = false
@@ -62,8 +62,12 @@ export const useSchemaApi = () => {
     if (apiError) {
       showError(apiError.value as ApiError)
     } else {
-      loadSchemaIntoStore((data as any).data as WikibaseSchemaMapping)
-      return (data as any).data
+      // Set the schema ID from the created schema but don't overwrite existing data
+      const createdSchema = (data as any).data as WikibaseSchemaMapping
+      schemaStore.schemaId = createdSchema.id
+      schemaStore.createdAt = createdSchema.createdAt
+      schemaStore.updatedAt = createdSchema.updatedAt
+      return createdSchema
     }
   }
 
@@ -85,9 +89,11 @@ export const useSchemaApi = () => {
     if (apiError) {
       showError(apiError.value as ApiError)
     } else {
-      loadSchemaIntoStore(data.data as WikibaseSchemaMapping)
+      // Don't overwrite existing data, just update timestamps
+      const updatedSchema = data.data as WikibaseSchemaMapping
+      schemaStore.updatedAt = updatedSchema.updatedAt
       schemaStore.markAsSaved()
-      return data.data
+      return updatedSchema
     }
   }
 
