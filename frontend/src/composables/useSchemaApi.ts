@@ -62,9 +62,12 @@ export const useSchemaApi = () => {
     if (apiError) {
       showError(apiError.value as ApiError)
     } else {
-      // Set the schema ID from the created schema but don't overwrite existing data
+      // Set the schema properties from the created schema
       const createdSchema = (data as any).data as WikibaseSchemaMapping
       schemaStore.schemaId = createdSchema.id
+      schemaStore.projectId = createdSchema.projectId
+      schemaStore.schemaName = createdSchema.name
+      schemaStore.wikibase = createdSchema.wikibase
       schemaStore.createdAt = createdSchema.createdAt
       schemaStore.updatedAt = createdSchema.updatedAt
       return createdSchema
@@ -89,8 +92,12 @@ export const useSchemaApi = () => {
     if (apiError) {
       showError(apiError.value as ApiError)
     } else {
-      // Don't overwrite existing data, just update timestamps
+      // Update the schema properties from the updated schema
       const updatedSchema = data.data as WikibaseSchemaMapping
+      schemaStore.schemaId = updatedSchema.id
+      schemaStore.projectId = updatedSchema.projectId
+      schemaStore.schemaName = updatedSchema.name
+      schemaStore.wikibase = updatedSchema.wikibase
       schemaStore.updatedAt = updatedSchema.updatedAt
       schemaStore.markAsSaved()
       return updatedSchema

@@ -229,7 +229,7 @@ describe('useDragDropStore', () => {
   })
 
   describe('Computed Properties', () => {
-    it('should compute isDragging correctly', () => {
+    it('should compute isDragging correctly - drag,drop,idle', () => {
       expect(store.isDragging).toBeFalse()
 
       store.setDragState('dragging')
@@ -242,7 +242,7 @@ describe('useDragDropStore', () => {
       expect(store.isDragging).toBeFalse()
     })
 
-    it('should compute isDropping correctly', () => {
+    it('should compute isDropping correctly - drop,drag,idle', () => {
       expect(store.isDropping).toBeFalse()
 
       store.setDragState('dropping')

@@ -33,7 +33,7 @@ export const useSchemaPersistence = () => {
         // Update existing schema
         const schemaData = {
           id: schemaStore.schemaId,
-          projectId: schemaStore.projectId!,
+          projectId: schemaStore.projectId,
           name: schemaStore.schemaName,
           wikibase: schemaStore.wikibase,
           item: {
@@ -48,14 +48,10 @@ export const useSchemaPersistence = () => {
           updatedAt: schemaStore.updatedAt,
         }
 
-        result = await updateSchema(
-          schemaStore.projectId!,
-          schemaStore.schemaId,
-          schemaData,
-        )
+        result = await updateSchema(schemaStore.projectId, schemaStore.schemaId, schemaData)
       } else {
         // Create new schema
-        result = await createSchema(schemaStore.projectId!, {
+        result = await createSchema(schemaStore.projectId, {
           name: schemaStore.schemaName,
           wikibase: schemaStore.wikibase,
         })
@@ -63,7 +59,7 @@ export const useSchemaPersistence = () => {
 
       schemaStore.markAsSaved()
       saveStatus.value = 'success'
-      
+
       return { success: true, data: result }
     } catch (error) {
       saveStatus.value = 'error'

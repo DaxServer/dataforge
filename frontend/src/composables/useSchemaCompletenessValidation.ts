@@ -60,7 +60,7 @@ export const useSchemaCompletenessValidation = () => {
     const fieldValue = getFieldValue(fieldPath)
     const context = { schemaStore }
 
-    return rules.every((rule) => rule.validator(fieldValue, context) as boolean)
+    return rules.every((rule) => rule.validator(fieldValue, context))
   }
 
   /**

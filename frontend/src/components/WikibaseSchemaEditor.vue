@@ -84,8 +84,6 @@ const isEditingStatement = computed(() => {
   return isAddingStatement.value || editingStatementId.value !== null
 })
 
-
-
 // Lifecycle
 onMounted(async () => {
   await initializeEditor()
@@ -118,7 +116,7 @@ const initializeEditor = async () => {
 
 const initializeEmptySchema = () => {
   const route = useRoute()
-  schemaStore.projectId = route.params.id as string
+  schemaStore.projectId = route.params.id as UUID
   schemaStore.schemaName = 'Untitled Schema'
   schemaStore.wikibase = 'https://www.wikidata.org'
   // Don't set isDirty = true here - only when user makes actual changes
@@ -170,12 +168,19 @@ const handlePreview = () => {
 
 const handleSave = async () => {
   const result = await saveSchema()
-  
+
   if (result.success) {
     showSuccess(schemaStore.schemaId ? 'Schema saved successfully' : 'Schema created successfully')
     emit('save')
   } else {
-    showError(createFrontendError('UI_STATE_ERROR', typeof result.error === 'string' ? result.error : result.error?.message || 'Failed to save schema'))
+    showError(
+      createFrontendError(
+        'UI_STATE_ERROR',
+        typeof result.error === 'string'
+          ? result.error
+          : result.error?.message || 'Failed to save schema',
+      ),
+    )
   }
 }
 
@@ -379,8 +384,6 @@ onUnmounted(() => {
               </span>
             </span>
           </div>
-
-
         </div>
 
         <div class="flex gap-2">
