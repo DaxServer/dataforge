@@ -8,14 +8,14 @@ import ConfirmationService from 'primevue/confirmationservice'
 import 'primeicons/primeicons.css'
 
 // Import your router and app
-import router from '@frontend/router'
+import router from '@frontend/core/router/router'
 import App from '@frontend/App.vue'
 
 // Import global styles
 import '@frontend/assets/base.css'
 
 // Import API plugin
-import { ApiPlugin } from '@frontend/plugins/api'
+import { ApiPlugin } from '@frontend/core/plugins/api'
 
 const head = createHead()
 const app = createApp(App as Component)
