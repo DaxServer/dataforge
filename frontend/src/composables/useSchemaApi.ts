@@ -17,10 +17,10 @@ export const useSchemaApi = () => {
     schemaStore.projectId = schema.projectId
     schemaStore.schemaName = schema.name
     schemaStore.wikibase = schema.wikibase
-    schemaStore.labels = schema.item.terms.labels
-    schemaStore.descriptions = schema.item.terms.descriptions
-    schemaStore.aliases = schema.item.terms.aliases
-    schemaStore.statements = schema.item.statements
+    schemaStore.labels = schema.item?.terms?.labels || {}
+    schemaStore.descriptions = schema.item?.terms?.descriptions || {}
+    schemaStore.aliases = schema.item?.terms?.aliases || {}
+    schemaStore.statements = schema.item?.statements || []
     schemaStore.createdAt = schema.createdAt
     schemaStore.updatedAt = schema.updatedAt
     schemaStore.isDirty = false
@@ -62,8 +62,15 @@ export const useSchemaApi = () => {
     if (apiError) {
       showError(apiError.value as ApiError)
     } else {
-      loadSchemaIntoStore((data as any).data as WikibaseSchemaMapping)
-      return (data as any).data
+      // Set the schema properties from the created schema
+      const createdSchema = (data as any).data as WikibaseSchemaMapping
+      schemaStore.schemaId = createdSchema.id
+      schemaStore.projectId = createdSchema.projectId
+      schemaStore.schemaName = createdSchema.name
+      schemaStore.wikibase = createdSchema.wikibase
+      schemaStore.createdAt = createdSchema.createdAt
+      schemaStore.updatedAt = createdSchema.updatedAt
+      return createdSchema
     }
   }
 
@@ -85,9 +92,15 @@ export const useSchemaApi = () => {
     if (apiError) {
       showError(apiError.value as ApiError)
     } else {
-      loadSchemaIntoStore(data.data as WikibaseSchemaMapping)
+      // Update the schema properties from the updated schema
+      const updatedSchema = data.data as WikibaseSchemaMapping
+      schemaStore.schemaId = updatedSchema.id
+      schemaStore.projectId = updatedSchema.projectId
+      schemaStore.schemaName = updatedSchema.name
+      schemaStore.wikibase = updatedSchema.wikibase
+      schemaStore.updatedAt = updatedSchema.updatedAt
       schemaStore.markAsSaved()
-      return data.data
+      return updatedSchema
     }
   }
 

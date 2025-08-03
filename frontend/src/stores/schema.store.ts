@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import type {
   StatementSchemaMapping,
   PropertyReference,
@@ -7,6 +7,8 @@ import type {
   StatementRank,
   PropertyValueMap,
   ReferenceSchemaMapping,
+  Label,
+  ColumnMapping,
 } from '@frontend/types/wikibase-schema'
 import type { UUID } from 'crypto'
 import { useSchemaBuilder } from '@frontend/composables/useSchemaBuilder'
@@ -31,6 +33,17 @@ export const useSchemaStore = defineStore('schema', () => {
   const isLoading = ref(false)
   const isDirty = ref(false)
   const lastSaved = ref<Date | null>(null)
+
+  // Computed
+  const canSave = computed(() => {
+    const hasContent =
+      Object.keys(labels.value).length > 0 ||
+      Object.keys(descriptions.value).length > 0 ||
+      Object.keys(aliases.value).length > 0 ||
+      statements.value.length > 0
+
+    return projectId.value !== null && isDirty.value && !isLoading.value && hasContent
+  })
 
   // Actions
 
@@ -208,6 +221,9 @@ export const useSchemaStore = defineStore('schema', () => {
     isLoading,
     isDirty,
     lastSaved,
+
+    // Computed
+    canSave,
 
     // Actions
     updateSchemaName,
