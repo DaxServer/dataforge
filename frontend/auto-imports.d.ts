@@ -6,13 +6,12 @@
 // biome-ignore lint: disable
 export {}
 declare global {
-  const ApiKey: typeof import('./src/plugins/api')['ApiKey']
-  const ApiPlugin: typeof import('./src/plugins/api')['ApiPlugin']
+  const ApiKey: typeof import('./src/core/plugins/api')['ApiKey']
+  const ApiPlugin: typeof import('./src/core/plugins/api')['ApiPlugin']
   const EffectScope: typeof import('vue')['EffectScope']
-  const UUID: typeof import('crypto')['UUID']
-  const ValidationMessages: typeof import('./src/types/wikibase-schema')['ValidationMessages']
+  const ValidationMessages: typeof import('./src/shared/types/wikibase-schema')['ValidationMessages']
   const acceptHMRUpdate: typeof import('pinia')['acceptHMRUpdate']
-  const api: typeof import('./src/plugins/api')['api']
+  const api: typeof import('./src/core/plugins/api')['api']
   const asyncComputed: typeof import('@vueuse/core')['asyncComputed']
   const autoResetRef: typeof import('@vueuse/core')['autoResetRef']
   const computed: typeof import('vue')['computed']
@@ -24,7 +23,7 @@ declare global {
   const controlledRef: typeof import('@vueuse/core')['controlledRef']
   const createApp: typeof import('vue')['createApp']
   const createEventHook: typeof import('@vueuse/core')['createEventHook']
-  const createFrontendError: typeof import('./src/types/client-errors')['createFrontendError']
+  const createFrontendError: typeof import('./src/shared/types/client-errors')['createFrontendError']
   const createGlobalState: typeof import('@vueuse/core')['createGlobalState']
   const createInjectionState: typeof import('@vueuse/core')['createInjectionState']
   const createPinia: typeof import('pinia')['createPinia']
@@ -103,7 +102,7 @@ declare global {
   const resolveComponent: typeof import('vue')['resolveComponent']
   const resolveRef: typeof import('@vueuse/core')['resolveRef']
   const resolveUnref: typeof import('@vueuse/core')['resolveUnref']
-  const router: typeof import('./src/router')['default']
+  const router: typeof import('./src/core/router/router')['default']
   const setActivePinia: typeof import('pinia')['setActivePinia']
   const setMapStoreSuffix: typeof import('pinia')['setMapStoreSuffix']
   const shallowReactive: typeof import('vue')['shallowReactive']
@@ -131,7 +130,7 @@ declare global {
   const until: typeof import('@vueuse/core')['until']
   const useActiveElement: typeof import('@vueuse/core')['useActiveElement']
   const useAnimate: typeof import('@vueuse/core')['useAnimate']
-  const useApi: typeof import('./src/plugins/api')['useApi']
+  const useApi: typeof import('./src/core/plugins/api')['useApi']
   const useArrayDifference: typeof import('@vueuse/core')['useArrayDifference']
   const useArrayEvery: typeof import('@vueuse/core')['useArrayEvery']
   const useArrayFilter: typeof import('@vueuse/core')['useArrayFilter']
@@ -158,21 +157,21 @@ declare global {
   const useClipboardItems: typeof import('@vueuse/core')['useClipboardItems']
   const useCloned: typeof import('@vueuse/core')['useCloned']
   const useColorMode: typeof import('@vueuse/core')['useColorMode']
-  const useColumnConversion: typeof import('./src/composables/useColumnConversion')['useColumnConversion']
-  const useColumnDataTypeIndicators: typeof import('./src/composables/useColumnDataTypeIndicators')['useColumnDataTypeIndicators']
-  const useColumnGeneration: typeof import('./src/composables/useColumnGeneration')['useColumnGeneration']
+  const useColumnConversion: typeof import('./src/features/data-processing/composables/useColumnConversion')['useColumnConversion']
+  const useColumnDataTypeIndicators: typeof import('./src/features/data-processing/composables/useColumnDataTypeIndicators')['useColumnDataTypeIndicators']
+  const useColumnGeneration: typeof import('./src/features/data-processing/composables/useColumnGeneration')['useColumnGeneration']
   const useConfirm: typeof import('primevue/useconfirm')['useConfirm']
   const useConfirmDialog: typeof import('@vueuse/core')['useConfirmDialog']
   const useCountdown: typeof import('@vueuse/core')['useCountdown']
   const useCounter: typeof import('@vueuse/core')['useCounter']
-  const useCreateProjectStore: typeof import('./src/stores/create-project.store')['useCreateProjectStore']
+  const useCreateProjectStore: typeof import('./src/features/project-management/stores/create-project.store')['useCreateProjectStore']
   const useCssModule: typeof import('vue')['useCssModule']
   const useCssVar: typeof import('@vueuse/core')['useCssVar']
   const useCssVars: typeof import('vue')['useCssVars']
   const useCurrentElement: typeof import('@vueuse/core')['useCurrentElement']
   const useCycleList: typeof import('@vueuse/core')['useCycleList']
   const useDark: typeof import('@vueuse/core')['useDark']
-  const useDataTypeCompatibility: typeof import('./src/composables/useDataTypeCompatibility')['useDataTypeCompatibility']
+  const useDataTypeCompatibility: typeof import('./src/features/data-processing/composables/useDataTypeCompatibility')['useDataTypeCompatibility']
   const useDateFormat: typeof import('@vueuse/core')['useDateFormat']
   const useDebounce: typeof import('@vueuse/core')['useDebounce']
   const useDebounceFn: typeof import('@vueuse/core')['useDebounceFn']
@@ -183,18 +182,18 @@ declare global {
   const useDevicesList: typeof import('@vueuse/core')['useDevicesList']
   const useDisplayMedia: typeof import('@vueuse/core')['useDisplayMedia']
   const useDocumentVisibility: typeof import('@vueuse/core')['useDocumentVisibility']
-  const useDragDropContext: typeof import('./src/composables/useDragDropContext')['useDragDropContext']
-  const useDragDropHandlers: typeof import('./src/composables/useDragDropHandlers')['useDragDropHandlers']
-  const useDragDropStore: typeof import('./src/stores/drag-drop.store')['useDragDropStore']
+  const useDragDropContext: typeof import('./src/shared/composables/useDragDropContext')['useDragDropContext']
+  const useDragDropHandlers: typeof import('./src/shared/composables/useDragDropHandlers')['useDragDropHandlers']
+  const useDragDropStore: typeof import('./src/features/data-processing/stores/drag-drop.store')['useDragDropStore']
   const useDraggable: typeof import('@vueuse/core')['useDraggable']
   const useDropZone: typeof import('@vueuse/core')['useDropZone']
-  const useDropZoneStyling: typeof import('./src/composables/useDropZoneStyling')['useDropZoneStyling']
+  const useDropZoneStyling: typeof import('./src/shared/composables/useDropZoneStyling')['useDropZoneStyling']
   const useElementBounding: typeof import('@vueuse/core')['useElementBounding']
   const useElementByPoint: typeof import('@vueuse/core')['useElementByPoint']
   const useElementHover: typeof import('@vueuse/core')['useElementHover']
   const useElementSize: typeof import('@vueuse/core')['useElementSize']
   const useElementVisibility: typeof import('@vueuse/core')['useElementVisibility']
-  const useErrorHandling: typeof import('./src/composables/useErrorHandling')['useErrorHandling']
+  const useErrorHandling: typeof import('./src/shared/composables/useErrorHandling')['useErrorHandling']
   const useEventBus: typeof import('@vueuse/core')['useEventBus']
   const useEventListener: typeof import('@vueuse/core')['useEventListener']
   const useEventSource: typeof import('@vueuse/core')['useEventSource']
@@ -209,7 +208,7 @@ declare global {
   const useFullscreen: typeof import('@vueuse/core')['useFullscreen']
   const useGamepad: typeof import('@vueuse/core')['useGamepad']
   const useGeolocation: typeof import('@vueuse/core')['useGeolocation']
-  const useHtml: typeof import('./src/composables/useHtml')['useHtml']
+  const useHtml: typeof import('./src/shared/composables/useHtml')['useHtml']
   const useId: typeof import('vue')['useId']
   const useIdle: typeof import('@vueuse/core')['useIdle']
   const useImage: typeof import('@vueuse/core')['useImage']
@@ -218,7 +217,7 @@ declare global {
   const useInterval: typeof import('@vueuse/core')['useInterval']
   const useIntervalFn: typeof import('@vueuse/core')['useIntervalFn']
   const useKeyModifier: typeof import('@vueuse/core')['useKeyModifier']
-  const useLanguageDropZone: typeof import('./src/composables/useLanguageDropZone')['useLanguageDropZone']
+  const useLanguageDropZone: typeof import('./src/features/data-processing/composables/useLanguageDropZone')['useLanguageDropZone']
   const useLastChanged: typeof import('@vueuse/core')['useLastChanged']
   const useLink: typeof import('vue-router')['useLink']
   const useLocalStorage: typeof import('@vueuse/core')['useLocalStorage']
@@ -255,27 +254,27 @@ declare global {
   const usePreferredReducedMotion: typeof import('@vueuse/core')['usePreferredReducedMotion']
   const usePreferredReducedTransparency: typeof import('@vueuse/core')['usePreferredReducedTransparency']
   const usePrevious: typeof import('@vueuse/core')['usePrevious']
-  const useProjectCreationComposable: typeof import('./src/composables/useProjectCreationComposable')['useProjectCreationComposable']
-  const useProjectListComposable: typeof import('./src/composables/useProjectListComposable')['useProjectListComposable']
-  const useProjectListStore: typeof import('./src/stores/project-list.store')['useProjectListStore']
-  const useProjectStore: typeof import('./src/stores/project.store')['useProjectStore']
-  const usePropertySelection: typeof import('./src/composables/usePropertySelection')['usePropertySelection']
+  const useProjectCreationComposable: typeof import('./src/features/project-management/composables/useProjectCreationComposable')['useProjectCreationComposable']
+  const useProjectListComposable: typeof import('./src/features/project-management/composables/useProjectListComposable')['useProjectListComposable']
+  const useProjectListStore: typeof import('./src/features/project-management/stores/project-list.store')['useProjectListStore']
+  const useProjectStore: typeof import('./src/features/project-management/stores/project.store')['useProjectStore']
+  const usePropertySelection: typeof import('./src/features/wikibase-schema/composables/usePropertySelection')['usePropertySelection']
   const useRafFn: typeof import('@vueuse/core')['useRafFn']
-  const useRealTimeValidation: typeof import('./src/composables/useRealTimeValidation')['useRealTimeValidation']
+  const useRealTimeValidation: typeof import('./src/features/wikibase-schema/composables/useRealTimeValidation')['useRealTimeValidation']
   const useRefHistory: typeof import('@vueuse/core')['useRefHistory']
-  const useReferenceValueMapping: typeof import('./src/composables/useReferenceValueMapping')['useReferenceValueMapping']
+  const useReferenceValueMapping: typeof import('./src/features/wikibase-schema/composables/useReferenceValueMapping')['useReferenceValueMapping']
   const useResizeObserver: typeof import('@vueuse/core')['useResizeObserver']
   const useRoute: typeof import('vue-router')['useRoute']
   const useRouteParams: typeof import('@vueuse/router')['useRouteParams']
   const useRouter: typeof import('vue-router')['useRouter']
   const useSSRWidth: typeof import('@vueuse/core')['useSSRWidth']
-  const useSchemaApi: typeof import('./src/composables/useSchemaApi')['useSchemaApi']
-  const useSchemaBuilder: typeof import('./src/composables/useSchemaBuilder')['useSchemaBuilder']
-  const useSchemaCompletenessValidation: typeof import('./src/composables/useSchemaCompletenessValidation')['useSchemaCompletenessValidation']
-  const useSchemaDropZone: typeof import('./src/composables/useSchemaDropZone')['useSchemaDropZone']
-  const useSchemaPersistence: typeof import('./src/composables/useSchemaPersistence')['useSchemaPersistence']
-  const useSchemaStore: typeof import('./src/stores/schema.store')['useSchemaStore']
-  const useSchemaValidationUI: typeof import('./src/composables/useSchemaValidationUI')['useSchemaValidationUI']
+  const useSchemaApi: typeof import('./src/features/wikibase-schema/composables/useSchemaApi')['useSchemaApi']
+  const useSchemaBuilder: typeof import('./src/features/wikibase-schema/composables/useSchemaBuilder')['useSchemaBuilder']
+  const useSchemaCompletenessValidation: typeof import('./src/features/wikibase-schema/composables/useSchemaCompletenessValidation')['useSchemaCompletenessValidation']
+  const useSchemaDropZone: typeof import('./src/features/wikibase-schema/composables/useSchemaDropZone')['useSchemaDropZone']
+  const useSchemaPersistence: typeof import('./src/features/wikibase-schema/composables/useSchemaPersistence')['useSchemaPersistence']
+  const useSchemaStore: typeof import('./src/features/wikibase-schema/stores/schema.store')['useSchemaStore']
+  const useSchemaValidationUI: typeof import('./src/features/wikibase-schema/composables/useSchemaValidationUI')['useSchemaValidationUI']
   const useScreenOrientation: typeof import('@vueuse/core')['useScreenOrientation']
   const useScreenSafeArea: typeof import('@vueuse/core')['useScreenSafeArea']
   const useScriptTag: typeof import('@vueuse/core')['useScriptTag']
@@ -287,11 +286,11 @@ declare global {
   const useSorted: typeof import('@vueuse/core')['useSorted']
   const useSpeechRecognition: typeof import('@vueuse/core')['useSpeechRecognition']
   const useSpeechSynthesis: typeof import('@vueuse/core')['useSpeechSynthesis']
-  const useStatementConfig: typeof import('./src/composables/useStatementConfig')['useStatementConfig']
-  const useStatementDataTypeValidation: typeof import('./src/composables/useStatementDataTypeValidation')['useStatementDataTypeValidation']
-  const useStatementDropZone: typeof import('./src/composables/useStatementDropZone')['useStatementDropZone']
-  const useStatementEditor: typeof import('./src/composables/useStatementEditor')['useStatementEditor']
-  const useStatementValidationDisplay: typeof import('./src/composables/useStatementValidationDisplay')['useStatementValidationDisplay']
+  const useStatementConfig: typeof import('./src/features/wikibase-schema/composables/useStatementConfig')['useStatementConfig']
+  const useStatementDataTypeValidation: typeof import('./src/features/wikibase-schema/composables/useStatementDataTypeValidation')['useStatementDataTypeValidation']
+  const useStatementDropZone: typeof import('./src/features/wikibase-schema/composables/useStatementDropZone')['useStatementDropZone']
+  const useStatementEditor: typeof import('./src/features/wikibase-schema/composables/useStatementEditor')['useStatementEditor']
+  const useStatementValidationDisplay: typeof import('./src/features/wikibase-schema/composables/useStatementValidationDisplay')['useStatementValidationDisplay']
   const useStepper: typeof import('@vueuse/core')['useStepper']
   const useStorage: typeof import('@vueuse/core')['useStorage']
   const useStorageAsync: typeof import('@vueuse/core')['useStorageAsync']
@@ -300,7 +299,7 @@ declare global {
   const useSwipe: typeof import('@vueuse/core')['useSwipe']
   const useTemplateRef: typeof import('vue')['useTemplateRef']
   const useTemplateRefsList: typeof import('@vueuse/core')['useTemplateRefsList']
-  const useTermsEditor: typeof import('./src/composables/useTermsEditor')['useTermsEditor']
+  const useTermsEditor: typeof import('./src/features/wikibase-schema/composables/useTermsEditor')['useTermsEditor']
   const useTextDirection: typeof import('@vueuse/core')['useTextDirection']
   const useTextSelection: typeof import('@vueuse/core')['useTextSelection']
   const useTextareaAutosize: typeof import('@vueuse/core')['useTextareaAutosize']
@@ -322,10 +321,10 @@ declare global {
   const useUserMedia: typeof import('@vueuse/core')['useUserMedia']
   const useVModel: typeof import('@vueuse/core')['useVModel']
   const useVModels: typeof import('@vueuse/core')['useVModels']
-  const useValidationCore: typeof import('./src/composables/useValidationCore')['useValidationCore']
-  const useValidationErrors: typeof import('./src/composables/useValidationErrors')['useValidationErrors']
-  const useValidationStore: typeof import('./src/stores/validation.store')['useValidationStore']
-  const useValueMapping: typeof import('./src/composables/useValueMapping')['useValueMapping']
+  const useValidationCore: typeof import('./src/features/wikibase-schema/composables/useValidationCore')['useValidationCore']
+  const useValidationErrors: typeof import('./src/features/wikibase-schema/composables/useValidationErrors')['useValidationErrors']
+  const useValidationStore: typeof import('./src/features/wikibase-schema/stores/validation.store')['useValidationStore']
+  const useValueMapping: typeof import('./src/features/wikibase-schema/composables/useValueMapping')['useValueMapping']
   const useVibrate: typeof import('@vueuse/core')['useVibrate']
   const useVirtualList: typeof import('@vueuse/core')['useVirtualList']
   const useWakeLock: typeof import('@vueuse/core')['useWakeLock']
@@ -368,32 +367,32 @@ declare global {
   export type { UUID } from 'crypto'
   import('crypto')
   // @ts-ignore
-  export type { ProjectColumn } from './src/composables/useColumnGeneration'
-  import('./src/composables/useColumnGeneration')
+  export type { ProjectColumn } from './src/features/data-processing/composables/useColumnGeneration'
+  import('./src/features/data-processing/composables/useColumnGeneration')
   // @ts-ignore
-  export type { CreateSchemaRequest } from './src/composables/useSchemaApi'
-  import('./src/composables/useSchemaApi')
+  export type { CreateSchemaRequest } from './src/features/wikibase-schema/composables/useSchemaApi'
+  import('./src/features/wikibase-schema/composables/useSchemaApi')
   // @ts-ignore
-  export type { SchemaCompletenessResult, RequiredFieldHighlight } from './src/composables/useSchemaCompletenessValidation'
-  import('./src/composables/useSchemaCompletenessValidation')
+  export type { SchemaCompletenessResult, RequiredFieldHighlight } from './src/features/wikibase-schema/composables/useSchemaCompletenessValidation'
+  import('./src/features/wikibase-schema/composables/useSchemaCompletenessValidation')
   // @ts-ignore
-  export type { SaveStatus } from './src/composables/useSchemaPersistence'
-  import('./src/composables/useSchemaPersistence')
+  export type { SaveStatus } from './src/features/wikibase-schema/composables/useSchemaPersistence'
+  import('./src/features/wikibase-schema/composables/useSchemaPersistence')
   // @ts-ignore
-  export type { ValidationRuleConfig } from './src/stores/validation.store'
-  import('./src/stores/validation.store')
+  export type { ValidationRuleConfig } from './src/features/wikibase-schema/stores/validation.store'
+  import('./src/features/wikibase-schema/stores/validation.store')
   // @ts-ignore
-  export type { FrontendErrorCode, ExtendedErrorCode, ExtendedError } from './src/types/client-errors'
-  import('./src/types/client-errors')
+  export type { FrontendErrorCode, ExtendedErrorCode, ExtendedError } from './src/shared/types/client-errors'
+  import('./src/shared/types/client-errors')
   // @ts-ignore
-  export type { SchemaDragDropContext, DropZoneConfig, DropFeedback, DragDropContext, DropTarget, DropTargetType, DragState, DropValidation, DragEventData, DropEventData, DragVisualState, DragDropConfig } from './src/types/drag-drop'
-  import('./src/types/drag-drop')
+  export type { SchemaDragDropContext, DropZoneConfig, DropFeedback, DragDropContext, DropTarget, DropTargetType, DragState, DropValidation, DragEventData, DropEventData, DragVisualState, DragDropConfig } from './src/shared/types/drag-drop'
+  import('./src/shared/types/drag-drop')
   // @ts-ignore
-  export type { ProjectFile, FileSelectEvent, FileRemoveEvent, ApiClient } from './src/types/index'
-  import('./src/types/index')
+  export type { ProjectFile, FileSelectEvent, FileRemoveEvent, ApiClient } from './src/shared/types/index'
+  import('./src/shared/types/index')
   // @ts-ignore
-  export type { ValidationErrorType, ValidationErrorCode, ValidationError, ValidationResult, ValidationContext, WikibaseSchemaMapping, ItemSchemaMapping, Label, TermsSchemaMapping, ColumnMapping, TransformationRule, TransformationFunction, TransformationParameter, StatementSchemaMapping, PropertyReference, ValueMapping, PropertyValueMap, ReferenceSchemaMapping, StatementRank, WikibaseDataType, ColumnInfo, ValidationRule, SchemaMapping, ColumnReference, ValueSchemaMapping, ValidatedSchemaMapping } from './src/types/wikibase-schema'
-  import('./src/types/wikibase-schema')
+  export type { ValidationErrorType, ValidationErrorCode, ValidationError, ValidationResult, ValidationContext, WikibaseSchemaMapping, ItemSchemaMapping, Label, TermsSchemaMapping, ColumnMapping, TransformationRule, TransformationFunction, TransformationParameter, StatementSchemaMapping, PropertyReference, ValueMapping, PropertyValueMap, ReferenceSchemaMapping, StatementRank, WikibaseDataType, ColumnInfo, ValidationRule, SchemaMapping, ColumnReference, ValueSchemaMapping, ValidatedSchemaMapping } from './src/shared/types/wikibase-schema'
+  import('./src/shared/types/wikibase-schema')
 }
 
 // for vue template auto import
@@ -401,12 +400,12 @@ import { UnwrapRef } from 'vue'
 declare module 'vue' {
   interface GlobalComponents {}
   interface ComponentCustomProperties {
-    readonly ApiKey: UnwrapRef<typeof import('./src/plugins/api')['ApiKey']>
-    readonly ApiPlugin: UnwrapRef<typeof import('./src/plugins/api')['ApiPlugin']>
+    readonly ApiKey: UnwrapRef<typeof import('./src/core/plugins/api')['ApiKey']>
+    readonly ApiPlugin: UnwrapRef<typeof import('./src/core/plugins/api')['ApiPlugin']>
     readonly EffectScope: UnwrapRef<typeof import('vue')['EffectScope']>
-    readonly ValidationMessages: UnwrapRef<typeof import('./src/types/wikibase-schema')['ValidationMessages']>
+    readonly ValidationMessages: UnwrapRef<typeof import('./src/shared/types/wikibase-schema')['ValidationMessages']>
     readonly acceptHMRUpdate: UnwrapRef<typeof import('pinia')['acceptHMRUpdate']>
-    readonly api: UnwrapRef<typeof import('./src/plugins/api')['api']>
+    readonly api: UnwrapRef<typeof import('./src/core/plugins/api')['api']>
     readonly asyncComputed: UnwrapRef<typeof import('@vueuse/core')['asyncComputed']>
     readonly autoResetRef: UnwrapRef<typeof import('@vueuse/core')['autoResetRef']>
     readonly computed: UnwrapRef<typeof import('vue')['computed']>
@@ -418,7 +417,7 @@ declare module 'vue' {
     readonly controlledRef: UnwrapRef<typeof import('@vueuse/core')['controlledRef']>
     readonly createApp: UnwrapRef<typeof import('vue')['createApp']>
     readonly createEventHook: UnwrapRef<typeof import('@vueuse/core')['createEventHook']>
-    readonly createFrontendError: UnwrapRef<typeof import('./src/types/client-errors')['createFrontendError']>
+    readonly createFrontendError: UnwrapRef<typeof import('./src/shared/types/client-errors')['createFrontendError']>
     readonly createGlobalState: UnwrapRef<typeof import('@vueuse/core')['createGlobalState']>
     readonly createInjectionState: UnwrapRef<typeof import('@vueuse/core')['createInjectionState']>
     readonly createPinia: UnwrapRef<typeof import('pinia')['createPinia']>
@@ -497,7 +496,7 @@ declare module 'vue' {
     readonly resolveComponent: UnwrapRef<typeof import('vue')['resolveComponent']>
     readonly resolveRef: UnwrapRef<typeof import('@vueuse/core')['resolveRef']>
     readonly resolveUnref: UnwrapRef<typeof import('@vueuse/core')['resolveUnref']>
-    readonly router: UnwrapRef<typeof import('./src/router')['default']>
+    readonly router: UnwrapRef<typeof import('./src/core/router/router')['default']>
     readonly setActivePinia: UnwrapRef<typeof import('pinia')['setActivePinia']>
     readonly setMapStoreSuffix: UnwrapRef<typeof import('pinia')['setMapStoreSuffix']>
     readonly shallowReactive: UnwrapRef<typeof import('vue')['shallowReactive']>
@@ -525,7 +524,7 @@ declare module 'vue' {
     readonly until: UnwrapRef<typeof import('@vueuse/core')['until']>
     readonly useActiveElement: UnwrapRef<typeof import('@vueuse/core')['useActiveElement']>
     readonly useAnimate: UnwrapRef<typeof import('@vueuse/core')['useAnimate']>
-    readonly useApi: UnwrapRef<typeof import('./src/plugins/api')['useApi']>
+    readonly useApi: UnwrapRef<typeof import('./src/core/plugins/api')['useApi']>
     readonly useArrayDifference: UnwrapRef<typeof import('@vueuse/core')['useArrayDifference']>
     readonly useArrayEvery: UnwrapRef<typeof import('@vueuse/core')['useArrayEvery']>
     readonly useArrayFilter: UnwrapRef<typeof import('@vueuse/core')['useArrayFilter']>
@@ -552,21 +551,21 @@ declare module 'vue' {
     readonly useClipboardItems: UnwrapRef<typeof import('@vueuse/core')['useClipboardItems']>
     readonly useCloned: UnwrapRef<typeof import('@vueuse/core')['useCloned']>
     readonly useColorMode: UnwrapRef<typeof import('@vueuse/core')['useColorMode']>
-    readonly useColumnConversion: UnwrapRef<typeof import('./src/composables/useColumnConversion')['useColumnConversion']>
-    readonly useColumnDataTypeIndicators: UnwrapRef<typeof import('./src/composables/useColumnDataTypeIndicators')['useColumnDataTypeIndicators']>
-    readonly useColumnGeneration: UnwrapRef<typeof import('./src/composables/useColumnGeneration')['useColumnGeneration']>
+    readonly useColumnConversion: UnwrapRef<typeof import('./src/features/data-processing/composables/useColumnConversion')['useColumnConversion']>
+    readonly useColumnDataTypeIndicators: UnwrapRef<typeof import('./src/features/data-processing/composables/useColumnDataTypeIndicators')['useColumnDataTypeIndicators']>
+    readonly useColumnGeneration: UnwrapRef<typeof import('./src/features/data-processing/composables/useColumnGeneration')['useColumnGeneration']>
     readonly useConfirm: UnwrapRef<typeof import('primevue/useconfirm')['useConfirm']>
     readonly useConfirmDialog: UnwrapRef<typeof import('@vueuse/core')['useConfirmDialog']>
     readonly useCountdown: UnwrapRef<typeof import('@vueuse/core')['useCountdown']>
     readonly useCounter: UnwrapRef<typeof import('@vueuse/core')['useCounter']>
-    readonly useCreateProjectStore: UnwrapRef<typeof import('./src/stores/create-project.store')['useCreateProjectStore']>
+    readonly useCreateProjectStore: UnwrapRef<typeof import('./src/features/project-management/stores/create-project.store')['useCreateProjectStore']>
     readonly useCssModule: UnwrapRef<typeof import('vue')['useCssModule']>
     readonly useCssVar: UnwrapRef<typeof import('@vueuse/core')['useCssVar']>
     readonly useCssVars: UnwrapRef<typeof import('vue')['useCssVars']>
     readonly useCurrentElement: UnwrapRef<typeof import('@vueuse/core')['useCurrentElement']>
     readonly useCycleList: UnwrapRef<typeof import('@vueuse/core')['useCycleList']>
     readonly useDark: UnwrapRef<typeof import('@vueuse/core')['useDark']>
-    readonly useDataTypeCompatibility: UnwrapRef<typeof import('./src/composables/useDataTypeCompatibility')['useDataTypeCompatibility']>
+    readonly useDataTypeCompatibility: UnwrapRef<typeof import('./src/features/data-processing/composables/useDataTypeCompatibility')['useDataTypeCompatibility']>
     readonly useDateFormat: UnwrapRef<typeof import('@vueuse/core')['useDateFormat']>
     readonly useDebounce: UnwrapRef<typeof import('@vueuse/core')['useDebounce']>
     readonly useDebounceFn: UnwrapRef<typeof import('@vueuse/core')['useDebounceFn']>
@@ -577,18 +576,18 @@ declare module 'vue' {
     readonly useDevicesList: UnwrapRef<typeof import('@vueuse/core')['useDevicesList']>
     readonly useDisplayMedia: UnwrapRef<typeof import('@vueuse/core')['useDisplayMedia']>
     readonly useDocumentVisibility: UnwrapRef<typeof import('@vueuse/core')['useDocumentVisibility']>
-    readonly useDragDropContext: UnwrapRef<typeof import('./src/composables/useDragDropContext')['useDragDropContext']>
-    readonly useDragDropHandlers: UnwrapRef<typeof import('./src/composables/useDragDropHandlers')['useDragDropHandlers']>
-    readonly useDragDropStore: UnwrapRef<typeof import('./src/stores/drag-drop.store')['useDragDropStore']>
+    readonly useDragDropContext: UnwrapRef<typeof import('./src/shared/composables/useDragDropContext')['useDragDropContext']>
+    readonly useDragDropHandlers: UnwrapRef<typeof import('./src/shared/composables/useDragDropHandlers')['useDragDropHandlers']>
+    readonly useDragDropStore: UnwrapRef<typeof import('./src/features/data-processing/stores/drag-drop.store')['useDragDropStore']>
     readonly useDraggable: UnwrapRef<typeof import('@vueuse/core')['useDraggable']>
     readonly useDropZone: UnwrapRef<typeof import('@vueuse/core')['useDropZone']>
-    readonly useDropZoneStyling: UnwrapRef<typeof import('./src/composables/useDropZoneStyling')['useDropZoneStyling']>
+    readonly useDropZoneStyling: UnwrapRef<typeof import('./src/shared/composables/useDropZoneStyling')['useDropZoneStyling']>
     readonly useElementBounding: UnwrapRef<typeof import('@vueuse/core')['useElementBounding']>
     readonly useElementByPoint: UnwrapRef<typeof import('@vueuse/core')['useElementByPoint']>
     readonly useElementHover: UnwrapRef<typeof import('@vueuse/core')['useElementHover']>
     readonly useElementSize: UnwrapRef<typeof import('@vueuse/core')['useElementSize']>
     readonly useElementVisibility: UnwrapRef<typeof import('@vueuse/core')['useElementVisibility']>
-    readonly useErrorHandling: UnwrapRef<typeof import('./src/composables/useErrorHandling')['useErrorHandling']>
+    readonly useErrorHandling: UnwrapRef<typeof import('./src/shared/composables/useErrorHandling')['useErrorHandling']>
     readonly useEventBus: UnwrapRef<typeof import('@vueuse/core')['useEventBus']>
     readonly useEventListener: UnwrapRef<typeof import('@vueuse/core')['useEventListener']>
     readonly useEventSource: UnwrapRef<typeof import('@vueuse/core')['useEventSource']>
@@ -603,7 +602,7 @@ declare module 'vue' {
     readonly useFullscreen: UnwrapRef<typeof import('@vueuse/core')['useFullscreen']>
     readonly useGamepad: UnwrapRef<typeof import('@vueuse/core')['useGamepad']>
     readonly useGeolocation: UnwrapRef<typeof import('@vueuse/core')['useGeolocation']>
-    readonly useHtml: UnwrapRef<typeof import('./src/composables/useHtml')['useHtml']>
+    readonly useHtml: UnwrapRef<typeof import('./src/shared/composables/useHtml')['useHtml']>
     readonly useId: UnwrapRef<typeof import('vue')['useId']>
     readonly useIdle: UnwrapRef<typeof import('@vueuse/core')['useIdle']>
     readonly useImage: UnwrapRef<typeof import('@vueuse/core')['useImage']>
@@ -612,7 +611,7 @@ declare module 'vue' {
     readonly useInterval: UnwrapRef<typeof import('@vueuse/core')['useInterval']>
     readonly useIntervalFn: UnwrapRef<typeof import('@vueuse/core')['useIntervalFn']>
     readonly useKeyModifier: UnwrapRef<typeof import('@vueuse/core')['useKeyModifier']>
-    readonly useLanguageDropZone: UnwrapRef<typeof import('./src/composables/useLanguageDropZone')['useLanguageDropZone']>
+    readonly useLanguageDropZone: UnwrapRef<typeof import('./src/features/data-processing/composables/useLanguageDropZone')['useLanguageDropZone']>
     readonly useLastChanged: UnwrapRef<typeof import('@vueuse/core')['useLastChanged']>
     readonly useLink: UnwrapRef<typeof import('vue-router')['useLink']>
     readonly useLocalStorage: UnwrapRef<typeof import('@vueuse/core')['useLocalStorage']>
@@ -649,27 +648,27 @@ declare module 'vue' {
     readonly usePreferredReducedMotion: UnwrapRef<typeof import('@vueuse/core')['usePreferredReducedMotion']>
     readonly usePreferredReducedTransparency: UnwrapRef<typeof import('@vueuse/core')['usePreferredReducedTransparency']>
     readonly usePrevious: UnwrapRef<typeof import('@vueuse/core')['usePrevious']>
-    readonly useProjectCreationComposable: UnwrapRef<typeof import('./src/composables/useProjectCreationComposable')['useProjectCreationComposable']>
-    readonly useProjectListComposable: UnwrapRef<typeof import('./src/composables/useProjectListComposable')['useProjectListComposable']>
-    readonly useProjectListStore: UnwrapRef<typeof import('./src/stores/project-list.store')['useProjectListStore']>
-    readonly useProjectStore: UnwrapRef<typeof import('./src/stores/project.store')['useProjectStore']>
-    readonly usePropertySelection: UnwrapRef<typeof import('./src/composables/usePropertySelection')['usePropertySelection']>
+    readonly useProjectCreationComposable: UnwrapRef<typeof import('./src/features/project-management/composables/useProjectCreationComposable')['useProjectCreationComposable']>
+    readonly useProjectListComposable: UnwrapRef<typeof import('./src/features/project-management/composables/useProjectListComposable')['useProjectListComposable']>
+    readonly useProjectListStore: UnwrapRef<typeof import('./src/features/project-management/stores/project-list.store')['useProjectListStore']>
+    readonly useProjectStore: UnwrapRef<typeof import('./src/features/project-management/stores/project.store')['useProjectStore']>
+    readonly usePropertySelection: UnwrapRef<typeof import('./src/features/wikibase-schema/composables/usePropertySelection')['usePropertySelection']>
     readonly useRafFn: UnwrapRef<typeof import('@vueuse/core')['useRafFn']>
-    readonly useRealTimeValidation: UnwrapRef<typeof import('./src/composables/useRealTimeValidation')['useRealTimeValidation']>
+    readonly useRealTimeValidation: UnwrapRef<typeof import('./src/features/wikibase-schema/composables/useRealTimeValidation')['useRealTimeValidation']>
     readonly useRefHistory: UnwrapRef<typeof import('@vueuse/core')['useRefHistory']>
-    readonly useReferenceValueMapping: UnwrapRef<typeof import('./src/composables/useReferenceValueMapping')['useReferenceValueMapping']>
+    readonly useReferenceValueMapping: UnwrapRef<typeof import('./src/features/wikibase-schema/composables/useReferenceValueMapping')['useReferenceValueMapping']>
     readonly useResizeObserver: UnwrapRef<typeof import('@vueuse/core')['useResizeObserver']>
     readonly useRoute: UnwrapRef<typeof import('vue-router')['useRoute']>
     readonly useRouteParams: UnwrapRef<typeof import('@vueuse/router')['useRouteParams']>
     readonly useRouter: UnwrapRef<typeof import('vue-router')['useRouter']>
     readonly useSSRWidth: UnwrapRef<typeof import('@vueuse/core')['useSSRWidth']>
-    readonly useSchemaApi: UnwrapRef<typeof import('./src/composables/useSchemaApi')['useSchemaApi']>
-    readonly useSchemaBuilder: UnwrapRef<typeof import('./src/composables/useSchemaBuilder')['useSchemaBuilder']>
-    readonly useSchemaCompletenessValidation: UnwrapRef<typeof import('./src/composables/useSchemaCompletenessValidation')['useSchemaCompletenessValidation']>
-    readonly useSchemaDropZone: UnwrapRef<typeof import('./src/composables/useSchemaDropZone')['useSchemaDropZone']>
-    readonly useSchemaPersistence: UnwrapRef<typeof import('./src/composables/useSchemaPersistence')['useSchemaPersistence']>
-    readonly useSchemaStore: UnwrapRef<typeof import('./src/stores/schema.store')['useSchemaStore']>
-    readonly useSchemaValidationUI: UnwrapRef<typeof import('./src/composables/useSchemaValidationUI')['useSchemaValidationUI']>
+    readonly useSchemaApi: UnwrapRef<typeof import('./src/features/wikibase-schema/composables/useSchemaApi')['useSchemaApi']>
+    readonly useSchemaBuilder: UnwrapRef<typeof import('./src/features/wikibase-schema/composables/useSchemaBuilder')['useSchemaBuilder']>
+    readonly useSchemaCompletenessValidation: UnwrapRef<typeof import('./src/features/wikibase-schema/composables/useSchemaCompletenessValidation')['useSchemaCompletenessValidation']>
+    readonly useSchemaDropZone: UnwrapRef<typeof import('./src/features/wikibase-schema/composables/useSchemaDropZone')['useSchemaDropZone']>
+    readonly useSchemaPersistence: UnwrapRef<typeof import('./src/features/wikibase-schema/composables/useSchemaPersistence')['useSchemaPersistence']>
+    readonly useSchemaStore: UnwrapRef<typeof import('./src/features/wikibase-schema/stores/schema.store')['useSchemaStore']>
+    readonly useSchemaValidationUI: UnwrapRef<typeof import('./src/features/wikibase-schema/composables/useSchemaValidationUI')['useSchemaValidationUI']>
     readonly useScreenOrientation: UnwrapRef<typeof import('@vueuse/core')['useScreenOrientation']>
     readonly useScreenSafeArea: UnwrapRef<typeof import('@vueuse/core')['useScreenSafeArea']>
     readonly useScriptTag: UnwrapRef<typeof import('@vueuse/core')['useScriptTag']>
@@ -681,11 +680,11 @@ declare module 'vue' {
     readonly useSorted: UnwrapRef<typeof import('@vueuse/core')['useSorted']>
     readonly useSpeechRecognition: UnwrapRef<typeof import('@vueuse/core')['useSpeechRecognition']>
     readonly useSpeechSynthesis: UnwrapRef<typeof import('@vueuse/core')['useSpeechSynthesis']>
-    readonly useStatementConfig: UnwrapRef<typeof import('./src/composables/useStatementConfig')['useStatementConfig']>
-    readonly useStatementDataTypeValidation: UnwrapRef<typeof import('./src/composables/useStatementDataTypeValidation')['useStatementDataTypeValidation']>
-    readonly useStatementDropZone: UnwrapRef<typeof import('./src/composables/useStatementDropZone')['useStatementDropZone']>
-    readonly useStatementEditor: UnwrapRef<typeof import('./src/composables/useStatementEditor')['useStatementEditor']>
-    readonly useStatementValidationDisplay: UnwrapRef<typeof import('./src/composables/useStatementValidationDisplay')['useStatementValidationDisplay']>
+    readonly useStatementConfig: UnwrapRef<typeof import('./src/features/wikibase-schema/composables/useStatementConfig')['useStatementConfig']>
+    readonly useStatementDataTypeValidation: UnwrapRef<typeof import('./src/features/wikibase-schema/composables/useStatementDataTypeValidation')['useStatementDataTypeValidation']>
+    readonly useStatementDropZone: UnwrapRef<typeof import('./src/features/wikibase-schema/composables/useStatementDropZone')['useStatementDropZone']>
+    readonly useStatementEditor: UnwrapRef<typeof import('./src/features/wikibase-schema/composables/useStatementEditor')['useStatementEditor']>
+    readonly useStatementValidationDisplay: UnwrapRef<typeof import('./src/features/wikibase-schema/composables/useStatementValidationDisplay')['useStatementValidationDisplay']>
     readonly useStepper: UnwrapRef<typeof import('@vueuse/core')['useStepper']>
     readonly useStorage: UnwrapRef<typeof import('@vueuse/core')['useStorage']>
     readonly useStorageAsync: UnwrapRef<typeof import('@vueuse/core')['useStorageAsync']>
@@ -694,7 +693,7 @@ declare module 'vue' {
     readonly useSwipe: UnwrapRef<typeof import('@vueuse/core')['useSwipe']>
     readonly useTemplateRef: UnwrapRef<typeof import('vue')['useTemplateRef']>
     readonly useTemplateRefsList: UnwrapRef<typeof import('@vueuse/core')['useTemplateRefsList']>
-    readonly useTermsEditor: UnwrapRef<typeof import('./src/composables/useTermsEditor')['useTermsEditor']>
+    readonly useTermsEditor: UnwrapRef<typeof import('./src/features/wikibase-schema/composables/useTermsEditor')['useTermsEditor']>
     readonly useTextDirection: UnwrapRef<typeof import('@vueuse/core')['useTextDirection']>
     readonly useTextSelection: UnwrapRef<typeof import('@vueuse/core')['useTextSelection']>
     readonly useTextareaAutosize: UnwrapRef<typeof import('@vueuse/core')['useTextareaAutosize']>
@@ -716,10 +715,10 @@ declare module 'vue' {
     readonly useUserMedia: UnwrapRef<typeof import('@vueuse/core')['useUserMedia']>
     readonly useVModel: UnwrapRef<typeof import('@vueuse/core')['useVModel']>
     readonly useVModels: UnwrapRef<typeof import('@vueuse/core')['useVModels']>
-    readonly useValidationCore: UnwrapRef<typeof import('./src/composables/useValidationCore')['useValidationCore']>
-    readonly useValidationErrors: UnwrapRef<typeof import('./src/composables/useValidationErrors')['useValidationErrors']>
-    readonly useValidationStore: UnwrapRef<typeof import('./src/stores/validation.store')['useValidationStore']>
-    readonly useValueMapping: UnwrapRef<typeof import('./src/composables/useValueMapping')['useValueMapping']>
+    readonly useValidationCore: UnwrapRef<typeof import('./src/features/wikibase-schema/composables/useValidationCore')['useValidationCore']>
+    readonly useValidationErrors: UnwrapRef<typeof import('./src/features/wikibase-schema/composables/useValidationErrors')['useValidationErrors']>
+    readonly useValidationStore: UnwrapRef<typeof import('./src/features/wikibase-schema/stores/validation.store')['useValidationStore']>
+    readonly useValueMapping: UnwrapRef<typeof import('./src/features/wikibase-schema/composables/useValueMapping')['useValueMapping']>
     readonly useVibrate: UnwrapRef<typeof import('@vueuse/core')['useVibrate']>
     readonly useVirtualList: UnwrapRef<typeof import('@vueuse/core')['useVirtualList']>
     readonly useWakeLock: UnwrapRef<typeof import('@vueuse/core')['useWakeLock']>
