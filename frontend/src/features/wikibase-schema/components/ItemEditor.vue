@@ -31,7 +31,7 @@ const itemHeaderText = computed(() => {
 })
 
 const labelsDisplayText = computed(() => {
-  const entries = Object.entries(schemaStore.labels)
+  const entries = Object.entries(schemaStore.labels1)
   if (entries.length === 0) return 'No labels configured'
 
   return entries.map(([lang, mapping]) => `${mapping.columnName} (${lang})`).join(', ')

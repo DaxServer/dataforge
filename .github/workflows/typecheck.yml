@@ -22,3 +22,6 @@ jobs:
 
       - name: Typecheck code
         run: bun typecheck --showConfig
+
+      - name: Typecheck code
+        run: bun typecheck
