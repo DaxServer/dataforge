@@ -168,3 +168,34 @@
   - Write tests for optimistic updates and rollback
   - Implement schema persistence integration
   - _Requirements: 1.3_
+
+- [ ] 29. Build SchemaSelector component
+  - Write tests for displaying existing schemas list with metadata
+  - Write tests for empty state when no schemas exist
+  - Write tests for "Create New Schema" button functionality
+  - Implement SchemaSelector component with schema list display
+  - _Requirements: 9.2, 9.3, 9.6_
+
+- [ ] 30. Add schema metadata display
+  - Write tests for schema creation date and modification time display
+  - Write tests for schema completion status indicators
+  - Implement schema metadata display functionality in schema list items
+  - _Requirements: 9.2_
+
+- [ ] 31. Implement schema selection workflow
+  - Write tests for loading selected schema into editor
+  - Write tests for transitioning from selector to main editor
+  - Implement schema selection and loading functionality
+  - _Requirements: 9.4_
+
+- [ ] 32. Create new schema initialization
+  - Write tests for "Create New Schema" button triggering existing init code
+  - Write tests for transitioning to empty schema editor
+  - Implement new schema creation using existing initialization functionality
+  - _Requirements: 9.5_
+
+- [ ] 33. Integrate schema selector with WikibaseSchemaEditor
+  - Write tests for initial schema selection flow
+  - Write tests for state management between selector and editor
+  - Integrate SchemaSelector as the initial view in WikibaseSchemaEditor
+  - _Requirements: 9.1_
