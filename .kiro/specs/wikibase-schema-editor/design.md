@@ -26,16 +26,17 @@ The schema editor follows a hierarchical component structure:
 
 ```mermaid
 graph TD
-    A[WikibaseSchemaEditor] --> B[SchemaToolbar]
-    A --> C[ColumnPalette]
-    C --> C1[ColumnItem]
-    A --> D[SchemaCanvas]
-    D --> E[ItemEditor]
-    E --> F[TermsEditor]
-    E --> G[StatementsEditor]
-    G --> H[StatementEditor]
-    H --> I[QualifiersEditor]
-    H --> J[ReferencesEditor]
+    A[WikibaseSchemaEditor] --> B[SchemaSelector]
+    A --> C[SchemaToolbar]
+    A --> D[ColumnPalette]
+    D --> D1[ColumnItem]
+    A --> E[SchemaCanvas]
+    E --> F[ItemEditor]
+    F --> G[TermsEditor]
+    F --> H[StatementsEditor]
+    H --> I[StatementEditor]
+    I --> J[QualifiersEditor]
+    I --> K[ReferencesEditor]
 ```
 
 ## Components and Interfaces
@@ -49,8 +50,18 @@ graph TD
   - Coordinates drag-and-drop operations
   - Handles schema persistence
   - Provides validation feedback
+  - Manages schema selection and creation workflow
 
-#### 2. ColumnPalette
+#### 2. SchemaSelector
+- **Purpose**: Manages schema selection workflow as the initial interface
+- **Responsibilities**:
+  - Fetches existing schemas linked to the current project using existing API
+  - Displays list of available schemas with metadata (name, dates, completion status)
+  - Provides "Create New Schema" button that triggers existing initialization code
+  - Handles schema selection and transitions to main editor
+  - Shows empty state when no schemas exist
+
+#### 3. ColumnPalette
 - **Purpose**: Displays available data columns as draggable elements with optional sample data
 - **Responsibilities**:
   - Fetches column information from project data
@@ -60,7 +71,7 @@ graph TD
   - Manages sample data visibility toggle state
   - Provides toggle button interface for showing/hiding sample data
 
-#### 3. SchemaCanvas
+#### 4. SchemaCanvas
 - **Purpose**: Main editing area where schema structure is built
 - **Responsibilities**:
   - Renders the item configuration interface
@@ -68,7 +79,7 @@ graph TD
   - Displays hierarchical schema structure
   - Handles visual feedback for valid/invalid mappings
 
-#### 4. ItemEditor
+#### 5. ItemEditor
 - **Purpose**: Manages the configuration of a single Wikibase item
 - **Responsibilities**:
   - Provides interface for item metadata
@@ -76,7 +87,7 @@ graph TD
   - Manages item-level validation
   - Handles item creation/deletion
 
-#### 5. TermsEditor
+#### 6. TermsEditor
 - **Purpose**: Manages Labels, Descriptions, and Aliases configuration
 - **Responsibilities**:
   - Provides drop zones for each term type
@@ -84,14 +95,14 @@ graph TD
   - Handles language code selection
   - Validates term mappings
 
-#### 6. StatementsEditor
+#### 7. StatementsEditor
 - **Purpose**: Container for managing multiple statements
 - **Responsibilities**:
   - Provides interface to add/remove statements
   - Manages statement ordering
   - Coordinates individual statement editors
 
-#### 7. StatementEditor
+#### 8. StatementEditor
 - **Purpose**: Configures individual property-value statements
 - **Responsibilities**:
   - Property selection interface (P-ID autocomplete)
@@ -99,14 +110,14 @@ graph TD
   - Rank selection (preferred/normal/deprecated)
   - Data type validation
 
-#### 8. QualifiersEditor & ReferencesEditor
+#### 9. QualifiersEditor & ReferencesEditor
 - **Purpose**: Manages qualifiers and references for statements
 - **Responsibilities**:
   - Provides interfaces to add/remove qualifiers/references
   - Property selection for qualifier/reference properties
   - Value mapping for qualifier/reference values
 
-#### 9. ColumnItem
+#### 10. ColumnItem
 - **Purpose**: Individual draggable column element within the ColumnPalette
 - **Responsibilities**:
   - Renders individual column as draggable chip
@@ -136,6 +147,23 @@ interface WikibaseSchemaMapping {
   item: ItemSchemaMapping
   createdAt: string
   updatedAt: string
+}
+
+interface SchemaListItem {
+  id: string
+  name: string
+  createdAt: string
+  updatedAt: string
+  itemCount: number
+  statementCount: number
+  isComplete: boolean
+}
+
+interface SchemaSelectionState {
+  schemas: SchemaListItem[]
+  isLoading: boolean
+  selectedSchemaId: string | null
+  showMainEditor: boolean
 }
 
 interface ItemSchemaMapping {
@@ -379,12 +407,24 @@ const ValidationErrors = {
 - Add comprehensive error handling
 - Implement accessibility features
 
+### Phase 5: Schema Selection Enhancement
+- Build SchemaSelector component for initial schema selection
+- Integrate schema selection with existing WikibaseSchemaEditor
+- Add schema metadata display and empty state handling
+- Ensure seamless transition between selection and main editor
+
 ## Technical Decisions
 
 ### State Management
 - Use Vue 3 Composition API with Pinia stores for state management
 - Implement reactive schema state with automatic persistence
 - Use computed properties for derived state (validation status, completion percentage)
+
+### Schema Selection Integration
+- SchemaSelector will be the initial view within WikibaseSchemaEditor
+- Use existing `useSchemaApi().loadAllSchemas()` to fetch available schemas
+- Transition to main editor by setting a reactive state flag
+- Leverage existing schema initialization code for new schema creation
 
 ### Drag and Drop Implementation
 - Use VueUse `useDraggable` for making column elements draggable with position tracking and visual feedback
@@ -394,7 +434,8 @@ const ValidationErrors = {
 - Provide visual feedback using CSS transitions and VueUse's reactive state
 
 ### API Integration
-- Extend existing Elysia backend routes for schema operations
+- Leverage existing Elysia backend routes for schema operations
+- Use existing `loadAllSchemas`, `loadSchema`, and `createSchema` functions
 - Implement optimistic updates with rollback capability
 - Use Elysia Eden Treaty for type-safe API calls
 
