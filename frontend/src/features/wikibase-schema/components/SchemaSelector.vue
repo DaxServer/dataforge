@@ -10,7 +10,7 @@ const projectId = useRouteParams('id') as Ref<string>
 // Composables
 const { loadAllSchemas, deleteSchema } = useSchemaApi()
 const { getSchemaCompletionInfo } = useSchemaCompletenessValidation()
-const { showError, showSuccess } = useErrorHandling()
+const { showSuccess } = useErrorHandling()
 const confirm = useConfirm()
 
 // State
@@ -85,11 +85,11 @@ const handleDeleteClick = (event: Event, schema: WikibaseSchemaMapping) => {
       severity: 'danger',
     },
     accept: async () => {
-        await deleteSchema(projectId.value as UUID, schema.id)
-        showSuccess(`Schema "${schema.name}" deleted successfully`)
+      await deleteSchema(projectId.value as UUID, schema.id)
+      showSuccess(`Schema "${schema.name}" deleted successfully`)
 
-        // Refresh the schema list
-        await loadSchemas()
+      // Refresh the schema list
+      await loadSchemas()
     },
   })
 }

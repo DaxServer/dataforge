@@ -106,13 +106,14 @@ The Wikibase Schema Editor is a visual interface that allows users to create and
 
 ### Requirement 9
 
-**User Story:** As a data curator, I want to select from existing schemas or create new ones when I open the schema editor, so that I can reuse previous work and maintain consistency across similar datasets.
+**User Story:** As a data curator, I want to select from existing schemas or create new ones or delete an existing schema when I open the schema editor, so that I can reuse previous work and maintain consistency across similar datasets.
 
 #### Acceptance Criteria
 
 1. WHEN the schema editor loads THEN the system SHALL display a schema selection interface before showing the main editor
-2. WHEN existing schemas are found THEN the system SHALL display a list of available schemas with their names, creation dates, and completion status
+2. WHEN existing schemas are found THEN the system SHALL display a list of available schemas with their names, creation dates, completion status and deletion button
 3. WHEN the user views the schema list THEN the system SHALL provide a prominent "Create New Schema" button alongside the existing schemas
 4. WHEN the user selects an existing schema THEN the system SHALL load that schema configuration into the main editor interface
 5. WHEN the user clicks "Create New Schema" THEN the system SHALL initialize an empty schema editor using the existing initialization code
 6. WHEN no existing schemas are found THEN the system SHALL show an empty state with only the "Create New Schema" option
+7. WHEN the user deletes a schema THEN the system SHALL provide a confirmation dialog to delete the schema
