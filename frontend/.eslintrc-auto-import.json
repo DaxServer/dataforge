@@ -337,6 +337,7 @@
     "useSchemaCompletenessValidation": true,
     "useSchemaDropZone": true,
     "useSchemaPersistence": true,
+    "useSchemaSelection": true,
     "useSchemaStore": true,
     "useSchemaValidationUI": true,
     "useScreenOrientation": true,

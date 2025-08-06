@@ -9,6 +9,7 @@ const projectId = useRouteParams('id') as Ref<string>
 
 // Composables
 const { loadAllSchemas } = useSchemaApi()
+const { getSchemaCompletionInfo } = useSchemaCompletenessValidation()
 
 // State
 const schemas = ref<WikibaseSchemaMapping[]>([])
@@ -19,40 +20,40 @@ const hasSchemas = computed(() => schemas.value.length > 0)
 
 // Helper functions
 const formatDate = (dateString: string) => {
-  return new Date(dateString).toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-  })
+  if (!dateString || dateString === 'null' || dateString === 'undefined') return 'Unknown'
+
+  try {
+    const date = new Date(dateString)
+    if (isNaN(date.getTime())) return 'Invalid Date'
+
+    return date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+    })
+  } catch (error) {
+    console.warn('Date formatting error:', error, 'for dateString:', dateString)
+    return 'Invalid Date'
+  }
 }
 
 const formatDateTime = (dateString: string) => {
-  return new Date(dateString).toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  })
-}
+  if (!dateString || dateString === 'null' || dateString === 'undefined') return 'Unknown'
 
-const getSchemaCompletionInfo = (schema: WikibaseSchemaMapping) => {
-  const { item } = schema
-  const labelCount = Object.keys(item.terms.labels).length
-  const descriptionCount = Object.keys(item.terms.descriptions).length
-  const aliasCount = Object.keys(item.terms.aliases).length
-  const statementCount = item.statements.length
+  try {
+    const date = new Date(dateString)
+    if (isNaN(date.getTime())) return 'Invalid Date'
 
-  const totalTerms = labelCount + descriptionCount + aliasCount
-  const isComplete = totalTerms > 0 && statementCount > 0
-
-  return {
-    labelCount,
-    descriptionCount,
-    aliasCount,
-    statementCount,
-    totalTerms,
-    isComplete,
+    return date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    })
+  } catch (error) {
+    console.warn('DateTime formatting error:', error, 'for dateString:', dateString)
+    return 'Invalid Date'
   }
 }
 
@@ -136,7 +137,7 @@ onMounted(async () => {
 
                 <!-- Wikibase URL -->
                 <p class="text-sm text-surface-600 mb-3">
-                  <i class="pi pi-link mr-1"></i>
+                  <i class="pi pi-link mr-1" />
                   {{ schema.wikibase }}
                 </p>
 
@@ -147,14 +148,14 @@ onMounted(async () => {
                       :title="`Created: ${formatDateTime(schema.createdAt)}`"
                       class="cursor-help"
                     >
-                      <i class="pi pi-calendar mr-1"></i>
+                      <i class="pi pi-calendar mr-1" />
                       Created {{ formatDate(schema.createdAt) }}
                     </span>
                     <span
                       :title="`Last modified: ${formatDateTime(schema.updatedAt)}`"
                       class="cursor-help"
                     >
-                      <i class="pi pi-clock mr-1"></i>
+                      <i class="pi pi-clock mr-1" />
                       Modified {{ formatDate(schema.updatedAt) }}
                     </span>
                   </div>
@@ -164,18 +165,22 @@ onMounted(async () => {
                 <div class="flex items-center justify-between">
                   <div class="flex items-center gap-2">
                     <Chip
-                      :label="`${getSchemaCompletionInfo(schema).statementCount} statements`"
+                      :label="`${getSchemaCompletionInfo(schema)?.statementCount || 0} statements`"
                       size="small"
                       :severity="
-                        getSchemaCompletionInfo(schema).statementCount > 0 ? 'success' : 'secondary'
+                        (getSchemaCompletionInfo(schema)?.statementCount || 0) > 0
+                          ? 'success'
+                          : 'secondary'
                       "
                       data-testid="statements-chip"
                     />
                     <Chip
-                      :label="`${getSchemaCompletionInfo(schema).totalTerms} terms`"
+                      :label="`${getSchemaCompletionInfo(schema)?.totalTerms || 0} terms`"
                       size="small"
                       :severity="
-                        getSchemaCompletionInfo(schema).totalTerms > 0 ? 'success' : 'secondary'
+                        (getSchemaCompletionInfo(schema)?.totalTerms || 0) > 0
+                          ? 'success'
+                          : 'secondary'
                       "
                       data-testid="terms-chip"
                     />
@@ -185,10 +190,12 @@ onMounted(async () => {
                     <!-- Completion Status -->
                     <Chip
                       :label="
-                        getSchemaCompletionInfo(schema).isComplete ? 'Complete' : 'Incomplete'
+                        getSchemaCompletionInfo(schema)?.isComplete ? 'Complete' : 'Incomplete'
                       "
                       size="small"
-                      :severity="getSchemaCompletionInfo(schema).isComplete ? 'success' : 'warning'"
+                      :severity="
+                        getSchemaCompletionInfo(schema)?.isComplete ? 'success' : 'warning'
+                      "
                       data-testid="completion-chip"
                     />
                   </div>
@@ -209,7 +216,7 @@ onMounted(async () => {
           data-testid="empty-state-icon"
           class="mb-4"
         >
-          <i class="pi pi-file-o text-6xl text-surface-300"></i>
+          <i class="pi pi-file-o text-6xl text-surface-300" />
         </div>
 
         <h3 class="text-xl font-semibold text-surface-700 mb-2">No schemas found</h3>

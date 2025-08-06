@@ -312,9 +312,54 @@ describe('useSchemaApi', () => {
 
   describe('loadAllSchemas', () => {
     it('should load all schemas for a project', async () => {
-      const mockSchemas = [mockSchema, mockCreatedSchema]
+      // Mock backend format data (snake_case)
+      const backendSchemas = [
+        {
+          id: TEST_SCHEMA_ID,
+          project_id: TEST_PROJECT_ID,
+          name: 'Test Schema',
+          wikibase: '',
+          created_at: '2024-01-01T00:00:00Z',
+          updated_at: '2024-01-01T00:00:00Z',
+          schema: {
+            terms: {
+              labels: {
+                en: {
+                  columnName: 'title',
+                  dataType: 'VARCHAR',
+                },
+              },
+              descriptions: {},
+              aliases: {},
+            },
+            statements: [],
+          },
+        },
+        {
+          id: TEST_SCHEMA_789_ID,
+          project_id: TEST_PROJECT_ID,
+          name: 'New Schema',
+          wikibase: '',
+          created_at: '2024-01-01T00:00:00Z',
+          updated_at: '2024-01-01T00:00:00Z',
+          schema: {
+            terms: {
+              labels: {
+                en: {
+                  columnName: 'title',
+                  dataType: 'VARCHAR',
+                },
+              },
+              descriptions: {},
+              aliases: {},
+            },
+            statements: [],
+          },
+        },
+      ]
+
       mockSchemasGet.mockResolvedValueOnce({
-        data: { data: mockSchemas },
+        data: { data: backendSchemas },
         error: null,
       })
 
@@ -324,7 +369,7 @@ describe('useSchemaApi', () => {
 
       expect(mockApi.project).toHaveBeenCalledWith({ projectId: TEST_PROJECT_ID })
       expect(mockSchemasGet).toHaveBeenCalledTimes(1)
-      expect(result).toEqual(mockSchemas)
+      expect(result).toEqual([mockSchema, mockCreatedSchema])
     })
 
     it('should handle API errors when loading all schemas', async () => {
@@ -352,6 +397,44 @@ describe('useSchemaApi', () => {
       const result = await loadAllSchemas(TEST_PROJECT_ID)
 
       expect(result).toEqual([])
+    })
+
+    it('should properly map backend schema structure to frontend format', async () => {
+      const backendSchema = {
+        id: TEST_SCHEMA_ID,
+        project_id: TEST_PROJECT_ID,
+        name: 'Test Schema',
+        wikibase: 'https://www.wikidata.org',
+        created_at: '2024-01-01T00:00:00Z',
+        updated_at: '2024-01-02T00:00:00Z',
+        schema: {
+          terms: {
+            labels: { en: { columnName: 'title', dataType: 'VARCHAR' } },
+            descriptions: {},
+            aliases: {},
+          },
+          statements: [],
+        },
+      }
+
+      mockSchemasGet.mockResolvedValueOnce({
+        data: { data: [backendSchema] },
+        error: null,
+      })
+
+      const { loadAllSchemas } = useSchemaApi()
+      const result = await loadAllSchemas(TEST_PROJECT_ID)
+
+      expect(result).toHaveLength(1)
+      expect(result[0]).toEqual({
+        id: TEST_SCHEMA_ID,
+        projectId: TEST_PROJECT_ID,
+        name: 'Test Schema',
+        wikibase: 'https://www.wikidata.org',
+        createdAt: '2024-01-01T00:00:00Z',
+        updatedAt: '2024-01-02T00:00:00Z',
+        item: backendSchema.schema,
+      })
     })
   })
 
