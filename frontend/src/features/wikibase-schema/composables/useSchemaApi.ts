@@ -4,6 +4,7 @@ import type { WikibaseSchemaMapping } from '@frontend/shared/types/wikibase-sche
 export interface CreateSchemaRequest {
   name: string
   wikibase: string
+  item?: ItemSchemaMapping
 }
 
 export const useSchemaApi = () => {
@@ -89,6 +90,7 @@ export const useSchemaApi = () => {
         projectId,
         name: schemaData.name,
         wikibase: schemaData.wikibase,
+        schema: schemaData.item,
       })
 
       if (apiError) {
