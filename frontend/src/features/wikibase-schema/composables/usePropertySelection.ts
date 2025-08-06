@@ -33,6 +33,7 @@ export const usePropertySelection = () => {
   ]
 
   // Data type specific property suggestions
+  // @ts-expect-error
   const dataTypeProperties: Record<WikibaseDataType, PropertyReference[]> = {
     string: [
       { id: 'P1476', label: 'title', dataType: 'monolingualtext' },

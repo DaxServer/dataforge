@@ -176,7 +176,7 @@
   - Implement SchemaSelector component with schema list display
   - _Requirements: 9.2, 9.3, 9.6_
 
-- [ ] 30. Add schema metadata display
+- [x] 30. Add schema metadata display
   - Write tests for schema creation date and modification time display
   - Write tests for schema completion status indicators
   - Implement schema metadata display functionality in schema list items

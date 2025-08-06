@@ -26,6 +26,16 @@ const formatDate = (dateString: string) => {
   })
 }
 
+const formatDateTime = (dateString: string) => {
+  return new Date(dateString).toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  })
+}
+
 const getSchemaCompletionInfo = (schema: WikibaseSchemaMapping) => {
   const { item } = schema
   const labelCount = Object.keys(item.terms.labels).length
@@ -133,11 +143,17 @@ onMounted(async () => {
                 <!-- Metadata Row -->
                 <div class="flex items-center justify-between text-sm text-surface-500 mb-3">
                   <div class="flex items-center gap-4">
-                    <span>
+                    <span
+                      :title="`Created: ${formatDateTime(schema.createdAt)}`"
+                      class="cursor-help"
+                    >
                       <i class="pi pi-calendar mr-1"></i>
                       Created {{ formatDate(schema.createdAt) }}
                     </span>
-                    <span>
+                    <span
+                      :title="`Last modified: ${formatDateTime(schema.updatedAt)}`"
+                      class="cursor-help"
+                    >
                       <i class="pi pi-clock mr-1"></i>
                       Modified {{ formatDate(schema.updatedAt) }}
                     </span>
@@ -145,7 +161,7 @@ onMounted(async () => {
                 </div>
 
                 <!-- Completion Status -->
-                <div class="flex items-center gap-4">
+                <div class="flex items-center justify-between">
                   <div class="flex items-center gap-2">
                     <Chip
                       :label="`${getSchemaCompletionInfo(schema).statementCount} statements`"
@@ -153,6 +169,7 @@ onMounted(async () => {
                       :severity="
                         getSchemaCompletionInfo(schema).statementCount > 0 ? 'success' : 'secondary'
                       "
+                      data-testid="statements-chip"
                     />
                     <Chip
                       :label="`${getSchemaCompletionInfo(schema).totalTerms} terms`"
@@ -160,16 +177,19 @@ onMounted(async () => {
                       :severity="
                         getSchemaCompletionInfo(schema).totalTerms > 0 ? 'success' : 'secondary'
                       "
+                      data-testid="terms-chip"
                     />
                   </div>
 
-                  <div class="ml-auto">
+                  <div class="flex items-center gap-2">
+                    <!-- Completion Status -->
                     <Chip
                       :label="
                         getSchemaCompletionInfo(schema).isComplete ? 'Complete' : 'Incomplete'
                       "
                       size="small"
                       :severity="getSchemaCompletionInfo(schema).isComplete ? 'success' : 'warning'"
+                      data-testid="completion-chip"
                     />
                   </div>
                 </div>
