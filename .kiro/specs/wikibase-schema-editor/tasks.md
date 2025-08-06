@@ -182,7 +182,7 @@
   - Implement schema metadata display functionality in schema list items
   - _Requirements: 9.2_
 
-- [ ] 31. Implement schema selection workflow
+- [x] 31. Implement schema selection workflow
   - Write tests for loading selected schema into editor
   - Write tests for transitioning from selector to main editor
   - Implement schema selection and loading functionality

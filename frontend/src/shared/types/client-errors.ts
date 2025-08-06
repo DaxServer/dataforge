@@ -10,6 +10,7 @@ export type FrontendErrorCode =
   | 'UI_STATE_ERROR'
   | 'DRAG_DROP_INIT_FAILED'
   | 'STORE_INIT_FAILED'
+  | 'SCHEMA_SELECTION_FAILED'
 
 /**
  * Combined error codes including both backend and frontend

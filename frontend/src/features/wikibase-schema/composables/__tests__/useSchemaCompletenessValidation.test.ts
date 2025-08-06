@@ -288,4 +288,117 @@ describe('useSchemaCompletenessValidation', () => {
       expect(missingFields).not.toContain('item.terms.descriptions')
     })
   })
+
+  describe('getSchemaCompletionInfo', () => {
+    test('should return correct completion info for schema with content', () => {
+      const mockSchema: WikibaseSchemaMapping = {
+        id: Bun.randomUUIDv7() as UUID,
+        projectId: Bun.randomUUIDv7() as UUID,
+        name: 'Test Schema',
+        wikibase: 'https://test.wikibase.org',
+        item: {
+          terms: {
+            labels: {
+              en: { columnName: 'title', dataType: 'string' },
+              fr: { columnName: 'titre', dataType: 'string' },
+            },
+            descriptions: {
+              en: { columnName: 'description', dataType: 'string' },
+            },
+            aliases: {
+              en: [
+                { columnName: 'alias1', dataType: 'string' },
+                { columnName: 'alias2', dataType: 'string' },
+              ],
+            },
+          },
+          statements: [
+            {
+              id: Bun.randomUUIDv7() as UUID,
+              property: { id: 'P31' as any, dataType: 'wikibase-item' },
+              value: {
+                type: 'column',
+                source: { columnName: 'type', dataType: 'string' },
+                dataType: 'wikibase-item',
+              },
+              rank: 'normal',
+              qualifiers: [],
+              references: [],
+            },
+          ],
+        },
+        createdAt: '2024-01-01T00:00:00Z',
+        updatedAt: '2024-01-01T00:00:00Z',
+      }
+
+      const info = completenessValidation.getSchemaCompletionInfo(mockSchema)
+
+      expect(info.labelCount).toBe(2)
+      expect(info.descriptionCount).toBe(1)
+      expect(info.aliasCount).toBe(1) // One language with aliases
+      expect(info.statementCount).toBe(1)
+      expect(info.totalTerms).toBe(4) // 2 labels + 1 description + 1 alias language
+      expect(info.isComplete).toBe(true)
+    })
+
+    test('should handle schema with null item', () => {
+      const mockSchema: WikibaseSchemaMapping = {
+        id: Bun.randomUUIDv7() as UUID,
+        projectId: Bun.randomUUIDv7() as UUID,
+        name: 'Test Schema',
+        wikibase: 'https://test.wikibase.org',
+        item: null as any,
+        createdAt: '2024-01-01T00:00:00Z',
+        updatedAt: '2024-01-01T00:00:00Z',
+      }
+
+      const info = completenessValidation.getSchemaCompletionInfo(mockSchema)
+
+      expect(info.labelCount).toBe(0)
+      expect(info.descriptionCount).toBe(0)
+      expect(info.aliasCount).toBe(0)
+      expect(info.statementCount).toBe(0)
+      expect(info.totalTerms).toBe(0)
+      expect(info.isComplete).toBe(false)
+    })
+
+    test('should handle null schema', () => {
+      const info = completenessValidation.getSchemaCompletionInfo(null as any)
+
+      expect(info.labelCount).toBe(0)
+      expect(info.descriptionCount).toBe(0)
+      expect(info.aliasCount).toBe(0)
+      expect(info.statementCount).toBe(0)
+      expect(info.totalTerms).toBe(0)
+      expect(info.isComplete).toBe(false)
+    })
+
+    test('should handle empty schema', () => {
+      const mockSchema: WikibaseSchemaMapping = {
+        id: Bun.randomUUIDv7() as UUID,
+        projectId: Bun.randomUUIDv7() as UUID,
+        name: 'Empty Schema',
+        wikibase: 'https://test.wikibase.org',
+        item: {
+          terms: {
+            labels: {},
+            descriptions: {},
+            aliases: {},
+          },
+          statements: [],
+        },
+        createdAt: '2024-01-01T00:00:00Z',
+        updatedAt: '2024-01-01T00:00:00Z',
+      }
+
+      const info = completenessValidation.getSchemaCompletionInfo(mockSchema)
+
+      expect(info.labelCount).toBe(0)
+      expect(info.descriptionCount).toBe(0)
+      expect(info.aliasCount).toBe(0)
+      expect(info.statementCount).toBe(0)
+      expect(info.totalTerms).toBe(0)
+      expect(info.isComplete).toBe(false)
+    })
+  })
 })

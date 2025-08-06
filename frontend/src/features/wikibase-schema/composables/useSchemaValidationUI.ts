@@ -31,7 +31,7 @@ export const useSchemaValidationUI = () => {
   const schemaStore = useSchemaStore()
   const validationStore = useValidationStore()
   const { createError } = useValidationErrors()
-  const { validateSchemaCompleteness, getRequiredFieldHighlights, isComplete } =
+  const { validateSchemaCompleteness, getRequiredFieldHighlights } =
     useSchemaCompletenessValidation()
 
   const isAutoValidationEnabled = ref(false)
@@ -269,8 +269,5 @@ export const useSchemaValidationUI = () => {
 
     // Validation summary
     getValidationSummary,
-
-    // Reactive properties from completeness validation
-    isComplete,
   }
 }

@@ -207,6 +207,55 @@ export const useSchemaCompletenessValidation = () => {
   const requiredFieldHighlights = computed(() => getRequiredFieldHighlights())
   const isComplete = computed(() => isSchemaComplete())
 
+  /**
+   * Get schema completion information for display purposes
+   */
+  const getSchemaCompletionInfo = (schema: WikibaseSchemaMapping) => {
+    // Handle cases where schema might be null/undefined
+    if (!schema) {
+      return {
+        labelCount: 0,
+        descriptionCount: 0,
+        aliasCount: 0,
+        statementCount: 0,
+        totalTerms: 0,
+        isComplete: false,
+      }
+    }
+
+    const item = schema.item
+
+    // Handle case where item might not exist or be properly structured
+    if (!item) {
+      return {
+        labelCount: 0,
+        descriptionCount: 0,
+        aliasCount: 0,
+        statementCount: 0,
+        totalTerms: 0,
+        isComplete: false,
+      }
+    }
+
+    // Safely access nested properties with fallbacks
+    const labelCount = Object.keys(item?.terms?.labels || {}).length
+    const descriptionCount = Object.keys(item?.terms?.descriptions || {}).length
+    const aliasCount = Object.keys(item?.terms?.aliases || {}).length
+    const statementCount = item?.statements?.length || 0
+
+    const totalTerms = labelCount + descriptionCount + aliasCount
+    const isComplete = totalTerms > 0 && statementCount > 0
+
+    return {
+      labelCount,
+      descriptionCount,
+      aliasCount,
+      statementCount,
+      totalTerms,
+      isComplete,
+    }
+  }
+
   return {
     // Methods
     validateSchemaCompleteness,
@@ -215,6 +264,7 @@ export const useSchemaCompletenessValidation = () => {
     isSchemaComplete,
     isFieldSatisfied,
     hasSchemaContent,
+    getSchemaCompletionInfo,
 
     // Reactive computed properties
     missingRequiredFields,

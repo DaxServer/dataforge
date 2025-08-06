@@ -273,6 +273,7 @@ declare global {
   const useSchemaCompletenessValidation: typeof import('./src/features/wikibase-schema/composables/useSchemaCompletenessValidation')['useSchemaCompletenessValidation']
   const useSchemaDropZone: typeof import('./src/features/wikibase-schema/composables/useSchemaDropZone')['useSchemaDropZone']
   const useSchemaPersistence: typeof import('./src/features/wikibase-schema/composables/useSchemaPersistence')['useSchemaPersistence']
+  const useSchemaSelection: typeof import('./src/features/wikibase-schema/composables/useSchemaSelection')['useSchemaSelection']
   const useSchemaStore: typeof import('./src/features/wikibase-schema/stores/schema.store')['useSchemaStore']
   const useSchemaValidationUI: typeof import('./src/features/wikibase-schema/composables/useSchemaValidationUI')['useSchemaValidationUI']
   const useScreenOrientation: typeof import('@vueuse/core')['useScreenOrientation']
@@ -667,6 +668,7 @@ declare module 'vue' {
     readonly useSchemaCompletenessValidation: UnwrapRef<typeof import('./src/features/wikibase-schema/composables/useSchemaCompletenessValidation')['useSchemaCompletenessValidation']>
     readonly useSchemaDropZone: UnwrapRef<typeof import('./src/features/wikibase-schema/composables/useSchemaDropZone')['useSchemaDropZone']>
     readonly useSchemaPersistence: UnwrapRef<typeof import('./src/features/wikibase-schema/composables/useSchemaPersistence')['useSchemaPersistence']>
+    readonly useSchemaSelection: UnwrapRef<typeof import('./src/features/wikibase-schema/composables/useSchemaSelection')['useSchemaSelection']>
     readonly useSchemaStore: UnwrapRef<typeof import('./src/features/wikibase-schema/stores/schema.store')['useSchemaStore']>
     readonly useSchemaValidationUI: UnwrapRef<typeof import('./src/features/wikibase-schema/composables/useSchemaValidationUI')['useSchemaValidationUI']>
     readonly useScreenOrientation: UnwrapRef<typeof import('@vueuse/core')['useScreenOrientation']>

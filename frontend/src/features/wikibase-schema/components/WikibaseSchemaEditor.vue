@@ -20,6 +20,20 @@ const { showError, showSuccess } = useErrorHandling()
 const { convertProjectColumnsToColumnInfo } = useColumnConversion()
 const { setAvailableColumns, initializeStatement, resetStatement } = useStatementEditor()
 
+// Import createFrontendError for error handling
+import { createFrontendError } from '@frontend/shared/types/client-errors'
+
+// Schema selection workflow composable
+const {
+  selectedSchema,
+  isLoadingSchema,
+  showSchemaSelector,
+  showMainEditor,
+  selectSchema,
+  createNewSchema,
+  backToSelector,
+} = useSchemaSelection()
+
 // Schema validation UI composable
 const { enableAutoValidation, disableAutoValidation } = useSchemaValidationUI()
 
@@ -87,9 +101,22 @@ const isEditingStatement = computed(() => {
 // Lifecycle
 onMounted(async () => {
   await initializeEditor()
-  // Enable real-time validation
-  enableAutoValidation()
-  startRealTimeValidation()
+  // Enable real-time validation only when main editor is shown
+  if (showMainEditor.value) {
+    enableAutoValidation()
+    startRealTimeValidation()
+  }
+})
+
+// Watch for transitions to main editor to initialize validation
+watch(showMainEditor, (isMainEditor) => {
+  if (isMainEditor) {
+    enableAutoValidation()
+    startRealTimeValidation()
+  } else {
+    disableAutoValidation()
+    stopRealTimeValidation()
+  }
 })
 
 // Methods
@@ -98,29 +125,14 @@ const initializeEditor = async () => {
     // Initialize drag-drop available targets
     initializeDragDropTargets()
 
-    // Load existing schema if schemaId is provided
-    if (schemaStore.projectId && schemaStore.schemaId) {
-      await loadSchema(schemaStore.projectId, schemaStore.schemaId)
-    } else {
-      // Initialize with default empty item structure for new schema
-      initializeEmptySchema()
-    }
-
+    // The schema selection workflow will handle loading schemas
+    // No need to load schema here - it's handled by useSchemaSelection
     isInitialized.value = true
   } catch (error) {
     showError(
       createFrontendError('SCHEMA_EDITOR_INIT_FAILED', 'Failed to initialize schema editor'),
     )
   }
-}
-
-const initializeEmptySchema = () => {
-  const route = useRoute()
-  schemaStore.projectId = route.params.id as UUID
-  schemaStore.schemaName = 'Untitled Schema'
-  schemaStore.wikibase = 'https://www.wikidata.org'
-  // Don't set isDirty = true here - only when user makes actual changes
-  // Item will be created when user clicks "Add item"
 }
 
 const initializeDragDropTargets = () => {
@@ -341,202 +353,240 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="schema-editor-container flex gap-6">
-    <!-- Column Palette Section -->
-    <div class="column-palette-section w-80 flex-shrink-0">
-      <ColumnPalette />
+  <div class="schema-editor-container">
+    <!-- Schema Selector View -->
+    <div
+      v-if="showSchemaSelector"
+      class="schema-selector-view"
+    >
+      <SchemaSelector
+        :on-schema-selected="selectSchema"
+        :on-create-new="createNewSchema"
+      />
     </div>
 
-    <!-- Schema Canvas Section -->
-    <div class="schema-canvas-section flex-1 bg-gray-50 rounded-lg shadow p-8 font-sans">
-      <!-- Toolbar -->
-      <div class="schema-toolbar flex items-center justify-between mb-6">
-        <div class="flex items-center gap-4">
-          <h1 class="schema-title text-xl font-semibold">{{ schemaTitle }}</h1>
-          <div
-            v-if="schemaStore.isLoading"
-            class="toolbar-loading"
-          >
-            <i class="pi pi-spin pi-spinner text-gray-500" />
-          </div>
+    <!-- Main Editor View -->
+    <div
+      v-else-if="showMainEditor"
+      class="main-editor-view flex gap-6"
+    >
+      <!-- Column Palette Section -->
+      <div class="column-palette-section w-80 flex-shrink-0">
+        <ColumnPalette />
+      </div>
 
-          <!-- Validation status indicator -->
-          <div
-            v-if="validationStore.hasErrors || validationStore.hasWarnings"
-            class="flex items-center gap-2 px-3 py-1 rounded-full text-sm"
-            :class="[
-              validationStore.hasErrors
-                ? 'bg-red-50 border border-red-200 text-red-700'
-                : 'bg-yellow-50 border border-yellow-200 text-yellow-700',
-            ]"
-          >
-            <i
-              :class="[
-                validationStore.hasErrors ? 'pi pi-times-circle' : 'pi pi-exclamation-triangle',
-              ]"
+      <!-- Schema Canvas Section -->
+      <div class="schema-canvas-section flex-1 bg-gray-50 rounded-lg shadow p-8 font-sans">
+        <!-- Toolbar -->
+        <div class="schema-toolbar flex items-center justify-between mb-6">
+          <div class="flex items-center gap-4">
+            <Button
+              data-testid="back-to-selector-btn"
+              icon="pi pi-arrow-left"
+              text
+              size="small"
+              aria-label="Back to schema selector"
+              @click="backToSelector"
             />
-            <span>
-              {{ validationStore.errorCount }}
-              {{ validationStore.errorCount === 1 ? 'error' : 'errors' }}
-              <span v-if="validationStore.hasWarnings">
-                , {{ validationStore.warningCount }}
-                {{ validationStore.warningCount === 1 ? 'warning' : 'warnings' }}
-              </span>
-            </span>
-          </div>
-        </div>
-
-        <div class="flex gap-2">
-          <Button
-            data-testid="add-item-btn"
-            label="Add item"
-            icon="pi pi-plus"
-            outlined
-            size="small"
-            :disabled="schemaStore.isLoading"
-            @click="handleAddItem"
-          />
-          <Button
-            data-testid="preview-btn"
-            label="Preview"
-            icon="pi pi-eye"
-            outlined
-            size="small"
-            :disabled="schemaStore.isLoading"
-            @click="handlePreview"
-          />
-          <Button
-            data-testid="save-btn"
-            :label="getSaveButtonLabel()"
-            :icon="getSaveButtonIcon()"
-            :severity="getSaveButtonSeverity()"
-            outlined
-            size="small"
-            :disabled="!canSave || isSaving"
-            :loading="isSaving"
-            @click="handleSave"
-          />
-          <Button
-            data-testid="help-btn"
-            label="Help"
-            icon="pi pi-question-circle"
-            outlined
-            size="small"
-            @click="handleHelp"
-          />
-        </div>
-      </div>
-
-      <!-- Validation Status Bar -->
-      <div class="mb-4">
-        <ValidationDisplay
-          mode="status"
-          :show-details="true"
-          :show-clear-all="true"
-        />
-      </div>
-
-      <!-- Detailed Validation Feedback -->
-      <div
-        v-if="validationStore.hasAnyIssues"
-        class="mb-4"
-      >
-        <ValidationDisplay mode="full" />
-      </div>
-
-      <!-- Schema Content -->
-      <div class="bg-white rounded-md p-6 shadow-sm">
-        <!-- Empty State -->
-        <div
-          v-if="!hasItem && isInitialized && !isAddingStatement"
-          class="empty-item-placeholder text-center py-12"
-        >
-          <div class="text-gray-500 mb-4">
-            <i class="pi pi-box text-4xl" />
-          </div>
-          <h3 class="text-lg font-medium text-gray-700 mb-2">No item configured</h3>
-          <p class="text-gray-500 mb-4">
-            Start by adding an item to define your Wikibase schema structure.
-          </p>
-          <Button
-            label="Add your first item"
-            icon="pi pi-plus"
-            @click="handleAddItem"
-          />
-        </div>
-
-        <!-- Item Configuration (when item exists) -->
-        <div
-          v-else-if="hasItem"
-          class="item-configuration"
-        >
-          <div class="mb-6">
-            <div class="flex items-center justify-between mb-4">
-              <span class="font-medium text-lg">
-                {{
-                  schemaStore.itemId
-                    ? `Item ${schemaStore.itemId}`
-                    : 'New Item (not yet created in Wikibase)'
-                }}
-              </span>
-              <div class="flex gap-2">
-                <Button
-                  icon="pi pi-pencil"
-                  rounded
-                  text
-                  size="small"
-                  aria-label="Edit item"
-                />
-                <Button
-                  icon="pi pi-trash"
-                  rounded
-                  text
-                  severity="danger"
-                  size="small"
-                  aria-label="Delete item"
-                />
-              </div>
+            <h1 class="schema-title text-xl font-semibold">{{ schemaTitle }}</h1>
+            <div
+              v-if="schemaStore.isLoading"
+              class="toolbar-loading"
+            >
+              <i class="pi pi-spin pi-spinner text-gray-500" />
             </div>
 
-            <!-- Terms Editor Integration -->
-            <TermsEditor />
-
-            <!-- Statements Editor Integration -->
-            <div class="mt-6">
-              <StatementsEditor
-                :is-adding-statement="isAddingStatement"
-                @add-statement="handleAddStatement"
-                @edit-statement="handleEditStatement"
-                @remove-statement="handleRemoveStatement"
-                @reorder-statements="handleReorderStatements"
+            <!-- Validation status indicator -->
+            <div
+              v-if="validationStore.hasErrors || validationStore.hasWarnings"
+              class="flex items-center gap-2 px-3 py-1 rounded-full text-sm"
+              :class="[
+                validationStore.hasErrors
+                  ? 'bg-red-50 border border-red-200 text-red-700'
+                  : 'bg-yellow-50 border border-yellow-200 text-yellow-700',
+              ]"
+            >
+              <i
+                :class="[
+                  validationStore.hasErrors ? 'pi pi-times-circle' : 'pi pi-exclamation-triangle',
+                ]"
               />
-
-              <!-- Statement Editor (only visible when adding/editing) -->
-              <div
-                v-if="isEditingStatement"
-                class="mt-6"
-              >
-                <StatementEditor
-                  :model-value="currentStatementWithQualifiers"
-                  :available-columns="availableColumns"
-                  @update:model-value="handleStatementUpdate"
-                  @save="handleStatementSave"
-                  @cancel="handleCancelStatementEdit"
-                />
-              </div>
+              <span>
+                {{ validationStore.errorCount }}
+                {{ validationStore.errorCount === 1 ? 'error' : 'errors' }}
+                <span v-if="validationStore.hasWarnings">
+                  , {{ validationStore.warningCount }}
+                  {{ validationStore.warningCount === 1 ? 'warning' : 'warnings' }}
+                </span>
+              </span>
             </div>
+          </div>
+
+          <div class="flex gap-2">
+            <Button
+              data-testid="add-item-btn"
+              label="Add item"
+              icon="pi pi-plus"
+              outlined
+              size="small"
+              :disabled="schemaStore.isLoading"
+              @click="handleAddItem"
+            />
+            <Button
+              data-testid="preview-btn"
+              label="Preview"
+              icon="pi pi-eye"
+              outlined
+              size="small"
+              :disabled="schemaStore.isLoading"
+              @click="handlePreview"
+            />
+            <Button
+              data-testid="save-btn"
+              :label="getSaveButtonLabel()"
+              :icon="getSaveButtonIcon()"
+              :severity="getSaveButtonSeverity()"
+              outlined
+              size="small"
+              :disabled="!canSave || isSaving"
+              :loading="isSaving"
+              @click="handleSave"
+            />
+            <Button
+              data-testid="help-btn"
+              label="Help"
+              icon="pi pi-question-circle"
+              outlined
+              size="small"
+              @click="handleHelp"
+            />
           </div>
         </div>
 
-        <!-- Loading State -->
+        <!-- Validation Status Bar -->
+        <div class="mb-4">
+          <ValidationDisplay
+            mode="status"
+            :show-details="true"
+            :show-clear-all="true"
+          />
+        </div>
+
+        <!-- Detailed Validation Feedback -->
         <div
-          v-else-if="!isInitialized"
-          class="text-center py-12"
+          v-if="validationStore.hasAnyIssues"
+          class="mb-4"
         >
-          <i class="pi pi-spin pi-spinner text-2xl text-gray-500" />
-          <p class="text-gray-500 mt-2">Loading schema editor...</p>
+          <ValidationDisplay mode="full" />
+        </div>
+
+        <!-- Schema Content -->
+        <div class="bg-white rounded-md p-6 shadow-sm">
+          <!-- Empty State -->
+          <div
+            v-if="!hasItem && isInitialized && !isAddingStatement"
+            class="empty-item-placeholder text-center py-12"
+          >
+            <div class="text-gray-500 mb-4">
+              <i class="pi pi-box text-4xl" />
+            </div>
+            <h3 class="text-lg font-medium text-gray-700 mb-2">No item configured</h3>
+            <p class="text-gray-500 mb-4">
+              Start by adding an item to define your Wikibase schema structure.
+            </p>
+            <Button
+              label="Add your first item"
+              icon="pi pi-plus"
+              @click="handleAddItem"
+            />
+          </div>
+
+          <!-- Item Configuration (when item exists) -->
+          <div
+            v-else-if="hasItem"
+            class="item-configuration"
+          >
+            <div class="mb-6">
+              <div class="flex items-center justify-between mb-4">
+                <span class="font-medium text-lg">
+                  {{
+                    schemaStore.itemId
+                      ? `Item ${schemaStore.itemId}`
+                      : 'New Item (not yet created in Wikibase)'
+                  }}
+                </span>
+                <div class="flex gap-2">
+                  <Button
+                    icon="pi pi-pencil"
+                    rounded
+                    text
+                    size="small"
+                    aria-label="Edit item"
+                  />
+                  <Button
+                    icon="pi pi-trash"
+                    rounded
+                    text
+                    severity="danger"
+                    size="small"
+                    aria-label="Delete item"
+                  />
+                </div>
+              </div>
+
+              <!-- Terms Editor Integration -->
+              <TermsEditor />
+
+              <!-- Statements Editor Integration -->
+              <div class="mt-6">
+                <StatementsEditor
+                  :is-adding-statement="isAddingStatement"
+                  @add-statement="handleAddStatement"
+                  @edit-statement="handleEditStatement"
+                  @remove-statement="handleRemoveStatement"
+                  @reorder-statements="handleReorderStatements"
+                />
+
+                <!-- Statement Editor (only visible when adding/editing) -->
+                <div
+                  v-if="isEditingStatement"
+                  class="mt-6"
+                >
+                  <StatementEditor
+                    :model-value="currentStatementWithQualifiers"
+                    :available-columns="availableColumns"
+                    @update:model-value="handleStatementUpdate"
+                    @save="handleStatementSave"
+                    @cancel="handleCancelStatementEdit"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Loading State -->
+          <div
+            v-else-if="!isInitialized"
+            class="text-center py-12"
+          >
+            <i class="pi pi-spin pi-spinner text-2xl text-gray-500" />
+            <p class="text-gray-500 mt-2">Loading schema editor...</p>
+          </div>
         </div>
       </div>
+    </div>
+
+    <!-- Loading State -->
+    <div
+      v-else-if="isLoadingSchema"
+      class="loading-view flex items-center justify-center py-12"
+    >
+      <ProgressSpinner
+        style="width: 50px; height: 50px"
+        stroke-width="4"
+        animation-duration="1s"
+      />
+      <span class="ml-3 text-surface-600">Loading schema...</span>
     </div>
   </div>
 </template>
