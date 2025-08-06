@@ -8,9 +8,7 @@
     "components.d.ts",
     "env.d.ts",
     "interface-extensions.d.ts",
-    "src/**/*",
-    "src/**/*.ts",
-    "src/**/*.vue"
+    "src/**/*"
   ],
   "compilerOptions": {
     "lib": [

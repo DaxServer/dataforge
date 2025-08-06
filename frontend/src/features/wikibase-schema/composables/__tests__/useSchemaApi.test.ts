@@ -37,7 +37,7 @@ Object.assign(mockSchemasFunction, {
 })
 
 const mockApi = {
-  project: mock((params: { projectId: string }) => ({
+  project: mock(() => ({
     schemas: mockSchemasFunction,
   })),
 }

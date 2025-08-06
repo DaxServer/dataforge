@@ -1,23 +1,18 @@
 import { ref, computed } from 'vue'
-import type { ColumnMapping, ColumnInfo } from '@frontend/shared/types/wikibase-schema'
+import type { ColumnMapping } from '@frontend/shared/types/wikibase-schema'
 import { useSchemaStore } from '@frontend/features/wikibase-schema/stores/schema.store'
-import { useTermsEditor } from '@frontend/features/wikibase-schema/composables/useTermsEditor'
-import { useDragDropStore } from '@frontend/features/data-processing/stores/drag-drop.store'
-import { useDropZoneStyling } from '@frontend/shared/composables/useDropZoneStyling'
 
 /**
  * Composable for handling language drop zone functionality
  */
 export const useLanguageDropZone = () => {
   const schemaStore = useSchemaStore()
-  const { getAcceptedLanguages } = useTermsEditor()
 
   // Configuration state
   const termType = ref<'label' | 'description' | 'alias'>('label')
 
   // Reactive state
   const selectedLanguage = ref('en')
-  const acceptedLanguages = getAcceptedLanguages()
 
   // Check if there are any existing mappings using computed
   const hasExistingMappings = computed(() => {
@@ -97,7 +92,6 @@ export const useLanguageDropZone = () => {
 
     // Reactive state
     selectedLanguage,
-    acceptedLanguages,
     hasExistingMappings,
     mappingDisplayData,
 

@@ -1,11 +1,6 @@
 import { computed } from 'vue'
 import { useSchemaStore } from '@frontend/features/wikibase-schema/stores/schema.store'
 import { useValidationStore } from '@frontend/features/wikibase-schema/stores/validation.store'
-import type {
-  WikibaseSchemaMapping,
-  ValidationResult,
-  ValidationError,
-} from '@frontend/shared/types/wikibase-schema'
 
 export interface SchemaCompletenessResult {
   isComplete: boolean
