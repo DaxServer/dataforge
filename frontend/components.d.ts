@@ -20,6 +20,7 @@ declare module 'vue' {
     DataTable: typeof import('primevue/datatable')['default']
     DataTabPanel: typeof import('./src/features/data-processing/components/DataTabPanel.vue')['default']
     DefaultLayout: typeof import('./src/core/layouts/DefaultLayout.vue')['default']
+    Dialog: typeof import('primevue/dialog')['default']
     FileUpload: typeof import('primevue/fileupload')['default']
     Header: typeof import('./src/shared/components/Header.vue')['default']
     InputText: typeof import('primevue/inputtext')['default']

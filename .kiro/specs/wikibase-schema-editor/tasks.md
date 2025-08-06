@@ -174,7 +174,7 @@
   - Write tests for empty state when no schemas exist
   - Write tests for "Create New Schema" button functionality
   - Implement SchemaSelector component with schema list display
-  - _Requirements: 9.2, 9.3, 9.6_
+  - _Requirements: 9.2, 9.3, 9.5, 9.6_
 
 - [x] 30. Add schema metadata display
   - Write tests for schema creation date and modification time display
@@ -188,14 +188,8 @@
   - Implement schema selection and loading functionality
   - _Requirements: 9.4_
 
-- [ ] 32. Create new schema initialization
-  - Write tests for "Create New Schema" button triggering existing init code
-  - Write tests for transitioning to empty schema editor
-  - Implement new schema creation using existing initialization functionality
-  - _Requirements: 9.5_
-
-- [ ] 33. Integrate schema selector with WikibaseSchemaEditor
-  - Write tests for initial schema selection flow
-  - Write tests for state management between selector and editor
-  - Integrate SchemaSelector as the initial view in WikibaseSchemaEditor
-  - _Requirements: 9.1_
+- [x] 32. Integrate schema deletion into schema selection workflow
+  - Write tests for schema deletion confirmation dialog
+  - Write tests for schema deletion success feedback
+  - Implement schema deletion functionality in SchemaSelector
+  - _Requirements: 9.7_
