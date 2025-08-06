@@ -3,22 +3,31 @@
     "../tsconfig.base.json",
     "@vue/tsconfig/tsconfig.dom.json"
   ],
-  "exclude": [
-    "vite.config.*",
-    "vitest.config.*"
+  "include": [
+    "auto-imports.d.ts",
+    "components.d.ts",
+    "env.d.ts",
+    "interface-extensions.d.ts",
+    "src/**/*",
+    "src/**/*.ts",
+    "src/**/*.vue"
   ],
   "compilerOptions": {
-    "baseUrl": ".",
-    "paths": {
-      "@frontend": ["./src"],
-      "@frontend/*": ["./src/*"],
-      "@backend": ["../backend/src"],
-      "@backend/*": ["../backend/src/*"],
-      "@backend/tests/*": ["../backend/tests/*"]
-    },
     "lib": [
       "esnext",
       "dom"
-    ]
+    ],
+    "jsx": "preserve",
+    "jsxImportSource": "vue",
+    "types": [
+      "vite/client",
+      "bun",
+      "node"
+    ],
+    "baseUrl": ".",
+    "paths": {
+      "@backend/*": ["../backend/src/*"],
+      "@frontend/*": ["../frontend/src/*"],
+    }
   }
 }

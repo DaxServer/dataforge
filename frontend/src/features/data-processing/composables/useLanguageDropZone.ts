@@ -1,7 +1,9 @@
 import { ref, computed } from 'vue'
-import type { ColumnMapping } from '@frontend/shared/types/wikibase-schema'
+import type { ColumnMapping, ColumnInfo } from '@frontend/shared/types/wikibase-schema'
 import { useSchemaStore } from '@frontend/features/wikibase-schema/stores/schema.store'
 import { useTermsEditor } from '@frontend/features/wikibase-schema/composables/useTermsEditor'
+import { useDragDropStore } from '@frontend/features/data-processing/stores/drag-drop.store'
+import { useDropZoneStyling } from '@frontend/shared/composables/useDropZoneStyling'
 
 /**
  * Composable for handling language drop zone functionality

@@ -1,5 +1,5 @@
 import type { ProjectColumn } from '@frontend/features/data-processing/composables/useColumnGeneration'
-import type { ColumnInfo } from '@frontend/shared/types/wikibase-schema'
+import type { ColumnInfo, WikibaseDataType } from '@frontend/shared/types/wikibase-schema'
 
 /**
  * Composable for converting project columns to column info format
