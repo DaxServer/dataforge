@@ -11,12 +11,12 @@ const props = defineProps<LanguageDropZoneProps>()
 const {
   termType,
   selectedLanguage,
-  acceptedLanguages,
   hasExistingMappings,
   mappingDisplayData,
   removeMapping,
   setTermType,
 } = useLanguageDropZone()
+const { getAcceptedLanguages } = useTermsEditor()
 
 // Set the term type from props
 setTermType(props.termType)
@@ -99,7 +99,7 @@ watch(
         <Select
           v-model="selectedLanguage"
           :data-testid="`${termType}-language-selector`"
-          :options="acceptedLanguages"
+          :options="getAcceptedLanguages()"
           placeholder="Select"
           class="w-full"
         />

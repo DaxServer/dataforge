@@ -169,7 +169,7 @@
   - Implement schema persistence integration
   - _Requirements: 1.3_
 
-- [ ] 29. Build SchemaSelector component
+- [x] 29. Build SchemaSelector component
   - Write tests for displaying existing schemas list with metadata
   - Write tests for empty state when no schemas exist
   - Write tests for "Create New Schema" button functionality

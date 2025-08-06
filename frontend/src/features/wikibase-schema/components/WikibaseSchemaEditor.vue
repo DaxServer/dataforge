@@ -15,7 +15,7 @@ const validationStore = useValidationStore()
 const projectStore = useProjectStore()
 
 // Composables
-const { loadSchema, createSchema } = useSchemaApi()
+const { loadSchema } = useSchemaApi()
 const { showError, showSuccess } = useErrorHandling()
 const { convertProjectColumnsToColumnInfo } = useColumnConversion()
 const { setAvailableColumns, initializeStatement, resetStatement } = useStatementEditor()
@@ -27,7 +27,7 @@ const { enableAutoValidation, disableAutoValidation } = useSchemaValidationUI()
 const { startRealTimeValidation, stopRealTimeValidation } = useRealTimeValidation()
 
 // Schema persistence composable
-const { saveSchema, canSave, isSaving, saveStatus, saveError } = useSchemaPersistence()
+const { saveSchema, canSave, isSaving, saveStatus } = useSchemaPersistence()
 
 // Reactive state
 const isInitialized = ref(false)

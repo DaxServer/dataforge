@@ -2,21 +2,18 @@ import { describe, test, expect, beforeEach, mock } from 'bun:test'
 import { createPinia, setActivePinia } from 'pinia'
 import { useSchemaStore } from '@frontend/features/wikibase-schema/stores/schema.store'
 import { useValidationStore } from '@frontend/features/wikibase-schema/stores/validation.store'
-import { useSchemaCompletenessValidation } from '@frontend/features/wikibase-schema/composables/useSchemaCompletenessValidation'
 import { useSchemaValidationUI } from '@frontend/features/wikibase-schema/composables/useSchemaValidationUI'
 import type { PropertyReference, ValueMapping } from '@frontend/shared/types/wikibase-schema'
 
 describe('Schema Completeness Validation Integration', () => {
   let schemaStore: ReturnType<typeof useSchemaStore>
   let validationStore: ReturnType<typeof useValidationStore>
-  let completenessValidation: ReturnType<typeof useSchemaCompletenessValidation>
   let validationUI: ReturnType<typeof useSchemaValidationUI>
 
   beforeEach(() => {
     setActivePinia(createPinia())
     schemaStore = useSchemaStore()
     validationStore = useValidationStore()
-    completenessValidation = useSchemaCompletenessValidation()
     validationUI = useSchemaValidationUI()
 
     // Add validation rules that the tests expect
