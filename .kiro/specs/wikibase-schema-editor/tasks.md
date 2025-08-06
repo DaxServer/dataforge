@@ -188,10 +188,10 @@
   - Implement schema selection and loading functionality
   - _Requirements: 9.4_
 
-- [ ] 32. Create new schema initialization
-  - Write tests for "Create New Schema" button triggering existing init code
-  - Write tests for transitioning to empty schema editor
-  - Implement new schema creation using existing initialization functionality
+- [x] 32. Integrate schema deletion into schema selection workflow
+  - Write tests for schema deletion confirmation dialog
+  - Write tests for schema deletion success feedback
+  - Implement schema deletion functionality in SchemaSelector
   - _Requirements: 9.5_
 
 - [ ] 33. Integrate schema selector with WikibaseSchemaEditor

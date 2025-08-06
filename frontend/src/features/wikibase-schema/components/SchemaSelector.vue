@@ -8,8 +8,10 @@ const props = defineProps<Props>()
 const projectId = useRouteParams('id') as Ref<string>
 
 // Composables
-const { loadAllSchemas } = useSchemaApi()
+const { loadAllSchemas, deleteSchema } = useSchemaApi()
 const { getSchemaCompletionInfo } = useSchemaCompletenessValidation()
+const { showError, showSuccess } = useErrorHandling()
+const confirm = useConfirm()
 
 // State
 const schemas = ref<WikibaseSchemaMapping[]>([])
@@ -66,14 +68,44 @@ const handleCreateNew = () => {
   props.onCreateNew()
 }
 
-// Load schemas on mount
-onMounted(async () => {
+const handleDeleteClick = (event: Event, schema: WikibaseSchemaMapping) => {
+  event.stopPropagation() // Prevent schema selection when delete is clicked
+
+  confirm.require({
+    message: `Are you sure you want to delete the schema "${schema.name}"? This action cannot be undone. All schema configuration and mappings will be permanently deleted.`,
+    header: 'Delete Schema',
+    icon: 'pi pi-exclamation-triangle',
+    rejectProps: {
+      label: 'Cancel',
+      severity: 'secondary',
+      outlined: true,
+    },
+    acceptProps: {
+      label: 'Delete Schema',
+      severity: 'danger',
+    },
+    accept: async () => {
+        await deleteSchema(projectId.value as UUID, schema.id)
+        showSuccess(`Schema "${schema.name}" deleted successfully`)
+
+        // Refresh the schema list
+        await loadSchemas()
+    },
+  })
+}
+
+const loadSchemas = async () => {
   isLoading.value = true
   try {
     schemas.value = await loadAllSchemas(projectId.value as UUID)
   } finally {
     isLoading.value = false
   }
+}
+
+// Load schemas on mount
+onMounted(async () => {
+  await loadSchemas()
 })
 </script>
 
@@ -81,7 +113,16 @@ onMounted(async () => {
   <div class="schema-selector p-6">
     <!-- Header -->
     <div class="mb-6">
-      <h2 class="text-2xl font-bold text-surface-900 mb-2">Select Schema</h2>
+      <div class="flex items-center justify-between mb-2">
+        <h2 class="text-2xl font-bold text-surface-900">Select Schema</h2>
+        <Button
+          data-testid="create-new-schema-btn"
+          label="Create New Schema"
+          icon="pi pi-plus"
+          :disabled="isLoading"
+          @click="handleCreateNew"
+        />
+      </div>
       <p class="text-surface-600">
         Choose an existing schema or create a new one to start mapping your data.
       </p>
@@ -103,19 +144,6 @@ onMounted(async () => {
 
     <!-- Content -->
     <div v-else>
-      <!-- Create New Schema Button (Always Visible) -->
-      <div class="mb-6">
-        <Button
-          data-testid="create-new-schema-btn"
-          label="Create New Schema"
-          icon="pi pi-plus"
-          size="large"
-          class="w-full"
-          :disabled="isLoading"
-          @click="handleCreateNew"
-        />
-      </div>
-
       <!-- Existing Schemas List -->
       <div v-if="hasSchemas">
         <h3 class="text-lg font-semibold text-surface-900 mb-4">Existing Schemas</h3>
@@ -125,15 +153,28 @@ onMounted(async () => {
             v-for="schema in schemas"
             :key="schema.id"
             data-testid="schema-item"
-            class="cursor-pointer transition-all duration-200 hover:shadow-md border border-surface-200 hover:border-primary-300"
+            class="cursor-pointer transition-all duration-300 hover:shadow-lg hover:shadow-primary-200/50 border border-surface-200 hover:border-primary-400 overflow-hidden"
             @click="handleSchemaClick(schema)"
           >
             <template #content>
-              <div class="p-4">
-                <!-- Schema Name -->
-                <h4 class="text-xl font-semibold text-surface-900 mb-2">
-                  {{ schema.name }}
-                </h4>
+              <div class="p-4 transition-all duration-300 hover:bg-secondary-50">
+                <!-- Header with Schema Name and Delete Button -->
+                <div class="flex items-start justify-between mb-2">
+                  <h4 class="text-xl font-semibold text-surface-900">
+                    {{ schema.name }}
+                  </h4>
+                  <Button
+                    data-testid="delete-schema-btn"
+                    icon="pi pi-trash"
+                    size="small"
+                    severity="danger"
+                    text
+                    class="ml-2"
+                    label="Delete"
+                    :title="`Delete schema: ${schema.name}`"
+                    @click="handleDeleteClick($event, schema)"
+                  />
+                </div>
 
                 <!-- Wikibase URL -->
                 <p class="text-sm text-surface-600 mb-3">

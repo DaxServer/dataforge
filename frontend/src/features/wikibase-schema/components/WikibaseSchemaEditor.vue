@@ -15,17 +15,12 @@ const validationStore = useValidationStore()
 const projectStore = useProjectStore()
 
 // Composables
-const { loadSchema } = useSchemaApi()
 const { showError, showSuccess } = useErrorHandling()
 const { convertProjectColumnsToColumnInfo } = useColumnConversion()
 const { setAvailableColumns, initializeStatement, resetStatement } = useStatementEditor()
 
-// Import createFrontendError for error handling
-import { createFrontendError } from '@frontend/shared/types/client-errors'
-
 // Schema selection workflow composable
 const {
-  selectedSchema,
   isLoadingSchema,
   showSchemaSelector,
   showMainEditor,
