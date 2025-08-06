@@ -54,6 +54,14 @@ export const useSchemaPersistence = () => {
         result = await createSchema(schemaStore.projectId, {
           name: schemaStore.schemaName,
           wikibase: schemaStore.wikibase,
+          item: {
+            terms: {
+              labels: schemaStore.labels,
+              descriptions: schemaStore.descriptions,
+              aliases: schemaStore.aliases,
+            },
+            statements: schemaStore.statements,
+          },
         })
       }
 
