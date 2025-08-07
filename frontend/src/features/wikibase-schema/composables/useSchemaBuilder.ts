@@ -1,16 +1,15 @@
 import type {
-  WikibaseSchemaMapping,
-  ItemSchemaMapping,
-  TermsSchemaMapping,
-  StatementSchemaMapping,
   Label,
-  ColumnMapping,
+  StatementSchemaMapping,
+  TermsSchemaMapping,
   PropertyReference,
   ValueMapping,
   StatementRank,
   PropertyValueMap,
   ReferenceSchemaMapping,
-} from '@frontend/shared/types/wikibase-schema'
+  ItemSchema,
+  Alias,
+} from '@backend/api/project/project.wikibase'
 import type { UUID } from 'crypto'
 
 /**
@@ -27,7 +26,7 @@ export const useSchemaBuilder = () => {
     wikibaseUrl: string,
     labels: Label,
     descriptions: Label,
-    aliases: Record<string, ColumnMapping[]>,
+    aliases: Alias,
     statements: StatementSchemaMapping[],
     createdAt?: string,
     updatedAt?: string,
@@ -39,7 +38,7 @@ export const useSchemaBuilder = () => {
       projectId,
       name,
       wikibase: wikibaseUrl,
-      item: buildItemSchema(labels, descriptions, aliases, statements),
+      schema: buildItemSchema(labels, descriptions, aliases, statements),
       createdAt: createdAt ?? now,
       updatedAt: updatedAt ?? now,
     }
@@ -51,9 +50,9 @@ export const useSchemaBuilder = () => {
   const buildItemSchema = (
     labels: Label,
     descriptions: Label,
-    aliases: Record<string, ColumnMapping[]>,
+    aliases: Alias,
     statements: StatementSchemaMapping[],
-  ): ItemSchemaMapping => {
+  ): ItemSchema => {
     return {
       terms: buildTermsSchema(labels, descriptions, aliases),
       statements,
@@ -66,7 +65,7 @@ export const useSchemaBuilder = () => {
   const buildTermsSchema = (
     labels: Label,
     descriptions: Label,
-    aliases: Record<string, ColumnMapping[]>,
+    aliases: Alias,
   ): TermsSchemaMapping => {
     return {
       labels,

@@ -3,7 +3,8 @@ import { createPinia, setActivePinia } from 'pinia'
 import { useRealTimeValidation } from '@frontend/features/wikibase-schema/composables/useRealTimeValidation'
 import { useDragDropStore } from '@frontend/features/data-processing/stores/drag-drop.store'
 import { useValidationStore } from '@frontend/features/wikibase-schema/stores/validation.store'
-import type { ColumnInfo, WikibaseDataType } from '@frontend/shared/types/wikibase-schema'
+import type { ColumnInfo } from '@frontend/shared/types/wikibase-schema'
+import type { WikibaseDataType } from '@backend/api/project/project.wikibase'
 import type { DropTarget } from '@frontend/shared/types/drag-drop'
 
 describe('useRealTimeValidation', () => {

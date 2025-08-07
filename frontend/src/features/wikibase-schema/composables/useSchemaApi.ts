@@ -1,10 +1,10 @@
+import type { ItemSchema, WikibaseSchemaResponse } from '@backend/api/project/project.wikibase'
 import { ApiError } from '@backend/types/error-schemas'
-import type { WikibaseSchemaMapping } from '@frontend/shared/types/wikibase-schema'
 
-export interface CreateSchemaRequest {
+export type SchemaRequest = {
   name: string
   wikibase: string
-  item?: ItemSchemaMapping
+  schema?: ItemSchema
 }
 
 export const useSchemaApi = () => {
@@ -12,47 +12,22 @@ export const useSchemaApi = () => {
   const schemaStore = useSchemaStore()
   const { showError } = useErrorHandling()
 
-  // Helper functions
-  const transformBackendSchema = (
-    rawSchema: Record<string, unknown>,
-    projectId: UUID,
-  ): WikibaseSchemaMapping => {
-    return {
-      id: rawSchema.id as UUID,
-      projectId: (rawSchema.project_id as UUID) || projectId,
-      name: rawSchema.name as string,
-      wikibase: rawSchema.wikibase as string,
-      createdAt: rawSchema.created_at as string,
-      updatedAt: rawSchema.updated_at as string,
-      item: (rawSchema.schema || {
-        terms: { labels: {}, descriptions: {}, aliases: {} },
-        statements: [],
-      }) as ItemSchemaMapping,
+  const loadSchemaIntoStore = (response: WikibaseSchemaResponse, metadata: boolean = true) => {
+    schemaStore.schemaId = response.id as UUID
+    schemaStore.projectId = response.project_id as UUID
+    schemaStore.schemaName = response.name
+    schemaStore.wikibase = response.wikibase
+    schemaStore.createdAt = response.created_at
+    schemaStore.updatedAt = response.updated_at
+
+    if (metadata) {
+      schemaStore.labels = response.schema.terms?.labels || {}
+      schemaStore.descriptions = response.schema.terms?.descriptions || {}
+      schemaStore.aliases = response.schema.terms?.aliases || {}
+      schemaStore.statements = response.schema.statements || []
+      schemaStore.isDirty = false
+      schemaStore.lastSaved = new Date(response.updated_at)
     }
-  }
-
-  const loadSchemaIntoStore = (schema: WikibaseSchemaMapping) => {
-    schemaStore.schemaId = schema.id
-    schemaStore.projectId = schema.projectId
-    schemaStore.schemaName = schema.name
-    schemaStore.wikibase = schema.wikibase
-    schemaStore.labels = schema.item?.terms?.labels || {}
-    schemaStore.descriptions = schema.item?.terms?.descriptions || {}
-    schemaStore.aliases = schema.item?.terms?.aliases || {}
-    schemaStore.statements = schema.item?.statements || []
-    schemaStore.createdAt = schema.createdAt
-    schemaStore.updatedAt = schema.updatedAt
-    schemaStore.isDirty = false
-    schemaStore.lastSaved = new Date(schema.updatedAt)
-  }
-
-  const updateStoreFromSchema = (schema: WikibaseSchemaMapping) => {
-    schemaStore.schemaId = schema.id
-    schemaStore.projectId = schema.projectId
-    schemaStore.schemaName = schema.name
-    schemaStore.wikibase = schema.wikibase
-    schemaStore.createdAt = schema.createdAt
-    schemaStore.updatedAt = schema.updatedAt
   }
 
   const withLoadingState = async <T>(operation: () => Promise<T>): Promise<T> => {
@@ -72,59 +47,75 @@ export const useSchemaApi = () => {
       if (apiError) {
         showError(apiError.value as ApiError)
         schemaStore.$reset()
-      } else if (data?.data) {
-        const schema = transformBackendSchema(data.data, projectId)
-        loadSchemaIntoStore(schema)
-      } else {
+        return
+      }
+
+      if (!data?.data) {
         showError({
           errors: [{ code: 'NOT_FOUND', message: 'Schema not found' }],
         } as ApiError)
         schemaStore.$reset()
+        return
       }
+
+      loadSchemaIntoStore(data.data)
     })
   }
 
-  const createSchema = async (projectId: UUID, schemaData: CreateSchemaRequest) => {
+  const createSchema = async (projectId: UUID, schemaData: SchemaRequest) => {
     return withLoadingState(async () => {
       const { data, error: apiError } = await api.project({ projectId }).schemas.post({
         projectId,
         name: schemaData.name,
         wikibase: schemaData.wikibase,
-        schema: schemaData.item,
+        schema: schemaData.schema,
       })
 
       if (apiError) {
         showError(apiError.value as ApiError)
-      } else if (data && typeof data === 'object' && 'data' in data) {
-        const rawSchema = (data as { data: Record<string, unknown> }).data
-        const createdSchema = transformBackendSchema(rawSchema, projectId)
-        updateStoreFromSchema(createdSchema)
-        return createdSchema
+        return
       }
+
+      // @ts-expect-error Elysia Eden thinks non-200 2xx responses are errors
+      if (!data?.data) {
+        showError({
+          errors: [{ code: 'NOT_FOUND', message: 'Schema not found' }],
+        } as ApiError)
+        return
+      }
+
+      // @ts-expect-error Elysia Eden thinks non-200 2xx responses are errors
+      loadSchemaIntoStore(data.data, false)
+
+      // @ts-expect-error Elysia Eden thinks non-200 2xx responses are errors
+      return data.data
     })
   }
 
-  const updateSchema = async (
-    projectId: UUID,
-    schemaId: UUID,
-    schemaData: WikibaseSchemaMapping,
-  ) => {
+  const updateSchema = async (projectId: UUID, schemaId: UUID, schemaData: SchemaRequest) => {
     return withLoadingState(async () => {
       const { data, error: apiError } = await api.project({ projectId }).schemas({ schemaId }).put({
         name: schemaData.name,
         wikibase: schemaData.wikibase,
-        schema: schemaData.item,
+        schema: schemaData.schema,
       })
 
       if (apiError) {
         showError(apiError.value as ApiError)
-      } else if (data?.data) {
-        const rawSchema = (data as { data: Record<string, unknown> }).data
-        const updatedSchema = transformBackendSchema(rawSchema, projectId)
-        updateStoreFromSchema(updatedSchema)
-        schemaStore.markAsSaved()
-        return updatedSchema
+        return
       }
+
+      if (!data?.data) {
+        showError({
+          errors: [{ code: 'NOT_FOUND', message: 'Schema not found' }],
+        } as ApiError)
+        return
+      }
+
+      loadSchemaIntoStore(data.data, false)
+      schemaStore.markAsSaved()
+
+      return data.data
     })
   }
 
@@ -152,11 +143,22 @@ export const useSchemaApi = () => {
         return []
       }
 
-      const schemas = (data?.data || []).map((backendSchema) =>
-        transformBackendSchema(backendSchema, projectId),
-      )
+      if (!data?.data) {
+        showError({
+          errors: [{ code: 'NOT_FOUND', message: 'Schemas not found' }],
+        } as ApiError)
+        return []
+      }
 
-      return schemas
+      return data.data.map((schema) => ({
+        id: schema.id as UUID,
+        projectId: schema.project_id as UUID,
+        name: schema.name,
+        wikibase: schema.wikibase,
+        schema: schema.schema,
+        createdAt: schema.created_at,
+        updatedAt: schema.updated_at,
+      }))
     })
   }
 

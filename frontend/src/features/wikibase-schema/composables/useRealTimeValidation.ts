@@ -8,9 +8,9 @@ import type {
   ColumnInfo,
   ValidationError,
   ValidationResult,
-  WikibaseDataType,
 } from '@frontend/shared/types/wikibase-schema'
 import type { DropTarget, DropFeedback } from '@frontend/shared/types/drag-drop'
+import type { WikibaseDataType } from '@backend/api/project/project.wikibase'
 
 interface MappingInfo {
   path: string

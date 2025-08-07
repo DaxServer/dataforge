@@ -1,4 +1,4 @@
-import type { PropertyReference, ValueMapping } from '@frontend/shared/types/wikibase-schema'
+import type { ValueMapping, PropertyReference } from '@backend/api/project/project.wikibase'
 import { useStatementDataTypeValidation } from '@frontend/features/wikibase-schema/composables/useStatementDataTypeValidation'
 
 /**

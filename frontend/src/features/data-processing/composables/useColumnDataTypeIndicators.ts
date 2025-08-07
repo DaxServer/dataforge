@@ -1,4 +1,5 @@
-import type { ColumnInfo, WikibaseDataType } from '@frontend/shared/types/wikibase-schema'
+import type { ColumnInfo } from '@frontend/shared/types/wikibase-schema'
+import type { WikibaseDataType } from '@backend/api/project/project.wikibase'
 
 /**
  * Data type configuration mapping

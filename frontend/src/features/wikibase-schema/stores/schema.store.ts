@@ -1,18 +1,18 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import type {
-  StatementSchemaMapping,
-  PropertyReference,
-  ValueMapping,
-  StatementRank,
-  PropertyValueMap,
-  ReferenceSchemaMapping,
-  Label,
-  ColumnMapping,
-} from '@frontend/shared/types/wikibase-schema'
 import type { UUID } from 'crypto'
 import { useSchemaBuilder } from '@frontend/features/wikibase-schema/composables/useSchemaBuilder'
 import { ItemId } from '@backend/types/wikibase-schema'
+import type {
+  ColumnMapping,
+  Label,
+  PropertyReference,
+  PropertyValueMap,
+  ReferenceSchemaMapping,
+  StatementRank,
+  StatementSchemaMapping,
+  ValueMapping,
+} from '@backend/api/project/project.wikibase'
 
 export const useSchemaStore = defineStore('schema', () => {
   const { buildStatement } = useSchemaBuilder()
@@ -123,7 +123,7 @@ export const useSchemaStore = defineStore('schema', () => {
     statements.value.push(statement)
     markDirty()
 
-    return statement.id
+    return statement.id as UUID
   }
 
   const removeStatement = (statementId: UUID) => {

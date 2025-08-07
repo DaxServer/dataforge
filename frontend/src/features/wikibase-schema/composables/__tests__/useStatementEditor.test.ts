@@ -1,11 +1,11 @@
 import { describe, test, expect, beforeEach } from 'bun:test'
+import type { ColumnInfo } from '@frontend/shared/types/wikibase-schema'
 import type {
   PropertyReference,
   ValueMapping,
   StatementRank,
-  ColumnInfo,
   WikibaseDataType,
-} from '@frontend/shared/types/wikibase-schema'
+} from '@backend/api/project/project.wikibase'
 import { useStatementEditor } from '@frontend/features/wikibase-schema/composables/useStatementEditor'
 
 describe('useStatementEditor', () => {

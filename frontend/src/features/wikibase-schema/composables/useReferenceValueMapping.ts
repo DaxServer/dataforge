@@ -1,9 +1,10 @@
 import type {
-  ValueMapping,
-  ColumnInfo,
   WikibaseDataType,
+  ValueMapping,
+  PropertyValueMap,
   ReferenceSchemaMapping,
-} from '@frontend/shared/types/wikibase-schema'
+} from '@backend/api/project/project.wikibase'
+import type { ColumnInfo } from '@frontend/shared/types/wikibase-schema'
 
 /**
  * Composable for handling reference-specific value mapping and citation data support

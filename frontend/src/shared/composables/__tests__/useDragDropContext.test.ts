@@ -2,7 +2,8 @@ import { describe, it, expect, beforeEach } from 'bun:test'
 import { createPinia, setActivePinia } from 'pinia'
 import { useDragDropContext } from '@frontend/shared/composables/useDragDropContext'
 import { useDragDropStore } from '@frontend/features/data-processing/stores/drag-drop.store'
-import type { ColumnInfo, WikibaseDataType } from '@frontend/shared/types/wikibase-schema'
+import type { ColumnInfo } from '@frontend/shared/types/wikibase-schema'
+import type { WikibaseDataType } from '@backend/api/project/project.wikibase'
 import type { DropTarget } from '@frontend/shared/types/drag-drop'
 
 describe('useDragDropContext', () => {

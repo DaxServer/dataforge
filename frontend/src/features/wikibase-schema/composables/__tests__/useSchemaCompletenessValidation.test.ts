@@ -7,7 +7,7 @@ import type {
   StatementSchemaMapping,
   PropertyReference,
   ValueMapping,
-} from '@frontend/shared/types/wikibase-schema'
+} from '@backend/api/project/project.wikibase'
 import type { UUID } from 'crypto'
 
 describe('useSchemaCompletenessValidation', () => {
@@ -296,7 +296,7 @@ describe('useSchemaCompletenessValidation', () => {
         projectId: Bun.randomUUIDv7() as UUID,
         name: 'Test Schema',
         wikibase: 'https://test.wikibase.org',
-        item: {
+        schema: {
           terms: {
             labels: {
               en: { columnName: 'title', dataType: 'string' },
@@ -347,7 +347,7 @@ describe('useSchemaCompletenessValidation', () => {
         projectId: Bun.randomUUIDv7() as UUID,
         name: 'Test Schema',
         wikibase: 'https://test.wikibase.org',
-        item: null as any,
+        schema: null as any,
         createdAt: '2024-01-01T00:00:00Z',
         updatedAt: '2024-01-01T00:00:00Z',
       }
@@ -379,7 +379,7 @@ describe('useSchemaCompletenessValidation', () => {
         projectId: Bun.randomUUIDv7() as UUID,
         name: 'Empty Schema',
         wikibase: 'https://test.wikibase.org',
-        item: {
+        schema: {
           terms: {
             labels: {},
             descriptions: {},

@@ -1,5 +1,5 @@
 import { ref, readonly } from 'vue'
-import type { PropertyReference, WikibaseDataType } from '@frontend/shared/types/wikibase-schema'
+import type { PropertyReference } from '@backend/api/project/project.wikibase'
 
 /**
  * Composable for property selection with searchable dropdown functionality

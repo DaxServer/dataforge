@@ -6,7 +6,7 @@ import type {
   ColumnMapping,
   PropertyReference,
   ValueMapping,
-} from '@frontend/shared/types/wikibase-schema'
+} from '@backend/api/project/project.wikibase'
 import type { UUID } from 'crypto'
 
 // Test UUID for consistent testing

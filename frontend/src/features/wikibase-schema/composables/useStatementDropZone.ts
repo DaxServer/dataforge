@@ -1,7 +1,8 @@
 import { ref, computed } from 'vue'
 import { useDragDropStore } from '@frontend/features/data-processing/stores/drag-drop.store'
 import { useDragDropHandlers } from '@frontend/shared/composables/useDragDropHandlers'
-import type { ColumnInfo, WikibaseDataType } from '@frontend/shared/types/wikibase-schema'
+import type { ColumnInfo } from '@frontend/shared/types/wikibase-schema'
+import type { WikibaseDataType } from '@backend/api/project/project.wikibase'
 
 /**
  * Composable for handling statement drop zone functionality

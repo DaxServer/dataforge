@@ -3,7 +3,7 @@ import { createPinia, setActivePinia } from 'pinia'
 import { useSchemaStore } from '@frontend/features/wikibase-schema/stores/schema.store'
 import { useValidationStore } from '@frontend/features/wikibase-schema/stores/validation.store'
 import { useSchemaValidationUI } from '@frontend/features/wikibase-schema/composables/useSchemaValidationUI'
-import type { PropertyReference, ValueMapping } from '@frontend/shared/types/wikibase-schema'
+import type { PropertyReference, ValueMapping } from '@backend/api/project/project.wikibase'
 
 describe('Schema Completeness Validation Integration', () => {
   let schemaStore: ReturnType<typeof useSchemaStore>

@@ -1,6 +1,7 @@
 import { useDragDropStore } from '@frontend/features/data-processing/stores/drag-drop.store'
 import { useDataTypeCompatibility } from '@frontend/features/data-processing/composables/useDataTypeCompatibility'
-import type { ColumnInfo, WikibaseDataType } from '@frontend/shared/types/wikibase-schema'
+import type { ColumnInfo } from '@frontend/shared/types/wikibase-schema'
+import type { WikibaseDataType } from '@backend/api/project/project.wikibase'
 
 /**
  * Shared composable for common drag and drop event handling logic

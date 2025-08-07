@@ -1,6 +1,6 @@
 import { describe, test, expect, beforeEach } from 'bun:test'
 import { ref } from 'vue'
-import type { PropertyReference, ValueMapping } from '@frontend/shared/types/wikibase-schema'
+import type { PropertyReference, ValueMapping } from '@backend/api/project/project.wikibase'
 import { useStatementValidationDisplay } from '@frontend/features/wikibase-schema/composables/useStatementValidationDisplay'
 
 describe('useStatementValidationDisplay', () => {

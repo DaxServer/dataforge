@@ -7,18 +7,23 @@ import { UUIDPattern } from '@backend/api/project/_schemas'
 import { ApiErrorHandler } from '@backend/types/error-handler'
 import { ItemId, PropertyId } from '@backend/types/wikibase-schema'
 
+// Transformation rule for column mapping
+const TransformationRule = t.Object({
+  type: t.Union([t.Literal('constant'), t.Literal('expression'), t.Literal('lookup')]),
+  value: t.String(),
+  parameters: t.Optional(t.Record(t.String(), t.Any())),
+})
+
+export type TransformationRule = typeof TransformationRule.static
+
 // Column mapping for data transformation
 const ColumnMapping = t.Object({
   columnName: t.String(),
   dataType: t.String(),
-  transformation: t.Optional(
-    t.Object({
-      type: t.Union([t.Literal('constant'), t.Literal('expression'), t.Literal('lookup')]),
-      value: t.String(),
-      parameters: t.Optional(t.Record(t.String(), t.Any())),
-    }),
-  ),
+  transformation: t.Optional(TransformationRule),
 })
+
+export type ColumnMapping = typeof ColumnMapping.static
 
 // Property reference for statements
 const PropertyReference = t.Object({
@@ -27,7 +32,10 @@ const PropertyReference = t.Object({
   dataType: t.String(),
 })
 
-const DataType = t.Union([
+export type PropertyReference = typeof PropertyReference.static
+
+// Wikibase data types
+const WikibaseDataType = t.Union([
   t.Literal('string'),
   t.Literal('wikibase-item'),
   t.Literal('wikibase-property'),
@@ -40,24 +48,28 @@ const DataType = t.Union([
   t.Literal('commonsMedia'),
 ])
 
+export type WikibaseDataType = typeof WikibaseDataType.static
+
 // Value mapping types
 const ValueMapping = t.Union([
   t.Object({
     type: t.Literal('column'),
     source: ColumnMapping,
-    dataType: DataType,
+    dataType: WikibaseDataType,
   }),
   t.Object({
     type: t.Literal('constant'),
     source: t.String(),
-    dataType: DataType,
+    dataType: WikibaseDataType,
   }),
   t.Object({
     type: t.Literal('expression'),
     source: t.String(),
-    dataType: DataType,
+    dataType: WikibaseDataType,
   }),
 ])
+
+export type ValueMapping = typeof ValueMapping.static
 
 // Property-value mapping for qualifiers and references
 const PropertyValueMap = t.Object({
@@ -65,28 +77,53 @@ const PropertyValueMap = t.Object({
   value: ValueMapping,
 })
 
+export type PropertyValueMap = typeof PropertyValueMap.static
+
 // Reference schema mapping
 const ReferenceSchemaMapping = t.Object({
   id: UUIDPattern,
   snaks: t.Array(PropertyValueMap),
 })
 
+export type ReferenceSchemaMapping = typeof ReferenceSchemaMapping.static
+
+// Statement rank
+const StatementRank = t.Union([
+  t.Literal('preferred'),
+  t.Literal('normal'),
+  t.Literal('deprecated'),
+])
+
+export type StatementRank = typeof StatementRank.static
+
 // Statement schema mapping
 const StatementSchemaMapping = t.Object({
   id: UUIDPattern,
   property: PropertyReference,
   value: ValueMapping,
-  rank: t.Union([t.Literal('preferred'), t.Literal('normal'), t.Literal('deprecated')]),
+  rank: StatementRank,
   qualifiers: t.Array(PropertyValueMap),
   references: t.Array(ReferenceSchemaMapping),
 })
 
+export type StatementSchemaMapping = typeof StatementSchemaMapping.static
+
+// Label schema mapping
+const Label = t.Record(t.String(), ColumnMapping)
+export type Label = typeof Label.static
+
+// Alias schema mapping
+const Alias = t.Record(t.String(), t.Array(ColumnMapping))
+export type Alias = typeof Alias.static
+
 // Terms schema mapping
 const TermsSchemaMapping = t.Object({
-  labels: t.Record(t.String(), ColumnMapping), // language code -> column mapping
-  descriptions: t.Record(t.String(), ColumnMapping),
-  aliases: t.Record(t.String(), t.Array(ColumnMapping)),
+  labels: Label, // language code -> column mapping
+  descriptions: Label,
+  aliases: Alias,
 })
+
+export type TermsSchemaMapping = typeof TermsSchemaMapping.static
 
 // Item schema mapping
 const ItemSchemaMapping = t.Object({
@@ -95,7 +132,7 @@ const ItemSchemaMapping = t.Object({
   statements: t.Array(StatementSchemaMapping),
 })
 
-type ItemSchema = typeof ItemSchemaMapping.static
+export type ItemSchema = typeof ItemSchemaMapping.static
 
 const blankSchema = {
   terms: {
@@ -124,7 +161,7 @@ const WikibaseSchemaCreateRequest = t.Composite([
   }),
 ])
 
-const WikibaseSchemaResponse = t.Object({
+export const WikibaseSchemaResponse = t.Object({
   id: UUIDPattern,
   project_id: UUIDPattern,
   name: SchemaName,
@@ -134,7 +171,7 @@ const WikibaseSchemaResponse = t.Object({
   updated_at: t.String(),
 })
 
-type WikibaseSchemaResponse = typeof WikibaseSchemaResponse.static
+export type WikibaseSchemaResponse = typeof WikibaseSchemaResponse.static
 
 const ProjectParams = t.Object({
   projectId: UUIDPattern,

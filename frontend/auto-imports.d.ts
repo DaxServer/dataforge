@@ -368,10 +368,13 @@ declare global {
   export type { UUID } from 'crypto'
   import('crypto')
   // @ts-ignore
+  export type { TransformationRule, ColumnMapping, PropertyReference, WikibaseDataType, ValueMapping, PropertyValueMap, ReferenceSchemaMapping, StatementRank, StatementSchemaMapping, Label, Alias, TermsSchemaMapping, ItemSchema, WikibaseSchemaResponse } from '@backend/api/project/project.wikibase'
+  import('@backend/api/project/project.wikibase')
+  // @ts-ignore
   export type { ProjectColumn } from './src/features/data-processing/composables/useColumnGeneration'
   import('./src/features/data-processing/composables/useColumnGeneration')
   // @ts-ignore
-  export type { CreateSchemaRequest } from './src/features/wikibase-schema/composables/useSchemaApi'
+  export type { SchemaRequest } from './src/features/wikibase-schema/composables/useSchemaApi'
   import('./src/features/wikibase-schema/composables/useSchemaApi')
   // @ts-ignore
   export type { SchemaCompletenessResult, RequiredFieldHighlight } from './src/features/wikibase-schema/composables/useSchemaCompletenessValidation'
@@ -392,7 +395,7 @@ declare global {
   export type { ProjectFile, FileSelectEvent, FileRemoveEvent, ApiClient } from './src/shared/types/index'
   import('./src/shared/types/index')
   // @ts-ignore
-  export type { ValidationErrorType, ValidationErrorCode, ValidationError, ValidationResult, ValidationContext, WikibaseSchemaMapping, ItemSchemaMapping, Label, TermsSchemaMapping, ColumnMapping, TransformationRule, TransformationFunction, TransformationParameter, StatementSchemaMapping, PropertyReference, ValueMapping, PropertyValueMap, ReferenceSchemaMapping, StatementRank, WikibaseDataType, ColumnInfo, ValidationRule, SchemaMapping, ColumnReference, ValueSchemaMapping, ValidatedSchemaMapping } from './src/shared/types/wikibase-schema'
+  export type { ValidationErrorType, ValidationErrorCode, ValidationError, ValidationResult, ValidationContext, WikibaseSchemaMapping, TransformationFunction, TransformationParameter, ColumnInfo } from './src/shared/types/wikibase-schema'
   import('./src/shared/types/wikibase-schema')
 }
 
