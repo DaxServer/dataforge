@@ -120,7 +120,7 @@ describe('useStatementConfig', () => {
     }
     sourceValue.value = 'test_source'
     currentStatement.value.value.dataType = 'string'
-    currentStatement.value.rank = 'preferred'
+    currentStatement.value.rank = 'preferred' as StatementRank
 
     // Reset statement
     resetStatement()
@@ -130,8 +130,7 @@ describe('useStatementConfig', () => {
     expect(currentStatement.value.value.type).toBe('column')
     expect(currentStatement.value.value.source).toEqual({ columnName: '', dataType: 'VARCHAR' })
     expect(currentStatement.value.value.dataType).toBe('string')
-    // @ts-expect-error ToDo Fix
-    expect(currentStatement.value.rank).toBe('normal' as StatementRank)
+    expect(currentStatement.value.rank).toBe('normal')
   })
 
   it('should auto-save statement when complete', async () => {

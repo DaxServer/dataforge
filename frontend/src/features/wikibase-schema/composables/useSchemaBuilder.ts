@@ -9,6 +9,7 @@ import type {
   PropertyValueMap,
   ReferenceSchemaMapping,
   ItemSchema,
+  Alias,
 } from '@backend/api/project/project.wikibase'
 import type { UUID } from 'crypto'
 
@@ -26,7 +27,7 @@ export const useSchemaBuilder = () => {
     wikibaseUrl: string,
     labels: Label,
     descriptions: Label,
-    aliases: Record<string, ColumnMapping[]>,
+    aliases: Alias,
     statements: StatementSchemaMapping[],
     createdAt?: string,
     updatedAt?: string,
@@ -50,7 +51,7 @@ export const useSchemaBuilder = () => {
   const buildItemSchema = (
     labels: Label,
     descriptions: Label,
-    aliases: Record<string, ColumnMapping[]>,
+    aliases: Alias,
     statements: StatementSchemaMapping[],
   ): ItemSchema => {
     return {
@@ -65,7 +66,7 @@ export const useSchemaBuilder = () => {
   const buildTermsSchema = (
     labels: Label,
     descriptions: Label,
-    aliases: Record<string, ColumnMapping[]>,
+    aliases: Alias,
   ): TermsSchemaMapping => {
     return {
       labels,
@@ -99,7 +100,7 @@ export const useSchemaBuilder = () => {
    */
   const createEmptySchema = (projectId: UUID, wikibaseUrl: string): WikibaseSchemaMapping => {
     return buildSchema(
-      crypto.randomUUID(),
+      crypto.randomUUID() as UUID,
       projectId,
       'Untitled Schema',
       wikibaseUrl,

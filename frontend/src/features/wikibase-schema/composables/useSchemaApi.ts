@@ -150,7 +150,13 @@ export const useSchemaApi = () => {
         return []
       }
 
-      return data.data
+      return data.data.map((schema) => ({
+        ...schema,
+        id: schema.id as UUID,
+        projectId: schema.project_id as UUID,
+        createdAt: schema.created_at,
+        updatedAt: schema.updated_at,
+      }))
     })
   }
 

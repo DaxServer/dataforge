@@ -220,7 +220,7 @@ const getRankIcon = (rank: string) => {
                     size="small"
                     severity="secondary"
                     text
-                    @click="handleEditStatement(statement.id)"
+                    @click="handleEditStatement(statement.id as UUID)"
                   />
 
                   <!-- Remove -->
@@ -230,7 +230,7 @@ const getRankIcon = (rank: string) => {
                     size="small"
                     severity="danger"
                     text
-                    @click="handleRemoveStatement(statement.id)"
+                    @click="handleRemoveStatement(statement.id as UUID)"
                   />
                 </div>
               </div>
