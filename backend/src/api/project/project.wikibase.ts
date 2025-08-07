@@ -140,6 +140,14 @@ const ProjectParams = t.Object({
   projectId: UUIDPattern,
 })
 
+const parseSchemaField = (schema: unknown) => {
+  try {
+    return JSON.parse(schema as string) as ItemSchema
+  } catch {
+    return blankSchema
+  }
+}
+
 export const wikibaseRoutes = new Elysia({ prefix: '/api/project/:projectId/schemas' })
   .use(cors())
   .use(errorHandlerPlugin)
@@ -169,20 +177,10 @@ export const wikibaseRoutes = new Elysia({ prefix: '/api/project/:projectId/sche
         [projectId],
       )
       const rows = reader.getRowObjectsJson()
-      // Parse schema JSON if needed
       const schemas = rows.map(row => {
-        let schema: ItemSchema
-        if (typeof row.schema === 'string') {
-          try {
-            schema = JSON.parse(row.schema)
-          } catch {
-            schema = blankSchema
-          }
-        } else {
-          schema = row.schema as ItemSchema
-        }
-        return { ...row, schema } as WikibaseSchemaResponse
+        return { ...row, schema: parseSchemaField(row.schema) } as WikibaseSchemaResponse
       })
+
       return { data: schemas }
     },
     {
@@ -218,16 +216,11 @@ export const wikibaseRoutes = new Elysia({ prefix: '/api/project/:projectId/sche
       const reader = await db().runAndReadAll('SELECT * FROM _meta_wikibase_schema WHERE id = ?', [
         schemaId,
       ])
-      const row = reader.getRowObjectsJson()[0]
-      let parsedSchema = row?.schema
-      if (typeof parsedSchema === 'string') {
-        try {
-          parsedSchema = JSON.parse(parsedSchema)
-        } catch {
-          parsedSchema = blankSchema
-        }
-      }
-      return status(201, { data: { ...row, schema: parsedSchema } as WikibaseSchemaResponse })
+      const row = reader.getRowObjectsJson()[0]!
+
+      return status(201, {
+        data: { ...row, schema: parseSchemaField(row?.schema) } as WikibaseSchemaResponse,
+      })
     },
     {
       body: WikibaseSchemaCreateRequest,
@@ -254,18 +247,10 @@ export const wikibaseRoutes = new Elysia({ prefix: '/api/project/:projectId/sche
     )
 
     const schemas = reader.getRowObjectsJson().map(item => {
-      let schema: ItemSchema
-      try {
-        schema = JSON.parse(item.schema as string)
-      } catch {
-        schema = blankSchema
-      }
-      return { ...item, schema } as WikibaseSchemaResponse
+      return { ...item, schema: parseSchemaField(item.schema) } as WikibaseSchemaResponse
     })
 
-    return {
-      schemas,
-    }
+    return { schemas }
   })
 
   .onBeforeHandle(async ({ params: { schemaId }, schemas, status }) => {
@@ -278,7 +263,7 @@ export const wikibaseRoutes = new Elysia({ prefix: '/api/project/:projectId/sche
   .get(
     '/:schemaId',
     async ({ schemas }) => {
-      return { data: schemas[0] as WikibaseSchemaResponse }
+      return { data: schemas[0]! }
     },
     {
       response: {
@@ -319,15 +304,9 @@ export const wikibaseRoutes = new Elysia({ prefix: '/api/project/:projectId/sche
       const reader = await db().runAndReadAll('SELECT * FROM _meta_wikibase_schema WHERE id = ?', [
         schemaId,
       ])
-      const row = reader.getRowObjectsJson()[0]
-      let parsedSchema: ItemSchema
-      try {
-        parsedSchema = JSON.parse(row?.schema as string)
-      } catch {
-        parsedSchema = blankSchema
-      }
+      const row = reader.getRowObjectsJson()[0]!
 
-      return { data: { ...row, schema: parsedSchema } as WikibaseSchemaResponse }
+      return { data: { ...row, schema: parseSchemaField(row?.schema) } as WikibaseSchemaResponse }
     },
     {
       body: WikibaseSchemaUpdateRequest,
