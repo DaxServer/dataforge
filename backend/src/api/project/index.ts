@@ -3,7 +3,7 @@ import cors from '@elysiajs/cors'
 import { errorHandlerPlugin } from '@backend/plugins/error-handler'
 import { ApiErrorHandler } from '@backend/types/error-handler'
 import { databasePlugin } from '@backend/plugins/database'
-import { ProjectResponseSchema, type Project, UUIDValidator } from '@backend/api/project/_schemas'
+import { ProjectResponseSchema, type Project, UUIDPattern } from '@backend/api/project/_schemas'
 import { enhanceSchemaWithTypes, type DuckDBTablePragma } from '@backend/utils/duckdb-types'
 import { ProjectImportFileAltSchema, ProjectImportSchema } from '@backend/api/project/import'
 import { ProjectCreateSchema } from '@backend/api/project/project.create'
@@ -197,7 +197,7 @@ export const projectRoutes = new Elysia({ prefix: '/api/project' })
   .guard({
     schema: 'standalone',
     params: t.Object({
-      projectId: UUIDValidator,
+      projectId: UUIDPattern,
     }),
   })
 
@@ -316,7 +316,7 @@ export const projectRoutes = new Elysia({ prefix: '/api/project' })
           filePath,
         ])
 
-        // @ts-expect-error
+        // @ts-expect-error ToDo: Fix
         return status(201, new Response(null))
       } catch (error) {
         // Check if the error is related to JSON parsing

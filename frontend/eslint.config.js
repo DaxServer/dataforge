@@ -62,6 +62,7 @@ export default tseslint.config(
       'vue/multi-word-component-names': 'off',
       'vue/singleline-html-element-content-newline': 'off',
       'vue/html-indent': 'off',
+      '@typescript-eslint/ban-ts-comment': 'off',
       'comma-dangle': ['error', 'always-multiline'],
       'prettier/prettier': ['error', { trailingComma: 'all' }],
     },

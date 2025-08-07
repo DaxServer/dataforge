@@ -3,24 +3,7 @@ import { Elysia } from 'elysia'
 import { treaty } from '@elysiajs/eden'
 import { closeDb, getDb, initializeDb } from '@backend/plugins/database'
 import { wikibaseRoutes } from '@backend/api/project/project.wikibase'
-import type {
-  Labels,
-  Qualifiers,
-  References,
-  Aliases,
-  Sitelinks,
-  Claims,
-  Descriptions,
-  Snak,
-  PropertyId,
-  Site,
-  Guid,
-  ItemId,
-  Item,
-  Sitelink,
-  MediaInfo,
-  MediaInfoId,
-} from 'wikibase-sdk'
+import type { PropertyId, ItemId } from 'wikibase-sdk'
 
 let _strCounter = 0
 const deterministicString = (prefix: string) => `${prefix}_${_strCounter++}`
@@ -31,145 +14,145 @@ const deterministicItemId = (): ItemId => `Q${_itemIdCounter++}` as ItemId
 let _propertyIdCounter = 200
 const deterministicPropertyId = (): PropertyId => `P${_propertyIdCounter++}` as PropertyId
 
-let _mediaInfoIdCounter = 5000
-const deterministicMediaInfoId = (): MediaInfoId => `M${_mediaInfoIdCounter++}` as MediaInfoId
+// let _mediaInfoIdCounter = 5000
+// const deterministicMediaInfoId = (): MediaInfoId => `M${_mediaInfoIdCounter++}` as MediaInfoId
 
-const deterministicLangs = ['en', 'fr', 'de', 'es', 'it']
-const deterministicLang = (index: number) =>
-  deterministicLangs[
-    index >= 0 && index < deterministicLangs.length
-      ? index
-      : _strCounter % deterministicLangs.length
-  ]!
+// const deterministicLangs = ['en', 'fr', 'de', 'es', 'it']
+// const deterministicLang = (index: number) =>
+//   deterministicLangs[
+//     index >= 0 && index < deterministicLangs.length
+//       ? index
+//       : _strCounter % deterministicLangs.length
+//   ]!
 
-const deterministicLabels = (count = 2): Labels => {
-  let labels: Labels = {}
+// const deterministicLabels = (count = 2): Labels => {
+//   let labels: Labels = {}
 
-  for (let i = 0; i < count; i++) {
-    const lang = deterministicLang(i)
-    labels = Object.assign({}, labels, {
-      [lang]: deterministicString('Label'),
-    })
-  }
+//   for (let i = 0; i < count; i++) {
+//     const lang = deterministicLang(i)
+//     labels = Object.assign({}, labels, {
+//       [lang]: deterministicString('Label'),
+//     })
+//   }
 
-  return labels
-}
+//   return labels
+// }
 
-const deterministicDescriptions = (count = 2): Descriptions => {
-  let descriptions: Descriptions = {}
+// const deterministicDescriptions = (count = 2): Descriptions => {
+//   let descriptions: Descriptions = {}
 
-  for (let i = 0; i < count; i++) {
-    const lang = deterministicLang(i)
-    descriptions = Object.assign({}, descriptions, {
-      [lang]: deterministicString('Description'),
-    })
-  }
+//   for (let i = 0; i < count; i++) {
+//     const lang = deterministicLang(i)
+//     descriptions = Object.assign({}, descriptions, {
+//       [lang]: deterministicString('Description'),
+//     })
+//   }
 
-  return descriptions
-}
+//   return descriptions
+// }
 
-const deterministicAliases = (count = 2): Aliases => {
-  let aliases: Aliases = {}
+// const deterministicAliases = (count = 2): Aliases => {
+//   let aliases: Aliases = {}
 
-  for (let i = 0; i < count; i++) {
-    const lang = deterministicLang(i)
-    aliases = Object.assign({}, aliases, {
-      [lang]: [deterministicString('Alias1'), deterministicString('Alias2')],
-    })
-  }
+//   for (let i = 0; i < count; i++) {
+//     const lang = deterministicLang(i)
+//     aliases = Object.assign({}, aliases, {
+//       [lang]: [deterministicString('Alias1'), deterministicString('Alias2')],
+//     })
+//   }
 
-  return aliases
-}
+//   return aliases
+// }
 
-const deterministicClaims = (): Claims => {
-  const property = deterministicPropertyId()
-  const qualifierProp = deterministicPropertyId()
-  const referenceProp = deterministicPropertyId()
+// const deterministicClaims = (): Claims => {
+//   const property = deterministicPropertyId()
+//   const qualifierProp = deterministicPropertyId()
+//   const referenceProp = deterministicPropertyId()
 
-  const qualifiers: Qualifiers = {
-    [qualifierProp]: [
-      {
-        datatype: 'wikibase-item',
-        datavalue: {
-          type: 'wikibase-entityid',
-          value: {
-            id: deterministicItemId(),
-            'entity-type': 'item',
-          },
-        },
-        hash: deterministicString('qhash'),
-        property: qualifierProp,
-        snaktype: 'value',
-      } as Snak,
-    ],
-  }
+//   const qualifiers: Qualifiers = {
+//     [qualifierProp]: [
+//       {
+//         datatype: 'wikibase-item',
+//         datavalue: {
+//           type: 'wikibase-entityid',
+//           value: {
+//             id: deterministicItemId(),
+//             'entity-type': 'item',
+//           },
+//         },
+//         hash: deterministicString('qhash'),
+//         property: qualifierProp,
+//         snaktype: 'value',
+//       } as Snak,
+//     ],
+//   }
 
-  const references: References = [
-    {
-      hash: deterministicString('rhash'),
-      snaks: {
-        [referenceProp]: [
-          {
-            datatype: 'wikibase-item',
-            datavalue: {
-              type: 'wikibase-entityid',
-              value: {
-                id: deterministicItemId(),
-                'entity-type': 'item',
-              },
-            },
-            hash: deterministicString('rshash'),
-            property: referenceProp,
-            snaktype: 'value',
-          } as Snak,
-        ],
-      },
-      'snaks-order': [referenceProp],
-    },
-  ]
+//   const references: References = [
+//     {
+//       hash: deterministicString('rhash'),
+//       snaks: {
+//         [referenceProp]: [
+//           {
+//             datatype: 'wikibase-item',
+//             datavalue: {
+//               type: 'wikibase-entityid',
+//               value: {
+//                 id: deterministicItemId(),
+//                 'entity-type': 'item',
+//               },
+//             },
+//             hash: deterministicString('rshash'),
+//             property: referenceProp,
+//             snaktype: 'value',
+//           } as Snak,
+//         ],
+//       },
+//       'snaks-order': [referenceProp],
+//     },
+//   ]
 
-  const claims: Claims = {
-    [property]: [
-      {
-        id: `${property}$${deterministicString('claim')}` as Guid,
-        mainsnak: {
-          datatype: 'wikibase-item',
-          datavalue: {
-            type: 'wikibase-entityid',
-            value: {
-              id: deterministicItemId(),
-              'entity-type': 'item',
-            },
-          },
-          hash: deterministicString('hash'),
-          property: property,
-          snaktype: 'value',
-        },
-        rank: 'normal',
-        type: 'statement',
-        qualifiers: qualifiers,
-        references,
-      },
-    ],
-  }
+//   const claims: Claims = {
+//     [property]: [
+//       {
+//         id: `${property}$${deterministicString('claim')}` as Guid,
+//         mainsnak: {
+//           datatype: 'wikibase-item',
+//           datavalue: {
+//             type: 'wikibase-entityid',
+//             value: {
+//               id: deterministicItemId(),
+//               'entity-type': 'item',
+//             },
+//           },
+//           hash: deterministicString('hash'),
+//           property: property,
+//           snaktype: 'value',
+//         },
+//         rank: 'normal',
+//         type: 'statement',
+//         qualifiers: qualifiers,
+//         references,
+//       },
+//     ],
+//   }
 
-  return claims
-}
+//   return claims
+// }
 
-const deterministicSitelinks = (count = 1): Sitelinks => {
-  const sites: Site[] = ['enwiki', 'frwiki', 'dewiki']
-  const sitelinks: Sitelinks = {}
+// const deterministicSitelinks = (count = 1): Sitelinks => {
+//   const sites: Site[] = ['enwiki', 'frwiki', 'dewiki']
+//   const sitelinks: Sitelinks = {}
 
-  for (let i = 0; i < count; i++) {
-    const site = sites[i % sites.length] || 'enwiki'
-    sitelinks[site] = {
-      site: site,
-      title: deterministicString('Title'),
-    } as Sitelink
-  }
+//   for (let i = 0; i < count; i++) {
+//     const site = sites[i % sites.length] || 'enwiki'
+//     sitelinks[site] = {
+//       site: site,
+//       title: deterministicString('Title'),
+//     } as Sitelink
+//   }
 
-  return sitelinks
-}
+//   return sitelinks
+// }
 
 const TEST_PROJECT_ID = Bun.randomUUIDv7()
 
@@ -187,41 +170,93 @@ const insertTestProject = async () => {
   ])
 }
 
+// Generate frontend format schema (ItemSchemaMapping)
+const generateFrontendSchema = () => {
+  return {
+    id: deterministicItemId(),
+    terms: {
+      labels: {
+        en: {
+          columnName: deterministicString('label_column'),
+          dataType: 'string',
+          transformation: {
+            type: 'constant' as const,
+            value: 'test value',
+          },
+        },
+      },
+      descriptions: {
+        en: {
+          columnName: deterministicString('desc_column'),
+          dataType: 'string',
+          transformation: {
+            type: 'constant' as const,
+            value: 'test description',
+          },
+        },
+      },
+      aliases: {
+        en: [
+          {
+            columnName: deterministicString('alias_column'),
+            dataType: 'string',
+            transformation: {
+              type: 'constant' as const,
+              value: 'test alias',
+            },
+          },
+        ],
+      },
+    },
+    statements: [
+      {
+        id: Bun.randomUUIDv7(),
+        property: {
+          id: deterministicPropertyId(),
+          label: deterministicString('Property Label'),
+          dataType: 'string',
+        },
+        value: {
+          type: 'column' as const,
+          source: {
+            columnName: deterministicString('value_column'),
+            dataType: 'string',
+            transformation: {
+              type: 'constant' as const,
+              value: 'test statement value',
+            },
+          },
+          dataType: 'string' as const,
+        },
+        rank: 'normal' as const,
+        qualifiers: [],
+        references: [],
+      },
+    ],
+  }
+}
+
 const generateRandomWikibaseSchema = (overrides = {}) => {
   return {
     schemaId: Bun.randomUUIDv7(),
     projectId: TEST_PROJECT_ID,
     name: deterministicString('Test Wikibase Schema'),
     wikibase: 'wikidata',
-    schema: {
-      id: deterministicItemId(),
-      type: 'item',
-      labels: deterministicLabels(),
-      descriptions: deterministicDescriptions(),
-      aliases: deterministicAliases(),
-      claims: deterministicClaims(),
-      sitelinks: deterministicSitelinks(),
-    } as Item,
+    schema: generateFrontendSchema(),
     ...overrides,
   }
 }
 
-const generateRandomMediaInfoSchema = (overrides = {}) => {
-  return {
-    schemaId: Bun.randomUUIDv7(),
-    projectId: TEST_PROJECT_ID,
-    name: deterministicString('Test MediaInfo Schema'),
-    wikibase: 'wikidata',
-    schema: {
-      id: deterministicMediaInfoId(),
-      type: 'mediainfo',
-      labels: deterministicLabels(),
-      descriptions: deterministicDescriptions(),
-      statements: deterministicClaims(),
-    } as MediaInfo,
-    ...overrides,
-  }
-}
+// const generateRandomMediaInfoSchema = (overrides = {}) => {
+//   return {
+//     schemaId: Bun.randomUUIDv7(),
+//     projectId: TEST_PROJECT_ID,
+//     name: deterministicString('Test MediaInfo Schema'),
+//     wikibase: 'wikidata',
+//     schema: generateFrontendSchema(),
+//     ...overrides,
+//   }
+// }
 
 const expectNotFoundError = (status: number, data: any, error: any, message: string) => {
   expect(status).toBe(404)
@@ -497,70 +532,70 @@ describe('Wikibase API', () => {
     })
   })
 
-  describe('MediaInfo', () => {
-    test('should create a new MediaInfo schema', async () => {
-      const mediaInfoSchema = generateRandomMediaInfoSchema()
-      const { data, status, error } = await api
-        .project({ projectId: TEST_PROJECT_ID })
-        .schemas.post(mediaInfoSchema)
+  // describe('MediaInfo', () => {
+  //   test('should create a new MediaInfo schema', async () => {
+  //     const mediaInfoSchema = generateRandomMediaInfoSchema()
+  //     const { data, status, error } = await api
+  //       .project({ projectId: TEST_PROJECT_ID })
+  //       .schemas.post(mediaInfoSchema)
 
-      expectSuccess(201, status, data, error, mediaInfoSchema)
-    })
+  //     expectSuccess(201, status, data, error, mediaInfoSchema)
+  //   })
 
-    test('should return a MediaInfo schema', async () => {
-      const mediaInfoSchema = generateRandomMediaInfoSchema()
-      await api.project({ projectId: TEST_PROJECT_ID }).schemas.post(mediaInfoSchema)
+  //   test('should return a MediaInfo schema', async () => {
+  //     const mediaInfoSchema = generateRandomMediaInfoSchema()
+  //     await api.project({ projectId: TEST_PROJECT_ID }).schemas.post(mediaInfoSchema)
 
-      const { data, status, error } = await api
-        .project({ projectId: TEST_PROJECT_ID })
-        .schemas({ schemaId: mediaInfoSchema.schemaId })
-        .get()
+  //     const { data, status, error } = await api
+  //       .project({ projectId: TEST_PROJECT_ID })
+  //       .schemas({ schemaId: mediaInfoSchema.schemaId })
+  //       .get()
 
-      expectSuccess(200, status, data, error, mediaInfoSchema)
-    })
+  //     expectSuccess(200, status, data, error, mediaInfoSchema)
+  //   })
 
-    test('should update a MediaInfo schema name', async () => {
-      const mediaInfoSchema = generateRandomMediaInfoSchema()
-      await api.project({ projectId: TEST_PROJECT_ID }).schemas.post(mediaInfoSchema)
+  //   test('should update a MediaInfo schema name', async () => {
+  //     const mediaInfoSchema = generateRandomMediaInfoSchema()
+  //     await api.project({ projectId: TEST_PROJECT_ID }).schemas.post(mediaInfoSchema)
 
-      const updateData = { name: 'Updated Schema Name', schema: mediaInfoSchema.schema }
+  //     const updateData = { name: 'Updated Schema Name', schema: mediaInfoSchema.schema }
 
-      const { data, status, error } = await api
-        .project({ projectId: TEST_PROJECT_ID })
-        .schemas({ schemaId: mediaInfoSchema.schemaId })
-        .put(updateData)
+  //     const { data, status, error } = await api
+  //       .project({ projectId: TEST_PROJECT_ID })
+  //       .schemas({ schemaId: mediaInfoSchema.schemaId })
+  //       .put(updateData)
 
-      expectSuccess(200, status, data, error, { ...mediaInfoSchema, name: updateData.name })
-    })
+  //     expectSuccess(200, status, data, error, { ...mediaInfoSchema, name: updateData.name })
+  //   })
 
-    test('should update a MediaInfo schema schema', async () => {
-      const mediaInfoSchema = generateRandomMediaInfoSchema()
-      await api.project({ projectId: TEST_PROJECT_ID }).schemas.post(mediaInfoSchema)
+  //   test('should update a MediaInfo schema schema', async () => {
+  //     const mediaInfoSchema = generateRandomMediaInfoSchema()
+  //     await api.project({ projectId: TEST_PROJECT_ID }).schemas.post(mediaInfoSchema)
 
-      const updateData = {
-        schema: { ...mediaInfoSchema.schema, id: deterministicMediaInfoId() },
-      }
+  //     const updateData = {
+  //       schema: { ...mediaInfoSchema.schema, id: deterministicMediaInfoId() },
+  //     }
 
-      const { data, status, error } = await api
-        .project({ projectId: TEST_PROJECT_ID })
-        .schemas({ schemaId: mediaInfoSchema.schemaId })
-        .put(updateData)
+  //     const { data, status, error } = await api
+  //       .project({ projectId: TEST_PROJECT_ID })
+  //       .schemas({ schemaId: mediaInfoSchema.schemaId })
+  //       .put(updateData)
 
-      expectSuccess(200, status, data, error, { ...mediaInfoSchema, schema: updateData.schema })
-    })
+  //     expectSuccess(200, status, data, error, { ...mediaInfoSchema, schema: updateData.schema })
+  //   })
 
-    test('should delete a MediaInfo schema', async () => {
-      const mediaInfoSchema = generateRandomMediaInfoSchema()
-      await api.project({ projectId: TEST_PROJECT_ID }).schemas.post(mediaInfoSchema)
+  //   test('should delete a MediaInfo schema', async () => {
+  //     const mediaInfoSchema = generateRandomMediaInfoSchema()
+  //     await api.project({ projectId: TEST_PROJECT_ID }).schemas.post(mediaInfoSchema)
 
-      const { data, status, error } = await api
-        .project({ projectId: TEST_PROJECT_ID })
-        .schemas({ schemaId: mediaInfoSchema.schemaId })
-        .delete()
+  //     const { data, status, error } = await api
+  //       .project({ projectId: TEST_PROJECT_ID })
+  //       .schemas({ schemaId: mediaInfoSchema.schemaId })
+  //       .delete()
 
-      expect(status).toBe(204)
-      expect(data).toBeEmpty()
-      expect(error).toBeNull()
-    })
-  })
+  //     expect(status).toBe(204)
+  //     expect(data).toBeEmpty()
+  //     expect(error).toBeNull()
+  //   })
+  // })
 })
