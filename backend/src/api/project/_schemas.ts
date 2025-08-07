@@ -16,11 +16,7 @@ export const ProjectResponseSchema = t.Object({
 
 export type Project = typeof ProjectResponseSchema.static
 
-export const UUIDValidator = t.String({ pattern: UUID_REGEX })
-
-export const UUIDParam = t.Object({
-  id: UUIDValidator,
-})
+export const UUIDPattern = t.String({ pattern: UUID_REGEX })
 
 export const PaginationQuery = t.Object({
   offset: t.Optional(t.Numeric({ minimum: 0, default: 0 })),
