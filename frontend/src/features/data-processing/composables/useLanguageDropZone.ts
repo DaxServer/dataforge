@@ -1,5 +1,5 @@
 import { ref, computed } from 'vue'
-import type { ColumnMapping } from '@frontend/shared/types/wikibase-schema'
+import type { ColumnMapping } from '@backend/api/project/project.wikibase'
 import { useSchemaStore } from '@frontend/features/wikibase-schema/stores/schema.store'
 
 /**

@@ -10,7 +10,8 @@ import type {
   DropValidation,
   DropZoneConfig,
 } from '@frontend/shared/types/drag-drop'
-import type { ColumnInfo, WikibaseDataType } from '@frontend/shared/types/wikibase-schema'
+import type { ColumnInfo } from '@frontend/shared/types/wikibase-schema'
+import type { WikibaseDataType } from '@backend/api/project/project.wikibase'
 
 // Helper functions for path parsing
 const getTargetTypeFromPath = (path: string): DropTarget['type'] => {

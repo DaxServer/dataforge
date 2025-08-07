@@ -3,7 +3,7 @@ import { createTestingPinia } from '@pinia/testing'
 import { setActivePinia } from 'pinia'
 import { useSchemaApi } from '@frontend/features/wikibase-schema/composables/useSchemaApi'
 import { useSchemaStore } from '@frontend/features/wikibase-schema/stores/schema.store'
-import type { WikibaseSchemaMapping } from '@frontend/shared/types/wikibase-schema'
+import type { WikibaseSchemaResponse } from '@backend/api/project/project.wikibase'
 import type { UUID } from 'crypto'
 
 // Test UUIDs for consistent testing
@@ -54,12 +54,12 @@ const originalUseApi = (globalThis as any).useApi
 const originalUseErrorHandling = (globalThis as any).useErrorHandling
 const originalUseSchemaStore = (globalThis as any).useSchemaStore
 
-const mockSchema: WikibaseSchemaMapping = {
+const mockSchema: WikibaseSchemaResponse = {
   id: TEST_SCHEMA_ID,
-  projectId: TEST_PROJECT_ID,
+  project_id: TEST_PROJECT_ID,
   name: 'Test Schema',
   wikibase: '',
-  item: {
+  schema: {
     terms: {
       labels: {
         en: {
@@ -72,20 +72,20 @@ const mockSchema: WikibaseSchemaMapping = {
     },
     statements: [],
   },
-  createdAt: '2024-01-01T00:00:00Z',
-  updatedAt: '2024-01-01T00:00:00Z',
+  created_at: '2024-01-01T00:00:00Z',
+  updated_at: '2024-01-01T00:00:00Z',
 }
 
-const mockCreatedSchema: WikibaseSchemaMapping = {
+const mockCreatedSchema: WikibaseSchemaResponse = {
   ...mockSchema,
   id: TEST_SCHEMA_789_ID,
   name: 'New Schema',
 }
 
-const mockUpdatedSchema: WikibaseSchemaMapping = {
+const mockUpdatedSchema: WikibaseSchemaResponse = {
   ...mockSchema,
   name: 'Updated Schema',
-  updatedAt: '2024-01-02T00:00:00Z',
+  updated_at: '2024-01-02T00:00:00Z',
 }
 
 describe('useSchemaApi', () => {
@@ -148,8 +148,8 @@ describe('useSchemaApi', () => {
       expect(store.setLoading).toHaveBeenCalledWith(true)
       expect(store.setLoading).toHaveBeenLastCalledWith(false)
       // Verify store state was updated through the mocked actions
-      expect(store.schemaId).toBe(mockSchema.id)
-      expect(store.projectId).toBe(mockSchema.projectId)
+      expect(store.schemaId).toBe(mockSchema.id as UUID)
+      expect(store.projectId).toBe(mockSchema.project_id as UUID)
       expect(store.schemaName).toBe(mockSchema.name)
       expect(store.wikibase).toBe(mockSchema.wikibase)
     })
@@ -212,8 +212,8 @@ describe('useSchemaApi', () => {
         name: 'New Schema',
         wikibase: 'https://www.wikidata.org',
       })
-      expect(store.schemaId).toBe(mockCreatedSchema.id)
-      expect(store.projectId).toBe(mockCreatedSchema.projectId)
+      expect(store.schemaId).toBe(mockCreatedSchema.id as UUID)
+      expect(store.projectId).toBe(mockCreatedSchema.project_id as UUID)
       expect(store.schemaName).toBe(mockCreatedSchema.name)
       expect(store.wikibase).toBe(mockCreatedSchema.wikibase)
       expect(store.setLoading).toHaveBeenCalledWith(true)
@@ -261,10 +261,10 @@ describe('useSchemaApi', () => {
       expect(mockSchemaIdPut).toHaveBeenCalledWith({
         name: updatedData.name,
         wikibase: updatedData.wikibase,
-        schema: updatedData.item,
+        schema: updatedData.schema,
       })
-      expect(store.schemaId).toBe(mockUpdatedSchema.id)
-      expect(store.projectId).toBe(mockUpdatedSchema.projectId)
+      expect(store.schemaId).toBe(mockUpdatedSchema.id as UUID)
+      expect(store.projectId).toBe(mockUpdatedSchema.project_id as UUID)
       expect(store.schemaName).toBe(mockUpdatedSchema.name)
       expect(store.wikibase).toBe(mockUpdatedSchema.wikibase)
       expect(store.markAsSaved).toHaveBeenCalled()
@@ -284,8 +284,8 @@ describe('useSchemaApi', () => {
       // Update the schema
       await updateSchema(TEST_PROJECT_ID, TEST_SCHEMA_ID, mockSchema)
 
-      expect(store.schemaId).toBe(mockUpdatedSchema.id)
-      expect(store.projectId).toBe(mockUpdatedSchema.projectId)
+      expect(store.schemaId).toBe(mockUpdatedSchema.id as UUID)
+      expect(store.projectId).toBe(mockUpdatedSchema.project_id as UUID)
       expect(store.schemaName).toBe(mockUpdatedSchema.name)
       expect(store.wikibase).toBe(mockUpdatedSchema.wikibase)
       expect(store.markAsSaved).toHaveBeenCalled()
@@ -428,12 +428,12 @@ describe('useSchemaApi', () => {
       expect(result).toHaveLength(1)
       expect(result[0]).toEqual({
         id: TEST_SCHEMA_ID,
-        projectId: TEST_PROJECT_ID,
+        project_id: TEST_PROJECT_ID,
         name: 'Test Schema',
         wikibase: 'https://www.wikidata.org',
-        createdAt: '2024-01-01T00:00:00Z',
-        updatedAt: '2024-01-02T00:00:00Z',
-        item: backendSchema.schema,
+        created_at: '2024-01-01T00:00:00Z',
+        updated_at: '2024-01-02T00:00:00Z',
+        schema: backendSchema.schema,
       })
     })
   })

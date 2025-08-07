@@ -1,9 +1,6 @@
 import { describe, test, expect, beforeEach } from 'bun:test'
-import type {
-  ColumnInfo,
-  WikibaseDataType,
-  PropertyReference,
-} from '@frontend/shared/types/wikibase-schema'
+import type { ColumnInfo } from '@frontend/shared/types/wikibase-schema'
+import type { WikibaseDataType, PropertyReference } from '@backend/api/project/project.wikibase'
 import { useValueMapping } from '@frontend/features/wikibase-schema/composables/useValueMapping'
 
 describe('useValueMapping', () => {

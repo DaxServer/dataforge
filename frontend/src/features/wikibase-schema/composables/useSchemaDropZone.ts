@@ -5,6 +5,7 @@ import type { ColumnInfo } from '@frontend/shared/types/wikibase-schema'
 import { useDragDropHandlers } from '@frontend/shared/composables/useDragDropHandlers'
 import { useValidationCore } from '@frontend/features/wikibase-schema/composables/useValidationCore'
 import { useDropZoneStyling } from '@frontend/shared/composables/useDropZoneStyling'
+import type { WikibaseDataType } from '@backend/api/project/project.wikibase'
 
 /**
  * Simplified schema drop zone composable using shared validation and styling

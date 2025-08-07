@@ -3,7 +3,7 @@ import type {
   PropertyReference,
   ValueMapping,
   WikibaseDataType,
-} from '@frontend/shared/types/wikibase-schema'
+} from '@backend/api/project/project.wikibase'
 import { useStatementDataTypeValidation } from '@frontend/features/wikibase-schema/composables/useStatementDataTypeValidation'
 
 describe('useStatementDataTypeValidation', () => {

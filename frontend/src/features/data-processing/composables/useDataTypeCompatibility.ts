@@ -1,5 +1,6 @@
 import { ref, readonly } from 'vue'
-import type { WikibaseDataType, ColumnInfo } from '@frontend/shared/types/wikibase-schema'
+import type { ColumnInfo } from '@frontend/shared/types/wikibase-schema'
+import type { WikibaseDataType } from '@backend/api/project/project.wikibase'
 import { useColumnDataTypeIndicators } from '@frontend/features/data-processing/composables/useColumnDataTypeIndicators'
 
 /**

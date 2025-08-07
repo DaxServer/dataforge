@@ -3,7 +3,7 @@ import { createPinia, setActivePinia } from 'pinia'
 import { useStatementConfig } from '@frontend/features/wikibase-schema/composables/useStatementConfig'
 import { useSchemaStore } from '@frontend/features/wikibase-schema/stores/schema.store'
 import { PropertyId } from '@backend/types/wikibase-schema'
-import type { StatementRank } from '@frontend/shared/types/wikibase-schema'
+import type { StatementRank } from '@backend/api/project/project.wikibase'
 
 describe('useStatementConfig', () => {
   beforeEach(() => {
@@ -130,7 +130,7 @@ describe('useStatementConfig', () => {
     expect(currentStatement.value.value.type).toBe('column')
     expect(currentStatement.value.value.source).toEqual({ columnName: '', dataType: 'VARCHAR' })
     expect(currentStatement.value.value.dataType).toBe('string')
-    // @ts-expect-error
+    // @ts-expect-error ToDo Fix
     expect(currentStatement.value.rank).toBe('normal' as StatementRank)
   })
 

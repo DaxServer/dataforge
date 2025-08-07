@@ -1,16 +1,15 @@
 import type {
-  WikibaseSchemaMapping,
-  ItemSchemaMapping,
-  TermsSchemaMapping,
-  StatementSchemaMapping,
   Label,
   ColumnMapping,
+  StatementSchemaMapping,
+  TermsSchemaMapping,
   PropertyReference,
   ValueMapping,
   StatementRank,
   PropertyValueMap,
   ReferenceSchemaMapping,
-} from '@frontend/shared/types/wikibase-schema'
+  ItemSchema,
+} from '@backend/api/project/project.wikibase'
 import type { UUID } from 'crypto'
 
 /**
@@ -39,7 +38,7 @@ export const useSchemaBuilder = () => {
       projectId,
       name,
       wikibase: wikibaseUrl,
-      item: buildItemSchema(labels, descriptions, aliases, statements),
+      schema: buildItemSchema(labels, descriptions, aliases, statements),
       createdAt: createdAt ?? now,
       updatedAt: updatedAt ?? now,
     }
@@ -53,7 +52,7 @@ export const useSchemaBuilder = () => {
     descriptions: Label,
     aliases: Record<string, ColumnMapping[]>,
     statements: StatementSchemaMapping[],
-  ): ItemSchemaMapping => {
+  ): ItemSchema => {
     return {
       terms: buildTermsSchema(labels, descriptions, aliases),
       statements,

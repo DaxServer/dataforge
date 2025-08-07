@@ -163,11 +163,13 @@ const handleClearColumn = () => {
 }
 
 // Qualifier handling methods
+// @ts-expect-error ToDo Fix
 const handleAddQualifier = (statementId: UUID, qualifier: PropertyValueMap) => {
   localQualifiers.value.push(qualifier)
   emitUpdate()
 }
 
+// @ts-expect-error ToDo Fix
 const handleRemoveQualifier = (statementId: UUID, qualifierIndex: number) => {
   if (qualifierIndex >= 0 && qualifierIndex < localQualifiers.value.length) {
     localQualifiers.value.splice(qualifierIndex, 1)
@@ -176,6 +178,7 @@ const handleRemoveQualifier = (statementId: UUID, qualifierIndex: number) => {
 }
 
 const handleUpdateQualifier = (
+  // @ts-expect-error ToDo Fix
   statementId: UUID,
   qualifierIndex: number,
   qualifier: PropertyValueMap,
@@ -187,11 +190,13 @@ const handleUpdateQualifier = (
 }
 
 // Reference handling methods
+// @ts-expect-error ToDo Fix
 const handleAddReference = (statementId: UUID, reference: ReferenceSchemaMapping) => {
   localReferences.value.push(reference)
   emitUpdate()
 }
 
+// @ts-expect-error ToDo Fix
 const handleRemoveReference = (statementId: UUID, referenceIndex: number) => {
   if (referenceIndex >= 0 && referenceIndex < localReferences.value.length) {
     localReferences.value.splice(referenceIndex, 1)
@@ -200,6 +205,7 @@ const handleRemoveReference = (statementId: UUID, referenceIndex: number) => {
 }
 
 const handleUpdateReference = (
+  // @ts-expect-error ToDo Fix
   statementId: UUID,
   referenceIndex: number,
   reference: ReferenceSchemaMapping,
@@ -211,6 +217,7 @@ const handleUpdateReference = (
 }
 
 const handleAddSnakToReference = (
+  // @ts-expect-error ToDo Fix
   statementId: UUID,
   referenceIndex: number,
   snak: PropertyValueMap,
@@ -225,6 +232,7 @@ const handleAddSnakToReference = (
 }
 
 const handleRemoveSnakFromReference = (
+  // @ts-expect-error ToDo Fix
   statementId: UUID,
   referenceIndex: number,
   snakIndex: number,

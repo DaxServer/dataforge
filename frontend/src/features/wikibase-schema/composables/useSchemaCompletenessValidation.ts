@@ -223,7 +223,7 @@ export const useSchemaCompletenessValidation = () => {
       }
     }
 
-    const item = schema.item
+    const item = schema.schema
 
     // Handle case where item might not exist or be properly structured
     if (!item) {

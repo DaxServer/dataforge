@@ -1,10 +1,4 @@
-import type { ItemId, PropertyId } from '@backend/types/wikibase-schema'
-import type { UUID } from 'crypto'
-
-/**
- * Frontend-specific Wikibase schema types for the DataForge application
- * These types extend and complement the backend schema definitions
- */
+import type { ItemSchema } from '@backend/api/project/project.wikibase'
 
 export type ValidationErrorType = 'error' | 'warning'
 
@@ -54,41 +48,14 @@ export const ValidationMessages: Record<ValidationErrorCode, string> = {
   DUPLICATE_PROPERTY_MAPPING: 'Property is already mapped in this context',
 }
 
-// Core schema mapping interfaces
-export interface WikibaseSchemaMapping {
+export type WikibaseSchemaMapping = {
   id: UUID
   projectId: UUID
   name: string
   wikibase: string
-  item: ItemSchemaMapping
+  schema: ItemSchema
   createdAt: string
   updatedAt: string
-}
-
-export interface ItemSchemaMapping {
-  id?: ItemId
-  terms: TermsSchemaMapping
-  statements: StatementSchemaMapping[]
-}
-
-export type Label = Record<string, ColumnMapping>
-
-export interface TermsSchemaMapping {
-  labels: Label // language code -> column mapping
-  descriptions: Label
-  aliases: Record<string, ColumnMapping[]>
-}
-
-export interface ColumnMapping {
-  columnName: string
-  dataType: string
-  transformation?: TransformationRule
-}
-
-export interface TransformationRule {
-  type: 'constant' | 'expression' | 'lookup'
-  value: string
-  parameters?: Record<string, unknown>
 }
 
 // Transformation function interface for more complex transformations
@@ -107,64 +74,6 @@ export interface TransformationParameter {
   description?: string
 }
 
-export interface StatementSchemaMapping {
-  id: UUID
-  property: PropertyReference
-  value: ValueMapping
-  rank: StatementRank
-  qualifiers: PropertyValueMap[]
-  references: ReferenceSchemaMapping[]
-}
-
-export interface PropertyReference {
-  id: PropertyId // P-ID using existing PropertyId type
-  label?: string
-  dataType: string
-}
-
-export type ValueMapping =
-  | {
-      type: 'column'
-      source: ColumnMapping
-      dataType: WikibaseDataType
-    }
-  | {
-      type: 'constant'
-      source: string
-      dataType: WikibaseDataType
-    }
-  | {
-      type: 'expression'
-      source: string
-      dataType: WikibaseDataType
-    }
-
-export interface PropertyValueMap {
-  property: PropertyReference
-  value: ValueMapping
-}
-
-// A complete reference containing multiple property-value pairs
-export interface ReferenceSchemaMapping {
-  id: UUID // Unique identifier for this reference
-  snaks: PropertyValueMap[] // Array of property-value pairs in this reference
-}
-
-export type StatementRank = 'preferred' | 'normal' | 'deprecated'
-
-// Wikibase data types
-export type WikibaseDataType =
-  | 'string'
-  | 'wikibase-item'
-  | 'wikibase-property'
-  | 'quantity'
-  | 'time'
-  | 'globe-coordinate'
-  | 'url'
-  | 'external-id'
-  | 'monolingualtext'
-  | 'commonsMedia'
-
 // Column information interface
 export interface ColumnInfo {
   name: string
@@ -175,34 +84,34 @@ export interface ColumnInfo {
 }
 
 // Schema validation rules
-export interface ValidationRule {
-  id: string
-  name: string
-  description: string
-  validate: (schema: WikibaseSchemaMapping) => ValidationError[]
-}
+// export interface ValidationRule {
+//   id: string
+//   name: string
+//   description: string
+//   validate: (schema: WikibaseSchemaMapping) => ValidationError[]
+// }
 
 // Additional interfaces from design document
-export interface SchemaMapping {
-  item: ItemSchemaMapping
-  columnMappings: Record<string, ColumnMapping>
-  validationRules: ValidationRule[]
-}
+// export interface SchemaMapping {
+//   item: ItemSchemaMapping
+//   columnMappings: Record<string, ColumnMapping>
+//   validationRules: ValidationRule[]
+// }
 
-export interface ColumnReference {
-  columnName: string
-  dataType: string
-  required: boolean
-}
+// export interface ColumnReference {
+//   columnName: string
+//   dataType: string
+//   required: boolean
+// }
 
-export interface ValueSchemaMapping {
-  columnReference: ColumnReference
-  dataType: WikibaseDataType
-  transformation?: TransformationFunction
-}
+// export interface ValueSchemaMapping {
+//   columnReference: ColumnReference
+//   dataType: WikibaseDataType
+//   transformation?: TransformationFunction
+// }
 
 // Extended schema mapping with validation
-export interface ValidatedSchemaMapping extends WikibaseSchemaMapping {
-  validation: ValidationResult
-  completeness: number // 0-100 percentage
-}
+// export interface ValidatedSchemaMapping extends WikibaseSchemaMapping {
+//   validation: ValidationResult
+//   completeness: number // 0-100 percentage
+// }
