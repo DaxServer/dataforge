@@ -151,9 +151,11 @@ export const useSchemaApi = () => {
       }
 
       return data.data.map((schema) => ({
-        ...schema,
         id: schema.id as UUID,
         projectId: schema.project_id as UUID,
+        name: schema.name,
+        wikibase: schema.wikibase,
+        schema: schema.schema,
         createdAt: schema.created_at,
         updatedAt: schema.updated_at,
       }))

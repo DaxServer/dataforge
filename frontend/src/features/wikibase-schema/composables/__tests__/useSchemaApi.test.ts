@@ -369,7 +369,26 @@ describe('useSchemaApi', () => {
 
       expect(mockApi.project).toHaveBeenCalledWith({ projectId: TEST_PROJECT_ID })
       expect(mockSchemasGet).toHaveBeenCalledTimes(1)
-      expect(result).toEqual([mockSchema, mockCreatedSchema])
+      expect(result).toEqual([
+        {
+          id: TEST_SCHEMA_ID,
+          projectId: TEST_PROJECT_ID,
+          name: 'Test Schema',
+          wikibase: '',
+          schema: mockSchema.schema,
+          createdAt: '2024-01-01T00:00:00Z',
+          updatedAt: '2024-01-01T00:00:00Z',
+        },
+        {
+          id: TEST_SCHEMA_789_ID,
+          projectId: TEST_PROJECT_ID,
+          name: 'New Schema',
+          wikibase: '',
+          schema: mockCreatedSchema.schema,
+          createdAt: '2024-01-01T00:00:00Z',
+          updatedAt: '2024-01-01T00:00:00Z',
+        },
+      ])
     })
 
     it('should handle API errors when loading all schemas', async () => {
@@ -428,12 +447,12 @@ describe('useSchemaApi', () => {
       expect(result).toHaveLength(1)
       expect(result[0]).toEqual({
         id: TEST_SCHEMA_ID,
-        project_id: TEST_PROJECT_ID,
+        projectId: TEST_PROJECT_ID,
         name: 'Test Schema',
         wikibase: 'https://www.wikidata.org',
-        created_at: '2024-01-01T00:00:00Z',
-        updated_at: '2024-01-02T00:00:00Z',
         schema: backendSchema.schema,
+        createdAt: '2024-01-01T00:00:00Z',
+        updatedAt: '2024-01-02T00:00:00Z',
       })
     })
   })

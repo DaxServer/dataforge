@@ -1,6 +1,5 @@
 import type {
   Label,
-  ColumnMapping,
   StatementSchemaMapping,
   TermsSchemaMapping,
   PropertyReference,
@@ -100,7 +99,7 @@ export const useSchemaBuilder = () => {
    */
   const createEmptySchema = (projectId: UUID, wikibaseUrl: string): WikibaseSchemaMapping => {
     return buildSchema(
-      crypto.randomUUID() as UUID,
+      crypto.randomUUID(),
       projectId,
       'Untitled Schema',
       wikibaseUrl,
