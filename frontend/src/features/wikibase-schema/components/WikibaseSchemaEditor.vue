@@ -50,6 +50,7 @@ const currentStatementWithQualifiers = ref<{
   value: ValueMapping
   rank: StatementRank
   qualifiers?: PropertyValueMap[]
+  references?: ReferenceSchemaMapping[]
 }>({
   property: null,
   value: {
@@ -62,6 +63,7 @@ const currentStatementWithQualifiers = ref<{
   },
   rank: 'normal',
   qualifiers: [],
+  references: [],
 })
 
 // Computed properties
@@ -231,6 +233,7 @@ const handleAddStatement = () => {
     },
     rank: 'normal',
     qualifiers: [],
+    references: [],
   }
   editingStatementId.value = null
   isAddingStatement.value = true
@@ -239,12 +242,13 @@ const handleAddStatement = () => {
 const handleEditStatement = (statementId: UUID) => {
   const statement = schemaStore.statements.find((s) => s.id === statementId)
   if (statement) {
-    // Load existing statement data for editing including qualifiers
+    // Load existing statement data for editing including qualifiers and references
     currentStatementWithQualifiers.value = {
       property: statement.property,
       value: { ...statement.value },
       rank: statement.rank,
       qualifiers: [...(statement.qualifiers || [])],
+      references: [...(statement.references || [])],
     }
     initializeStatement({
       property: statement.property,
@@ -271,6 +275,7 @@ const handleStatementUpdate = (statement: {
   value: ValueMapping
   rank: StatementRank
   qualifiers?: PropertyValueMap[]
+  references?: ReferenceSchemaMapping[]
 }) => {
   currentStatementWithQualifiers.value = statement
   // Also update the composable state for backward compatibility
@@ -286,23 +291,15 @@ const handleStatementSave = () => {
   if (!currentStatement?.property) return
 
   if (editingStatementId.value) {
-    // Update existing statement
-    const statementIndex = schemaStore.statements.findIndex(
-      (s) => s.id === editingStatementId.value,
+    // Update existing statement using the proper store method
+    schemaStore.updateStatement(
+      editingStatementId.value,
+      currentStatement.property,
+      currentStatement.value,
+      currentStatement.rank,
+      currentStatement.qualifiers || [],
+      currentStatement.references || [],
     )
-    if (statementIndex !== -1) {
-      const existingStatement = schemaStore.statements[statementIndex]
-      if (existingStatement) {
-        schemaStore.statements[statementIndex] = {
-          id: existingStatement.id,
-          property: currentStatement.property,
-          value: currentStatement.value,
-          rank: currentStatement.rank,
-          qualifiers: currentStatement.qualifiers || [],
-          references: existingStatement.references,
-        }
-      }
-    }
   } else {
     // Add new statement
     schemaStore.addStatement(
@@ -310,6 +307,7 @@ const handleStatementSave = () => {
       currentStatement.value,
       currentStatement.rank,
       currentStatement.qualifiers || [],
+      currentStatement.references || [],
     )
   }
 
@@ -332,6 +330,7 @@ const handleCancelStatementEdit = () => {
     },
     rank: 'normal',
     qualifiers: [],
+    references: [],
   }
   resetStatement()
 }

@@ -258,11 +258,7 @@ describe('useSchemaApi', () => {
       await updateSchema(TEST_PROJECT_ID, TEST_SCHEMA_ID, updatedData)
 
       expect(mockApi.project).toHaveBeenCalledWith({ projectId: TEST_PROJECT_ID })
-      expect(mockSchemaIdPut).toHaveBeenCalledWith({
-        name: updatedData.name,
-        wikibase: updatedData.wikibase,
-        schema: updatedData.schema,
-      })
+      expect(mockSchemaIdPut).toHaveBeenCalledWith(updatedData)
       expect(store.schemaId).toBe(mockUpdatedSchema.id as UUID)
       expect(store.projectId).toBe(mockUpdatedSchema.project_id as UUID)
       expect(store.schemaName).toBe(mockUpdatedSchema.name)

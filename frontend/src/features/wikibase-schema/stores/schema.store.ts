@@ -171,6 +171,32 @@ export const useSchemaStore = defineStore('schema', () => {
     }
   }
 
+  const updateStatement = (
+    statementId: UUID,
+    property: PropertyReference,
+    value: ValueMapping,
+    rank: StatementRank,
+    qualifiers: PropertyValueMap[] = [],
+    references: ReferenceSchemaMapping[] = [],
+  ) => {
+    const statementIndex = statements.value.findIndex((s) => s.id === statementId)
+
+    if (statementIndex !== -1) {
+      const existingStatement = statements.value[statementIndex]
+      if (existingStatement) {
+        statements.value[statementIndex] = {
+          id: existingStatement.id,
+          property,
+          value,
+          rank,
+          qualifiers,
+          references,
+        }
+        markDirty()
+      }
+    }
+  }
+
   const markAsSaved = () => {
     const now = new Date()
     isDirty.value = false
@@ -235,6 +261,7 @@ export const useSchemaStore = defineStore('schema', () => {
     removeAliasMapping,
     addStatement,
     removeStatement,
+    updateStatement,
     updateStatementRank,
     updateStatementQualifiers,
     addQualifierToStatement,

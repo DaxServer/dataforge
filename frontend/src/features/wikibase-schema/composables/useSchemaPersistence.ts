@@ -32,11 +32,9 @@ export const useSchemaPersistence = () => {
       if (schemaStore.schemaId) {
         // Update existing schema
         const schemaData = {
-          id: schemaStore.schemaId,
-          projectId: schemaStore.projectId,
           name: schemaStore.schemaName,
           wikibase: schemaStore.wikibase,
-          item: {
+          schema: {
             terms: {
               labels: schemaStore.labels,
               descriptions: schemaStore.descriptions,
@@ -44,8 +42,6 @@ export const useSchemaPersistence = () => {
             },
             statements: schemaStore.statements,
           },
-          createdAt: schemaStore.createdAt,
-          updatedAt: schemaStore.updatedAt,
         }
 
         result = await updateSchema(schemaStore.projectId, schemaStore.schemaId, schemaData)
