@@ -293,7 +293,7 @@ const handleStatementSave = () => {
   if (editingStatementId.value) {
     // Update existing statement using the proper store method
     schemaStore.updateStatement(
-      editingStatementId.value,
+      editingStatementId.value as UUID,
       currentStatement.property,
       currentStatement.value,
       currentStatement.rank,
