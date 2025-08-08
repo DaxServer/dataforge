@@ -2,7 +2,7 @@ import { ref } from 'vue'
 import { useDragDropStore } from '@frontend/features/data-processing/stores/drag-drop.store'
 import { useDataTypeCompatibility } from '@frontend/features/data-processing/composables/useDataTypeCompatibility'
 import { useDragDropHandlers } from '@frontend/shared/composables/useDragDropHandlers'
-import { useRealTimeValidation } from '@frontend/features/wikibase-schema/composables/useRealTimeValidation'
+import { useValidation } from '@frontend/features/wikibase-schema/composables/useValidation'
 import type {
   SchemaDragDropContext,
   DropTarget,
@@ -52,11 +52,11 @@ export const useDragDropContext = (): SchemaDragDropContext & {
     onDropCallback: (columnInfo: ColumnInfo, target: DropTarget) => Promise<void> | void,
   ) => DropZoneConfig
 } => {
-  // Use the global drag-drop store and real-time validation
+  // Use the global drag-drop store and validation
   const store = useDragDropStore()
   const { isDataTypeCompatible } = useDataTypeCompatibility()
   const { createDragOverHandler } = useDragDropHandlers()
-  const realTimeValidation = useRealTimeValidation()
+  const validation = useValidation()
 
   const isOverDropZone = ref(false)
   const dropFeedback = ref<DropFeedback | null>(null)
@@ -80,10 +80,14 @@ export const useDragDropContext = (): SchemaDragDropContext & {
         sourceElement.removeEventListener('dragstart', existingListener)
       }
 
-      // Create new listener
+      // Create new listener that triggers validation on dragstart
       const dragStartHandler = (event: DragEvent) => {
         event.dataTransfer?.setData('application/x-column-data', JSON.stringify(columnInfo))
         event.dataTransfer?.setData('text/plain', columnInfo.name)
+        
+        // Trigger validation immediately on dragstart event
+        // This ensures validation is always active and triggers synchronously
+        validation.triggerDragStartValidation(columnInfo)
       }
 
       // Add new listener and store reference
@@ -105,11 +109,11 @@ export const useDragDropContext = (): SchemaDragDropContext & {
     isOverDropZone.value = true
     store.setHoveredTarget(targetPath)
 
-    // Update feedback based on validation using real-time validation
+    // Update feedback based on validation
     if (store.draggedColumn) {
       const target = store.availableTargets.find((t) => t.path === targetPath)
       if (target) {
-        const feedback = realTimeValidation.getValidationFeedback(store.draggedColumn, target)
+        const feedback = validation.getValidationFeedback(store.draggedColumn, target)
         dropFeedback.value = feedback
       }
     }
@@ -122,16 +126,16 @@ export const useDragDropContext = (): SchemaDragDropContext & {
   }
 
   const validateDrop = (columnInfo: ColumnInfo, target: DropTarget): DropValidation => {
-    // Use the real-time validation system for consistency
-    const validation = realTimeValidation.validateDragOperation(columnInfo, target)
+    // Use the validation system for consistency
+    const validationResult = validation.validateDragOperation(columnInfo, target)
 
-    if (validation.isValid) {
+    if (validationResult.isValid) {
       return {
         isValid: true,
         reason: 'Compatible mapping',
       }
     } else {
-      const primaryError = validation.errors[0]
+      const primaryError = validationResult.errors[0]
       return {
         isValid: false,
         reason: primaryError?.message || 'Invalid mapping',

@@ -244,7 +244,7 @@ interface SchemaDragDropContext {
   isOverDropZone: Ref<boolean>
   hoveredTarget: Ref<string | null>
   
-  // Validation and feedback
+  // Validation and feedback (always active)
   validDropTargets: ComputedRef<DropTarget[]>
   isValidDrop: ComputedRef<boolean>
   dropFeedback: Ref<DropFeedback | null>
@@ -336,10 +336,12 @@ export type StatementRank = 'preferred' | 'normal' | 'deprecated'
 
 The editor implements multi-level validation:
 
-1. **Real-time Validation**: Immediate feedback during drag-and-drop operations
+1. **Drag Validation**: Immediate feedback during drag-and-drop operations, triggered on dragstart
 2. **Schema Validation**: Comprehensive validation before saving
 3. **Data Type Validation**: Ensures column data types are compatible with Wikibase requirements
 4. **Completeness Validation**: Checks for required fields and mappings
+
+The validation system is always active and does not require manual start/stop operations. Individual validation rules can be enabled or disabled, but the validation workflow itself runs continuously.
 
 ### Error Types
 
@@ -419,6 +421,7 @@ const ValidationErrors = {
 - Use Vue 3 Composition API with Pinia stores for state management
 - Implement reactive schema state with automatic persistence
 - Use computed properties for derived state (validation status, completion percentage)
+- Validation is always active and triggered on dragstart events
 
 ### Schema Selection Integration
 - SchemaSelector will be the initial view within WikibaseSchemaEditor
@@ -430,8 +433,9 @@ const ValidationErrors = {
 - Use VueUse `useDraggable` for making column elements draggable with position tracking and visual feedback
 - Use native HTML5 drag and drop events with `DataTransfer` API for custom data transfer between elements
 - Create custom composables that combine VueUse reactivity with HTML5 drag/drop data transfer
-- Implement validation logic using reactive computed properties and event handlers
+- Implement validation logic using reactive computed properties triggered on dragstart events
 - Provide visual feedback using CSS transitions and VueUse's reactive state
+- Validation runs continuously without manual start/stop controls
 
 ### API Integration
 - Leverage existing Elysia backend routes for schema operations
@@ -676,9 +680,9 @@ const handleDrop = (event: DragEvent) => {
 ### Validation and Feedback System
 
 ```typescript
-// useSchemaValidation.ts - Composable for drag validation
+// useValidation.ts - Composable for drag validation (always active)
 // Note: Vue composables are auto-imported (ref, computed, etc.)
-export function useSchemaValidation() {
+export function useValidation() {
   const draggedColumn = ref<ColumnInfo | null>(null)
   
   const isValidDropForLabels = (column: ColumnInfo | null): boolean => {
@@ -718,6 +722,8 @@ export function useSchemaValidation() {
     }
   }
   
+  // Validation is always active - no start/stop methods needed
+  
   return {
     draggedColumn,
     isValidDropForLabels,
@@ -730,7 +736,7 @@ export function useSchemaValidation() {
 ### Global Drag State Management
 
 ```typescript
-// stores/dragDrop.ts - Pinia store for drag state
+// stores/dragDrop.ts - Pinia store for drag state with automatic validation
 export const useDragDropStore = defineStore('dragDrop', () => {
   const draggedColumn = ref<ColumnInfo | null>(null)
   const dragState = ref<DragState>('idle')
@@ -741,6 +747,7 @@ export const useDragDropStore = defineStore('dragDrop', () => {
     draggedColumn.value = column
     dragState.value = 'dragging'
     // Calculate valid drop targets based on column data type
+    // Validation is automatically triggered by this state change
     validDropTargets.value = calculateValidTargets(column)
   }
   

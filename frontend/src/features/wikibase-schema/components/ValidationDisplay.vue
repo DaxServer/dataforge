@@ -53,8 +53,8 @@ const validationStore = useValidationStore()
 // Use schema validation UI for enhanced functionality
 const { getFieldHighlightClass } = useSchemaValidationUI()
 
-// Use real-time validation for drag feedback
-const { validationFeedback, getValidationSuggestions } = useRealTimeValidation()
+// Use validation for drag feedback
+const { validationFeedback, getValidationSuggestions } = useValidation()
 
 // Use drag-drop store for drag state
 const dragDropStore = useDragDropStore()

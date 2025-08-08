@@ -30,10 +30,9 @@ const {
 } = useSchemaSelection()
 
 // Schema validation UI composable
-const { enableAutoValidation, disableAutoValidation } = useSchemaValidationUI()
+const { getFieldHighlightClass } = useSchemaValidationUI()
 
-// Real-time validation composable
-const { startRealTimeValidation, stopRealTimeValidation } = useRealTimeValidation()
+
 
 // Schema persistence composable
 const { saveSchema, canSave, isSaving, saveStatus } = useSchemaPersistence()
@@ -98,23 +97,10 @@ const isEditingStatement = computed(() => {
 // Lifecycle
 onMounted(async () => {
   await initializeEditor()
-  // Enable real-time validation only when main editor is shown
-  if (showMainEditor.value) {
-    enableAutoValidation()
-    startRealTimeValidation()
-  }
+
 })
 
-// Watch for transitions to main editor to initialize validation
-watch(showMainEditor, (isMainEditor) => {
-  if (isMainEditor) {
-    enableAutoValidation()
-    startRealTimeValidation()
-  } else {
-    disableAutoValidation()
-    stopRealTimeValidation()
-  }
-})
+
 
 // Methods
 const initializeEditor = async () => {
@@ -338,9 +324,7 @@ const handleCancelStatementEdit = () => {
 // Cleanup
 onUnmounted(() => {
   dragDropStore.$reset()
-  // Disable real-time validation and clear errors
-  disableAutoValidation()
-  stopRealTimeValidation()
+
   validationStore.$reset()
   isConfiguringItem.value = false
 })

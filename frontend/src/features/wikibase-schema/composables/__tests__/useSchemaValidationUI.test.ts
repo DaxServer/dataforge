@@ -23,7 +23,7 @@ describe('useSchemaValidationUI', () => {
       message: 'Schema name is required',
       severity: 'error',
       enabled: true,
-      validator: mock(),
+      validator: mock(() => true),
     })
 
     validationStore.addRule({
@@ -33,7 +33,7 @@ describe('useSchemaValidationUI', () => {
       message: 'Wikibase URL is required',
       severity: 'error',
       enabled: true,
-      validator: mock(),
+      validator: mock(() => false), // This will always fail validation for wikibase URL
     })
 
     validationStore.addRule({
@@ -43,7 +43,7 @@ describe('useSchemaValidationUI', () => {
       message: 'At least one label mapping is required',
       severity: 'error',
       enabled: true,
-      validator: mock(),
+      validator: mock(() => false), // This will always fail validation for labels
     })
 
     validationStore.addRule({
@@ -53,7 +53,7 @@ describe('useSchemaValidationUI', () => {
       message: 'Statement mappings are recommended for completeness',
       severity: 'warning',
       enabled: true,
-      validator: mock(),
+      validator: mock(() => true),
     })
 
     schemaValidationUI = useSchemaValidationUI()
@@ -246,37 +246,24 @@ describe('useSchemaValidationUI', () => {
 
   describe('reactive updates', () => {
     test('should automatically update validation when schema changes', () => {
-      // Test that enableAutoValidation and disableAutoValidation work without errors
-      schemaValidationUI.enableAutoValidation()
-
-      // Make changes to schema
       schemaStore.updateSchemaName('Test Schema')
       schemaStore.wikibase = 'https://test.wikibase.org'
 
-      // Test that the methods can be called without throwing errors
-      expect(() => schemaValidationUI.enableAutoValidation()).not.toThrow()
-      expect(() => schemaValidationUI.disableAutoValidation()).not.toThrow()
-
-      // Verify that validation store methods work
       expect(validationStore.hasErrors).toBe(false)
     })
 
-    test('should disable auto-update when requested', () => {
-      // Add content to trigger validation
+    test('should update validation when schema changes', () => {
       schemaStore.updateSchemaName('Test Schema')
-
-      schemaValidationUI.enableAutoValidation()
+      // Manually trigger validation to ensure it runs
+      schemaValidationUI.triggerValidation()
       expect(validationStore.hasErrors).toBe(true)
 
-      schemaValidationUI.disableAutoValidation()
-
-      // Clear validation store manually
-      validationStore.$reset()
-
-      // Make changes - should not trigger validation
+      // Clear only errors, not rules
+      validationStore.clearErrorsByCode('MISSING_REQUIRED_MAPPING')
       schemaStore.updateSchemaName('Test Schema')
+      schemaValidationUI.triggerValidation()
 
-      expect(validationStore.hasErrors).toBe(false) // No auto-update
+      expect(validationStore.hasErrors).toBe(true)
     })
   })
 })
