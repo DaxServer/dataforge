@@ -94,11 +94,10 @@ export const useSchemaApi = () => {
 
   const updateSchema = async (projectId: UUID, schemaId: UUID, schemaData: SchemaRequest) => {
     return withLoadingState(async () => {
-      const { data, error: apiError } = await api.project({ projectId }).schemas({ schemaId }).put({
-        name: schemaData.name,
-        wikibase: schemaData.wikibase,
-        schema: schemaData.schema,
-      })
+      const { data, error: apiError } = await api
+        .project({ projectId })
+        .schemas({ schemaId })
+        .put(schemaData)
 
       if (apiError) {
         showError(apiError.value as ApiError)

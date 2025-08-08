@@ -14,11 +14,19 @@ const TEST_STATEMENT_ID: UUID = Bun.randomUUIDv7() as UUID
 
 // Mock the useSchemaBuilder composable
 const mockBuildStatement = mock(
-  (property: PropertyReference, valueMapping: ValueMapping, rank = 'normal') => ({
+  (
+    property: PropertyReference,
+    valueMapping: ValueMapping,
+    rank = 'normal',
+    qualifiers: PropertyValueMap[] = [],
+    references: ReferenceSchemaMapping[] = [],
+  ) => ({
     id: TEST_STATEMENT_ID,
     property,
     value: valueMapping,
     rank,
+    qualifiers,
+    references,
   }),
 )
 
@@ -680,6 +688,219 @@ describe('useSchemaStore', () => {
       store.addStatement(property, valueMapping)
 
       expect(store.statements[0]?.rank).toBe('normal')
+    })
+
+    it('should update existing statement with qualifiers', () => {
+      const mockProperty: PropertyReference = {
+        id: 'P123',
+        label: 'Test Property',
+        dataType: 'string',
+      }
+      const mockValue: ValueMapping = {
+        type: 'column',
+        source: { columnName: 'test_column', dataType: 'VARCHAR' },
+        dataType: 'string',
+      }
+      const mockQualifiers: PropertyValueMap[] = [
+        {
+          property: { id: 'P456', label: 'Qualifier', dataType: 'string' },
+          value: { type: 'constant', source: 'test value', dataType: 'string' },
+        },
+      ]
+
+      // Add initial statement
+      const statementId = store.addStatement(mockProperty, mockValue)
+      expect(store.isDirty).toBe(true)
+
+      // Mark as saved to test dirty state
+      store.markAsSaved()
+      expect(store.isDirty).toBe(false)
+
+      // Update statement with qualifiers
+      const updatedProperty: PropertyReference = {
+        id: 'P789',
+        label: 'Updated Property',
+        dataType: 'wikibase-item',
+      }
+      const updatedValue: ValueMapping = {
+        type: 'constant',
+        source: 'updated value',
+        dataType: 'wikibase-item',
+      }
+
+      store.updateStatement(statementId, updatedProperty, updatedValue, 'preferred', mockQualifiers)
+
+      // Verify the statement was updated
+      const updatedStatement = store.statements.find((s) => s.id === statementId)
+      expect(updatedStatement).toBeDefined()
+      expect(updatedStatement?.property.id).toBe('P789')
+      expect(updatedStatement?.property.label).toBe('Updated Property')
+      expect(updatedStatement?.value.type).toBe('constant')
+      expect(updatedStatement?.value.source).toBe('updated value')
+      expect(updatedStatement?.rank).toBe('preferred')
+      expect(updatedStatement?.qualifiers).toHaveLength(1)
+      expect(updatedStatement!.qualifiers[0]!.property.id).toBe('P456')
+      expect(updatedStatement!.qualifiers[0]!.value.source).toBe('test value')
+
+      // Verify store is marked as dirty
+      expect(store.isDirty).toBe(true)
+    })
+
+    it('should handle updating non-existent statement gracefully', () => {
+      const mockProperty: PropertyReference = {
+        id: 'P123',
+        label: 'Test Property',
+        dataType: 'string',
+      }
+      const mockValue: ValueMapping = {
+        type: 'column',
+        source: { columnName: 'test_column', dataType: 'VARCHAR' },
+        dataType: 'string',
+      }
+
+      // Try to update a non-existent statement
+      const nonExistentId = 'non-existent-id' as UUID
+      store.updateStatement(nonExistentId, mockProperty, mockValue, 'normal')
+
+      // Should not crash and should not mark as dirty
+      expect(store.statements).toHaveLength(0)
+      expect(store.isDirty).toBe(false)
+    })
+
+    it('should update existing statement with references', () => {
+      const mockProperty: PropertyReference = {
+        id: 'P123',
+        label: 'Test Property',
+        dataType: 'string',
+      }
+      const mockValue: ValueMapping = {
+        type: 'column',
+        source: { columnName: 'test_column', dataType: 'VARCHAR' },
+        dataType: 'string',
+      }
+      const mockReferences: ReferenceSchemaMapping[] = [
+        {
+          id: crypto.randomUUID(),
+          snaks: [
+            {
+              property: { id: 'P248', label: 'stated in', dataType: 'wikibase-item' },
+              value: { type: 'constant', source: 'Wikipedia', dataType: 'wikibase-item' },
+            },
+          ],
+        },
+      ]
+
+      // Add initial statement
+      const statementId = store.addStatement(mockProperty, mockValue)
+      expect(store.isDirty).toBe(true)
+
+      // Mark as saved to test dirty state
+      store.markAsSaved()
+      expect(store.isDirty).toBe(false)
+
+      // Update statement with references
+      store.updateStatement(statementId, mockProperty, mockValue, 'normal', [], mockReferences)
+
+      // Verify the statement was updated with references
+      const updatedStatement = store.statements.find((s) => s.id === statementId)
+      expect(updatedStatement).toBeDefined()
+      expect(updatedStatement!.references).toHaveLength(1)
+      expect(updatedStatement!.references[0]!.snaks).toHaveLength(1)
+      expect(updatedStatement!.references[0]!.snaks[0]!.property.id).toBe('P248')
+      expect(updatedStatement!.references[0]!.snaks[0]!.value.source).toBe('Wikipedia')
+
+      // Verify store is marked as dirty
+      expect(store.isDirty).toBe(true)
+    })
+
+    it('should add new statement with references', () => {
+      const mockProperty: PropertyReference = {
+        id: 'P123',
+        label: 'Test Property',
+        dataType: 'string',
+      }
+      const mockValue: ValueMapping = {
+        type: 'column',
+        source: { columnName: 'test_column', dataType: 'VARCHAR' },
+        dataType: 'string',
+      }
+      const mockReferences: ReferenceSchemaMapping[] = [
+        {
+          id: crypto.randomUUID(),
+          snaks: [
+            {
+              property: { id: 'P854', label: 'reference URL', dataType: 'url' },
+              value: { type: 'constant', source: 'https://example.com', dataType: 'url' },
+            },
+          ],
+        },
+      ]
+
+      // Add statement with references
+      const statementId = store.addStatement(mockProperty, mockValue, 'normal', [], mockReferences)
+
+      // Verify the statement was created with references
+      const statement = store.statements.find((s) => s.id === statementId)
+      expect(statement).toBeDefined()
+      expect(statement!.references).toHaveLength(1)
+      expect(statement!.references[0]!.snaks).toHaveLength(1)
+      expect(statement!.references[0]!.snaks[0]!.property.id).toBe('P854')
+      expect(statement!.references[0]!.snaks[0]!.value.source).toBe('https://example.com')
+
+      // Verify store is marked as dirty
+      expect(store.isDirty).toBe(true)
+    })
+
+    it('should clear references when updating statement with empty references array', () => {
+      const mockProperty: PropertyReference = {
+        id: 'P123',
+        label: 'Test Property',
+        dataType: 'string',
+      }
+      const mockValue: ValueMapping = {
+        type: 'column',
+        source: { columnName: 'test_column', dataType: 'VARCHAR' },
+        dataType: 'string',
+      }
+      const mockReferences: ReferenceSchemaMapping[] = [
+        {
+          id: crypto.randomUUID(),
+          snaks: [
+            {
+              property: { id: 'P854', label: 'reference URL', dataType: 'url' },
+              value: { type: 'constant', source: 'https://example.com', dataType: 'url' },
+            },
+          ],
+        },
+      ]
+
+      // Add statement with references
+      const statementId = store.addStatement(mockProperty, mockValue, 'normal', [], mockReferences)
+
+      // Verify the statement was created with references
+      let statement = store.statements.find((s) => s.id === statementId)
+      expect(statement!.references).toHaveLength(1)
+
+      // Mark as saved to test dirty state
+      store.markAsSaved()
+      expect(store.isDirty).toBe(false)
+
+      // Update statement with empty references array
+      store.updateStatement(
+        statementId,
+        mockProperty,
+        mockValue,
+        'normal',
+        [],
+        [], // Empty references array
+      )
+
+      // Verify references were cleared
+      statement = store.statements.find((s) => s.id === statementId)
+      expect(statement!.references).toHaveLength(0)
+
+      // Verify store is marked as dirty
+      expect(store.isDirty).toBe(true)
     })
   })
 
