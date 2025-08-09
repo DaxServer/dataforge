@@ -278,10 +278,10 @@ export const useValidation = () => {
   const triggerDragStartValidation = (columnInfo: ColumnInfo): void => {
     // Immediately calculate valid drop targets and update validation feedback
     const validTargets = dragDropStore.getValidTargetsForColumn(columnInfo)
-    
+
     // Clear any previous validation feedback
     validationFeedback.value = null
-    
+
     // If there are no valid targets, provide immediate feedback
     if (validTargets.length === 0) {
       validationFeedback.value = {

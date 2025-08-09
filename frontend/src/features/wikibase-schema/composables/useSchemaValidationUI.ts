@@ -133,8 +133,6 @@ export const useSchemaValidationUI = () => {
     return { errors, warnings }
   }
 
-
-
   /**
    * Force validation update (validation is always active via watchers)
    * Useful for testing or when manual refresh is needed

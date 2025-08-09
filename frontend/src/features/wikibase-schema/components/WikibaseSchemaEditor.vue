@@ -29,11 +29,6 @@ const {
   backToSelector,
 } = useSchemaSelection()
 
-// Schema validation UI composable
-const { getFieldHighlightClass } = useSchemaValidationUI()
-
-
-
 // Schema persistence composable
 const { saveSchema, canSave, isSaving, saveStatus } = useSchemaPersistence()
 
@@ -97,10 +92,7 @@ const isEditingStatement = computed(() => {
 // Lifecycle
 onMounted(async () => {
   await initializeEditor()
-
 })
-
-
 
 // Methods
 const initializeEditor = async () => {

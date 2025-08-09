@@ -84,7 +84,7 @@ export const useDragDropContext = (): SchemaDragDropContext & {
       const dragStartHandler = (event: DragEvent) => {
         event.dataTransfer?.setData('application/x-column-data', JSON.stringify(columnInfo))
         event.dataTransfer?.setData('text/plain', columnInfo.name)
-        
+
         // Trigger validation immediately on dragstart event
         // This ensures validation is always active and triggers synchronously
         validation.triggerDragStartValidation(columnInfo)

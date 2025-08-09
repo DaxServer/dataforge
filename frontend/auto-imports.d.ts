@@ -260,7 +260,6 @@ declare global {
   const useProjectStore: typeof import('./src/features/project-management/stores/project.store')['useProjectStore']
   const usePropertySelection: typeof import('./src/features/wikibase-schema/composables/usePropertySelection')['usePropertySelection']
   const useRafFn: typeof import('@vueuse/core')['useRafFn']
-  const useRealTimeValidation: typeof import('./src/features/wikibase-schema/composables/useRealTimeValidation')['useRealTimeValidation']
   const useRefHistory: typeof import('@vueuse/core')['useRefHistory']
   const useReferenceValueMapping: typeof import('./src/features/wikibase-schema/composables/useReferenceValueMapping')['useReferenceValueMapping']
   const useResizeObserver: typeof import('@vueuse/core')['useResizeObserver']

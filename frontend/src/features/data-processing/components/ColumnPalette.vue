@@ -28,7 +28,7 @@ const handleDragStart = (event: DragEvent, dataCol: ColumnInfo) => {
 
   // Set dragged column data in store first
   dragDropStore.startDrag(dataCol)
-  
+
   // Then trigger validation immediately on dragstart event
   // This ensures validation is always active and triggers synchronously
   triggerDragStartValidation(dataCol)
