@@ -199,3 +199,67 @@
   - Remove start/stop validation workflow methods as validation is always active
   - Update validation to trigger on dragstart events
   - _Requirements: 8.1, 8.2, 8.3, 8.4, 8.5, 8.6, 8.7_
+
+- [ ] 34. Implement autosave functionality in schema store
+  - Write tests for immediate Pinia store updates on all schema changes
+  - Write tests for isDirty flag management and lastSyncedAt tracking
+  - Write tests for automatic store persistence without manual save operations
+  - Implement autosave mutations in schema store for all schema operations
+  - _Requirements: 10.1, 10.2, 10.8_
+
+- [ ] 35. Remove save/cancel buttons from TermsEditor component
+  - Write tests for immediate term mapping updates without save buttons
+  - Write tests for automatic language selection persistence
+  - Remove save/cancel buttons from TermsEditor interface
+  - Update TermsEditor to use autosave store mutations
+  - _Requirements: 3.6, 3.7, 10.5_
+
+- [ ] 36. Remove save/cancel buttons from StatementEditor component
+  - Write tests for immediate statement configuration updates without save buttons
+  - Write tests for automatic property selection and rank changes persistence
+  - Remove save/cancel buttons from StatementEditor interface
+  - Update StatementEditor to use autosave store mutations
+  - _Requirements: 4.7, 4.8, 5.6, 5.7, 10.5_
+
+- [ ] 37. Remove save/cancel buttons from QualifiersEditor component
+  - Write tests for immediate qualifier updates without save buttons
+  - Write tests for automatic qualifier property and value mapping persistence
+  - Remove save/cancel buttons from QualifiersEditor interface
+  - Update QualifiersEditor to use autosave store mutations
+  - _Requirements: 6.6, 6.7, 10.5_
+
+- [ ] 38. Remove save/cancel buttons from ReferencesEditor component
+  - Write tests for immediate reference updates without save buttons
+  - Write tests for automatic reference property and value mapping persistence
+  - Remove save/cancel buttons from ReferencesEditor interface
+  - Update ReferencesEditor to use autosave store mutations
+  - _Requirements: 7.6, 7.7, 10.5_
+
+- [ ] 39. Ensure existing manual backend sync works with autosave store state
+  - Write tests to verify existing backend sync functionality works with autosave-enabled store
+  - Write tests to confirm manual "Save to Server" button continues to work as currently implemented
+  - Verify existing persistence layer correctly reads from autosave-updated Pinia store state
+  - Ensure no changes to existing manual backend synchronization behavior
+  - _Requirements: 10.3, 10.4_
+
+- [ ] 40. Update drag-and-drop operations to use autosave
+  - Write tests for immediate store updates on column drop operations
+  - Write tests for automatic mapping persistence without confirmation dialogs
+  - Update all drop zone handlers to use autosave store mutations
+  - Remove any remaining save/cancel patterns from drag-and-drop workflows
+  - _Requirements: 10.1, 10.2, 10.5_
+
+- [ ] 41. Update schema selection workflow for autosave
+  - Write tests for autosave enablement when loading existing schemas
+  - Write tests for autosave enablement when creating new schemas
+  - Update SchemaSelector to initialize autosave behavior on schema selection
+  - Ensure seamless transition from selection to autosave-enabled editor
+  - _Requirements: 9.4, 9.5, 9.8_
+
+- [ ] 42. Update all existing test cases for autosave behavior
+  - Update TermsEditor tests to expect immediate store updates instead of save button interactions
+  - Update StatementEditor tests to expect automatic persistence instead of manual save operations
+  - Update QualifiersEditor and ReferencesEditor tests for autosave behavior
+  - Update drag-and-drop tests to expect immediate store persistence
+  - Update schema store tests to validate autosave mutations and dirty flag management
+  - _Requirements: 10.1, 10.2, 10.5, 10.8_

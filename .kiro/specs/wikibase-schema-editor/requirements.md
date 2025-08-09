@@ -8,15 +8,17 @@ The Wikibase Schema Editor is a visual interface that allows users to create and
 
 ### Requirement 1
 
-**User Story:** As a data curator, I want to create a Wikibase item configuration, so that I can establish the foundation for structuring my tabular data as linked data entities.
+**User Story:** As a data curator, I want to create a Wikibase item configuration with automatic saving, so that I can establish the foundation for structuring my tabular data as linked data entities without worrying about losing my work.
 
 #### Acceptance Criteria
 
 1. WHEN the user opens the schema editor THEN the system SHALL display a single item configuration interface
 2. WHEN the user creates an item THEN the system SHALL assign it a unique identifier within the schema
-3. WHEN the user saves the schema THEN the system SHALL store the item configuration in the project's DuckDB table
+3. WHEN the user makes any changes to the schema THEN the system SHALL automatically save changes to the Pinia store immediately
 4. WHEN the user loads a project THEN the system SHALL retrieve any existing item configuration from storage
 5. IF no item configuration exists THEN the system SHALL initialize with a default empty item structure
+6. WHEN the user makes changes THEN the system SHALL NOT display save/cancel buttons for individual actions
+7. WHEN the user wants to persist changes to the backend THEN the system SHALL provide a single persistence save button in the toolbar
 
 ### Requirement 2
 
@@ -34,7 +36,7 @@ The Wikibase Schema Editor is a visual interface that allows users to create and
 
 ### Requirement 3
 
-**User Story:** As a data curator, I want to configure item Terms (Labels, Descriptions, and Aliases) by mapping data columns, so that I can define multilingual metadata for my Wikibase items.
+**User Story:** As a data curator, I want to configure item Terms (Labels, Descriptions, and Aliases) by mapping data columns with automatic saving, so that I can define multilingual metadata for my Wikibase items without manual save operations.
 
 #### Acceptance Criteria
 
@@ -43,10 +45,12 @@ The Wikibase Schema Editor is a visual interface that allows users to create and
 3. WHEN the user maps a column to any Term type THEN the system SHALL allow specifying the language code and support multiple aliases per language for Aliases
 4. WHEN Terms are displayed THEN the system SHALL provide drop targets where columns can be dropped to create mappings
 5. WHEN Term mappings are configured THEN the system SHALL provide visual feedback showing the mapping relationships
+6. WHEN the user creates or modifies Term mappings THEN the system SHALL automatically save changes to the Pinia store immediately
+7. WHEN the user configures Terms THEN the system SHALL NOT display save/cancel buttons for individual Term operations
 
 ### Requirement 4
 
-**User Story:** As a data curator, I want to add and configure Statements for my Wikibase item, so that I can define relationships and attributes using property-value pairs.
+**User Story:** As a data curator, I want to add and configure Statements for my Wikibase item with automatic saving, so that I can define relationships and attributes using property-value pairs without manual save operations.
 
 #### Acceptance Criteria
 
@@ -56,10 +60,12 @@ The Wikibase Schema Editor is a visual interface that allows users to create and
 4. WHEN the user defines a Statement THEN the system SHALL support different value types (string, item reference, quantity, time, etc.)
 5. WHEN the user maps columns to Statement values THEN the system SHALL validate data type compatibility
 6. WHEN Statements are configured THEN the system SHALL display them in a hierarchical structure showing property-value relationships
+7. WHEN the user creates, modifies, or deletes Statements THEN the system SHALL automatically save changes to the Pinia store immediately
+8. WHEN the user configures Statements THEN the system SHALL NOT display save/cancel buttons for individual Statement operations
 
 ### Requirement 5
 
-**User Story:** As a data curator, I want to configure ranks for my Statements, so that I can indicate the relative importance and reliability of different property values.
+**User Story:** As a data curator, I want to configure ranks for my Statements with automatic saving, so that I can indicate the relative importance and reliability of different property values without manual save operations.
 
 #### Acceptance Criteria
 
@@ -68,10 +74,12 @@ The Wikibase Schema Editor is a visual interface that allows users to create and
 3. WHEN multiple statements exist for the same property THEN the system SHALL allow different ranks for each statement
 4. WHEN ranks are configured THEN the system SHALL display visual indicators showing the rank level
 5. IF no rank is specified THEN the system SHALL default to "normal" rank
+6. WHEN the user changes a Statement rank THEN the system SHALL automatically save the change to the Pinia store immediately
+7. WHEN the user configures ranks THEN the system SHALL NOT display save/cancel buttons for rank operations
 
 ### Requirement 6
 
-**User Story:** As a data curator, I want to add qualifiers to my Statements, so that I can provide additional context and specificity to property-value relationships.
+**User Story:** As a data curator, I want to add qualifiers to my Statements with automatic saving, so that I can provide additional context and specificity to property-value relationships without manual save operations.
 
 #### Acceptance Criteria
 
@@ -80,10 +88,12 @@ The Wikibase Schema Editor is a visual interface that allows users to create and
 3. WHEN a qualifier is created THEN the system SHALL allow mapping data columns to the qualifier's value
 4. WHEN the user defines a qualifier THEN the system SHALL support the same value types as main statements
 5. WHEN qualifiers are configured THEN the system SHALL display them within their parent statement
+6. WHEN the user creates, modifies, or deletes qualifiers THEN the system SHALL automatically save changes to the Pinia store immediately
+7. WHEN the user configures qualifiers THEN the system SHALL NOT display save/cancel buttons for individual qualifier operations
 
 ### Requirement 7
 
-**User Story:** As a data curator, I want to add references to my Statements, so that I can cite sources and provide provenance for my data claims.
+**User Story:** As a data curator, I want to add references to my Statements with automatic saving, so that I can cite sources and provide provenance for my data claims without manual save operations.
 
 #### Acceptance Criteria
 
@@ -92,6 +102,8 @@ The Wikibase Schema Editor is a visual interface that allows users to create and
 3. WHEN a reference is created THEN the system SHALL allow mapping data columns to reference values
 4. WHEN references are configured THEN the system SHALL display them as citations under their parent statement
 5. WHEN the user defines reference values THEN the system SHALL support appropriate value types for citation data
+6. WHEN the user creates, modifies, or deletes references THEN the system SHALL automatically save changes to the Pinia store immediately
+7. WHEN the user configures references THEN the system SHALL NOT display save/cancel buttons for individual reference operations
 
 ### Requirement 8
 
@@ -109,14 +121,31 @@ The Wikibase Schema Editor is a visual interface that allows users to create and
 
 ### Requirement 9
 
-**User Story:** As a data curator, I want to select from existing schemas or create new ones or delete an existing schema when I open the schema editor, so that I can reuse previous work and maintain consistency across similar datasets.
+**User Story:** As a data curator, I want to select from existing schemas or create new ones or delete an existing schema when I open the schema editor with automatic saving, so that I can reuse previous work and maintain consistency across similar datasets without worrying about losing changes.
 
 #### Acceptance Criteria
 
 1. WHEN the schema editor loads THEN the system SHALL display a schema selection interface before showing the main editor
 2. WHEN existing schemas are found THEN the system SHALL display a list of available schemas with their names, creation dates, completion status and deletion button
 3. WHEN the user views the schema list THEN the system SHALL provide a prominent "Create New Schema" button alongside the existing schemas
-4. WHEN the user selects an existing schema THEN the system SHALL load that schema configuration into the main editor interface
-5. WHEN the user clicks "Create New Schema" THEN the system SHALL initialize an empty schema editor using the existing initialization code
+4. WHEN the user selects an existing schema THEN the system SHALL load that schema configuration into the main editor interface with autosave enabled
+5. WHEN the user clicks "Create New Schema" THEN the system SHALL initialize an empty schema editor using the existing initialization code with autosave enabled
 6. WHEN no existing schemas are found THEN the system SHALL show an empty state with only the "Create New Schema" option
 7. WHEN the user deletes a schema THEN the system SHALL provide a confirmation dialog to delete the schema
+8. WHEN the user works with any schema THEN the system SHALL automatically save all changes to the Pinia store without requiring manual save actions
+
+### Requirement 10
+
+**User Story:** As a data curator, I want all my schema changes to be automatically saved to the local store with a single persistence button for backend saving, so that I never lose my work and can control when changes are persisted to the server.
+
+#### Acceptance Criteria
+
+1. WHEN the user makes any change to the schema THEN the system SHALL immediately update the Pinia store without user intervention
+2. WHEN the user modifies Terms, Statements, qualifiers, or references THEN the system SHALL automatically save these changes to the local store
+3. WHEN the user wants to persist changes to the backend THEN the system SHALL use the existing manual "Save to Server" functionality in the main toolbar
+4. WHEN the user clicks the existing persistence save button THEN the system SHALL save the current Pinia store state to the backend API using existing implementation
+5. WHEN changes are automatically saved to the store THEN the system SHALL NOT display individual save/cancel buttons for schema operations
+6. WHEN the existing persistence save is successful THEN the system SHALL provide visual feedback using current implementation
+7. WHEN the existing persistence save fails THEN the system SHALL display an error message using current implementation without losing local changes
+8. WHEN the user navigates away from the editor THEN the system SHALL retain all locally saved changes in the Pinia store
+9. WHEN implementing autosave THEN the system SHALL NOT modify the existing manual backend synchronization behavior

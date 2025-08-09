@@ -44,13 +44,14 @@ graph TD
 ### Core Components
 
 #### 1. WikibaseSchemaEditor (Main Container)
-- **Purpose**: Root component that orchestrates the entire schema editing experience
+- **Purpose**: Root component that orchestrates the entire schema editing experience with autosave functionality
 - **Responsibilities**:
-  - Manages overall state and data flow
-  - Coordinates drag-and-drop operations
-  - Handles schema persistence
+  - Manages overall state and data flow with automatic Pinia store updates
+  - Coordinates drag-and-drop operations with immediate store persistence
+  - Uses existing manual persistence layer save button for backend synchronization (unchanged)
   - Provides validation feedback
   - Manages schema selection and creation workflow
+  - Eliminates individual save/cancel buttons throughout the interface
 
 #### 2. SchemaSelector
 - **Purpose**: Manages schema selection workflow as the initial interface
@@ -72,50 +73,56 @@ graph TD
   - Provides toggle button interface for showing/hiding sample data
 
 #### 4. SchemaCanvas
-- **Purpose**: Main editing area where schema structure is built
+- **Purpose**: Main editing area where schema structure is built with automatic saving
 - **Responsibilities**:
-  - Renders the item configuration interface
-  - Manages drop zones for column mappings
-  - Displays hierarchical schema structure
+  - Renders the item configuration interface with autosave behavior
+  - Manages drop zones for column mappings with immediate store updates
+  - Displays hierarchical schema structure without individual save buttons
   - Handles visual feedback for valid/invalid mappings
+  - Automatically persists all changes to Pinia store on user interactions
 
 #### 5. ItemEditor
-- **Purpose**: Manages the configuration of a single Wikibase item
+- **Purpose**: Manages the configuration of a single Wikibase item with autosave
 - **Responsibilities**:
-  - Provides interface for item metadata
-  - Coordinates Terms and Statements editors
+  - Provides interface for item metadata with automatic store updates
+  - Coordinates Terms and Statements editors with autosave behavior
   - Manages item-level validation
-  - Handles item creation/deletion
+  - Handles item creation/deletion with immediate store persistence
+  - Eliminates save/cancel buttons for item operations
 
 #### 6. TermsEditor
-- **Purpose**: Manages Labels, Descriptions, and Aliases configuration
+- **Purpose**: Manages Labels, Descriptions, and Aliases configuration with autosave
 - **Responsibilities**:
-  - Provides drop zones for each term type
-  - Manages multilingual configurations
-  - Handles language code selection
+  - Provides drop zones for each term type with immediate store updates
+  - Manages multilingual configurations with automatic persistence
+  - Handles language code selection with instant saving
   - Validates term mappings
+  - Eliminates save/cancel buttons for term operations
 
 #### 7. StatementsEditor
-- **Purpose**: Container for managing multiple statements
+- **Purpose**: Container for managing multiple statements with autosave
 - **Responsibilities**:
-  - Provides interface to add/remove statements
-  - Manages statement ordering
-  - Coordinates individual statement editors
+  - Provides interface to add/remove statements with immediate store updates
+  - Manages statement ordering with automatic persistence
+  - Coordinates individual statement editors with autosave behavior
+  - Eliminates save/cancel buttons for statement management operations
 
 #### 8. StatementEditor
-- **Purpose**: Configures individual property-value statements
+- **Purpose**: Configures individual property-value statements with autosave
 - **Responsibilities**:
-  - Property selection interface (P-ID autocomplete)
-  - Value mapping configuration
-  - Rank selection (preferred/normal/deprecated)
+  - Property selection interface (P-ID autocomplete) with immediate store updates
+  - Value mapping configuration with automatic persistence
+  - Rank selection (preferred/normal/deprecated) with instant saving
   - Data type validation
+  - Eliminates save/cancel buttons for statement configuration
 
 #### 9. QualifiersEditor & ReferencesEditor
-- **Purpose**: Manages qualifiers and references for statements
+- **Purpose**: Manages qualifiers and references for statements with autosave
 - **Responsibilities**:
-  - Provides interfaces to add/remove qualifiers/references
-  - Property selection for qualifier/reference properties
-  - Value mapping for qualifier/reference values
+  - Provides interfaces to add/remove qualifiers/references with immediate store updates
+  - Property selection for qualifier/reference properties with automatic persistence
+  - Value mapping for qualifier/reference values with instant saving
+  - Eliminates save/cancel buttons for qualifier and reference operations
 
 #### 10. ColumnItem
 - **Purpose**: Individual draggable column element within the ColumnPalette
@@ -147,6 +154,8 @@ interface WikibaseSchemaMapping {
   item: ItemSchemaMapping
   createdAt: string
   updatedAt: string
+  // Note: isDirty and lastSyncedAt may already exist in current implementation
+  // Only add if not already present in existing schema structure
 }
 
 interface SchemaListItem {
@@ -419,9 +428,31 @@ const ValidationErrors = {
 
 ### State Management
 - Use Vue 3 Composition API with Pinia stores for state management
-- Implement reactive schema state with automatic persistence
+- Implement reactive schema state with automatic persistence to store on every change
 - Use computed properties for derived state (validation status, completion percentage)
 - Validation is always active and triggered on dragstart events
+- All user interactions immediately update the Pinia store without manual save operations
+- Single persistence layer button synchronizes store state with backend API
+- Eliminate all individual save/cancel button patterns throughout the interface
+
+### Autosave Architecture
+
+The autosave system operates on two levels:
+
+1. **Local Store Autosave**: Every user interaction immediately updates the Pinia store
+   - Drop operations save mappings instantly
+   - Property selections save immediately
+   - Rank changes save automatically
+   - Language selections save instantly
+   - All CRUD operations on Terms, Statements, Qualifiers, and References save immediately
+
+2. **Backend Persistence Layer**: Existing manual toolbar button for server synchronization
+   - Existing "Save to Server" button in main toolbar (unchanged)
+   - Uses current implementation to save Pinia store state to backend API
+   - Provides success/error feedback using existing implementation
+   - Retains local changes on failure for retry using current behavior
+   - No individual save buttons throughout the interface
+   - No changes to existing manual backend synchronization behavior
 
 ### Schema Selection Integration
 - SchemaSelector will be the initial view within WikibaseSchemaEditor
@@ -438,10 +469,78 @@ const ValidationErrors = {
 - Validation runs continuously without manual start/stop controls
 
 ### API Integration
-- Leverage existing Elysia backend routes for schema operations
-- Use existing `loadAllSchemas`, `loadSchema`, and `createSchema` functions
-- Implement optimistic updates with rollback capability
-- Use Elysia Eden Treaty for type-safe API calls
+- Leverage existing Elysia backend routes for schema operations (unchanged)
+- Use existing `loadAllSchemas`, `loadSchema`, and `createSchema` functions (unchanged)
+- Use existing optimistic updates with rollback capability (unchanged)
+- Use Elysia Eden Treaty for type-safe API calls (unchanged)
+- Separate local store updates from existing backend persistence calls
+- No modifications to existing backend synchronization behavior
+
+### Autosave Implementation Patterns
+
+#### Component-Level Autosave
+```typescript
+// Example: TermsEditor autosave pattern
+const handleTermMapping = (termType: string, language: string, columnMapping: ColumnMapping) => {
+  // Immediately update Pinia store - no save button needed
+  schemaStore.updateTermMapping(termType, language, columnMapping)
+  
+  // Mark schema as dirty for backend sync
+  schemaStore.markDirty()
+}
+
+// Example: StatementEditor autosave pattern  
+const handlePropertySelection = (statementId: string, property: PropertyReference) => {
+  // Immediately update Pinia store - no save button needed
+  schemaStore.updateStatementProperty(statementId, property)
+  
+  // Mark schema as dirty for backend sync
+  schemaStore.markDirty()
+}
+```
+
+#### Store-Level Autosave
+```typescript
+// Pinia store with autosave mutations
+export const useSchemaStore = defineStore('schema', () => {
+  const schema = ref<WikibaseSchemaMapping | null>(null)
+  
+  const updateTermMapping = (termType: string, language: string, mapping: ColumnMapping) => {
+    if (!schema.value) return
+    
+    // Immediate store update
+    schema.value.item.terms[termType][language] = mapping
+    schema.value.isDirty = true
+    schema.value.updatedAt = new Date().toISOString()
+  }
+  
+  const markDirty = () => {
+    if (schema.value) {
+      schema.value.isDirty = true
+    }
+  }
+  
+  // Note: Backend sync functionality already exists and should not be modified
+  // The existing manual "Save to Server" implementation will read from the 
+  // autosave-updated store state without requiring changes to sync logic
+  
+  return {
+    schema: readonly(schema),
+    updateTermMapping,
+    markDirty
+    // Note: syncToBackend already exists in current implementation
+  }
+})
+```
+
+#### UI Patterns Without Save/Cancel Buttons
+- Drop zones immediately apply mappings on drop
+- Property selectors immediately update on selection
+- Rank dropdowns immediately update on change
+- Language selectors immediately update on change
+- Add/remove buttons immediately modify arrays
+- No confirmation dialogs for individual operations
+- Existing manual "Save to Server" button in main toolbar remains unchanged
 
 ### Auto-Imports Configuration
 The frontend uses `unplugin-auto-import` for seamless development experience:
