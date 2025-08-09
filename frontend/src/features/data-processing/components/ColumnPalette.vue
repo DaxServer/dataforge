@@ -6,6 +6,9 @@ const { convertProjectColumnsToColumnInfo } = useColumnConversion()
 const { formatDataTypeDisplayName, generateColumnTooltip, getDataTypeIcon, getDataTypeSeverity } =
   useColumnDataTypeIndicators()
 
+// Import validation composable for dragstart validation
+const { triggerDragStartValidation } = useValidation()
+
 // Sample data visibility state (hidden by default)
 const showSampleData = ref(false)
 
@@ -23,8 +26,12 @@ const handleDragStart = (event: DragEvent, dataCol: ColumnInfo) => {
   // Set drag effect
   event.dataTransfer.effectAllowed = 'copy'
 
-  // Set dragged column data in store
+  // Set dragged column data in store first
   dragDropStore.startDrag(dataCol)
+
+  // Then trigger validation immediately on dragstart event
+  // This ensures validation is always active and triggers synchronously
+  triggerDragStartValidation(dataCol)
 }
 
 const handleDragEnd = () => {

@@ -151,11 +151,11 @@
   - Integrate reference display functionality with other components
   - _Requirements: 7.4_
 
-- [x] 26. Implement real-time validation
-  - Write tests for real-time drag-and-drop validation
-  - Write tests for invalid mapping detection
-  - Implement real-time validation system
-  - _Requirements: 8.1_
+- [x] 26. Implement drag validation system
+  - Write tests for drag-triggered validation on dragstart events
+  - Write tests for invalid mapping detection during drag operations
+  - Implement validation system that is always active
+  - _Requirements: 8.1, 8.8_
 
 - [x] 27. Create schema completeness validation
   - Write tests for schema completeness checking
@@ -193,3 +193,9 @@
   - Write tests for schema deletion success feedback
   - Implement schema deletion functionality in SchemaSelector
   - _Requirements: 9.7_
+
+- [x] 33. Refactor validation terminology and workflow
+  - Remove "real-time" terminology from validation composables and components
+  - Remove start/stop validation workflow methods as validation is always active
+  - Update validation to trigger on dragstart events
+  - _Requirements: 8.1, 8.2, 8.3, 8.4, 8.5, 8.6, 8.7_

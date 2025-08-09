@@ -1,13 +1,13 @@
 import { describe, it, expect, beforeEach } from 'bun:test'
 import { createPinia, setActivePinia } from 'pinia'
-import { useRealTimeValidation } from '@frontend/features/wikibase-schema/composables/useRealTimeValidation'
+import { useValidation } from '@frontend/features/wikibase-schema/composables/useValidation'
 import { useDragDropStore } from '@frontend/features/data-processing/stores/drag-drop.store'
 import { useValidationStore } from '@frontend/features/wikibase-schema/stores/validation.store'
 import type { ColumnInfo } from '@frontend/shared/types/wikibase-schema'
 import type { WikibaseDataType } from '@backend/api/project/project.wikibase'
 import type { DropTarget } from '@frontend/shared/types/drag-drop'
 
-describe('useRealTimeValidation', () => {
+describe('useValidation', () => {
   let mockColumnInfo: ColumnInfo
   let mockDropTarget: DropTarget
   let dragDropStore: ReturnType<typeof useDragDropStore>
@@ -35,9 +35,9 @@ describe('useRealTimeValidation', () => {
     }
   })
 
-  describe('Real-time Drag Validation', () => {
-    it('should validate drag operations in real-time', () => {
-      const { validateDragOperation, isValidDragOperation } = useRealTimeValidation()
+  describe('Drag Validation', () => {
+    it('should validate drag operations', () => {
+      const { validateDragOperation, isValidDragOperation } = useValidation()
 
       // Set up available targets
       dragDropStore.setAvailableTargets([mockDropTarget])
@@ -54,8 +54,8 @@ describe('useRealTimeValidation', () => {
       expect(isValidDragOperation.value).toBe(true)
     })
 
-    it('should detect invalid drag operations in real-time', () => {
-      const { validateDragOperation, isValidDragOperation } = useRealTimeValidation()
+    it('should detect invalid drag operations', () => {
+      const { validateDragOperation, isValidDragOperation } = useValidation()
 
       const incompatibleColumn: ColumnInfo = {
         name: 'numeric_column',
@@ -79,8 +79,8 @@ describe('useRealTimeValidation', () => {
       expect(isValidDragOperation.value).toBe(false)
     })
 
-    it('should validate nullable constraints in real-time', () => {
-      const { validateDragOperation } = useRealTimeValidation()
+    it('should validate nullable constraints', () => {
+      const { validateDragOperation } = useValidation()
 
       const nullableColumn: ColumnInfo = {
         ...mockColumnInfo,
@@ -100,7 +100,7 @@ describe('useRealTimeValidation', () => {
     })
 
     it('should validate property requirements for statements', () => {
-      const { validateDragOperation } = useRealTimeValidation()
+      const { validateDragOperation } = useValidation()
 
       const statementTarget: DropTarget = {
         type: 'statement',
@@ -117,7 +117,7 @@ describe('useRealTimeValidation', () => {
     })
 
     it('should validate length constraints for labels and aliases', () => {
-      const { validateDragOperation } = useRealTimeValidation()
+      const { validateDragOperation } = useValidation()
 
       const longValueColumn: ColumnInfo = {
         name: 'long_text',
@@ -136,7 +136,7 @@ describe('useRealTimeValidation', () => {
 
   describe('Invalid Mapping Detection', () => {
     it('should detect duplicate language mappings', () => {
-      const { detectInvalidMappings } = useRealTimeValidation()
+      const { detectInvalidMappings } = useValidation()
 
       const existingMappings = [
         {
@@ -159,7 +159,7 @@ describe('useRealTimeValidation', () => {
     })
 
     it('should detect duplicate property mappings', () => {
-      const { detectInvalidMappings } = useRealTimeValidation()
+      const { detectInvalidMappings } = useValidation()
 
       const existingMappings = [
         {
@@ -182,7 +182,7 @@ describe('useRealTimeValidation', () => {
     })
 
     it('should detect missing required mappings', () => {
-      const { detectMissingRequiredMappings } = useRealTimeValidation()
+      const { detectMissingRequiredMappings } = useValidation()
 
       const requiredTargets: DropTarget[] = [
         {
@@ -216,7 +216,7 @@ describe('useRealTimeValidation', () => {
     })
 
     it('should validate data type compatibility across all mappings', () => {
-      const { validateAllMappings } = useRealTimeValidation()
+      const { validateAllMappings } = useValidation()
 
       const mappings = [
         {
@@ -242,9 +242,9 @@ describe('useRealTimeValidation', () => {
     })
   })
 
-  describe('Real-time Feedback', () => {
+  describe('Validation Feedback', () => {
     it('should provide immediate feedback for valid operations', () => {
-      const { getValidationFeedback } = useRealTimeValidation()
+      const { getValidationFeedback } = useValidation()
 
       const feedback = getValidationFeedback(mockColumnInfo, mockDropTarget)
 
@@ -254,7 +254,7 @@ describe('useRealTimeValidation', () => {
     })
 
     it('should provide error feedback for invalid operations', () => {
-      const { getValidationFeedback } = useRealTimeValidation()
+      const { getValidationFeedback } = useValidation()
 
       const incompatibleColumn: ColumnInfo = {
         name: 'numeric_column',
@@ -271,7 +271,7 @@ describe('useRealTimeValidation', () => {
     })
 
     it('should provide validation suggestions', () => {
-      const { getValidationSuggestions } = useRealTimeValidation()
+      const { getValidationSuggestions } = useValidation()
 
       const incompatibleColumn: ColumnInfo = {
         name: 'numeric_column',
@@ -287,7 +287,7 @@ describe('useRealTimeValidation', () => {
     })
 
     it('should provide suggestions for nullable constraints', () => {
-      const { getValidationSuggestions } = useRealTimeValidation()
+      const { getValidationSuggestions } = useValidation()
 
       const nullableColumn: ColumnInfo = {
         ...mockColumnInfo,
@@ -308,7 +308,7 @@ describe('useRealTimeValidation', () => {
 
   describe('Integration with Validation Store', () => {
     it('should automatically add validation errors to store', () => {
-      const { validateDragOperation } = useRealTimeValidation()
+      const { validateDragOperation } = useValidation()
 
       const incompatibleColumn: ColumnInfo = {
         name: 'numeric_column',
@@ -326,7 +326,7 @@ describe('useRealTimeValidation', () => {
     })
 
     it('should clear validation errors when drag becomes valid', () => {
-      const { validateDragOperation } = useRealTimeValidation()
+      const { validateDragOperation } = useValidation()
 
       const incompatibleColumn: ColumnInfo = {
         name: 'numeric_column',
@@ -349,7 +349,7 @@ describe('useRealTimeValidation', () => {
 
   describe('Performance and Reactivity', () => {
     it('should be reactive to drag store changes', () => {
-      const { isValidDragOperation } = useRealTimeValidation()
+      const { isValidDragOperation } = useValidation()
 
       // Set up available targets
       dragDropStore.setAvailableTargets([mockDropTarget])
@@ -366,19 +366,6 @@ describe('useRealTimeValidation', () => {
       dragDropStore.endDrag()
 
       expect(isValidDragOperation.value).toBe(false)
-    })
-
-    it('should handle validation control methods', () => {
-      const { startRealTimeValidation, stopRealTimeValidation, isRealTimeValidationActive } =
-        useRealTimeValidation()
-
-      expect(isRealTimeValidationActive.value).toBe(false)
-
-      startRealTimeValidation()
-      expect(isRealTimeValidationActive.value).toBe(true)
-
-      stopRealTimeValidation()
-      expect(isRealTimeValidationActive.value).toBe(false)
     })
   })
 })

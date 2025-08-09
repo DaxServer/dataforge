@@ -28,10 +28,11 @@ interface DragValidationResult {
 }
 
 /**
- * Composable for real-time validation during drag-and-drop operations
+ * Composable for validation during drag-and-drop operations
  * Provides immediate feedback and validation as users interact with the schema editor
+ * Validation is always active and triggers on dragstart events
  */
-export const useRealTimeValidation = () => {
+export const useValidation = () => {
   const dragDropStore = useDragDropStore()
   const validationStore = useValidationStore()
   const { createError } = useValidationErrors()
@@ -40,7 +41,6 @@ export const useRealTimeValidation = () => {
 
   // Local reactive state
   const validationFeedback = ref<DropFeedback | null>(null)
-  const isRealTimeValidationActive = ref(false)
 
   // Computed property for current drag operation validity
   const isValidDragOperation = computed(() => {
@@ -229,68 +229,66 @@ export const useRealTimeValidation = () => {
     }
   }
 
-  // Store the watcher stop function
-  let stopDragWatcher: (() => void) | null = null
+  // Watch for drag state changes and provide immediate feedback
+  // Validation is always active and triggers on dragstart events
+  watch(
+    [
+      () => dragDropStore.draggedColumn,
+      () => dragDropStore.hoveredTarget,
+      () => dragDropStore.dragState,
+    ],
+    ([draggedColumn, hoveredTarget, dragState]) => {
+      // Clear feedback when not dragging
+      if (dragState === 'idle' || !draggedColumn) {
+        validationFeedback.value = null
+        return
+      }
 
-  /**
-   * Start real-time validation by setting up watchers
-   */
-  const startRealTimeValidation = () => {
-    if (isRealTimeValidationActive.value) return
+      // Provide feedback when hovering over a target
+      if (hoveredTarget && draggedColumn) {
+        const target = dragDropStore.availableTargets.find((t) => t.path === hoveredTarget)
+        if (target) {
+          const validation = validateDragOperation(draggedColumn, target)
 
-    isRealTimeValidationActive.value = true
-
-    // Watch for drag state changes and provide immediate feedback
-    stopDragWatcher = watch(
-      [
-        () => dragDropStore.draggedColumn,
-        () => dragDropStore.hoveredTarget,
-        () => dragDropStore.dragState,
-      ],
-      ([draggedColumn, hoveredTarget, dragState]) => {
-        // Clear feedback when not dragging
-        if (dragState === 'idle' || !draggedColumn) {
-          validationFeedback.value = null
-          return
-        }
-
-        // Provide feedback when hovering over a target
-        if (hoveredTarget && draggedColumn) {
-          const target = dragDropStore.availableTargets.find((t) => t.path === hoveredTarget)
-          if (target) {
-            const validation = validateDragOperation(draggedColumn, target)
-
-            if (validation.isValid) {
-              validationFeedback.value = {
-                type: 'success',
-                message: `Compatible mapping for ${target.type}`,
-              }
-            } else {
-              const primaryError = validation.errors[0]
-              validationFeedback.value = {
-                type: 'error',
-                message: primaryError?.message || 'Invalid mapping',
-              }
+          if (validation.isValid) {
+            validationFeedback.value = {
+              type: 'success',
+              message: `Compatible mapping for ${target.type}`,
+            }
+          } else {
+            const primaryError = validation.errors[0]
+            validationFeedback.value = {
+              type: 'error',
+              message: primaryError?.message || 'Invalid mapping',
             }
           }
-        } else {
-          validationFeedback.value = null
         }
-      },
-      { immediate: true },
-    )
-  }
+      } else {
+        validationFeedback.value = null
+      }
+    },
+    { immediate: true },
+  )
 
   /**
-   * Stop real-time validation
+   * Trigger validation immediately on dragstart event
+   * This ensures validation happens synchronously with the dragstart event
+   * Note: Assumes the drag store state has already been updated
    */
-  const stopRealTimeValidation = () => {
-    if (stopDragWatcher) {
-      stopDragWatcher()
-      stopDragWatcher = null
-    }
-    isRealTimeValidationActive.value = false
+  const triggerDragStartValidation = (columnInfo: ColumnInfo): void => {
+    // Immediately calculate valid drop targets and update validation feedback
+    const validTargets = dragDropStore.getValidTargetsForColumn(columnInfo)
+
+    // Clear any previous validation feedback
     validationFeedback.value = null
+
+    // If there are no valid targets, provide immediate feedback
+    if (validTargets.length === 0) {
+      validationFeedback.value = {
+        type: 'warning',
+        message: `No compatible drop targets found for ${columnInfo.dataType} column`,
+      }
+    }
   }
 
   /**
@@ -364,7 +362,6 @@ export const useRealTimeValidation = () => {
     // State
     validationFeedback,
     isValidDragOperation,
-    isRealTimeValidationActive,
 
     // Core validation methods
     validateDragOperation,
@@ -372,9 +369,8 @@ export const useRealTimeValidation = () => {
     detectMissingRequiredMappings,
     validateAllMappings,
 
-    // Real-time validation control
-    startRealTimeValidation,
-    stopRealTimeValidation,
+    // Dragstart validation (always active)
+    triggerDragStartValidation,
 
     // Utility methods
     getValidationFeedback,

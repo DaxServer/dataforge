@@ -1,4 +1,4 @@
-import { watch, ref } from 'vue'
+import { watch } from 'vue'
 import { useSchemaStore } from '@frontend/features/wikibase-schema/stores/schema.store'
 import { useValidationStore } from '@frontend/features/wikibase-schema/stores/validation.store'
 import { useValidationErrors } from '@frontend/features/wikibase-schema/composables/useValidationErrors'
@@ -34,9 +34,6 @@ export const useSchemaValidationUI = () => {
   const { validateSchemaCompleteness, getRequiredFieldHighlights } =
     useSchemaCompletenessValidation()
 
-  const isAutoValidationEnabled = ref(false)
-  let unwatchSchema: (() => void) | null = null
-
   /**
    * Update validation errors in the validation store based on schema completeness
    */
@@ -64,6 +61,22 @@ export const useSchemaValidationUI = () => {
       }
     })
   }
+
+  // Initialize validation watcher - validation is always active
+  watch(
+    [
+      () => schemaStore.schemaName,
+      () => schemaStore.wikibase,
+      () => schemaStore.labels,
+      () => schemaStore.descriptions,
+      () => schemaStore.aliases,
+      () => schemaStore.statements,
+    ],
+    () => {
+      updateValidationErrors()
+    },
+    { deep: true, immediate: true },
+  )
 
   /**
    * Get CSS class for field highlighting based on validation state
@@ -121,49 +134,8 @@ export const useSchemaValidationUI = () => {
   }
 
   /**
-   * Enable automatic validation updates when schema changes
-   */
-  const enableAutoValidation = () => {
-    if (isAutoValidationEnabled.value) return
-
-    isAutoValidationEnabled.value = true
-
-    // Initial validation
-    updateValidationErrors()
-
-    // Watch for schema changes and update validation
-    unwatchSchema = watch(
-      [
-        () => schemaStore.schemaName,
-        () => schemaStore.wikibase,
-        () => schemaStore.labels,
-        () => schemaStore.descriptions,
-        () => schemaStore.aliases,
-        () => schemaStore.statements,
-      ],
-      () => {
-        updateValidationErrors()
-      },
-      { deep: true },
-    )
-  }
-
-  /**
-   * Disable automatic validation updates
-   */
-  const disableAutoValidation = () => {
-    if (!isAutoValidationEnabled.value) return
-
-    isAutoValidationEnabled.value = false
-
-    if (unwatchSchema) {
-      unwatchSchema()
-      unwatchSchema = null
-    }
-  }
-
-  /**
-   * Manually trigger validation update
+   * Force validation update (validation is always active via watchers)
+   * Useful for testing or when manual refresh is needed
    */
   const triggerValidation = () => {
     updateValidationErrors()
@@ -261,11 +233,6 @@ export const useSchemaValidationUI = () => {
     // Path validation methods
     getPathValidationStatus,
     getValidationIcon,
-
-    // Auto-validation control
-    enableAutoValidation,
-    disableAutoValidation,
-    isAutoValidationEnabled,
 
     // Validation summary
     getValidationSummary,

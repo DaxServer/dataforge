@@ -95,14 +95,17 @@ The Wikibase Schema Editor is a visual interface that allows users to create and
 
 ### Requirement 8
 
-**User Story:** As a data curator, I want visual feedback and validation, so that I can create correct schema mappings efficiently.
+**User Story:** As a data curator, I want visual feedback and validation during drag-and-drop operations, so that I can create correct schema mappings efficiently.
 
 #### Acceptance Criteria
 
-1. WHEN the user creates invalid mappings THEN the system SHALL display clear error messages
-2. WHEN the schema is incomplete THEN the system SHALL highlight required fields that need attention
-3. WHEN the user maps columns THEN the system SHALL provide autocomplete suggestions for property names
-4. IF there are data type mismatches THEN the system SHALL warn the user and suggest corrections
+1. WHEN the user starts dragging a column THEN the system SHALL immediately validate compatibility with all available drop targets
+2. WHEN the user hovers over a drop target during drag THEN the system SHALL provide immediate visual feedback indicating validity
+3. WHEN the user creates invalid mappings THEN the system SHALL display clear error messages with specific reasons
+4. WHEN the schema is incomplete THEN the system SHALL highlight required fields that need attention
+5. WHEN the user maps columns THEN the system SHALL provide autocomplete suggestions for property names
+6. IF there are data type mismatches THEN the system SHALL warn the user and suggest corrections
+7. WHEN the editor loads THEN validation SHALL be automatically active without requiring manual activation
 
 ### Requirement 9
 

@@ -95,8 +95,6 @@ describe('Schema Completeness Validation Integration', () => {
     schemaStore.addStatement(property, valueMapping)
     expect(schemaStore.statements).toHaveLength(1)
 
-    // Test that validation UI can be enabled and provides summary
-    validationUI.enableAutoValidation()
     const summary = validationUI.getValidationSummary()
     expect(summary).toHaveProperty('isComplete')
     expect(summary).toHaveProperty('totalErrors')
@@ -134,18 +132,13 @@ describe('Schema Completeness Validation Integration', () => {
     expect(schemaStore.statements).toHaveLength(1)
     expect(schemaStore.statements[0]?.property.id).toBe('P0')
 
-    // Test that validation UI can be enabled
-    validationUI.enableAutoValidation()
-
     // Test that validation methods can be called
     expect(() => validationUI.hasFieldError('item.statements[0].property.id')).not.toThrow()
     expect(() => validationUI.getFieldErrorMessage('item.statements[0].property.id')).not.toThrow()
   })
 
   test('should provide helpful field validation states', () => {
-    // Add content to trigger validation
     schemaStore.updateSchemaName('Test Schema')
-    validationUI.enableAutoValidation()
 
     // Test that field validation state methods can be called
     expect(() => validationUI.getFieldValidationState('schema.wikibase')).not.toThrow()

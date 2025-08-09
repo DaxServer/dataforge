@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach } from 'bun:test'
 import { createPinia, setActivePinia } from 'pinia'
 import { useDragDropContext } from '@frontend/shared/composables/useDragDropContext'
-import { useRealTimeValidation } from '@frontend/features/wikibase-schema/composables/useRealTimeValidation'
+import { useValidation } from '@frontend/features/wikibase-schema/composables/useValidation'
 import { useDragDropStore } from '@frontend/features/data-processing/stores/drag-drop.store'
 import { useValidationStore } from '@frontend/features/wikibase-schema/stores/validation.store'
 import type { ColumnInfo } from '@frontend/shared/types/wikibase-schema'
@@ -39,26 +39,23 @@ describe('Drag-Drop Validation Integration', () => {
   describe('Drag-Drop Context Integration', () => {
     it('should integrate validation with drag-drop context', () => {
       const dragDropContext = useDragDropContext()
-      const realTimeValidation = useRealTimeValidation()
+      const validation = useValidation()
 
       // Set up available targets
       dragDropStore.setAvailableTargets([mockDropTarget])
 
       // Validate using both systems
       const contextValidation = dragDropContext.validateDrop(mockColumnInfo, mockDropTarget)
-      const realTimeValidationResult = realTimeValidation.validateDragOperation(
-        mockColumnInfo,
-        mockDropTarget,
-      )
+      const validationResult = validation.validateDragOperation(mockColumnInfo, mockDropTarget)
 
       // Both should agree on validity
-      expect(contextValidation.isValid).toBe(realTimeValidationResult.isValid)
+      expect(contextValidation.isValid).toBe(validationResult.isValid)
       expect(contextValidation.isValid).toBe(true)
     })
 
     it('should provide consistent validation results for invalid drops', () => {
       const dragDropContext = useDragDropContext()
-      const realTimeValidation = useRealTimeValidation()
+      const validation = useValidation()
 
       const incompatibleColumn: ColumnInfo = {
         name: 'numeric_column',
@@ -72,19 +69,16 @@ describe('Drag-Drop Validation Integration', () => {
 
       // Validate using both systems
       const contextValidation = dragDropContext.validateDrop(incompatibleColumn, mockDropTarget)
-      const realTimeValidationResult = realTimeValidation.validateDragOperation(
-        incompatibleColumn,
-        mockDropTarget,
-      )
+      const validationResult = validation.validateDragOperation(incompatibleColumn, mockDropTarget)
 
       // Both should agree on invalidity
-      expect(contextValidation.isValid).toBe(realTimeValidationResult.isValid)
+      expect(contextValidation.isValid).toBe(validationResult.isValid)
       expect(contextValidation.isValid).toBe(false)
     })
 
     it('should handle complex validation scenarios consistently', () => {
       const dragDropContext = useDragDropContext()
-      const realTimeValidation = useRealTimeValidation()
+      const validation = useValidation()
 
       const nullableColumn: ColumnInfo = {
         ...mockColumnInfo,
@@ -101,13 +95,10 @@ describe('Drag-Drop Validation Integration', () => {
 
       // Validate using both systems
       const contextValidation = dragDropContext.validateDrop(nullableColumn, requiredTarget)
-      const realTimeValidationResult = realTimeValidation.validateDragOperation(
-        nullableColumn,
-        requiredTarget,
-      )
+      const validationResult = validation.validateDragOperation(nullableColumn, requiredTarget)
 
       // Both should detect the nullable constraint violation
-      expect(contextValidation.isValid).toBe(realTimeValidationResult.isValid)
+      expect(contextValidation.isValid).toBe(validationResult.isValid)
       expect(contextValidation.isValid).toBe(false)
       expect(contextValidation.reason).toContain('nullable')
     })
@@ -115,7 +106,7 @@ describe('Drag-Drop Validation Integration', () => {
 
   describe('Store Integration', () => {
     it('should sync validation errors with validation store', () => {
-      const realTimeValidation = useRealTimeValidation()
+      const validation = useValidation()
 
       const incompatibleColumn: ColumnInfo = {
         name: 'numeric_column',
@@ -125,7 +116,7 @@ describe('Drag-Drop Validation Integration', () => {
       }
 
       // Validate with auto-store enabled
-      realTimeValidation.validateDragOperation(incompatibleColumn, mockDropTarget, true)
+      validation.validateDragOperation(incompatibleColumn, mockDropTarget, true)
 
       // Check that error was added to validation store
       expect(validationStore.hasErrors).toBe(true)
@@ -137,7 +128,7 @@ describe('Drag-Drop Validation Integration', () => {
     })
 
     it('should clear validation errors when validation becomes valid', () => {
-      const realTimeValidation = useRealTimeValidation()
+      const validation = useValidation()
 
       const incompatibleColumn: ColumnInfo = {
         name: 'numeric_column',
@@ -147,18 +138,18 @@ describe('Drag-Drop Validation Integration', () => {
       }
 
       // Add error first
-      realTimeValidation.validateDragOperation(incompatibleColumn, mockDropTarget, true)
+      validation.validateDragOperation(incompatibleColumn, mockDropTarget, true)
       expect(validationStore.hasErrorsForPath(mockDropTarget.path)).toBe(true)
 
       // Now validate with compatible column
-      realTimeValidation.validateDragOperation(mockColumnInfo, mockDropTarget, true)
+      validation.validateDragOperation(mockColumnInfo, mockDropTarget, true)
 
       // Should clear previous errors for this path
       expect(validationStore.hasErrorsForPath(mockDropTarget.path)).toBe(false)
     })
 
     it('should handle multiple validation errors for different paths', () => {
-      const realTimeValidation = useRealTimeValidation()
+      const validation = useValidation()
 
       const incompatibleColumn: ColumnInfo = {
         name: 'numeric_column',
@@ -176,8 +167,8 @@ describe('Drag-Drop Validation Integration', () => {
       }
 
       // Add errors for both targets
-      realTimeValidation.validateDragOperation(incompatibleColumn, target1, true)
-      realTimeValidation.validateDragOperation(incompatibleColumn, target2, true)
+      validation.validateDragOperation(incompatibleColumn, target1, true)
+      validation.validateDragOperation(incompatibleColumn, target2, true)
 
       // Both paths should have errors
       expect(validationStore.hasErrorsForPath(target1.path)).toBe(true)
@@ -185,7 +176,7 @@ describe('Drag-Drop Validation Integration', () => {
       expect(validationStore.errorCount).toBe(2)
 
       // Clear one path
-      realTimeValidation.validateDragOperation(mockColumnInfo, target1, true)
+      validation.validateDragOperation(mockColumnInfo, target1, true)
 
       // Only target2 should still have errors
       expect(validationStore.hasErrorsForPath(target1.path)).toBe(false)
@@ -196,7 +187,7 @@ describe('Drag-Drop Validation Integration', () => {
 
   describe('Drag Store Integration', () => {
     it('should work with drag store valid targets computation', () => {
-      const realTimeValidation = useRealTimeValidation()
+      const validation = useValidation()
 
       const targets = [
         mockDropTarget,
@@ -224,28 +215,28 @@ describe('Drag-Drop Validation Integration', () => {
       expect(validTargets).toHaveLength(2)
       expect(validTargets.map((t) => t.type)).toEqual(['label', 'description'])
 
-      // Validate each target using real-time validation
+      // Validate each target using validation
       for (const target of validTargets) {
-        const validation = realTimeValidation.validateDragOperation(mockColumnInfo, target)
-        expect(validation.isValid).toBe(true)
+        const validationResult = validation.validateDragOperation(mockColumnInfo, target)
+        expect(validationResult.isValid).toBe(true)
       }
     })
 
     it('should handle drag state changes with validation', () => {
-      const realTimeValidation = useRealTimeValidation()
+      const validation = useValidation()
 
       // Set up available targets
       dragDropStore.setAvailableTargets([mockDropTarget])
 
       // Initially no drag operation
-      expect(realTimeValidation.isValidDragOperation.value).toBe(false)
+      expect(validation.isValidDragOperation.value).toBe(false)
 
       // Start drag operation
       dragDropStore.startDrag(mockColumnInfo)
       dragDropStore.setHoveredTarget(mockDropTarget.path)
 
       // Should be valid
-      expect(realTimeValidation.isValidDragOperation.value).toBe(true)
+      expect(validation.isValidDragOperation.value).toBe(true)
 
       // Change to incompatible column
       const incompatibleColumn: ColumnInfo = {
@@ -259,19 +250,19 @@ describe('Drag-Drop Validation Integration', () => {
       dragDropStore.setHoveredTarget(mockDropTarget.path)
 
       // Should be invalid
-      expect(realTimeValidation.isValidDragOperation.value).toBe(false)
+      expect(validation.isValidDragOperation.value).toBe(false)
 
       // End drag operation
       dragDropStore.endDrag()
 
       // Should be false (no drag in progress)
-      expect(realTimeValidation.isValidDragOperation.value).toBe(false)
+      expect(validation.isValidDragOperation.value).toBe(false)
     })
   })
 
   describe('Complex Validation Scenarios', () => {
     it('should handle statement validation with property requirements', () => {
-      const realTimeValidation = useRealTimeValidation()
+      const validation = useValidation()
 
       const statementTarget: DropTarget = {
         type: 'statement',
@@ -288,14 +279,11 @@ describe('Drag-Drop Validation Integration', () => {
       }
 
       // Valid statement target
-      const validValidation = realTimeValidation.validateDragOperation(
-        mockColumnInfo,
-        statementTarget,
-      )
+      const validValidation = validation.validateDragOperation(mockColumnInfo, statementTarget)
       expect(validValidation.isValid).toBe(true)
 
       // Invalid statement target (missing property)
-      const invalidValidation = realTimeValidation.validateDragOperation(
+      const invalidValidation = validation.validateDragOperation(
         mockColumnInfo,
         statementTargetWithoutProperty,
       )
@@ -304,7 +292,7 @@ describe('Drag-Drop Validation Integration', () => {
     })
 
     it('should handle length constraints for labels and aliases', () => {
-      const realTimeValidation = useRealTimeValidation()
+      const validation = useValidation()
 
       const longValueColumn: ColumnInfo = {
         name: 'long_text',
@@ -322,8 +310,8 @@ describe('Drag-Drop Validation Integration', () => {
       }
 
       // Both should fail due to length constraints
-      const labelValidation = realTimeValidation.validateDragOperation(longValueColumn, labelTarget)
-      const aliasValidation = realTimeValidation.validateDragOperation(longValueColumn, aliasTarget)
+      const labelValidation = validation.validateDragOperation(longValueColumn, labelTarget)
+      const aliasValidation = validation.validateDragOperation(longValueColumn, aliasTarget)
 
       expect(labelValidation.isValid).toBe(false)
       expect(aliasValidation.isValid).toBe(false)
@@ -332,7 +320,7 @@ describe('Drag-Drop Validation Integration', () => {
     })
 
     it('should provide appropriate validation suggestions', () => {
-      const realTimeValidation = useRealTimeValidation()
+      const validation = useValidation()
 
       const incompatibleColumn: ColumnInfo = {
         name: 'numeric_column',
@@ -346,10 +334,7 @@ describe('Drag-Drop Validation Integration', () => {
         isRequired: true,
       }
 
-      const suggestions = realTimeValidation.getValidationSuggestions(
-        incompatibleColumn,
-        requiredTarget,
-      )
+      const suggestions = validation.getValidationSuggestions(incompatibleColumn, requiredTarget)
 
       // Should suggest both data type and nullable fixes
       expect(suggestions).toHaveLength(2)
@@ -360,7 +345,7 @@ describe('Drag-Drop Validation Integration', () => {
 
   describe('Error Recovery and Cleanup', () => {
     it('should handle validation errors gracefully', () => {
-      const realTimeValidation = useRealTimeValidation()
+      const validation = useValidation()
 
       // Test with malformed target
       const malformedTarget: DropTarget = {
@@ -372,19 +357,19 @@ describe('Drag-Drop Validation Integration', () => {
 
       // Should not throw errors
       expect(() => {
-        realTimeValidation.validateDragOperation(mockColumnInfo, malformedTarget)
+        validation.validateDragOperation(mockColumnInfo, malformedTarget)
       }).not.toThrow()
 
       // Should return invalid result
-      const validation = realTimeValidation.validateDragOperation(mockColumnInfo, malformedTarget)
-      expect(validation.isValid).toBe(false)
+      const validationResult = validation.validateDragOperation(mockColumnInfo, malformedTarget)
+      expect(validationResult.isValid).toBe(false)
     })
 
     it('should clean up validation state properly', () => {
-      const realTimeValidation = useRealTimeValidation()
+      const validation = useValidation()
 
       // Add some validation errors
-      realTimeValidation.validateDragOperation(
+      validation.validateDragOperation(
         { ...mockColumnInfo, dataType: 'INTEGER' },
         mockDropTarget,
         true,

@@ -260,7 +260,6 @@ declare global {
   const useProjectStore: typeof import('./src/features/project-management/stores/project.store')['useProjectStore']
   const usePropertySelection: typeof import('./src/features/wikibase-schema/composables/usePropertySelection')['usePropertySelection']
   const useRafFn: typeof import('@vueuse/core')['useRafFn']
-  const useRealTimeValidation: typeof import('./src/features/wikibase-schema/composables/useRealTimeValidation')['useRealTimeValidation']
   const useRefHistory: typeof import('@vueuse/core')['useRefHistory']
   const useReferenceValueMapping: typeof import('./src/features/wikibase-schema/composables/useReferenceValueMapping')['useReferenceValueMapping']
   const useResizeObserver: typeof import('@vueuse/core')['useResizeObserver']
@@ -322,6 +321,7 @@ declare global {
   const useUserMedia: typeof import('@vueuse/core')['useUserMedia']
   const useVModel: typeof import('@vueuse/core')['useVModel']
   const useVModels: typeof import('@vueuse/core')['useVModels']
+  const useValidation: typeof import('./src/features/wikibase-schema/composables/useValidation')['useValidation']
   const useValidationCore: typeof import('./src/features/wikibase-schema/composables/useValidationCore')['useValidationCore']
   const useValidationErrors: typeof import('./src/features/wikibase-schema/composables/useValidationErrors')['useValidationErrors']
   const useValidationStore: typeof import('./src/features/wikibase-schema/stores/validation.store')['useValidationStore']
@@ -658,7 +658,6 @@ declare module 'vue' {
     readonly useProjectStore: UnwrapRef<typeof import('./src/features/project-management/stores/project.store')['useProjectStore']>
     readonly usePropertySelection: UnwrapRef<typeof import('./src/features/wikibase-schema/composables/usePropertySelection')['usePropertySelection']>
     readonly useRafFn: UnwrapRef<typeof import('@vueuse/core')['useRafFn']>
-    readonly useRealTimeValidation: UnwrapRef<typeof import('./src/features/wikibase-schema/composables/useRealTimeValidation')['useRealTimeValidation']>
     readonly useRefHistory: UnwrapRef<typeof import('@vueuse/core')['useRefHistory']>
     readonly useReferenceValueMapping: UnwrapRef<typeof import('./src/features/wikibase-schema/composables/useReferenceValueMapping')['useReferenceValueMapping']>
     readonly useResizeObserver: UnwrapRef<typeof import('@vueuse/core')['useResizeObserver']>
@@ -720,6 +719,7 @@ declare module 'vue' {
     readonly useUserMedia: UnwrapRef<typeof import('@vueuse/core')['useUserMedia']>
     readonly useVModel: UnwrapRef<typeof import('@vueuse/core')['useVModel']>
     readonly useVModels: UnwrapRef<typeof import('@vueuse/core')['useVModels']>
+    readonly useValidation: UnwrapRef<typeof import('./src/features/wikibase-schema/composables/useValidation')['useValidation']>
     readonly useValidationCore: UnwrapRef<typeof import('./src/features/wikibase-schema/composables/useValidationCore')['useValidationCore']>
     readonly useValidationErrors: UnwrapRef<typeof import('./src/features/wikibase-schema/composables/useValidationErrors')['useValidationErrors']>
     readonly useValidationStore: UnwrapRef<typeof import('./src/features/wikibase-schema/stores/validation.store')['useValidationStore']>
