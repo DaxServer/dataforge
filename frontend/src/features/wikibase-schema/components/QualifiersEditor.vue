@@ -22,11 +22,11 @@ interface QualifiersEditorEmits {
 
 const emit = defineEmits<QualifiersEditorEmits>()
 
-// Composables (none needed for now)
-
 // Local state for adding new qualifier
 const isAddingQualifier = ref(false)
+const selectedPropertyId = ref('')
 const selectedValue = ref<ValueMapping | null>(null)
+const validationErrors = ref<string[]>([])
 
 // Computed properties
 const qualifiers = computed(() => props.qualifiers || [])
@@ -35,102 +35,27 @@ const shouldShowEmptyState = computed(
   () => qualifiers.value.length === 0 && !isAddingQualifier.value,
 )
 
-// Use existing property selection composable
-const { selectedProperty, selectProperty, clearSelection } = usePropertySelection()
-
-// Use existing value type options from StatementEditor composable
-const { valueTypeOptions } = useStatementEditor()
-
-// Validation
-const isValidQualifierProperty = (property: PropertyReference | null): boolean => {
-  if (!property) return false
-  return property.id.startsWith('P') && property.dataType !== ''
-}
-
-const isValidQualifierValue = (value: ValueMapping | null): boolean => {
-  if (!value) return false
-
-  if (value.type === 'column') {
-    return !!value.source.columnName
-  }
-  return typeof value.source === 'string' && !!value.source.trim()
-}
-
-const canAddQualifier = computed(
-  () =>
-    isValidQualifierProperty(selectedProperty.value) && isValidQualifierValue(selectedValue.value),
-)
-
 // Methods
 const startAddingQualifier = () => {
   isAddingQualifier.value = true
-  clearSelection()
+  selectedPropertyId.value = ''
   selectedValue.value = null
 }
 
 const cancelAddingQualifier = () => {
   isAddingQualifier.value = false
-  clearSelection()
+  selectedPropertyId.value = ''
   selectedValue.value = null
 }
 
-const handlePropertyChange = (property: PropertyReference | null) => {
-  // Reset value when property changes and auto-suggest data type
-  if (property) {
-    selectProperty(property)
-    selectedValue.value = {
-      type: 'column',
-      source: { columnName: '', dataType: 'VARCHAR' },
-      dataType: property.dataType as WikibaseDataType,
-    }
-  } else {
-    selectedValue.value = null
-  }
-}
-
-const handleValueTypeChange = (newType: 'column' | 'constant' | 'expression') => {
-  if (!selectedValue.value || !selectedProperty.value) return
-
-  const currentDataType = selectedValue.value.dataType
-
-  if (newType === 'column') {
-    selectedValue.value = {
-      type: 'column',
-      source: { columnName: '', dataType: 'VARCHAR' },
-      dataType: currentDataType,
-    }
-  } else {
-    selectedValue.value = {
-      type: newType,
-      source: '',
-      dataType: currentDataType,
-    }
-  }
-}
-
-const handleColumnDrop = (columnInfo: ColumnInfo) => {
-  if (!selectedProperty.value) return
-
-  // Use existing data type compatibility logic
-  const { getCompatibleWikibaseTypes } = useDataTypeCompatibility()
-  const compatibleTypes = getCompatibleWikibaseTypes(columnInfo.dataType)
-  const suggestedDataType = compatibleTypes[0] || 'string'
-
-  selectedValue.value = {
-    type: 'column',
-    source: {
-      columnName: columnInfo.name,
-      dataType: columnInfo.dataType,
-    },
-    dataType: suggestedDataType,
-  }
-}
-
-const addQualifier = () => {
-  if (!canAddQualifier.value || !selectedProperty.value || !selectedValue.value) return
+const handleQualifierSubmit = () => {
+  if (!selectedPropertyId.value || !selectedValue.value) return
 
   const qualifier: PropertyValueMap = {
-    property: selectedProperty.value,
+    property: {
+      id: selectedPropertyId.value,
+      dataType: selectedValue.value.dataType,
+    },
     value: selectedValue.value,
   }
 
@@ -143,24 +68,16 @@ const removeQualifier = (qualifierIndex: number) => {
 }
 
 const getValueTypeIcon = (valueType: string): string => {
+  const valueTypeOptions = [
+    { label: 'Column', value: 'column', icon: 'pi pi-database' },
+    { label: 'Constant', value: 'constant', icon: 'pi pi-lock' },
+    { label: 'Expression', value: 'expression', icon: 'pi pi-code' },
+  ]
   const option = valueTypeOptions.find((opt) => opt.value === valueType)
   return option?.icon || 'pi pi-question'
 }
 
-// Drop zone handlers for column mapping using the same pattern as StatementEditor
-const {
-  dropZoneClasses,
-  handleDragOver,
-  handleDragEnter,
-  handleDragLeave,
-  handleDrop,
-  setOnColumnDrop,
-} = useStatementDropZone()
-
-// Set up the column drop callback
-setOnColumnDrop((columnInfo) => {
-  handleColumnDrop(columnInfo)
-})
+// Drag and drop is now handled by PropertyValueMappingEditor component
 </script>
 
 <template>
@@ -293,139 +210,38 @@ setOnColumnDrop((columnInfo) => {
     <!-- Add Qualifier Form -->
     <div
       v-if="isAddingQualifier"
-      class="border border-surface-200 rounded-lg p-4 bg-surface-25 space-y-4"
+      class="border border-surface-200 rounded-lg p-4 bg-surface-25"
     >
       <div class="flex items-center justify-between mb-4">
         <h5 class="font-medium text-surface-900">Add New Qualifier</h5>
-        <Button
-          icon="pi pi-times"
-          size="small"
-          severity="secondary"
-          text
-          @click="cancelAddingQualifier"
-        />
-      </div>
 
-      <!-- Property Selection -->
-      <div class="space-y-2">
-        <label class="block text-sm font-medium text-surface-700">
-          Qualifier Property
-          <span class="text-red-500">*</span>
-        </label>
-        <PropertySelector
-          :model-value="selectedProperty"
-          placeholder="Search for a qualifier property..."
-          :disabled="disabled"
-          @update="handlePropertyChange"
-        />
-      </div>
-
-      <!-- Value Configuration -->
-      <div
-        v-if="selectedProperty"
-        class="space-y-4"
-      >
-        <!-- Value Type Selection -->
-        <div class="space-y-2">
-          <label class="block text-sm font-medium text-surface-700">
-            Value Type
-            <span class="text-red-500">*</span>
-          </label>
-          <div class="flex gap-2">
-            <Button
-              v-for="option in valueTypeOptions"
-              :key="option.value"
-              :label="option.label"
-              :icon="option.icon"
-              :severity="selectedValue?.type === option.value ? 'primary' : 'secondary'"
-              size="small"
-              @click="handleValueTypeChange(option.value as 'column' | 'constant' | 'expression')"
-            />
-          </div>
-        </div>
-
-        <!-- Value Source Configuration -->
-        <div class="space-y-2">
-          <label class="block text-sm font-medium text-surface-700">
-            Value Source
-            <span class="text-red-500">*</span>
-          </label>
-
-          <!-- Column Drop Zone -->
-          <div
-            v-if="selectedValue?.type === 'column'"
-            :class="dropZoneClasses"
-            class="border-2 border-dashed rounded-lg p-4 text-center transition-all duration-200 ease-in-out"
-            @dragover="handleDragOver"
-            @dragenter="handleDragEnter"
-            @dragleave="handleDragLeave"
-            @drop="handleDrop"
-          >
-            <!-- Show dropped column info if column is selected -->
-            <div
-              v-if="selectedValue.source.columnName"
-              class="flex items-center justify-center gap-3"
-            >
-              <div
-                class="flex items-center gap-2 bg-white border border-surface-200 rounded px-3 py-2"
-              >
-                <i class="pi pi-database text-primary-600" />
-                <span class="font-medium text-surface-900">
-                  {{ selectedValue.source.columnName }}
-                </span>
-                <Tag
-                  :value="selectedValue.source.dataType"
-                  size="small"
-                  severity="secondary"
-                />
-              </div>
-              <Button
-                v-tooltip="'Clear column selection'"
-                icon="pi pi-times"
-                size="small"
-                severity="secondary"
-                text
-                @click="selectedValue.source.columnName = ''"
-              />
-            </div>
-
-            <!-- Show drop zone message if no column selected -->
-            <div
-              v-else
-              class="flex items-center justify-center gap-2 text-surface-600"
-            >
-              <i class="pi pi-upload" />
-              <span class="text-sm font-medium">Drop column here</span>
-            </div>
-          </div>
-
-          <!-- Constant/Expression Input -->
-          <InputText
-            v-else-if="selectedValue"
-            v-model="selectedValue.source"
-            :placeholder="
-              selectedValue.type === 'constant' ? 'Enter constant value...' : 'Enter expression...'
-            "
-            class="w-full"
+        <div class="flex justify-end gap-2 mt-4">
+          <Button
+            label="Cancel"
+            severity="secondary"
+            size="small"
+            @click="cancelAddingQualifier"
+          />
+          <Button
+            label="Add Qualifier"
+            size="small"
+            :disabled="!selectedPropertyId || !selectedValue || validationErrors.length > 0"
+            @click="handleQualifierSubmit"
           />
         </div>
       </div>
 
-      <!-- Action Buttons -->
-      <div class="flex items-center justify-end gap-2 pt-4 border-t border-surface-200">
-        <Button
-          label="Cancel"
-          severity="secondary"
-          size="small"
-          @click="cancelAddingQualifier"
-        />
-        <Button
-          label="Add Qualifier"
-          :disabled="!canAddQualifier"
-          size="small"
-          @click="addQualifier"
-        />
-      </div>
+      <!-- Use the reusable PropertyValueMappingEditor component -->
+      <PropertyValueMappingEditor
+        v-model:property-id="selectedPropertyId"
+        v-model:value-mapping="selectedValue"
+        validation-path="qualifier"
+        @validation-changed="
+          (isValid, errors) => {
+            validationErrors = errors
+          }
+        "
+      />
     </div>
 
     <!-- Empty State -->
