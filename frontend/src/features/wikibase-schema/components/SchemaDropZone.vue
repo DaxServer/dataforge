@@ -1,60 +1,93 @@
 <script setup lang="ts">
 // Define props
-const props = defineProps({
-  termType: {
-    type: String,
-    required: true,
-    validator: (value: string) => ['label', 'description', 'alias'].includes(value),
-  },
-  icon: {
-    type: String,
-    default: 'pi pi-tag',
-  },
-  placeholder: {
-    type: String,
-    required: true,
-  },
-  testId: {
-    type: String,
-    required: true,
-  },
-  languageCode: {
-    type: String,
-    default: 'en',
-  },
-})
+const props = defineProps<{
+  termType: 'label' | 'description' | 'alias'
+  icon: string
+  placeholder: string
+  testId: string
+  languageCode: string
+}>()
 
-const {
-  handleDragOver,
-  handleDragEnter,
-  handleDragLeave,
-  handleDrop,
-  dropZoneClasses,
-  setTermType,
-  setLanguageCode,
-} = useSchemaDropZone()
+const schemaStore = useSchemaStore()
+const dragDropStore = useDragDropStore()
+
+const isOverDropZone = ref(false)
 
 // Drag drop context for drag feedback
-const { dropFeedback } = useDragDropContext()
+const { createDragEnterHandler, createDragLeaveHandler, createDropHandler } = useDragDropHandlers()
+const { validateForDrop } = useValidationCore()
+const { getDropZoneClassObject } = useDropZoneStyling()
 
-// Set configuration from props
-setTermType(props.termType as 'label' | 'description' | 'alias')
-setLanguageCode(props.languageCode)
+// Text-based fields accept string types
+const acceptedTypes: WikibaseDataType[] = ['string']
 
-// Watch for prop changes
-watch(
-  () => props.termType,
-  (newTermType) => {
-    setTermType(newTermType as 'label' | 'description' | 'alias')
+const currentTarget = computed(() => ({
+  type: props.termType,
+  path: `item.terms.${props.termType}s.${props.languageCode}`,
+  acceptedTypes,
+  language: props.languageCode,
+  isRequired: false,
+}))
+
+const isValidForDrop = computed(() => {
+  if (!dragDropStore.draggedColumn) return false
+  const existingAliases =
+    props.termType === 'alias' ? schemaStore.aliases[props.languageCode] || [] : undefined
+  return validateForDrop(dragDropStore.draggedColumn, currentTarget.value, existingAliases).isValid
+})
+
+// CSS classes using shared styling logic
+const dropZoneClasses = computed(() =>
+  getDropZoneClassObject(currentTarget.value, isOverDropZone.value),
+)
+
+// Event handlers
+const handleDragOver = (event: DragEvent): void => {
+  event.preventDefault()
+  if (event.dataTransfer) {
+    // Use drop validation for cursor behavior to include duplicate checking
+    event.dataTransfer.dropEffect =
+      dragDropStore.draggedColumn && isValidForDrop.value ? 'copy' : 'none'
+  }
+}
+
+const handleDragEnter = createDragEnterHandler(() => {
+  isOverDropZone.value = true
+})
+
+const handleDragLeave = createDragLeaveHandler(() => {
+  isOverDropZone.value = false
+})
+
+const handleDrop = createDropHandler(
+  acceptedTypes,
+  (columnInfo) => {
+    isOverDropZone.value = false
+    // Only add if drop validation passes (includes duplicate checking)
+    if (isValidForDrop.value) {
+      addColumnMapping(columnInfo)
+    }
+  },
+  () => {
+    isOverDropZone.value = false
   },
 )
 
-watch(
-  () => props.languageCode,
-  (newLanguageCode) => {
-    setLanguageCode(newLanguageCode)
-  },
-)
+// Simplified column mapping - duplicate checking handled by validation
+const addColumnMapping = (dataCol: ColumnInfo): void => {
+  const columnMapping = {
+    columnName: dataCol.name,
+    dataType: dataCol.dataType,
+  }
+
+  if (props.termType === 'label') {
+    schemaStore.addLabelMapping(props.languageCode, columnMapping)
+  } else if (props.termType === 'description') {
+    schemaStore.addDescriptionMapping(props.languageCode, columnMapping)
+  } else if (props.termType === 'alias') {
+    schemaStore.addAliasMapping(props.languageCode, columnMapping)
+  }
+}
 </script>
 
 <template>
@@ -71,16 +104,5 @@ watch(
   >
     <i :class="[icon, 'text-2xl text-surface-400']" />
     <p class="text-surface-600">{{ placeholder }}</p>
-
-    <!-- Real-time validation feedback -->
-    <div
-      v-if="dropFeedback"
-      class="mt-2 text-xs px-2 py-1 rounded"
-      :class="[
-        dropFeedback.type === 'success' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700',
-      ]"
-    >
-      {{ dropFeedback.message }}
-    </div>
   </div>
 </template>

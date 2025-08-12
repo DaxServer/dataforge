@@ -1,4 +1,6 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+const schemaStore = useSchemaStore()
+</script>
 
 <template>
   <div class="terms-editor space-y-6">
@@ -10,6 +12,7 @@
       placeholder="Drop column for labels"
       test-id="label-drop-zone"
       validation-path="item.terms.labels"
+      :values="schemaStore.labels"
     />
 
     <!-- Descriptions Section -->
@@ -20,6 +23,7 @@
       placeholder="Drop column for descriptions"
       test-id="description-drop-zone"
       validation-path="item.terms.descriptions"
+      :values="schemaStore.descriptions"
     />
 
     <!-- Aliases Section -->
@@ -30,6 +34,7 @@
       placeholder="Drop column for aliases"
       test-id="alias-drop-zone"
       validation-path="item.terms.aliases"
+      :values="schemaStore.aliases"
     />
   </div>
 </template>
