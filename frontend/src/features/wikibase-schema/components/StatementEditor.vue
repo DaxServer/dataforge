@@ -261,6 +261,10 @@ watch(
   },
   { deep: true, immediate: true },
 )
+
+const onValidationChanged = (_: any, errors: string[]) => {
+  validationErrors.value = errors
+}
 </script>
 
 <template>
@@ -291,11 +295,7 @@ watch(
       validation-path="statement"
       @property-changed="handlePropertyChanged"
       @value-changed="handleValueChanged"
-      @validation-changed="
-        (_, errors) => {
-          validationErrors = errors
-        }
-      "
+      @validation-changed="onValidationChanged"
     />
 
     <!-- Statement Rank -->

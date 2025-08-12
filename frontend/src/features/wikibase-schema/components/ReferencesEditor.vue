@@ -127,6 +127,10 @@ const getValueDisplayText = (value: ValueMapping): string => {
 
 const getSnakNumber = (referenceIndex: number, snakIndex: number): string =>
   `R${referenceIndex + 1}.${snakIndex + 1}`
+
+const onValidationChanged = (_: any, errors: string[]) => {
+  validationErrors.value = errors
+}
 </script>
 
 <template>
@@ -312,11 +316,7 @@ const getSnakNumber = (referenceIndex: number, snakIndex: number): string =>
         v-model:property-id="selectedPropertyId"
         v-model:value-mapping="selectedValue"
         validation-path="reference"
-        @validation-changed="
-          (_, errors) => {
-            validationErrors = errors
-          }
-        "
+        @validation-changed="onValidationChanged"
       />
     </div>
 

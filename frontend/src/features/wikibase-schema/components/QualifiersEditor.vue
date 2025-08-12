@@ -77,7 +77,9 @@ const getValueTypeIcon = (valueType: string): string => {
   return option?.icon || 'pi pi-question'
 }
 
-// Drag and drop is now handled by PropertyValueMappingEditor component
+const onValidationChanged = (_: any, errors: string[]) => {
+  validationErrors.value = errors
+}
 </script>
 
 <template>
@@ -236,11 +238,7 @@ const getValueTypeIcon = (valueType: string): string => {
         v-model:property-id="selectedPropertyId"
         v-model:value-mapping="selectedValue"
         validation-path="qualifier"
-        @validation-changed="
-          (_, errors) => {
-            validationErrors = errors
-          }
-        "
+        @validation-changed="onValidationChanged"
       />
     </div>
 
