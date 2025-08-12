@@ -88,7 +88,6 @@ const localValueMapping = ref<ValueMapping>(
     dataType: 'string',
   },
 )
-const localProperty = computed(() => localStatement.value.property)
 
 // Validation state
 const validationErrors = ref<string[]>([])
@@ -293,7 +292,7 @@ watch(
       @property-changed="handlePropertyChanged"
       @value-changed="handleValueChanged"
       @validation-changed="
-        (isValid, errors) => {
+        (_, errors) => {
           validationErrors = errors
         }
       "

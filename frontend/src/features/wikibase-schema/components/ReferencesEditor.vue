@@ -313,7 +313,7 @@ const getSnakNumber = (referenceIndex: number, snakIndex: number): string =>
         v-model:value-mapping="selectedValue"
         validation-path="reference"
         @validation-changed="
-          (isValid, errors) => {
+          (_, errors) => {
             validationErrors = errors
           }
         "

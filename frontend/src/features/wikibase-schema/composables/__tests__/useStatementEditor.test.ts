@@ -209,13 +209,6 @@ describe('useStatementEditor', () => {
       expect(localStatement.value.value.type).toBe('constant')
       expect(localStatement.value.value.source).toBe('')
     })
-    test('should handle data type change', () => {
-      const { localStatement, handleDataTypeChange } = useStatementEditor()
-
-      handleDataTypeChange('quantity')
-
-      expect(localStatement.value.value.dataType).toBe('quantity')
-    })
 
     test('should handle rank change', () => {
       const { localStatement, handleRankChange } = useStatementEditor()

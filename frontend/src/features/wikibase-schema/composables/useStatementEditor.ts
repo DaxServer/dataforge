@@ -190,10 +190,6 @@ export const useStatementEditor = () => {
     }
   }
 
-  const handleDataTypeChange = (newDataType: WikibaseDataType) => {
-    localStatement.value.value.dataType = newDataType
-  }
-
   const handleRankChange = (newRank: StatementRank) => {
     localStatement.value.rank = newRank
   }
@@ -279,7 +275,6 @@ export const useStatementEditor = () => {
     // Methods
     handlePropertyUpdate,
     handleValueTypeChange,
-    handleDataTypeChange,
     handleRankChange,
     handleColumnDrop,
     updateStatement,

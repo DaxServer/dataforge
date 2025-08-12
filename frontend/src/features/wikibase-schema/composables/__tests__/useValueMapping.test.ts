@@ -113,18 +113,6 @@ describe('useValueMapping', () => {
         dataType: 'VARCHAR',
       })
     })
-
-    test('should preserve data type when changing value type', () => {
-      const { currentMapping, updateValueType, updateDataType } = useValueMapping()
-
-      // Set a specific data type
-      updateDataType('wikibase-item')
-      expect(currentMapping.value.dataType).toBe('wikibase-item')
-
-      // Change value type
-      updateValueType('constant')
-      expect(currentMapping.value.dataType).toBe('wikibase-item') // Should be preserved
-    })
   })
 
   describe('Column Source Management', () => {
@@ -157,14 +145,6 @@ describe('useValueMapping', () => {
   })
 
   describe('Data Type Management', () => {
-    test('should update data type', () => {
-      const { currentMapping, updateDataType } = useValueMapping()
-
-      updateDataType('quantity')
-
-      expect(currentMapping.value.dataType).toBe('quantity')
-    })
-
     test('should get compatible data types for column', () => {
       const { getCompatibleDataTypes } = useValueMapping()
 
@@ -316,11 +296,10 @@ describe('useValueMapping', () => {
     })
 
     test('should reset mapping to default state', () => {
-      const { currentMapping, updateValueType, updateDataType, resetMapping } = useValueMapping()
+      const { currentMapping, updateValueType, resetMapping } = useValueMapping()
 
       // Change state
       updateValueType('constant')
-      updateDataType('wikibase-item')
 
       // Reset
       resetMapping()

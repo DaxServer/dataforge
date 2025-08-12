@@ -237,7 +237,7 @@ const getValueTypeIcon = (valueType: string): string => {
         v-model:value-mapping="selectedValue"
         validation-path="qualifier"
         @validation-changed="
-          (isValid, errors) => {
+          (_, errors) => {
             validationErrors = errors
           }
         "
