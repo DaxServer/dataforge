@@ -162,10 +162,6 @@ export const useValueMapping = () => {
     }
   }
 
-  const updateDataType = (dataType: WikibaseDataType) => {
-    currentMapping.value.dataType = dataType
-  }
-
   const validateMapping = (mapping: ValueMapping): { isValid: boolean; errors: string[] } => {
     const errors: string[] = []
 
@@ -256,7 +252,6 @@ export const useValueMapping = () => {
     createExpressionMapping,
     updateValueType,
     updateColumnSource,
-    updateDataType,
     validateMapping,
     getCompatibleDataTypes,
     autoSuggestDataType,

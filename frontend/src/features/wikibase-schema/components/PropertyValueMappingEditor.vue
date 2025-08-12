@@ -57,7 +57,6 @@ const {
   isValidMapping,
   updateValueType,
   updateColumnSource,
-  updateDataType,
   validateMapping,
   resetMapping,
 } = useValueMapping()
@@ -151,6 +150,20 @@ watch(
   { immediate: true, deep: true },
 )
 
+// Watch for property changes to auto-update data type
+watch(
+  selectedProperty,
+  (newProperty) => {
+    if (newProperty?.dataType) {
+      currentMapping.value = {
+        ...currentMapping.value,
+        dataType: newProperty.dataType as WikibaseDataType,
+      }
+    }
+  },
+  { immediate: true },
+)
+
 watch(
   [selectedProperty, currentMapping],
   () => {
@@ -202,9 +215,6 @@ watch(
 const handlePropertyChange = (property: PropertyReference | null) => {
   if (property) {
     selectProperty(property)
-    // Auto-suggest data type based on property
-    const suggestedDataType = property.dataType as WikibaseDataType
-    updateDataType(suggestedDataType)
   } else {
     clearSelection()
   }
@@ -229,13 +239,6 @@ const handleConstantOrExpressionChange = (value: string | undefined) => {
 
   currentMapping.value.source = value
   emit('value-changed', currentMapping.value)
-}
-
-const handleDataTypeChange = (value: string | undefined) => {
-  if (value) {
-    updateDataType(value as WikibaseDataType)
-    emit('value-changed', currentMapping.value)
-  }
 }
 
 const clearColumnSelection = () => {
@@ -278,12 +281,23 @@ defineExpose({
         Property
         <span class="text-red-500">*</span>
       </label>
-      <PropertySelector
-        :model-value="selectedProperty"
-        :placeholder="propertyPlaceholder"
-        :disabled="disabled"
-        @update="handlePropertyChange"
-      />
+      <div class="flex gap-4 items-center">
+        <div>
+          <PropertySelector
+            :model-value="selectedProperty"
+            :placeholder="propertyPlaceholder"
+            :disabled="disabled"
+            @update="handlePropertyChange"
+          />
+        </div>
+        <!-- Data Type Display (Read-only) -->
+        <div v-if="selectedProperty">
+          <div class="flex items-center gap-2 p-2 bg-surface-50 text-sm">
+            <i class="pi pi-info-circle text-surface-500" />
+            <span class="text-surface-700 font-medium">{{ currentMapping.dataType }}</span>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- Value Configuration -->
@@ -375,35 +389,6 @@ defineExpose({
           :disabled="disabled"
           class="w-full"
           @update:model-value="handleConstantOrExpressionChange"
-        />
-      </div>
-
-      <!-- Data Type Selection -->
-      <div class="space-y-2">
-        <label class="block text-sm font-medium text-surface-700">
-          Wikibase Data Type
-          <span class="text-red-500">*</span>
-        </label>
-        <Select
-          :model-value="currentMapping.dataType"
-          :options="[
-            { label: 'String', value: 'string' },
-            { label: 'Wikibase Item', value: 'wikibase-item' },
-            { label: 'Wikibase Property', value: 'wikibase-property' },
-            { label: 'Quantity', value: 'quantity' },
-            { label: 'Time', value: 'time' },
-            { label: 'Globe Coordinate', value: 'globe-coordinate' },
-            { label: 'URL', value: 'url' },
-            { label: 'External ID', value: 'external-id' },
-            { label: 'Monolingual Text', value: 'monolingualtext' },
-            { label: 'Commons Media', value: 'commonsMedia' },
-          ]"
-          option-label="label"
-          option-value="value"
-          :disabled="disabled"
-          placeholder="Select data type"
-          class="w-full"
-          @update:model-value="handleDataTypeChange"
         />
       </div>
     </div>
