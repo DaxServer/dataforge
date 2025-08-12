@@ -51,42 +51,15 @@ const emit = defineEmits<StatementEditorEmits>()
 // Composables
 const {
   localStatement,
-  valueTypeOptions,
   rankOptions,
-  isColumnType,
-  sourceLabel,
-  sourcePlaceholder,
-  sourceValue,
   isValidStatement,
-  compatibleDataTypes,
-  handlePropertyUpdate,
-  handleValueTypeChange,
-  handleDataTypeChange,
   handleRankChange,
   handleColumnDrop,
   initializeStatement,
   setAvailableColumns,
 } = useStatementEditor()
 
-const {
-  dropZoneClasses,
-  handleDragOver,
-  handleDragEnter,
-  handleDragLeave,
-  handleDrop,
-  setOnColumnDrop,
-} = useStatementDropZone()
-
-const {
-  getValidationMessage,
-  getValidationClasses,
-  getValidationIcon,
-  isValidationValid,
-  getValidationSeverity,
-} = useStatementValidationDisplay()
-
-// Drag drop context for drag feedback
-const { dropFeedback } = useDragDropContext()
+const { setOnColumnDrop } = useStatementDropZone()
 
 // Set up the column drop callback
 setOnColumnDrop((_column) => {
@@ -103,6 +76,23 @@ const localQualifiers = ref<PropertyValueMap[]>(props.modelValue?.qualifiers || 
 // Local references state
 const localReferences = ref<ReferenceSchemaMapping[]>(props.modelValue?.references || [])
 
+// Local state for PropertyValueMappingEditor
+const localPropertyId = ref(props.modelValue?.property?.id || '')
+const localValueMapping = ref<ValueMapping>(
+  props.modelValue?.value || {
+    type: 'column',
+    source: {
+      columnName: '',
+      dataType: 'VARCHAR',
+    },
+    dataType: 'string',
+  },
+)
+const localProperty = computed(() => localStatement.value.property)
+
+// Validation state
+const validationErrors = ref<string[]>([])
+
 // Methods
 const emitUpdate = () => {
   emit('update:modelValue', {
@@ -113,7 +103,7 @@ const emitUpdate = () => {
 }
 
 const handleSave = () => {
-  if (isValidStatement.value) {
+  if (isValidStatement.value && validationErrors.value.length === 0) {
     emit('save')
   }
 }
@@ -122,44 +112,26 @@ const handleCancel = () => {
   emit('cancel')
 }
 
-// Wrapper methods to emit updates
-const handlePropertyUpdateWithEmit = (property: PropertyReference | null) => {
-  handlePropertyUpdate(property)
+const handlePropertyChanged = (property: PropertyReference | null) => {
+  if (property) {
+    localStatement.value.property = property
+    localPropertyId.value = property.id
+  } else {
+    localStatement.value.property = null
+    localPropertyId.value = ''
+  }
   emitUpdate()
 }
 
-const handleValueTypeChangeWithEmit = (newType: 'column' | 'constant' | 'expression') => {
-  handleValueTypeChange(newType)
-  emitUpdate()
-}
-
-const handleDataTypeChangeWithEmit = (newDataType: WikibaseDataType) => {
-  handleDataTypeChange(newDataType)
+const handleValueChanged = (valueMapping: ValueMapping) => {
+  localStatement.value.value = { ...valueMapping }
+  localValueMapping.value = { ...valueMapping }
   emitUpdate()
 }
 
 const handleRankChangeWithEmit = (newRank: StatementRank) => {
   handleRankChange(newRank)
   emitUpdate()
-}
-
-const handleSourceValueChange = (value: string | undefined) => {
-  sourceValue.value = value || ''
-  emitUpdate()
-}
-
-const handleClearColumn = () => {
-  if (localStatement.value.value.type === 'column') {
-    localStatement.value.value = {
-      type: 'column',
-      source: {
-        columnName: '',
-        dataType: 'VARCHAR',
-      },
-      dataType: localStatement.value.value.dataType,
-    }
-    emitUpdate()
-  }
 }
 
 // Qualifier handling methods
@@ -254,7 +226,12 @@ const handleRemoveSnakFromReference = (
 watch(
   () => props.modelValue,
   (newValue) => {
-    initializeStatement(newValue)
+    if (newValue) {
+      initializeStatement(newValue)
+      // Update local state for PropertyValueMappingEditor
+      localPropertyId.value = newValue.property?.id || ''
+      localValueMapping.value = { ...newValue.value }
+    }
   },
   { deep: true, immediate: true },
 )
@@ -301,205 +278,26 @@ watch(
         />
         <Button
           label="Save"
-          :disabled="
-            !isValidStatement || !isValidationValid(localStatement.value, localStatement.property)
-          "
+          :disabled="!isValidStatement || validationErrors.length > 0"
           size="small"
           @click="handleSave"
         />
       </div>
     </div>
 
-    <!-- Property Selection -->
-    <div class="space-y-2">
-      <label class="block text-sm font-medium text-surface-700">
-        Property
-        <span class="text-red-500">*</span>
-      </label>
-      <PropertySelector
-        :model-value="localStatement.property"
-        placeholder="Search for a Wikibase property..."
-        :disabled="disabled"
-        @update="handlePropertyUpdateWithEmit"
-      />
-      <div
-        v-if="localStatement.property"
-        class="text-xs text-surface-600"
-      >
-        Data Type: {{ localStatement.property.dataType }}
-      </div>
-    </div>
-
-    <!-- Value Configuration -->
-    <div class="space-y-4">
-      <div class="space-y-2">
-        <label class="block text-sm font-medium text-surface-700">
-          Value Type
-          <span class="text-red-500">*</span>
-        </label>
-        <div class="flex gap-2">
-          <Button
-            v-for="option in valueTypeOptions"
-            :key="option.value"
-            :label="option.label"
-            :icon="option.icon"
-            :severity="localStatement.value.type === option.value ? 'primary' : 'secondary'"
-            size="small"
-            @click="
-              handleValueTypeChangeWithEmit(option.value as 'column' | 'constant' | 'expression')
-            "
-          />
-        </div>
-      </div>
-
-      <!-- Value Source Configuration -->
-      <div class="space-y-2">
-        <label class="block text-sm font-medium text-surface-700">
-          {{ sourceLabel }}
-          <span class="text-red-500">*</span>
-        </label>
-
-        <!-- Column Selection -->
-        <div v-if="isColumnType">
-          <!-- Drop Zone for Columns -->
-          <div
-            :class="dropZoneClasses"
-            class="border-2 border-dashed rounded-lg p-4 text-center transition-all duration-200 ease-in-out"
-            @dragover="handleDragOver"
-            @dragenter="handleDragEnter"
-            @dragleave="handleDragLeave"
-            @drop="handleDrop"
-          >
-            <!-- Show dropped column info if column is selected -->
-            <div
-              v-if="
-                localStatement.value.type === 'column' && localStatement.value.source.columnName
-              "
-              class="flex items-center justify-center gap-3"
-            >
-              <div
-                class="flex items-center gap-2 bg-white border border-surface-200 rounded px-3 py-2"
-              >
-                <i class="pi pi-database text-primary-600" />
-                <span class="font-medium text-surface-900">
-                  {{ localStatement.value.source.columnName }}
-                </span>
-                <Tag
-                  :value="localStatement.value.source.dataType"
-                  size="small"
-                  severity="secondary"
-                />
-              </div>
-              <Button
-                v-tooltip="'Clear column selection'"
-                icon="pi pi-times"
-                size="small"
-                severity="secondary"
-                text
-                @click="handleClearColumn"
-              />
-            </div>
-
-            <!-- Show drop zone message if no column selected -->
-            <div
-              v-else
-              class="flex flex-col items-center justify-center gap-2 text-surface-600"
-            >
-              <i class="pi pi-upload" />
-              <span class="text-sm font-medium">Drop column here</span>
-
-              <!-- Real-time validation feedback -->
-              <div
-                v-if="dropFeedback"
-                class="mt-2 text-xs px-2 py-1 rounded"
-                :class="[
-                  dropFeedback.type === 'success'
-                    ? 'bg-green-100 text-green-700'
-                    : 'bg-red-100 text-red-700',
-                ]"
-              >
-                {{ dropFeedback.message }}
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Constant/Expression Input -->
-        <InputText
-          v-else
-          :model-value="sourceValue"
-          :placeholder="sourcePlaceholder"
-          class="w-full"
-          @update:model-value="handleSourceValueChange"
-        />
-      </div>
-
-      <!-- Wikibase Data Type Selection -->
-      <div class="space-y-2">
-        <label class="block text-sm font-medium text-surface-700">
-          Wikibase Data Type
-          <span class="text-red-500">*</span>
-        </label>
-        <Select
-          :model-value="localStatement.value.dataType"
-          :options="compatibleDataTypes"
-          option-label="label"
-          option-value="value"
-          placeholder="Select data type..."
-          :class="[
-            'w-full',
-            !isValidationValid(localStatement.value, localStatement.property) ? 'p-invalid' : '',
-          ]"
-          :severity="getValidationSeverity(localStatement.value, localStatement.property)"
-          @update:model-value="handleDataTypeChangeWithEmit"
-        />
-
-        <!-- Enhanced Data Type Validation Message -->
-        <div
-          v-if="getValidationMessage(localStatement.value, localStatement.property)"
-          class="validation-message"
-        >
-          <div
-            :class="[
-              'flex items-start gap-2 text-sm p-3 rounded-lg border',
-              getValidationClasses(localStatement.value, localStatement.property),
-            ]"
-          >
-            <i
-              v-if="getValidationIcon(localStatement.value, localStatement.property)"
-              :class="[
-                getValidationIcon(localStatement.value, localStatement.property)?.icon,
-                getValidationIcon(localStatement.value, localStatement.property)?.class,
-                'mt-0.5 flex-shrink-0',
-              ]"
-            />
-            <div class="flex-1">
-              <div class="font-medium">
-                {{ getValidationMessage(localStatement.value, localStatement.property)?.message }}
-              </div>
-              <div
-                v-if="
-                  getValidationMessage(localStatement.value, localStatement.property)?.suggestions
-                "
-                class="mt-1 text-xs opacity-75"
-              >
-                <div
-                  v-for="suggestion in getValidationMessage(
-                    localStatement.value,
-                    localStatement.property,
-                  )?.suggestions"
-                  :key="suggestion"
-                  class="flex items-center gap-1"
-                >
-                  <i class="pi pi-lightbulb" />
-                  <span>{{ suggestion }}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+    <!-- Property-Value Mapping -->
+    <PropertyValueMappingEditor
+      v-model:property-id="localPropertyId"
+      v-model:value-mapping="localValueMapping"
+      validation-path="statement"
+      @property-changed="handlePropertyChanged"
+      @value-changed="handleValueChanged"
+      @validation-changed="
+        (isValid, errors) => {
+          validationErrors = errors
+        }
+      "
+    />
 
     <!-- Statement Rank -->
     <div class="space-y-2">

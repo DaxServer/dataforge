@@ -27,7 +27,9 @@ const emit = defineEmits<ReferencesEditorEmits>()
 // Local state for adding new reference
 const isAddingReference = ref(false)
 const isAddingSnakToReference = ref<number | null>(null) // Index of reference we're adding a snak to
+const selectedPropertyId = ref('')
 const selectedValue = ref<ValueMapping | null>(null)
+const validationErrors = ref<string[]>([])
 
 // Computed properties
 const references = computed(() => props.references || [])
@@ -36,39 +38,14 @@ const shouldShowEmptyState = computed(
   () => references.value.length === 0 && !isAddingReference.value,
 )
 
-// Use existing property selection composable
-const { selectedProperty, selectProperty, clearSelection } = usePropertySelection()
-
-// Use existing value type options from StatementEditor composable
-const { valueTypeOptions } = useStatementEditor()
-
-const { createReferenceValueMappingFromColumn } = useReferenceValueMapping()
-
-// Validation
-const isValidReferenceProperty = (property: PropertyReference | null): boolean => {
-  if (!property) return false
-  return property.id.startsWith('P') && property.dataType !== ''
-}
-
-const isValidReferenceValue = (value: ValueMapping | null): boolean => {
-  if (!value) return false
-
-  if (value.type === 'column') {
-    return typeof value.source === 'object' && !!value.source.columnName
-  }
-  return typeof value.source === 'string' && !!value.source.trim()
-}
-
-const canAddSnak = computed(
-  () =>
-    isValidReferenceProperty(selectedProperty.value) && isValidReferenceValue(selectedValue.value),
-)
+const { clearSelection } = usePropertySelection()
 
 // Methods
 const startAddingReference = () => {
   isAddingReference.value = true
   isAddingSnakToReference.value = null
   clearSelection()
+  selectedPropertyId.value = ''
   selectedValue.value = null
 }
 
@@ -76,6 +53,7 @@ const startAddingSnakToReference = (referenceIndex: number) => {
   isAddingSnakToReference.value = referenceIndex
   isAddingReference.value = false
   clearSelection()
+  selectedPropertyId.value = ''
   selectedValue.value = null
 }
 
@@ -83,86 +61,37 @@ const cancelAddingReference = () => {
   isAddingReference.value = false
   isAddingSnakToReference.value = null
   clearSelection()
+  selectedPropertyId.value = ''
   selectedValue.value = null
 }
 
-const handlePropertyChange = (property: PropertyReference | null) => {
-  // Reset value when property changes and auto-suggest data type
-  if (property) {
-    selectProperty(property)
-    selectedValue.value = {
-      type: 'column',
-      source: { columnName: '', dataType: 'VARCHAR' },
-      dataType: property.dataType as WikibaseDataType,
-    }
-  } else {
-    selectedValue.value = null
-  }
-}
+const handleReferenceSubmit = () => {
+  if (!selectedPropertyId.value || !selectedValue.value) return
 
-const handleValueTypeChange = (newType: 'column' | 'constant' | 'expression') => {
-  if (!selectedValue.value || !selectedProperty.value) return
+  // Find the property by ID
+  const property = {
+    id: selectedPropertyId.value,
+    dataType: selectedValue.value.dataType,
+    label: '',
+  } as PropertyReference
 
-  const currentDataType = selectedValue.value.dataType
-
-  if (newType === 'column') {
-    selectedValue.value = {
-      type: 'column',
-      source: { columnName: '', dataType: 'VARCHAR' },
-      dataType: currentDataType,
-    }
-  } else {
-    selectedValue.value = {
-      type: newType,
-      source: '',
-      dataType: currentDataType,
-    }
-  }
-}
-
-const handleColumnDrop = (columnInfo: ColumnInfo) => {
-  if (!selectedProperty.value) return
-
-  // Use enhanced reference value mapping for better citation data support
-  selectedValue.value = createReferenceValueMappingFromColumn(
-    columnInfo,
-    selectedProperty.value.dataType,
-  )
-}
-
-const addReference = () => {
-  if (!canAddSnak.value || !selectedProperty.value || !selectedValue.value) return
-
-  // Create a new reference with the first snak
   const snak: PropertyValueMap = {
-    property: selectedProperty.value,
+    property,
     value: selectedValue.value,
   }
 
-  const reference: ReferenceSchemaMapping = {
-    id: crypto.randomUUID(),
-    snaks: [snak],
+  if (isAddingReference.value) {
+    // Create a new reference with the first snak
+    const reference: ReferenceSchemaMapping = {
+      id: crypto.randomUUID(),
+      snaks: [snak],
+    }
+    emit('add-reference', props.statementId, reference)
+  } else if (isAddingSnakToReference.value !== null) {
+    // Add snak to existing reference
+    emit('add-snak-to-reference', props.statementId, isAddingSnakToReference.value, snak)
   }
 
-  emit('add-reference', props.statementId, reference)
-  cancelAddingReference()
-}
-
-const addSnakToReference = () => {
-  if (
-    !canAddSnak.value ||
-    !selectedProperty.value ||
-    !selectedValue.value ||
-    isAddingSnakToReference.value === null
-  )
-    return
-
-  const snak: PropertyValueMap = {
-    property: selectedProperty.value,
-    value: selectedValue.value,
-  }
-
-  emit('add-snak-to-reference', props.statementId, isAddingSnakToReference.value, snak)
   cancelAddingReference()
 }
 
@@ -175,8 +104,12 @@ const removeSnakFromReference = (referenceIndex: number, snakIndex: number) => {
 }
 
 const getValueTypeIcon = (valueType: string): string => {
-  const option = valueTypeOptions.find((opt) => opt.value === valueType)
-  return option?.icon || 'pi pi-question'
+  const icons = {
+    column: 'pi pi-database',
+    constant: 'pi pi-tag',
+    expression: 'pi pi-code',
+  }
+  return icons[valueType as keyof typeof icons] || 'pi pi-question'
 }
 
 const getReferenceNumber = (index: number): string => `R${index + 1}`
@@ -194,21 +127,6 @@ const getValueDisplayText = (value: ValueMapping): string => {
 
 const getSnakNumber = (referenceIndex: number, snakIndex: number): string =>
   `R${referenceIndex + 1}.${snakIndex + 1}`
-
-// Drop zone handlers for column mapping using the same pattern as StatementEditor
-const {
-  dropZoneClasses,
-  handleDragOver,
-  handleDragEnter,
-  handleDragLeave,
-  handleDrop,
-  setOnColumnDrop,
-} = useStatementDropZone()
-
-// Set up the column drop callback
-setOnColumnDrop((columnInfo) => {
-  handleColumnDrop(columnInfo)
-})
 </script>
 
 <template>
@@ -364,7 +282,7 @@ setOnColumnDrop((columnInfo) => {
     <!-- Add Reference/Snak Form -->
     <div
       v-if="isAddingReference || isAddingSnakToReference !== null"
-      class="border border-surface-200 rounded-lg p-4 bg-surface-25 space-y-4"
+      class="border border-surface-200 rounded-lg p-4 bg-surface-25"
     >
       <div class="flex items-center justify-between mb-4">
         <h5 class="font-medium text-surface-900">
@@ -374,149 +292,32 @@ setOnColumnDrop((columnInfo) => {
               : `Add Property to ${getReferenceNumber(isAddingSnakToReference!)}`
           }}
         </h5>
-        <Button
-          icon="pi pi-times"
-          size="small"
-          severity="secondary"
-          text
-          @click="cancelAddingReference"
-        />
-      </div>
-
-      <!-- Property Selection -->
-      <div class="space-y-2">
-        <label class="block text-sm font-medium text-surface-700">
-          Reference Property
-          <span class="text-red-500">*</span>
-        </label>
-        <PropertySelector
-          :model-value="selectedProperty"
-          placeholder="Search for a reference property..."
-          :disabled="disabled"
-          @update="handlePropertyChange"
-        />
-      </div>
-
-      <!-- Value Configuration -->
-      <div
-        v-if="selectedProperty"
-        class="space-y-4"
-      >
-        <!-- Value Type Selection -->
-        <div class="space-y-2">
-          <label class="block text-sm font-medium text-surface-700">
-            Value Type
-            <span class="text-red-500">*</span>
-          </label>
-          <div class="flex gap-2">
-            <Button
-              v-for="option in valueTypeOptions"
-              :key="option.value"
-              :label="option.label"
-              :icon="option.icon"
-              :severity="selectedValue?.type === option.value ? 'primary' : 'secondary'"
-              size="small"
-              @click="handleValueTypeChange(option.value as 'column' | 'constant' | 'expression')"
-            />
-          </div>
-        </div>
-
-        <!-- Value Source Configuration -->
-        <div class="space-y-2">
-          <label class="block text-sm font-medium text-surface-700">
-            Value Source
-            <span class="text-red-500">*</span>
-          </label>
-
-          <!-- Column Drop Zone -->
-          <div
-            v-if="selectedValue?.type === 'column'"
-            :class="dropZoneClasses"
-            class="border-2 border-dashed rounded-lg p-4 text-center transition-all duration-200 ease-in-out"
-            @dragover="handleDragOver"
-            @dragenter="handleDragEnter"
-            @dragleave="handleDragLeave"
-            @drop="handleDrop"
-          >
-            <!-- Show dropped column info if column is selected -->
-            <div
-              v-if="selectedValue.source.columnName"
-              class="flex items-center justify-center gap-3"
-            >
-              <div
-                class="flex items-center gap-2 bg-white border border-surface-200 rounded px-3 py-2"
-              >
-                <i class="pi pi-database text-primary-600" />
-                <span class="font-medium text-surface-900">
-                  {{ selectedValue.source.columnName }}
-                </span>
-                <Tag
-                  :value="selectedValue.source.dataType"
-                  size="small"
-                  severity="secondary"
-                />
-              </div>
-              <Button
-                v-tooltip="'Clear column selection'"
-                icon="pi pi-times"
-                size="small"
-                severity="secondary"
-                text
-                @click="selectedValue.source.columnName = ''"
-              />
-            </div>
-
-            <!-- Show drop zone message if no column selected -->
-            <div
-              v-else
-              class="flex items-center justify-center gap-2 text-surface-600"
-            >
-              <i class="pi pi-upload" />
-              <span class="text-sm font-medium">Drop column here</span>
-            </div>
-          </div>
-
-          <!-- Constant/Expression Input -->
-          <div
-            v-else-if="selectedValue"
-            class="space-y-2"
-          >
-            <InputText
-              v-model="selectedValue.source"
-              :placeholder="
-                selectedValue.type === 'constant'
-                  ? 'Enter constant value...'
-                  : 'Enter expression...'
-              "
-              class="w-full"
-            />
-          </div>
+        <!-- Action buttons -->
+        <div class="flex justify-end gap-2 mt-4">
+          <Button
+            label="Cancel"
+            severity="secondary"
+            outlined
+            @click="cancelAddingReference"
+          />
+          <Button
+            :label="isAddingReference ? 'Add Reference' : 'Add Property'"
+            :disabled="!selectedPropertyId || !selectedValue || validationErrors.length > 0"
+            @click="handleReferenceSubmit"
+          />
         </div>
       </div>
 
-      <!-- Action Buttons -->
-      <div class="flex items-center justify-end gap-2 pt-4 border-t border-surface-200">
-        <Button
-          label="Cancel"
-          severity="secondary"
-          size="small"
-          @click="cancelAddingReference"
-        />
-        <Button
-          v-if="isAddingReference"
-          label="Add Reference"
-          :disabled="!canAddSnak"
-          size="small"
-          @click="addReference"
-        />
-        <Button
-          v-else-if="isAddingSnakToReference !== null"
-          label="Add Property"
-          :disabled="!canAddSnak"
-          size="small"
-          @click="addSnakToReference"
-        />
-      </div>
+      <PropertyValueMappingEditor
+        v-model:property-id="selectedPropertyId"
+        v-model:value-mapping="selectedValue"
+        validation-path="reference"
+        @validation-changed="
+          (isValid, errors) => {
+            validationErrors = errors
+          }
+        "
+      />
     </div>
 
     <!-- Empty State -->
