@@ -1,4 +1,4 @@
-import type { ItemSchema } from '@backend/api/project/project.wikibase'
+import type { ItemSchema, StatementSchemaMapping } from '@backend/api/project/project.wikibase'
 
 export type ValidationErrorType = 'error' | 'warning'
 
@@ -72,6 +72,10 @@ export interface TransformationParameter {
   required: boolean
   defaultValue?: unknown
   description?: string
+}
+
+export type StatementSchema = Partial<StatementSchemaMapping> & {
+  id: UUID
 }
 
 // Column information interface

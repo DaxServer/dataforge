@@ -1,191 +1,83 @@
 <script setup lang="ts">
-// Props
-interface Props {
+interface QualifiersEditorProps {
   statementId: UUID
-  qualifiers: PropertyValueMap[]
+  qualifiers?: PropertyValueMap[]
 }
 
-const props = defineProps<Props>()
+const props = withDefaults(defineProps<QualifiersEditorProps>(), {
+  qualifiers: () => [],
+})
+
 const schemaStore = useSchemaStore()
 
-const isAddingQualifier = ref(false)
-const editingQualifierIndex = ref<number | null>(null)
+// Use the composable for state management
+const {
+  isAdding,
+  editingIndex,
+  startAdding,
+  startEditing,
+  cancelEditing,
+  handleSave: composableHandleSave,
+  handleRemove: composableHandleRemove,
+} = usePropertyValueEditor()
 
-// Computed properties
-const qualifiers = computed(() => props.qualifiers || [])
+// Computed for current item being edited
+const currentItem = computed(() => {
+  return editingIndex.value !== null ? props.qualifiers[editingIndex.value] : undefined
+})
 
-// Methods
-const startAddingQualifier = () => {
-  isAddingQualifier.value = true
-  editingQualifierIndex.value = null
+// Handle save with store update
+const handleSave = (qualifier: PropertyValueMap) => {
+  const updatedQualifiers = composableHandleSave(qualifier, props.qualifiers)
+  schemaStore.updateStatementById(props.statementId, 'qualifiers', updatedQualifiers)
 }
 
-const startEditingQualifier = (index: number) => {
-  isAddingQualifier.value = true
-  editingQualifierIndex.value = index
-}
-
-const cancelAddingQualifier = () => {
-  isAddingQualifier.value = false
-  editingQualifierIndex.value = null
-}
-
-const handleQualifierSave = (qualifier: PropertyValueMap) => {
-  if (editingQualifierIndex.value !== null) {
-    const statement = schemaStore.statements.find((s: any) => s.id === props.statementId)
-    if (statement) {
-      const updatedQualifiers = [...(statement.qualifiers || [])]
-      updatedQualifiers[editingQualifierIndex.value] = qualifier
-      schemaStore.updateStatement(
-        props.statementId,
-        statement.property,
-        statement.value,
-        statement.rank,
-        updatedQualifiers,
-        statement.references,
-      )
-    }
-  } else {
-    const statement = schemaStore.statements.find((s: any) => s.id === props.statementId)
-    if (statement) {
-      const updatedQualifiers = [...(statement.qualifiers || []), qualifier]
-      schemaStore.updateStatement(
-        props.statementId,
-        statement.property,
-        statement.value,
-        statement.rank,
-        updatedQualifiers,
-        statement.references,
-      )
-    }
-  }
-  cancelAddingQualifier()
-}
-
-const removeQualifier = (qualifierIndex: number) => {
-  const statement = schemaStore.statements.find((s: any) => s.id === props.statementId)
-  if (statement) {
-    const updatedQualifiers = (statement.qualifiers || []).filter(
-      (_: any, index: number) => index !== qualifierIndex,
-    )
-    schemaStore.updateStatement(
-      props.statementId,
-      statement.property,
-      statement.value,
-      statement.rank,
-      updatedQualifiers,
-      statement.references,
-    )
-  }
-}
-
-const getValueTypeIcon = (valueType: string): string => {
-  const valueTypeOptions = [
-    { label: 'Column', value: 'column', icon: 'pi pi-database' },
-    { label: 'Constant', value: 'constant', icon: 'pi pi-lock' },
-    { label: 'Expression', value: 'expression', icon: 'pi pi-code' },
-  ]
-  const option = valueTypeOptions.find((opt) => opt.value === valueType)
-  return option?.icon || 'pi pi-question'
+// Handle remove with store update
+const handleRemove = (index: number) => {
+  const updatedQualifiers = composableHandleRemove(index, props.qualifiers)
+  schemaStore.updateStatementById(props.statementId, 'qualifiers', updatedQualifiers)
 }
 </script>
 
 <template>
-  <div class="qualifiers-editor">
-    <!-- Header with Add Button -->
-    <div class="flex items-center justify-between mb-3">
-      <div class="flex items-center gap-2">
-        <i class="pi pi-tags text-surface-600 text-sm" />
-        <span class="text-sm font-medium text-surface-900">
-          Qualifiers
-          <span
-            v-if="qualifiers.length > 0"
-            class="text-xs text-surface-500 font-normal ml-1"
-          >
-            ({{ qualifiers.length }})
-          </span>
-        </span>
-      </div>
-
-      <Button
-        v-if="!isAddingQualifier"
-        icon="pi pi-plus"
-        size="small"
-        severity="secondary"
-        text
-        @click="startAddingQualifier"
+  <BasePropertyValueEditor
+    :items="qualifiers"
+    title="Qualifiers"
+    singular-label="qualifier"
+    plural-label="qualifiers"
+    add-button-label="Add Qualifier"
+    add-button-test-id="add-qualifier-button"
+    empty-message="No qualifiers added yet. Click 'Add Qualifier' to get started."
+    header-icon="pi pi-tags"
+    empty-icon="pi pi-tags"
+    :show-editor="isAdding"
+    :current-item="currentItem"
+    :is-editing="editingIndex !== null"
+    @add="startAdding"
+    @edit="startEditing"
+    @remove="handleRemove"
+    @save="handleSave"
+    @cancel="cancelEditing"
+  >
+    <template #item="{ item, onEdit, onRemove }">
+      <PropertyValueItem
+        :item="item"
+        test-id="qualifier-item"
+        edit-tooltip="Edit qualifier"
+        remove-tooltip="Remove qualifier"
+        @edit="onEdit"
+        @remove="onRemove"
       />
-    </div>
+    </template>
 
-    <!-- Existing Qualifiers List -->
-    <div
-      v-if="qualifiers.length > 0"
-      class="space-y-2"
-      data-testid="qualifiers-list"
-    >
-      <div
-        v-for="(qualifier, index) in qualifiers"
-        :key="`qualifier-${qualifier.property.id}-${index}`"
-        class="flex items-center justify-between p-2 bg-surface-50 border border-surface-200 rounded text-sm hover:bg-surface-100 transition-colors"
-        data-testid="qualifier-item"
-      >
-        <div class="flex items-center gap-2 flex-1">
-          <!-- Property Info -->
-          <Tag
-            :value="qualifier.property.id"
-            size="small"
-            severity="info"
-          />
-          <span class="font-medium text-surface-900">
-            {{ qualifier.property.label || qualifier.property.id }}
-          </span>
-
-          <!-- Relationship Arrow -->
-          <i class="pi pi-arrow-right text-surface-400 text-xs" />
-
-          <!-- Value Info -->
-          <Tag
-            :value="
-              qualifier.value.type === 'column'
-                ? qualifier.value.source.columnName
-                : qualifier.value.source
-            "
-            size="small"
-            severity="secondary"
-          />
-        </div>
-
-        <!-- Actions -->
-        <div class="flex items-center gap-1">
-          <Button
-            v-tooltip="'Edit qualifier'"
-            icon="pi pi-pencil"
-            size="small"
-            severity="secondary"
-            text
-            data-testid="edit-qualifier-button"
-            @click="startEditingQualifier(index)"
-          />
-          <Button
-            v-tooltip="'Remove qualifier'"
-            icon="pi pi-trash"
-            size="small"
-            severity="danger"
-            text
-            data-testid="remove-qualifier-button"
-            @click="removeQualifier(index)"
-          />
-        </div>
-      </div>
-    </div>
-
-    <!-- Add/Edit Qualifier -->
-    <SingleQualifierEditor
-      v-if="isAddingQualifier"
-      :qualifier="editingQualifierIndex !== null ? qualifiers[editingQualifierIndex] : undefined"
-      :is-editing="editingQualifierIndex !== null"
-      @save="handleQualifierSave"
-      @cancel="cancelAddingQualifier"
-    />
-  </div>
+    <template #editor="{ currentItem, isEditing, onSave, onCancel }">
+      <SingleQualifierEditor
+        :statement-id="statementId"
+        :qualifier="currentItem"
+        :is-editing="isEditing"
+        @save="onSave"
+        @cancel="onCancel"
+      />
+    </template>
+  </BasePropertyValueEditor>
 </template>

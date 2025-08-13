@@ -9,6 +9,7 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     AutoComplete: typeof import('primevue/autocomplete')['default']
+    BasePropertyValueEditor: typeof import('./src/features/wikibase-schema/components/BasePropertyValueEditor.vue')['default']
     Button: typeof import('primevue/button')['default']
     Card: typeof import('primevue/card')['default']
     Chip: typeof import('primevue/chip')['default']
@@ -31,8 +32,11 @@ declare module 'vue' {
     ProgressSpinner: typeof import('primevue/progressspinner')['default']
     ProjectView: typeof import('./src/features/project-management/pages/ProjectView.vue')['default']
     PropertySelector: typeof import('./src/features/wikibase-schema/components/PropertySelector.vue')['default']
+    PropertyValueItem: typeof import('./src/features/wikibase-schema/components/PropertyValueItem.vue')['default']
+    PropertyValueList: typeof import('./src/features/wikibase-schema/components/PropertyValueList.vue')['default']
     PropertyValueMappingEditor: typeof import('./src/features/wikibase-schema/components/PropertyValueMappingEditor.vue')['default']
     QualifiersEditor: typeof import('./src/features/wikibase-schema/components/QualifiersEditor.vue')['default']
+    ReferenceContainer: typeof import('./src/features/wikibase-schema/components/ReferenceContainer.vue')['default']
     ReferencesEditor: typeof import('./src/features/wikibase-schema/components/ReferencesEditor.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']

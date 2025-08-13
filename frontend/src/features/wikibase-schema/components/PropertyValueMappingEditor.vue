@@ -3,6 +3,8 @@
 interface PropertyValueMappingEditorProps {
   /** Current property-value mapping */
   modelValue?: PropertyValueMap | null
+  /** Statement ID for v-model binding */
+  statementId: UUID
   /** Property ID for v-model binding */
   propertyId?: string
   /** Value mapping for v-model binding */

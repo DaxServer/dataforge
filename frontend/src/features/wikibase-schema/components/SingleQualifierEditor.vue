@@ -1,6 +1,7 @@
 <script setup lang="ts">
 // Props
 interface Props {
+  statementId: UUID
   qualifier?: PropertyValueMap
   isEditing?: boolean
 }
@@ -88,8 +89,9 @@ const isFormValid = computed(() => {
 
     <!-- Property-Value Mapping Editor -->
     <PropertyValueMappingEditor
-      v-model:property-id="selectedPropertyId"
-      v-model:value-mapping="selectedValue"
+      :property-id="selectedPropertyId"
+      :value-mapping="selectedValue"
+      :statement-id="statementId"
       validation-path="qualifier"
       @validation-changed="onValidationChanged"
     />
