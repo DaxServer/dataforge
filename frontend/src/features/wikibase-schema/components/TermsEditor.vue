@@ -3,7 +3,7 @@ const schemaStore = useSchemaStore()
 </script>
 
 <template>
-  <div class="terms-editor space-y-6">
+  <div class="terms-editor space-y-4">
     <!-- Labels Section -->
     <TermSection
       title="Labels"
@@ -13,6 +13,7 @@ const schemaStore = useSchemaStore()
       test-id="label-drop-zone"
       validation-path="item.terms.labels"
       :values="schemaStore.labels"
+      :section-index="0"
     />
 
     <!-- Descriptions Section -->
@@ -24,6 +25,7 @@ const schemaStore = useSchemaStore()
       test-id="description-drop-zone"
       validation-path="item.terms.descriptions"
       :values="schemaStore.descriptions"
+      :section-index="1"
     />
 
     <!-- Aliases Section -->
@@ -35,6 +37,7 @@ const schemaStore = useSchemaStore()
       test-id="alias-drop-zone"
       validation-path="item.terms.aliases"
       :values="schemaStore.aliases"
+      :section-index="2"
     />
   </div>
 </template>

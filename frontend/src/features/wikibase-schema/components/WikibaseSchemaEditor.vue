@@ -12,12 +12,9 @@ const emit = defineEmits<WikibaseSchemaEditorEmits>()
 const schemaStore = useSchemaStore()
 const dragDropStore = useDragDropStore()
 const validationStore = useValidationStore()
-const projectStore = useProjectStore()
 
 // Composables
 const { showError, showSuccess } = useErrorHandling()
-const { convertProjectColumnsToColumnInfo } = useColumnConversion()
-const { setAvailableColumns, initializeStatement, resetStatement } = useStatementEditor()
 
 // Schema selection workflow composable
 const {
@@ -35,30 +32,6 @@ const { saveSchema, canSave, isSaving, saveStatus } = useSchemaPersistence()
 // Reactive state
 const isInitialized = ref(false)
 const isConfiguringItem = ref(false)
-const isAddingStatement = ref(false)
-const editingStatementId = ref<string | null>(null)
-
-// Local statement state with qualifiers
-const currentStatementWithQualifiers = ref<{
-  property: PropertyReference | null
-  value: ValueMapping
-  rank: StatementRank
-  qualifiers?: PropertyValueMap[]
-  references?: ReferenceSchemaMapping[]
-}>({
-  property: null,
-  value: {
-    type: 'column',
-    source: {
-      columnName: '',
-      dataType: 'VARCHAR',
-    },
-    dataType: 'string',
-  },
-  rank: 'normal',
-  qualifiers: [],
-  references: [],
-})
 
 // Computed properties
 const schemaTitle = computed(() => {
@@ -74,19 +47,6 @@ const hasItem = computed(() => {
     schemaStore.statements.length > 0 ||
     isConfiguringItem.value
   )
-})
-
-// Available columns for statement editor
-const availableColumns = computed(() => {
-  const columns = convertProjectColumnsToColumnInfo(projectStore.columns, projectStore.data)
-  // Update the composable with available columns
-  setAvailableColumns(columns)
-  return columns
-})
-
-// Check if we're in statement editing mode
-const isEditingStatement = computed(() => {
-  return isAddingStatement.value || editingStatementId.value !== null
 })
 
 // Lifecycle
@@ -196,123 +156,6 @@ const getSaveButtonSeverity = () => {
   return undefined
 }
 
-const handleAddStatement = () => {
-  // Reset statement editor to default state
-  resetStatement()
-  currentStatementWithQualifiers.value = {
-    property: null,
-    value: {
-      type: 'column',
-      source: {
-        columnName: '',
-        dataType: 'VARCHAR',
-      },
-      dataType: 'string',
-    },
-    rank: 'normal',
-    qualifiers: [],
-    references: [],
-  }
-  editingStatementId.value = null
-  isAddingStatement.value = true
-}
-
-const handleEditStatement = (statementId: UUID) => {
-  const statement = schemaStore.statements.find((s) => s.id === statementId)
-  if (statement) {
-    // Load existing statement data for editing including qualifiers and references
-    currentStatementWithQualifiers.value = {
-      property: statement.property,
-      value: { ...statement.value },
-      rank: statement.rank,
-      qualifiers: [...(statement.qualifiers || [])],
-      references: [...(statement.references || [])],
-    }
-    initializeStatement({
-      property: statement.property,
-      value: { ...statement.value },
-      rank: statement.rank,
-    })
-    editingStatementId.value = statementId
-    isAddingStatement.value = false
-  }
-}
-
-const handleRemoveStatement = (statementId: UUID) => {
-  schemaStore.removeStatement(statementId)
-}
-
-const handleReorderStatements = (fromIndex: number, toIndex: number) => {
-  // TODO: Implement reorder logic in schema store
-  console.log('Reorder statements from', fromIndex, 'to', toIndex)
-}
-
-// Statement editor event handlers
-const handleStatementUpdate = (statement: {
-  property: PropertyReference | null
-  value: ValueMapping
-  rank: StatementRank
-  qualifiers?: PropertyValueMap[]
-  references?: ReferenceSchemaMapping[]
-}) => {
-  currentStatementWithQualifiers.value = statement
-  // Also update the composable state for backward compatibility
-  initializeStatement({
-    property: statement.property,
-    value: statement.value,
-    rank: statement.rank,
-  })
-}
-
-const handleStatementSave = () => {
-  const currentStatement = currentStatementWithQualifiers.value
-  if (!currentStatement?.property) return
-
-  if (editingStatementId.value) {
-    // Update existing statement using the proper store method
-    schemaStore.updateStatement(
-      editingStatementId.value as UUID,
-      currentStatement.property,
-      currentStatement.value,
-      currentStatement.rank,
-      currentStatement.qualifiers || [],
-      currentStatement.references || [],
-    )
-  } else {
-    // Add new statement
-    schemaStore.addStatement(
-      currentStatement.property,
-      currentStatement.value,
-      currentStatement.rank,
-      currentStatement.qualifiers || [],
-      currentStatement.references || [],
-    )
-  }
-
-  // Close statement editor
-  handleCancelStatementEdit()
-}
-
-const handleCancelStatementEdit = () => {
-  isAddingStatement.value = false
-  editingStatementId.value = null
-  currentStatementWithQualifiers.value = {
-    property: null,
-    value: {
-      type: 'column',
-      source: {
-        columnName: '',
-        dataType: 'VARCHAR',
-      },
-      dataType: 'string',
-    },
-    rank: 'normal',
-    qualifiers: [],
-    references: [],
-  }
-  resetStatement()
-}
-
 // Cleanup
 onUnmounted(() => {
   dragDropStore.$reset()
@@ -323,12 +166,9 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="schema-editor-container">
+  <div>
     <!-- Schema Selector View -->
-    <div
-      v-if="showSchemaSelector"
-      class="schema-selector-view"
-    >
+    <div v-if="showSchemaSelector">
       <SchemaSelector
         :on-schema-selected="selectSchema"
         :on-create-new="createNewSchema"
@@ -338,17 +178,15 @@ onUnmounted(() => {
     <!-- Main Editor View -->
     <div
       v-else-if="showMainEditor"
-      class="main-editor-view flex gap-6"
+      class="flex flex-col gap-6"
     >
       <!-- Column Palette Section -->
-      <div class="column-palette-section w-80 flex-shrink-0">
-        <ColumnPalette />
-      </div>
+      <ColumnPalette />
 
       <!-- Schema Canvas Section -->
-      <div class="schema-canvas-section flex-1 bg-gray-50 rounded-lg shadow p-8 font-sans">
+      <div class="flex-1 bg-white border border-surface-200 rounded-lg p-6 font-sans shadow-sm">
         <!-- Toolbar -->
-        <div class="schema-toolbar flex items-center justify-between mb-6">
+        <div class="flex items-center justify-between mb-6">
           <div class="flex items-center gap-4">
             <Button
               data-testid="back-to-selector-btn"
@@ -358,7 +196,7 @@ onUnmounted(() => {
               aria-label="Back to schema selector"
               @click="backToSelector"
             />
-            <h1 class="schema-title text-xl font-semibold">{{ schemaTitle }}</h1>
+            <h1 class="text-xl font-semibold">{{ schemaTitle }}</h1>
             <div
               v-if="schemaStore.isLoading"
               class="toolbar-loading"
@@ -434,28 +272,18 @@ onUnmounted(() => {
         </div>
 
         <!-- Validation Status Bar -->
-        <div class="mb-4">
-          <ValidationDisplay
-            mode="status"
-            :show-details="true"
-            :show-clear-all="true"
-          />
-        </div>
-
-        <!-- Detailed Validation Feedback -->
-        <div
-          v-if="validationStore.hasAnyIssues"
-          class="mb-4"
-        >
-          <ValidationDisplay mode="full" />
-        </div>
+        <ValidationDisplay
+          mode="status"
+          :show-details="true"
+          :show-clear-all="true"
+        />
 
         <!-- Schema Content -->
-        <div class="bg-white rounded-md p-6 shadow-sm">
+        <div class="py-4">
           <!-- Empty State -->
           <div
-            v-if="!hasItem && isInitialized && !isAddingStatement"
-            class="empty-item-placeholder text-center py-12"
+            v-if="!hasItem && isInitialized"
+            class="text-center py-12"
           >
             <div class="text-gray-500 mb-4">
               <i class="pi pi-box text-4xl" />
@@ -472,10 +300,7 @@ onUnmounted(() => {
           </div>
 
           <!-- Item Configuration (when item exists) -->
-          <div
-            v-else-if="hasItem"
-            class="item-configuration"
-          >
+          <div v-else-if="hasItem">
             <div class="mb-6">
               <div class="flex items-center justify-between mb-4">
                 <span class="font-medium text-lg">
@@ -507,29 +332,9 @@ onUnmounted(() => {
               <!-- Terms Editor Integration -->
               <TermsEditor />
 
-              <!-- Statements Editor Integration -->
+              <!-- Statement Manager Integration -->
               <div class="mt-6">
-                <StatementsEditor
-                  :is-adding-statement="isAddingStatement"
-                  @add-statement="handleAddStatement"
-                  @edit-statement="handleEditStatement"
-                  @remove-statement="handleRemoveStatement"
-                  @reorder-statements="handleReorderStatements"
-                />
-
-                <!-- Statement Editor (only visible when adding/editing) -->
-                <div
-                  v-if="isEditingStatement"
-                  class="mt-6"
-                >
-                  <StatementEditor
-                    :model-value="currentStatementWithQualifiers"
-                    :available-columns="availableColumns"
-                    @update:model-value="handleStatementUpdate"
-                    @save="handleStatementSave"
-                    @cancel="handleCancelStatementEdit"
-                  />
-                </div>
+                <StatementManager />
               </div>
             </div>
           </div>
@@ -549,10 +354,9 @@ onUnmounted(() => {
     <!-- Loading State -->
     <div
       v-else-if="isLoadingSchema"
-      class="loading-view flex items-center justify-center py-12"
+      class="flex items-center justify-center py-12"
     >
       <ProgressSpinner
-        style="width: 50px; height: 50px"
         stroke-width="4"
         animation-duration="1s"
       />

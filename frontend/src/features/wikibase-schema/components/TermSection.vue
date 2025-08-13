@@ -7,6 +7,7 @@ interface Props {
   testId: string
   validationPath: string
   values: Label | Alias
+  sectionIndex: number
 }
 
 const props = defineProps<Props>()
@@ -23,14 +24,21 @@ const validation = computed(() => getPathValidationStatus(props.validationPath))
 const validationIcon = computed(() => getValidationIcon(props.validationPath))
 
 // Compute border and background classes based on validation status
-const containerClasses = computed(() => [
-  'border rounded-lg p-4',
-  validation.value.hasErrors
-    ? 'border-red-300 bg-red-50'
-    : validation.value.hasWarnings
-      ? 'border-yellow-300 bg-yellow-50'
-      : 'border-surface-200',
-])
+const containerClasses = computed(() => {
+  const baseClasses = 'border rounded-lg p-3 shadow-sm'
+
+  if (validation.value.hasErrors) {
+    return `${baseClasses} border-red-300 bg-red-50`
+  }
+
+  if (validation.value.hasWarnings) {
+    return `${baseClasses} border-yellow-300 bg-yellow-50`
+  }
+
+  // Alternating backgrounds for normal state
+  const bgClass = props.sectionIndex % 2 === 0 ? 'bg-white' : 'bg-slate-50'
+  return `${baseClasses} border-slate-200 ${bgClass}`
+})
 
 // Compute total issues count
 const totalIssues = computed(
@@ -96,7 +104,7 @@ const { getAcceptedLanguages } = useTermsEditor()
           v-for="displayItem in mappingDisplayData"
           :key="`${termType}-${displayItem.languageCode}`"
           :data-testid="`${termType}-mapping-${displayItem.languageCode}`"
-          class="flex items-center justify-between p-3 bg-surface-50 rounded-lg border"
+          class="flex items-center justify-between p-3 bg-white rounded-lg border border-surface-300 shadow-sm"
         >
           <div class="flex items-center space-x-3">
             <Chip

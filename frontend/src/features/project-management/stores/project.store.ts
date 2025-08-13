@@ -49,12 +49,35 @@ export const useProjectStore = defineStore('project', () => {
     isLoading.value = false
   }
 
+  const columnsForSchema = computed(() => {
+    return columns.value.map((col) => {
+      // Get all values for this column
+      const columnValues = data.value.map((_row) => _row[col.field])
+
+      // Filter non-null values and get unique set
+      const nonNullValues = columnValues.filter((value) => value !== null && value !== undefined)
+      const uniqueValues = new Set(nonNullValues)
+
+      // Get sample values (first 5 unique string values)
+      const sampleValues = [...uniqueValues].slice(0, 5).map((value) => String(value))
+
+      return {
+        name: col.field,
+        dataType: col.type,
+        sampleValues,
+        nullable: columnValues.length > nonNullValues.length,
+        uniqueCount: uniqueValues.size || undefined,
+      }
+    })
+  })
+
   return {
     // State
     data,
     meta,
     isLoading,
     columns,
+    columnsForSchema,
 
     // Actions
     fetchProject,
