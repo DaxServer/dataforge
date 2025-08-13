@@ -615,7 +615,6 @@ declare module 'vue' {
     readonly useInterval: UnwrapRef<typeof import('@vueuse/core')['useInterval']>
     readonly useIntervalFn: UnwrapRef<typeof import('@vueuse/core')['useIntervalFn']>
     readonly useKeyModifier: UnwrapRef<typeof import('@vueuse/core')['useKeyModifier']>
-    readonly useLanguageDropZone: UnwrapRef<typeof import('./src/features/data-processing/composables/useLanguageDropZone')['useLanguageDropZone']>
     readonly useLastChanged: UnwrapRef<typeof import('@vueuse/core')['useLastChanged']>
     readonly useLink: UnwrapRef<typeof import('vue-router')['useLink']>
     readonly useLocalStorage: UnwrapRef<typeof import('@vueuse/core')['useLocalStorage']>
@@ -668,7 +667,6 @@ declare module 'vue' {
     readonly useSchemaApi: UnwrapRef<typeof import('./src/features/wikibase-schema/composables/useSchemaApi')['useSchemaApi']>
     readonly useSchemaBuilder: UnwrapRef<typeof import('./src/features/wikibase-schema/composables/useSchemaBuilder')['useSchemaBuilder']>
     readonly useSchemaCompletenessValidation: UnwrapRef<typeof import('./src/features/wikibase-schema/composables/useSchemaCompletenessValidation')['useSchemaCompletenessValidation']>
-    readonly useSchemaDropZone: UnwrapRef<typeof import('./src/features/wikibase-schema/composables/useSchemaDropZone')['useSchemaDropZone']>
     readonly useSchemaPersistence: UnwrapRef<typeof import('./src/features/wikibase-schema/composables/useSchemaPersistence')['useSchemaPersistence']>
     readonly useSchemaSelection: UnwrapRef<typeof import('./src/features/wikibase-schema/composables/useSchemaSelection')['useSchemaSelection']>
     readonly useSchemaStore: UnwrapRef<typeof import('./src/features/wikibase-schema/stores/schema.store')['useSchemaStore']>

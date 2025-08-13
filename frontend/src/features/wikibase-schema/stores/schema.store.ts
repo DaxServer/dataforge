@@ -24,8 +24,8 @@ export const useSchemaStore = defineStore('schema', () => {
   const itemId = ref<ItemId | null>(null)
   const labels = ref<Label>({})
   const descriptions = ref<Label>({})
-  const aliases = ref<Record<string, ColumnMapping[]>>({})
-  const statements = ref<StatementSchemaMapping[]>([])
+  const aliases = ref<Alias>({})
+  const statements: Ref<StatementSchemaMapping[]> = ref<StatementSchemaMapping[]>([])
   const createdAt = ref<string>('')
   const updatedAt = ref<string>('')
 
@@ -46,7 +46,6 @@ export const useSchemaStore = defineStore('schema', () => {
   })
 
   // Actions
-
   const updateSchemaName = (name: string) => {
     schemaName.value = name
     markDirty()
@@ -100,16 +99,16 @@ export const useSchemaStore = defineStore('schema', () => {
         alias.columnName === columnMapping.columnName && alias.dataType === columnMapping.dataType,
     )
 
-    if (index !== -1) {
-      aliasesForLanguage.splice(index, 1)
+    if (index === -1) return
 
-      // Clean up empty array
-      if (aliasesForLanguage.length === 0) {
-        delete aliases.value[languageCode]
-      }
+    aliasesForLanguage.splice(index, 1)
 
-      markDirty()
+    // Clean up empty array
+    if (aliasesForLanguage.length === 0) {
+      delete aliases.value[languageCode]
     }
+
+    markDirty()
   }
 
   const addStatement = (
