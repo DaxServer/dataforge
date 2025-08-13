@@ -188,184 +188,188 @@ const clearAll = () => {
 </script>
 
 <template>
-  <!-- Full Error Display Mode -->
-  <div
-    v-if="mode === 'full' && validationStore.hasAnyIssues"
-    class="w-full"
-  >
-    <!-- Error Summary -->
+  <div class="mb-4">
+    <!-- Full Error Display Mode -->
     <div
-      v-if="showSummary"
-      class="error-summary mb-4"
+      v-if="mode === 'full' && validationStore.hasAnyIssues"
+      class="w-full"
     >
-      <div class="flex items-center gap-2 text-sm">
-        <i
-          v-if="validationStore.hasErrors"
-          class="pi pi-exclamation-triangle text-red-500"
-        />
-        <i
-          v-else-if="validationStore.hasWarnings"
-          class="pi pi-info-circle text-yellow-500"
-        />
-        <span class="font-medium">
-          {{ errorCount }} {{ errorCount === 1 ? 'error' : 'errors' }}
-          <span v-if="validationStore.hasWarnings">
-            , {{ warningCount }} {{ warningCount === 1 ? 'warning' : 'warnings' }}
+      <!-- Error Summary -->
+      <div
+        v-if="showSummary"
+        class="error-summary mb-4"
+      >
+        <div class="flex items-center gap-2 text-sm">
+          <i
+            v-if="validationStore.hasErrors"
+            class="pi pi-exclamation-triangle text-red-500"
+          />
+          <i
+            v-else-if="validationStore.hasWarnings"
+            class="pi pi-info-circle text-yellow-500"
+          />
+          <span class="font-medium">
+            {{ errorCount }} {{ errorCount === 1 ? 'error' : 'errors' }}
+            <span v-if="validationStore.hasWarnings">
+              , {{ warningCount }} {{ warningCount === 1 ? 'warning' : 'warnings' }}
+            </span>
           </span>
-        </span>
-      </div>
-    </div>
-
-    <!-- Error List -->
-    <div class="error-list space-y-2">
-      <!-- Errors -->
-      <div
-        v-for="error in errors"
-        :key="`error-${error.path}-${error.code}`"
-        class="transition-all duration-200 ease-in-out hover:shadow-sm"
-        :class="getErrorClasses(error)"
-      >
-        <div class="flex items-start gap-3">
-          <i class="pi pi-times-circle text-red-500 mt-0.5 flex-shrink-0" />
-          <div class="flex-1 min-w-0">
-            <div class="break-words font-medium text-red-700">
-              {{ formatErrorMessage(error) }}
-            </div>
-            <div
-              v-if="showPath"
-              class="font-mono text-xs text-gray-500 mt-1"
-            >
-              {{ error.path }}
-            </div>
-          </div>
-          <Button
-            v-if="showDismiss"
-            icon="pi pi-times"
-            text
-            rounded
-            size="small"
-            severity="secondary"
-            class="flex-shrink-0"
-            @click="dismissError(error)"
-          />
         </div>
       </div>
 
-      <!-- Warnings -->
-      <div
-        v-for="warning in warnings"
-        :key="`warning-${warning.path}-${warning.code}`"
-        class="transition-all duration-200 ease-in-out hover:shadow-sm"
-        :class="getErrorClasses(warning)"
-      >
-        <div class="flex items-start gap-3">
-          <i class="pi pi-exclamation-triangle text-yellow-500 mt-0.5 flex-shrink-0" />
-          <div class="flex-1 min-w-0">
-            <div class="break-words font-medium text-yellow-700">
-              {{ formatErrorMessage(warning) }}
+      <!-- Error List -->
+      <div class="error-list space-y-2">
+        <!-- Errors -->
+        <div
+          v-for="error in errors"
+          :key="`error-${error.path}-${error.code}`"
+          class="transition-all duration-200 ease-in-out hover:shadow-sm"
+          :class="getErrorClasses(error)"
+        >
+          <div class="flex items-start gap-3">
+            <i class="pi pi-times-circle text-red-500 mt-0.5 flex-shrink-0" />
+            <div class="flex-1 min-w-0">
+              <div class="break-words font-medium text-red-700">
+                {{ formatErrorMessage(error) }}
+              </div>
+              <div
+                v-if="showPath"
+                class="font-mono text-xs text-gray-500 mt-1"
+              >
+                {{ error.path }}
+              </div>
             </div>
-            <div
-              v-if="showPath"
-              class="font-mono text-xs text-gray-500 mt-1"
-            >
-              {{ warning.path }}
-            </div>
+            <Button
+              v-if="showDismiss"
+              icon="pi pi-times"
+              text
+              rounded
+              size="small"
+              severity="secondary"
+              class="flex-shrink-0"
+              @click="dismissError(error)"
+            />
           </div>
-          <Button
-            v-if="showDismiss"
-            icon="pi pi-times"
-            text
-            rounded
-            size="small"
-            severity="secondary"
-            class="flex-shrink-0"
-            @click="dismissWarning(warning)"
-          />
         </div>
+
+        <!-- Warnings -->
+        <div
+          v-for="warning in warnings"
+          :key="`warning-${warning.path}-${warning.code}`"
+          class="transition-all duration-200 ease-in-out hover:shadow-sm"
+          :class="getErrorClasses(warning)"
+        >
+          <div class="flex items-start gap-3">
+            <i class="pi pi-exclamation-triangle text-yellow-500 mt-0.5 flex-shrink-0" />
+            <div class="flex-1 min-w-0">
+              <div class="break-words font-medium text-yellow-700">
+                {{ formatErrorMessage(warning) }}
+              </div>
+              <div
+                v-if="showPath"
+                class="font-mono text-xs text-gray-500 mt-1"
+              >
+                {{ warning.path }}
+              </div>
+            </div>
+            <Button
+              v-if="showDismiss"
+              icon="pi pi-times"
+              text
+              rounded
+              size="small"
+              severity="secondary"
+              class="flex-shrink-0"
+              @click="dismissWarning(warning)"
+            />
+          </div>
+        </div>
+      </div>
+
+      <!-- Clear All Button -->
+      <div
+        v-if="showClearAll && validationStore.hasAnyIssues"
+        class="mt-4 text-center"
+      >
+        <Button
+          label="Clear All"
+          icon="pi pi-trash"
+          text
+          size="small"
+          severity="secondary"
+          @click="clearAll"
+        />
       </div>
     </div>
 
-    <!-- Clear All Button -->
+    <!-- Status Bar Mode -->
     <div
-      v-if="showClearAll && validationStore.hasAnyIssues"
-      class="mt-4 text-center"
+      v-else-if="
+        mode === 'status' && (validationStore.hasAnyIssues || isDragInProgress || !compact)
+      "
+      class="validation-status-bar"
     >
-      <Button
-        label="Clear All"
-        icon="pi pi-trash"
-        text
-        size="small"
-        severity="secondary"
-        @click="clearAll"
-      />
-    </div>
-  </div>
+      <div :class="statusClasses">
+        <i :class="statusIcon" />
+        <span class="font-medium">{{ statusMessage }}</span>
 
-  <!-- Status Bar Mode -->
-  <div
-    v-else-if="mode === 'status' && (validationStore.hasAnyIssues || isDragInProgress || !compact)"
-    class="validation-status-bar"
-  >
-    <div :class="statusClasses">
-      <i :class="statusIcon" />
-      <span class="font-medium">{{ statusMessage }}</span>
-
-      <!-- Detailed breakdown -->
-      <div
-        v-if="showDetails && validationStore.hasAnyIssues && !isDragInProgress"
-        class="flex items-center gap-4 ml-2 text-xs"
-      >
-        <span
-          v-if="validationStore.hasErrors"
-          class="flex items-center gap-1"
+        <!-- Detailed breakdown -->
+        <div
+          v-if="showDetails && validationStore.hasAnyIssues && !isDragInProgress"
+          class="flex items-center gap-4 ml-2 text-xs"
         >
-          <i class="pi pi-times-circle text-red-500" />
-          {{ validationStore.errorCount }}
-          {{ validationStore.errorCount === 1 ? 'error' : 'errors' }}
-        </span>
-        <span
-          v-if="validationStore.hasWarnings"
-          class="flex items-center gap-1"
-        >
-          <i class="pi pi-exclamation-triangle text-yellow-500" />
-          {{ validationStore.warningCount }}
-          {{ validationStore.warningCount === 1 ? 'warning' : 'warnings' }}
-        </span>
-      </div>
-
-      <!-- Clear all button -->
-      <Button
-        v-if="showClearAll && validationStore.hasAnyIssues && !isDragInProgress"
-        label="Clear All"
-        icon="pi pi-trash"
-        text
-        size="small"
-        severity="secondary"
-        class="ml-auto"
-        @click="clearAll"
-      />
-    </div>
-  </div>
-
-  <!-- Suggestions Mode -->
-  <div
-    v-else-if="mode === 'suggestions' && hasSuggestions"
-    class="validation-suggestions mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg"
-  >
-    <div class="flex items-start gap-2">
-      <i class="pi pi-lightbulb text-blue-600 mt-0.5 flex-shrink-0" />
-      <div class="flex-1">
-        <h4 class="text-sm font-medium text-blue-800 mb-2">Suggestions</h4>
-        <ul class="space-y-1">
-          <li
-            v-for="(suggestion, index) in suggestions"
-            :key="index"
-            class="text-sm text-blue-700 flex items-start gap-1"
+          <span
+            v-if="validationStore.hasErrors"
+            class="flex items-center gap-1"
           >
-            <span class="text-blue-400 mt-1">•</span>
-            <span>{{ suggestion }}</span>
-          </li>
-        </ul>
+            <i class="pi pi-times-circle text-red-500" />
+            {{ validationStore.errorCount }}
+            {{ validationStore.errorCount === 1 ? 'error' : 'errors' }}
+          </span>
+          <span
+            v-if="validationStore.hasWarnings"
+            class="flex items-center gap-1"
+          >
+            <i class="pi pi-exclamation-triangle text-yellow-500" />
+            {{ validationStore.warningCount }}
+            {{ validationStore.warningCount === 1 ? 'warning' : 'warnings' }}
+          </span>
+        </div>
+
+        <!-- Clear all button -->
+        <Button
+          v-if="showClearAll && validationStore.hasAnyIssues && !isDragInProgress"
+          label="Clear All"
+          icon="pi pi-trash"
+          text
+          size="small"
+          severity="secondary"
+          class="ml-auto"
+          @click="clearAll"
+        />
+      </div>
+    </div>
+
+    <!-- Suggestions Mode -->
+    <div
+      v-else-if="mode === 'suggestions' && hasSuggestions"
+      class="validation-suggestions mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg"
+    >
+      <div class="flex items-start gap-2">
+        <i class="pi pi-lightbulb text-blue-600 mt-0.5 flex-shrink-0" />
+        <div class="flex-1">
+          <h4 class="text-sm font-medium text-blue-800 mb-2">Suggestions</h4>
+          <ul class="space-y-1">
+            <li
+              v-for="(suggestion, index) in suggestions"
+              :key="index"
+              class="text-sm text-blue-700 flex items-start gap-1"
+            >
+              <span class="text-blue-400 mt-1">•</span>
+              <span>{{ suggestion }}</span>
+            </li>
+          </ul>
+        </div>
       </div>
     </div>
   </div>

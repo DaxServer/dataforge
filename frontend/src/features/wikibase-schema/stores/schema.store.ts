@@ -6,6 +6,7 @@ import { ItemId } from '@backend/types/wikibase-schema'
 import type {
   ColumnMapping,
   Label,
+  Alias,
   PropertyReference,
   PropertyValueMap,
   ReferenceSchemaMapping,
@@ -266,6 +267,7 @@ export const useSchemaStore = defineStore('schema', () => {
     addQualifierToStatement,
     removeQualifierFromStatement,
     markAsSaved,
+    markDirty,
     $reset,
     setLoading,
   }

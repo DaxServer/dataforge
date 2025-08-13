@@ -151,7 +151,7 @@ export const useSchemaCompletenessValidation = () => {
           path: fieldPath,
           message: getStatementFieldMessage(fieldPath),
           severity: 'error',
-          component: 'StatementEditor',
+          component: 'StatementManager',
         })
       }
     }
@@ -168,7 +168,7 @@ export const useSchemaCompletenessValidation = () => {
     } else if (fieldPath.includes('terms.labels')) {
       return 'TermsEditor'
     } else if (fieldPath.includes('statements')) {
-      return 'StatementEditor'
+      return 'StatementManager'
     }
     return 'WikibaseSchemaEditor'
   }

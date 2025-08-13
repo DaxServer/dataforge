@@ -1,353 +1,276 @@
 <script setup lang="ts">
 // Props
-interface StatementEditorProps {
-  modelValue?: {
-    property: PropertyReference | null
-    value: ValueMapping
-    rank: StatementRank
-    qualifiers?: PropertyValueMap[]
-    references?: ReferenceSchemaMapping[]
-  }
-  availableColumns?: ColumnInfo[]
-  disabled?: boolean
+interface Props {
+  statement?: StatementSchemaMapping
+  index?: number
+  canMoveUp?: boolean
+  canMoveDown?: boolean
+  isNewStatement?: boolean
 }
 
-const props = withDefaults(defineProps<StatementEditorProps>(), {
-  modelValue: () => ({
-    property: null,
-    value: {
-      type: 'column',
-      source: {
-        columnName: '',
-        dataType: 'VARCHAR',
-      },
-      dataType: 'string',
-    },
-    rank: 'normal',
-    qualifiers: [],
-    references: [],
-  }),
-  availableColumns: () => [],
-  disabled: false,
+const props = withDefaults(defineProps<Props>(), {
+  isNewStatement: false,
+  index: 0,
+  canMoveUp: false,
+  canMoveDown: false,
 })
 
-// Emits
-interface StatementEditorEmits {
-  'update:modelValue': [
-    value: {
-      property: PropertyReference | null
-      value: ValueMapping
-      rank: StatementRank
-      qualifiers?: PropertyValueMap[]
-      references?: ReferenceSchemaMapping[]
-    },
-  ]
-  save: []
-  cancel: []
-}
+const emit = defineEmits<{
+  'move-up': []
+  'move-down': []
+  'validation-changed': [isValid: boolean, errors: string[]]
+  'save-new-statement': [statement: Omit<StatementSchemaMapping, 'id'>]
+  'cancel-new-statement': []
+  'add-statement': []
+}>()
 
-const emit = defineEmits<StatementEditorEmits>()
+// Store
+const schemaStore = useSchemaStore()
 
-// Composables
-const {
-  localStatement,
-  rankOptions,
-  isValidStatement,
-  handleRankChange,
-  handleColumnDrop,
-  initializeStatement,
-  setAvailableColumns,
-} = useStatementEditor()
-
-const { setOnColumnDrop } = useStatementDropZone()
-
-// Set up the column drop callback
-setOnColumnDrop((_column) => {
-  handleColumnDrop(_column)
-  emitUpdate()
-})
-
-// Generate a temporary statement ID for qualifier management
-const tempStatementId = ref(crypto.randomUUID())
-
-// Local qualifiers state
-const localQualifiers = ref<PropertyValueMap[]>(props.modelValue?.qualifiers || [])
-
-// Local references state
-const localReferences = ref<ReferenceSchemaMapping[]>(props.modelValue?.references || [])
-
-// Local state for PropertyValueMappingEditor
-const localPropertyId = ref(props.modelValue?.property?.id || '')
-const localValueMapping = ref<ValueMapping>(
-  props.modelValue?.value || {
-    type: 'column',
+// Local state for new statements
+const localStatement = ref<{
+  property: PropertyReference | null
+  value: ValueMapping
+  rank: StatementRank
+  qualifiers: PropertyValueMap[]
+  references: ReferenceSchemaMapping[]
+}>({
+  property: null,
+  value: {
+    type: 'column' as const,
     source: {
       columnName: '',
-      dataType: 'VARCHAR',
+      dataType: 'VARCHAR' as const,
     },
-    dataType: 'string',
-  },
-)
+    dataType: 'string' as const,
+  } as ValueMapping,
+  rank: 'normal' as StatementRank,
+  qualifiers: [] as PropertyValueMap[],
+  references: [] as ReferenceSchemaMapping[],
+})
 
-// Validation state
-const validationErrors = ref<string[]>([])
+// Computed for current statement data
+const currentStatement = computed(() => {
+  return props.isNewStatement ? localStatement.value : props.statement!
+})
 
-// Methods
-const emitUpdate = () => {
-  emit('update:modelValue', {
-    ...localStatement.value,
-    qualifiers: localQualifiers.value,
-    references: localReferences.value,
-  })
-}
+// Validation
+const isValidStatement = computed(() => {
+  return currentStatement.value.property !== null
+})
 
-const handleSave = () => {
-  if (isValidStatement.value && validationErrors.value.length === 0) {
-    emit('save')
-  }
-}
-
-const handleCancel = () => {
-  emit('cancel')
-}
-
+// Event handlers
 const handlePropertyChanged = (property: PropertyReference | null) => {
-  if (property) {
+  if (props.isNewStatement) {
     localStatement.value.property = property
-    localPropertyId.value = property.id
-  } else {
-    localStatement.value.property = null
-    localPropertyId.value = ''
-  }
-  emitUpdate()
-}
-
-const handleValueChanged = (valueMapping: ValueMapping) => {
-  localStatement.value.value = { ...valueMapping }
-  localValueMapping.value = { ...valueMapping }
-  emitUpdate()
-}
-
-const handleRankChangeWithEmit = (newRank: StatementRank) => {
-  handleRankChange(newRank)
-  emitUpdate()
-}
-
-// Qualifier handling methods
-// @ts-expect-error ToDo Fix
-const handleAddQualifier = (statementId: UUID, qualifier: PropertyValueMap) => {
-  localQualifiers.value.push(qualifier)
-  emitUpdate()
-}
-
-// @ts-expect-error ToDo Fix
-const handleRemoveQualifier = (statementId: UUID, qualifierIndex: number) => {
-  if (qualifierIndex >= 0 && qualifierIndex < localQualifiers.value.length) {
-    localQualifiers.value.splice(qualifierIndex, 1)
-    emitUpdate()
+  } else if (property && props.statement) {
+    schemaStore.updateStatement(
+      props.statement.id as UUID,
+      property,
+      props.statement.value,
+      props.statement.rank,
+      props.statement.qualifiers,
+      props.statement.references,
+    )
   }
 }
 
-const handleUpdateQualifier = (
-  // @ts-expect-error ToDo Fix
-  statementId: UUID,
-  qualifierIndex: number,
-  qualifier: PropertyValueMap,
-) => {
-  if (qualifierIndex >= 0 && qualifierIndex < localQualifiers.value.length) {
-    localQualifiers.value[qualifierIndex] = qualifier
-    emitUpdate()
+const handleValueChanged = (value: ValueMapping) => {
+  if (props.isNewStatement) {
+    localStatement.value.value = value
+  } else if (props.statement) {
+    schemaStore.updateStatement(
+      props.statement.id as UUID,
+      props.statement.property,
+      value,
+      props.statement.rank,
+      props.statement.qualifiers,
+      props.statement.references,
+    )
   }
 }
 
-// Reference handling methods
-// @ts-expect-error ToDo Fix
-const handleAddReference = (statementId: UUID, reference: ReferenceSchemaMapping) => {
-  localReferences.value.push(reference)
-  emitUpdate()
-}
-
-// @ts-expect-error ToDo Fix
-const handleRemoveReference = (statementId: UUID, referenceIndex: number) => {
-  if (referenceIndex >= 0 && referenceIndex < localReferences.value.length) {
-    localReferences.value.splice(referenceIndex, 1)
-    emitUpdate()
+const handleRankChanged = (rank: StatementRank) => {
+  if (props.isNewStatement) {
+    localStatement.value.rank = rank
+  } else if (props.statement) {
+    schemaStore.updateStatement(
+      props.statement.id as UUID,
+      props.statement.property,
+      props.statement.value,
+      rank,
+      props.statement.qualifiers,
+      props.statement.references,
+    )
   }
 }
 
-const handleUpdateReference = (
-  // @ts-expect-error ToDo Fix
-  statementId: UUID,
-  referenceIndex: number,
-  reference: ReferenceSchemaMapping,
-) => {
-  if (referenceIndex >= 0 && referenceIndex < localReferences.value.length) {
-    localReferences.value[referenceIndex] = reference
-    emitUpdate()
+const handleQualifiersChanged = (qualifiers: PropertyValueMap[]) => {
+  if (props.isNewStatement) {
+    localStatement.value.qualifiers = qualifiers
+  } else if (props.statement) {
+    schemaStore.updateStatement(
+      props.statement.id as UUID,
+      props.statement.property,
+      props.statement.value,
+      props.statement.rank,
+      qualifiers,
+      props.statement.references,
+    )
   }
 }
 
-const handleAddSnakToReference = (
-  // @ts-expect-error ToDo Fix
-  statementId: UUID,
-  referenceIndex: number,
-  snak: PropertyValueMap,
-) => {
-  if (referenceIndex >= 0 && referenceIndex < localReferences.value.length) {
-    const reference = localReferences.value[referenceIndex]
-    if (reference) {
-      reference.snaks.push(snak)
-      emitUpdate()
-    }
+const handleReferencesChanged = (references: ReferenceSchemaMapping[]) => {
+  if (props.isNewStatement) {
+    localStatement.value.references = references
+  } else if (props.statement) {
+    schemaStore.updateStatement(
+      props.statement.id as UUID,
+      props.statement.property,
+      props.statement.value,
+      props.statement.rank,
+      props.statement.qualifiers,
+      references,
+    )
   }
 }
 
-const handleRemoveSnakFromReference = (
-  // @ts-expect-error ToDo Fix
-  statementId: UUID,
-  referenceIndex: number,
-  snakIndex: number,
-) => {
-  const reference = localReferences.value[referenceIndex]
-  if (
-    referenceIndex >= 0 &&
-    referenceIndex < localReferences.value.length &&
-    reference &&
-    snakIndex >= 0 &&
-    snakIndex < reference.snaks.length
-  ) {
-    reference.snaks.splice(snakIndex, 1)
-    emitUpdate()
+const handleRemoveStatement = () => {
+  if (props.statement) {
+    schemaStore.removeStatement(props.statement.id as UUID)
   }
 }
 
-// Watch for external changes
-watch(
-  () => props.modelValue,
-  (newValue) => {
-    if (newValue) {
-      initializeStatement(newValue)
-      // Update local state for PropertyValueMappingEditor
-      localPropertyId.value = newValue.property?.id || ''
-      localValueMapping.value = { ...newValue.value }
-    }
-  },
-  { deep: true, immediate: true },
-)
+const handleSaveNewStatement = () => {
+  if (props.isNewStatement && isValidStatement.value && localStatement.value.property) {
+    emit('save-new-statement', {
+      property: localStatement.value.property,
+      value: localStatement.value.value,
+      rank: localStatement.value.rank,
+      qualifiers: localStatement.value.qualifiers,
+      references: localStatement.value.references,
+    })
+  }
+}
 
-// Watch for available columns changes
-watch(
-  () => props.availableColumns,
-  (newColumns) => {
-    setAvailableColumns(newColumns)
-  },
-  { deep: true, immediate: true },
-)
-
-// Watch for qualifiers changes
-watch(
-  () => props.modelValue?.qualifiers,
-  (newQualifiers) => {
-    localQualifiers.value = newQualifiers || []
-  },
-  { deep: true, immediate: true },
-)
-
-// Watch for references changes
-watch(
-  () => props.modelValue?.references,
-  (newReferences) => {
-    localReferences.value = newReferences || []
-  },
-  { deep: true, immediate: true },
-)
-
-const onValidationChanged = (_: any, errors: string[]) => {
-  validationErrors.value = errors
+const handleCancelNewStatement = () => {
+  if (props.isNewStatement) {
+    emit('cancel-new-statement')
+  }
 }
 </script>
 
 <template>
-  <div class="statement-editor space-y-6 p-6 border border-surface-200 rounded-lg bg-surface-50">
+  <div
+    class="statement-editor space-y-4 p-4 border border-surface-200 rounded-lg"
+    :class="index % 2 === 0 ? 'bg-white' : 'bg-slate-50'"
+  >
     <!-- Header -->
     <div class="flex items-center justify-between">
-      <h4 class="text-lg font-semibold text-surface-900">Configure Statement</h4>
       <div class="flex items-center gap-2">
+        <!-- Move Up -->
         <Button
-          label="Cancel"
+          v-if="canMoveUp"
+          v-tooltip="'Move up'"
+          icon="pi pi-chevron-up"
+          size="small"
           severity="secondary"
-          size="small"
-          @click="handleCancel"
+          text
+          @click="$emit('move-up')"
         />
+
+        <!-- Move Down -->
         <Button
-          label="Save"
-          :disabled="!isValidStatement || validationErrors.length > 0"
+          v-if="canMoveDown"
+          v-tooltip="'Move down'"
+          icon="pi pi-chevron-down"
           size="small"
-          @click="handleSave"
+          severity="secondary"
+          text
+          @click="$emit('move-down')"
+        />
+
+        <!-- Remove -->
+        <Button
+          v-tooltip="'Remove statement'"
+          icon="pi pi-trash"
+          size="small"
+          severity="danger"
+          text
+          @click="handleRemoveStatement"
         />
       </div>
     </div>
 
-    <!-- Property-Value Mapping -->
-    <PropertyValueMappingEditor
-      v-model:property-id="localPropertyId"
-      v-model:value-mapping="localValueMapping"
-      validation-path="statement"
-      @property-changed="handlePropertyChanged"
-      @value-changed="handleValueChanged"
-      @validation-changed="onValidationChanged"
-    />
-
-    <!-- Statement Rank -->
-    <div class="space-y-2">
-      <label class="block text-sm font-medium text-surface-700">Statement Rank</label>
-      <div class="flex gap-2">
-        <Button
-          v-for="option in rankOptions"
-          :key="option.value"
-          :label="option.label"
-          :icon="option.icon"
-          :severity="localStatement.rank === option.value ? 'primary' : 'secondary'"
-          size="small"
-          @click="handleRankChangeWithEmit(option.value as StatementRank)"
+    <!-- Property and Value Layout -->
+    <div class="flex gap-6">
+      <!-- Property Selection (Left) -->
+      <div class="flex-0 space-y-2">
+        <label class="block text-sm font-medium text-surface-700">
+          Property
+          <span class="text-red-500">*</span>
+        </label>
+        <PropertySelector
+          :model-value="currentStatement.property"
+          placeholder="Search for a property..."
+          @update="handlePropertyChanged"
         />
+        <!-- Data Type Display -->
+        <div class="flex items-center gap-2 text-sm">
+          <i class="pi pi-info-circle" />
+          <span class="text-surface-700 font-medium">
+            {{ currentStatement.property?.dataType }}
+          </span>
+        </div>
+      </div>
+
+      <!-- Value Configuration with Rank (Right) -->
+      <div
+        v-if="currentStatement.property"
+        class="flex-1 space-y-4"
+      >
+        <ClaimEditor
+          :value-mapping="currentStatement.value"
+          :property="currentStatement.property"
+          :rank="currentStatement.rank"
+          :statement-id="!isNewStatement ? (statement!.id as UUID) : undefined"
+          :statement-index="(index || 0) + 1"
+          :qualifiers="currentStatement.qualifiers || []"
+          :references="currentStatement.references || []"
+          @value-changed="handleValueChanged"
+          @rank-changed="handleRankChanged"
+          @qualifiers-changed="handleQualifiersChanged"
+          @references-changed="handleReferencesChanged"
+        />
+
+        <!-- Add New Statement Button -->
+        <div v-if="!isNewStatement">
+          <Button
+            label="Add New Statement"
+            icon="pi pi-plus"
+            severity="secondary"
+            outlined
+            @click="$emit('add-statement')"
+          />
+        </div>
       </div>
     </div>
 
-    <!-- Qualifiers Section -->
-    <div class="border-t border-surface-200 pt-6">
-      <QualifiersEditor
-        :statement-id="tempStatementId"
-        :qualifiers="localQualifiers"
-        :available-columns="availableColumns"
-        :disabled="disabled"
-        @add-qualifier="handleAddQualifier"
-        @remove-qualifier="handleRemoveQualifier"
-        @update-qualifier="handleUpdateQualifier"
+    <!-- New Statement Actions -->
+    <div
+      v-if="isNewStatement"
+      class="flex justify-end gap-2 pt-4 border-t border-surface-200"
+    >
+      <Button
+        label="Cancel"
+        severity="secondary"
+        @click="handleCancelNewStatement"
+      />
+      <Button
+        label="Save Statement"
+        :disabled="!isValidStatement"
+        @click="handleSaveNewStatement"
       />
     </div>
-
-    <!-- References Section -->
-    <div class="border-t border-surface-200 pt-6">
-      <ReferencesEditor
-        :statement-id="tempStatementId"
-        :references="localReferences"
-        :available-columns="availableColumns"
-        :disabled="disabled"
-        @add-reference="handleAddReference"
-        @remove-reference="handleRemoveReference"
-        @update-reference="handleUpdateReference"
-        @add-snak-to-reference="handleAddSnakToReference"
-        @remove-snak-from-reference="handleRemoveSnakFromReference"
-      />
-    </div>
-
-    <!-- Preview -->
-    <StatementPreview
-      v-if="isValidStatement"
-      :statement="localStatement"
-      :qualifiers="localQualifiers"
-      :references="localReferences"
-    />
   </div>
 </template>

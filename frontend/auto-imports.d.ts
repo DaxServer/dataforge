@@ -45,6 +45,7 @@ declare global {
   const getActivePinia: typeof import('pinia')['getActivePinia']
   const getCurrentInstance: typeof import('vue')['getCurrentInstance']
   const getCurrentScope: typeof import('vue')['getCurrentScope']
+  const getCurrentWatcher: typeof import('vue')['getCurrentWatcher']
   const h: typeof import('vue')['h']
   const ignorableWatch: typeof import('@vueuse/core')['ignorableWatch']
   const inject: typeof import('vue')['inject']
@@ -54,6 +55,7 @@ declare global {
   const isReactive: typeof import('vue')['isReactive']
   const isReadonly: typeof import('vue')['isReadonly']
   const isRef: typeof import('vue')['isRef']
+  const isShallow: typeof import('vue')['isShallow']
   const makeDestructurable: typeof import('@vueuse/core')['makeDestructurable']
   const mapActions: typeof import('pinia')['mapActions']
   const mapGetters: typeof import('pinia')['mapGetters']
@@ -157,7 +159,6 @@ declare global {
   const useClipboardItems: typeof import('@vueuse/core')['useClipboardItems']
   const useCloned: typeof import('@vueuse/core')['useCloned']
   const useColorMode: typeof import('@vueuse/core')['useColorMode']
-  const useColumnConversion: typeof import('./src/features/data-processing/composables/useColumnConversion')['useColumnConversion']
   const useColumnDataTypeIndicators: typeof import('./src/features/data-processing/composables/useColumnDataTypeIndicators')['useColumnDataTypeIndicators']
   const useColumnGeneration: typeof import('./src/features/data-processing/composables/useColumnGeneration')['useColumnGeneration']
   const useConfirm: typeof import('primevue/useconfirm')['useConfirm']
@@ -217,7 +218,6 @@ declare global {
   const useInterval: typeof import('@vueuse/core')['useInterval']
   const useIntervalFn: typeof import('@vueuse/core')['useIntervalFn']
   const useKeyModifier: typeof import('@vueuse/core')['useKeyModifier']
-  const useLanguageDropZone: typeof import('./src/features/data-processing/composables/useLanguageDropZone')['useLanguageDropZone']
   const useLastChanged: typeof import('@vueuse/core')['useLastChanged']
   const useLink: typeof import('vue-router')['useLink']
   const useLocalStorage: typeof import('@vueuse/core')['useLocalStorage']
@@ -270,7 +270,6 @@ declare global {
   const useSchemaApi: typeof import('./src/features/wikibase-schema/composables/useSchemaApi')['useSchemaApi']
   const useSchemaBuilder: typeof import('./src/features/wikibase-schema/composables/useSchemaBuilder')['useSchemaBuilder']
   const useSchemaCompletenessValidation: typeof import('./src/features/wikibase-schema/composables/useSchemaCompletenessValidation')['useSchemaCompletenessValidation']
-  const useSchemaDropZone: typeof import('./src/features/wikibase-schema/composables/useSchemaDropZone')['useSchemaDropZone']
   const useSchemaPersistence: typeof import('./src/features/wikibase-schema/composables/useSchemaPersistence')['useSchemaPersistence']
   const useSchemaSelection: typeof import('./src/features/wikibase-schema/composables/useSchemaSelection')['useSchemaSelection']
   const useSchemaStore: typeof import('./src/features/wikibase-schema/stores/schema.store')['useSchemaStore']
@@ -356,7 +355,7 @@ declare global {
 // for type re-export
 declare global {
   // @ts-ignore
-  export type { Component, Slot, Slots, ComponentPublicInstance, ComputedRef, DirectiveBinding, ExtractDefaultPropTypes, ExtractPropTypes, ExtractPublicPropTypes, InjectionKey, PropType, Ref, MaybeRef, MaybeRefOrGetter, VNode, WritableComputedRef } from 'vue'
+  export type { Component, Slot, Slots, ComponentPublicInstance, ComputedRef, DirectiveBinding, ExtractDefaultPropTypes, ExtractPropTypes, ExtractPublicPropTypes, InjectionKey, PropType, Ref, ShallowRef, MaybeRef, MaybeRefOrGetter, VNode, WritableComputedRef } from 'vue'
   import('vue')
   // @ts-ignore
   export type { FileUploadUploaderEvent } from 'primevue/fileupload'
@@ -443,6 +442,7 @@ declare module 'vue' {
     readonly getActivePinia: UnwrapRef<typeof import('pinia')['getActivePinia']>
     readonly getCurrentInstance: UnwrapRef<typeof import('vue')['getCurrentInstance']>
     readonly getCurrentScope: UnwrapRef<typeof import('vue')['getCurrentScope']>
+    readonly getCurrentWatcher: UnwrapRef<typeof import('vue')['getCurrentWatcher']>
     readonly h: UnwrapRef<typeof import('vue')['h']>
     readonly ignorableWatch: UnwrapRef<typeof import('@vueuse/core')['ignorableWatch']>
     readonly inject: UnwrapRef<typeof import('vue')['inject']>
@@ -452,6 +452,7 @@ declare module 'vue' {
     readonly isReactive: UnwrapRef<typeof import('vue')['isReactive']>
     readonly isReadonly: UnwrapRef<typeof import('vue')['isReadonly']>
     readonly isRef: UnwrapRef<typeof import('vue')['isRef']>
+    readonly isShallow: UnwrapRef<typeof import('vue')['isShallow']>
     readonly makeDestructurable: UnwrapRef<typeof import('@vueuse/core')['makeDestructurable']>
     readonly mapActions: UnwrapRef<typeof import('pinia')['mapActions']>
     readonly mapGetters: UnwrapRef<typeof import('pinia')['mapGetters']>
@@ -555,7 +556,6 @@ declare module 'vue' {
     readonly useClipboardItems: UnwrapRef<typeof import('@vueuse/core')['useClipboardItems']>
     readonly useCloned: UnwrapRef<typeof import('@vueuse/core')['useCloned']>
     readonly useColorMode: UnwrapRef<typeof import('@vueuse/core')['useColorMode']>
-    readonly useColumnConversion: UnwrapRef<typeof import('./src/features/data-processing/composables/useColumnConversion')['useColumnConversion']>
     readonly useColumnDataTypeIndicators: UnwrapRef<typeof import('./src/features/data-processing/composables/useColumnDataTypeIndicators')['useColumnDataTypeIndicators']>
     readonly useColumnGeneration: UnwrapRef<typeof import('./src/features/data-processing/composables/useColumnGeneration')['useColumnGeneration']>
     readonly useConfirm: UnwrapRef<typeof import('primevue/useconfirm')['useConfirm']>
