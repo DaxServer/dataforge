@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, mock } from 'bun:test'
+import { describe, it, expect, expectTypeOf, beforeEach, mock } from 'bun:test'
 import { createTestingPinia } from '@pinia/testing'
 import { setActivePinia } from 'pinia'
 import { useSchemaStore } from '@frontend/features/wikibase-schema/stores/schema.store'
@@ -634,7 +634,7 @@ describe('useSchemaStore', () => {
       store.addStatement(property, valueMapping)
 
       expect(store.statements[0]?.id).toBeDefined()
-      expect(typeof store.statements[0]?.id).toBe('string')
+      expectTypeOf(store.statements[0]!.id).toBeString()
     })
 
     it('should create statement with property object', () => {
@@ -652,7 +652,7 @@ describe('useSchemaStore', () => {
       store.addStatement(property, valueMapping)
 
       expect(store.statements[0]?.property).toBeDefined()
-      expect(typeof store.statements[0]?.property).toBe('object')
+      expectTypeOf(store.statements[0]!.property).toBeObject()
     })
 
     it('should create statement with value object', () => {
@@ -670,7 +670,7 @@ describe('useSchemaStore', () => {
       store.addStatement(property, valueMapping)
 
       expect(store.statements[0]?.value).toBeDefined()
-      expect(typeof store.statements[0]?.value).toBe('object')
+      expectTypeOf(store.statements[0]!.value).toBeObject()
     })
 
     it('should create statement with default normal rank', () => {

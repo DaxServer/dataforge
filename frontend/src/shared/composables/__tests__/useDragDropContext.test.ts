@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'bun:test'
+import { describe, it, expect, expectTypeOf, beforeEach } from 'bun:test'
 import { createPinia, setActivePinia } from 'pinia'
 import { useDragDropContext } from '@frontend/shared/composables/useDragDropContext'
 import { useDragDropStore } from '@frontend/features/data-processing/stores/drag-drop.store'
@@ -267,18 +267,18 @@ describe('useDragDropContext', () => {
       const context = useDragDropContext()
 
       // Test that all expected methods exist
-      expect(typeof context.startDrag).toBe('function')
-      expect(typeof context.endDrag).toBe('function')
-      expect(typeof context.enterDropZone).toBe('function')
-      expect(typeof context.leaveDropZone).toBe('function')
-      expect(typeof context.validateDrop).toBe('function')
-      expect(typeof context.performDrop).toBe('function')
-      expect(typeof context.createDropZoneConfig).toBe('function')
+      expectTypeOf(context.startDrag).toBeFunction()
+      expectTypeOf(context.endDrag).toBeFunction()
+      expectTypeOf(context.enterDropZone).toBeFunction()
+      expectTypeOf(context.leaveDropZone).toBeFunction()
+      expectTypeOf(context.validateDrop).toBeFunction()
+      expectTypeOf(context.performDrop).toBeFunction()
+      expectTypeOf(context.createDropZoneConfig).toBeFunction()
     })
 
     it('should work with store setAvailableTargets method', () => {
       const store = useDragDropStore()
-      expect(typeof store.setAvailableTargets).toBe('function')
+      expectTypeOf(store.setAvailableTargets).toBeFunction()
 
       const targets = [mockDropTarget]
       store.setAvailableTargets(targets)
@@ -289,7 +289,7 @@ describe('useDragDropContext', () => {
 
     it('should work with store getValidTargetsForColumn method', () => {
       const store = useDragDropStore()
-      expect(typeof store.getValidTargetsForColumn).toBe('function')
+      expectTypeOf(store.getValidTargetsForColumn).toBeFunction()
 
       store.setAvailableTargets([mockDropTarget])
       const validTargets = store.getValidTargetsForColumn(mockColumnInfo)
