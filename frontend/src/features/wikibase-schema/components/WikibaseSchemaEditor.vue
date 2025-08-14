@@ -26,10 +26,10 @@ const {
   backToSelector,
 } = useSchemaSelection()
 
-// Schema persistence composable
-const { saveSchema, canSave, isSaving, saveStatus } = useSchemaPersistence()
+// Schema API composable
+const { saveSchema, canSave, isSaving, saveStatus } = useSchemaApi()
 
-// Reactive state
+// State
 const isInitialized = ref(false)
 const isConfiguringItem = ref(false)
 

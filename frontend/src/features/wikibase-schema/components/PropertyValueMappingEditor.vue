@@ -48,7 +48,8 @@ interface PropertyValueMappingEditorEmits {
 const emit = defineEmits<PropertyValueMappingEditorEmits>()
 
 // Composables
-const { selectedProperty, selectProperty, clearSelection } = usePropertySelection()
+const { selectedProperty, selectProperty, clearSelection, getAllProperties } =
+  usePropertySelection()
 const {
   currentMapping,
   valueTypes,
@@ -119,16 +120,13 @@ watch(
   { immediate: true, deep: true },
 )
 
-// Get property lookup functions outside of watch
-const { getAllProperties: getAvailableProperties } = usePropertySelection()
-
 // Watch for individual propertyId prop changes
 watch(
   () => props.propertyId,
   (newPropertyId) => {
     if (newPropertyId && newPropertyId !== selectedProperty.value?.id) {
       // Find property by ID using the property selection composable
-      const property = getAvailableProperties().find((p) => p.id === newPropertyId)
+      const property = getAllProperties().find((p) => p.id === newPropertyId)
       if (property) {
         selectProperty(property)
       }

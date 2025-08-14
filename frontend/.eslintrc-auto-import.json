@@ -338,7 +338,6 @@
     "useSchemaApi": true,
     "useSchemaBuilder": true,
     "useSchemaCompletenessValidation": true,
-    "useSchemaPersistence": true,
     "useSchemaSelection": true,
     "useSchemaStore": true,
     "useSchemaValidationUI": true,

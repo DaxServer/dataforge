@@ -272,7 +272,6 @@ declare global {
   const useSchemaApi: typeof import('./src/features/wikibase-schema/composables/useSchemaApi')['useSchemaApi']
   const useSchemaBuilder: typeof import('./src/features/wikibase-schema/composables/useSchemaBuilder')['useSchemaBuilder']
   const useSchemaCompletenessValidation: typeof import('./src/features/wikibase-schema/composables/useSchemaCompletenessValidation')['useSchemaCompletenessValidation']
-  const useSchemaPersistence: typeof import('./src/features/wikibase-schema/composables/useSchemaPersistence')['useSchemaPersistence']
   const useSchemaSelection: typeof import('./src/features/wikibase-schema/composables/useSchemaSelection')['useSchemaSelection']
   const useSchemaStore: typeof import('./src/features/wikibase-schema/stores/schema.store')['useSchemaStore']
   const useSchemaValidationUI: typeof import('./src/features/wikibase-schema/composables/useSchemaValidationUI')['useSchemaValidationUI']
@@ -383,9 +382,6 @@ declare global {
   // @ts-ignore
   export type { SchemaCompletenessResult, RequiredFieldHighlight } from './src/features/wikibase-schema/composables/useSchemaCompletenessValidation'
   import('./src/features/wikibase-schema/composables/useSchemaCompletenessValidation')
-  // @ts-ignore
-  export type { SaveStatus } from './src/features/wikibase-schema/composables/useSchemaPersistence'
-  import('./src/features/wikibase-schema/composables/useSchemaPersistence')
   // @ts-ignore
   export type { ValidationRuleConfig } from './src/features/wikibase-schema/stores/validation.store'
   import('./src/features/wikibase-schema/stores/validation.store')
@@ -674,7 +670,6 @@ declare module 'vue' {
     readonly useSchemaApi: UnwrapRef<typeof import('./src/features/wikibase-schema/composables/useSchemaApi')['useSchemaApi']>
     readonly useSchemaBuilder: UnwrapRef<typeof import('./src/features/wikibase-schema/composables/useSchemaBuilder')['useSchemaBuilder']>
     readonly useSchemaCompletenessValidation: UnwrapRef<typeof import('./src/features/wikibase-schema/composables/useSchemaCompletenessValidation')['useSchemaCompletenessValidation']>
-    readonly useSchemaPersistence: UnwrapRef<typeof import('./src/features/wikibase-schema/composables/useSchemaPersistence')['useSchemaPersistence']>
     readonly useSchemaSelection: UnwrapRef<typeof import('./src/features/wikibase-schema/composables/useSchemaSelection')['useSchemaSelection']>
     readonly useSchemaStore: UnwrapRef<typeof import('./src/features/wikibase-schema/stores/schema.store')['useSchemaStore']>
     readonly useSchemaValidationUI: UnwrapRef<typeof import('./src/features/wikibase-schema/composables/useSchemaValidationUI')['useSchemaValidationUI']>
