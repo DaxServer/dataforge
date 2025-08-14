@@ -1,7 +1,7 @@
 <script setup lang="ts">
 // Props
 interface Props {
-  statement?: StatementSchemaMapping
+  statement: StatementSchema
   index?: number
   canMoveUp?: boolean
   canMoveDown?: boolean
@@ -51,7 +51,7 @@ const localStatement = ref<{
 
 // Computed for current statement data
 const currentStatement = computed(() => {
-  return props.isNewStatement ? localStatement.value : props.statement!
+  return props.isNewStatement ? localStatement.value : props.statement
 })
 
 // Validation
@@ -60,87 +60,6 @@ const isValidStatement = computed(() => {
 })
 
 // Event handlers
-const handlePropertyChanged = (property: PropertyReference | null) => {
-  if (props.isNewStatement) {
-    localStatement.value.property = property
-  } else if (property && props.statement) {
-    schemaStore.updateStatement(
-      props.statement.id as UUID,
-      property,
-      props.statement.value,
-      props.statement.rank,
-      props.statement.qualifiers,
-      props.statement.references,
-    )
-  }
-}
-
-const handleValueChanged = (value: ValueMapping) => {
-  if (props.isNewStatement) {
-    localStatement.value.value = value
-  } else if (props.statement) {
-    schemaStore.updateStatement(
-      props.statement.id as UUID,
-      props.statement.property,
-      value,
-      props.statement.rank,
-      props.statement.qualifiers,
-      props.statement.references,
-    )
-  }
-}
-
-const handleRankChanged = (rank: StatementRank) => {
-  if (props.isNewStatement) {
-    localStatement.value.rank = rank
-  } else if (props.statement) {
-    schemaStore.updateStatement(
-      props.statement.id as UUID,
-      props.statement.property,
-      props.statement.value,
-      rank,
-      props.statement.qualifiers,
-      props.statement.references,
-    )
-  }
-}
-
-const handleQualifiersChanged = (qualifiers: PropertyValueMap[]) => {
-  if (props.isNewStatement) {
-    localStatement.value.qualifiers = qualifiers
-  } else if (props.statement) {
-    schemaStore.updateStatement(
-      props.statement.id as UUID,
-      props.statement.property,
-      props.statement.value,
-      props.statement.rank,
-      qualifiers,
-      props.statement.references,
-    )
-  }
-}
-
-const handleReferencesChanged = (references: ReferenceSchemaMapping[]) => {
-  if (props.isNewStatement) {
-    localStatement.value.references = references
-  } else if (props.statement) {
-    schemaStore.updateStatement(
-      props.statement.id as UUID,
-      props.statement.property,
-      props.statement.value,
-      props.statement.rank,
-      props.statement.qualifiers,
-      references,
-    )
-  }
-}
-
-const handleRemoveStatement = () => {
-  if (props.statement) {
-    schemaStore.removeStatement(props.statement.id as UUID)
-  }
-}
-
 const handleSaveNewStatement = () => {
   if (props.isNewStatement && isValidStatement.value && localStatement.value.property) {
     emit('save-new-statement', {
@@ -197,7 +116,7 @@ const handleCancelNewStatement = () => {
           size="small"
           severity="danger"
           text
-          @click="handleRemoveStatement"
+          @click="schemaStore.removeStatement1(statement.id)"
         />
       </div>
     </div>
@@ -211,36 +130,27 @@ const handleCancelNewStatement = () => {
           <span class="text-red-500">*</span>
         </label>
         <PropertySelector
-          :model-value="currentStatement.property"
+          :statement-id="statement.id"
+          :model-value="statement.property"
           placeholder="Search for a property..."
-          @update="handlePropertyChanged"
         />
         <!-- Data Type Display -->
-        <div class="flex items-center gap-2 text-sm">
+        <div
+          v-if="statement.property"
+          class="flex items-center gap-2 text-sm"
+        >
           <i class="pi pi-info-circle" />
           <span class="text-surface-700 font-medium">
-            {{ currentStatement.property?.dataType }}
+            {{ statement.property.dataType }}
           </span>
         </div>
       </div>
 
       <!-- Value Configuration with Rank (Right) -->
-      <div
-        v-if="currentStatement.property"
-        class="flex-1 space-y-4"
-      >
+      <div class="flex-1 space-y-4">
         <ClaimEditor
-          :value-mapping="currentStatement.value"
-          :property="currentStatement.property"
-          :rank="currentStatement.rank"
-          :statement-id="!isNewStatement ? (statement!.id as UUID) : undefined"
+          :statement="statement"
           :statement-index="(index || 0) + 1"
-          :qualifiers="currentStatement.qualifiers || []"
-          :references="currentStatement.references || []"
-          @value-changed="handleValueChanged"
-          @rank-changed="handleRankChanged"
-          @qualifiers-changed="handleQualifiersChanged"
-          @references-changed="handleReferencesChanged"
         />
 
         <!-- Add New Statement Button -->

@@ -259,6 +259,8 @@ declare global {
   const useProjectListStore: typeof import('./src/features/project-management/stores/project-list.store')['useProjectListStore']
   const useProjectStore: typeof import('./src/features/project-management/stores/project.store')['useProjectStore']
   const usePropertySelection: typeof import('./src/features/wikibase-schema/composables/usePropertySelection')['usePropertySelection']
+  const usePropertyValueDisplay: typeof import('./src/features/wikibase-schema/composables/usePropertyValueDisplay')['usePropertyValueDisplay']
+  const usePropertyValueEditor: typeof import('./src/features/wikibase-schema/composables/usePropertyValueEditor')['usePropertyValueEditor']
   const useRafFn: typeof import('@vueuse/core')['useRafFn']
   const useRefHistory: typeof import('@vueuse/core')['useRefHistory']
   const useReferenceValueMapping: typeof import('./src/features/wikibase-schema/composables/useReferenceValueMapping')['useReferenceValueMapping']
@@ -373,6 +375,9 @@ declare global {
   export type { ProjectColumn } from './src/features/data-processing/composables/useColumnGeneration'
   import('./src/features/data-processing/composables/useColumnGeneration')
   // @ts-ignore
+  export type { PropertyValueEditorState, PropertyValueEditorActions, PropertyValueEditorOptions } from './src/features/wikibase-schema/composables/usePropertyValueEditor'
+  import('./src/features/wikibase-schema/composables/usePropertyValueEditor')
+  // @ts-ignore
   export type { SchemaRequest } from './src/features/wikibase-schema/composables/useSchemaApi'
   import('./src/features/wikibase-schema/composables/useSchemaApi')
   // @ts-ignore
@@ -394,7 +399,7 @@ declare global {
   export type { ProjectFile, FileSelectEvent, FileRemoveEvent, ApiClient } from './src/shared/types/index'
   import('./src/shared/types/index')
   // @ts-ignore
-  export type { ValidationErrorType, ValidationErrorCode, ValidationError, ValidationResult, ValidationContext, WikibaseSchemaMapping, TransformationFunction, TransformationParameter, ColumnInfo } from './src/shared/types/wikibase-schema'
+  export type { ValidationErrorType, ValidationErrorCode, ValidationError, ValidationResult, ValidationContext, WikibaseSchemaMapping, TransformationFunction, TransformationParameter, StatementSchema, ColumnInfo } from './src/shared/types/wikibase-schema'
   import('./src/shared/types/wikibase-schema')
 }
 
@@ -656,6 +661,8 @@ declare module 'vue' {
     readonly useProjectListStore: UnwrapRef<typeof import('./src/features/project-management/stores/project-list.store')['useProjectListStore']>
     readonly useProjectStore: UnwrapRef<typeof import('./src/features/project-management/stores/project.store')['useProjectStore']>
     readonly usePropertySelection: UnwrapRef<typeof import('./src/features/wikibase-schema/composables/usePropertySelection')['usePropertySelection']>
+    readonly usePropertyValueDisplay: UnwrapRef<typeof import('./src/features/wikibase-schema/composables/usePropertyValueDisplay')['usePropertyValueDisplay']>
+    readonly usePropertyValueEditor: UnwrapRef<typeof import('./src/features/wikibase-schema/composables/usePropertyValueEditor')['usePropertyValueEditor']>
     readonly useRafFn: UnwrapRef<typeof import('@vueuse/core')['useRafFn']>
     readonly useRefHistory: UnwrapRef<typeof import('@vueuse/core')['useRefHistory']>
     readonly useReferenceValueMapping: UnwrapRef<typeof import('./src/features/wikibase-schema/composables/useReferenceValueMapping')['useReferenceValueMapping']>

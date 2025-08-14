@@ -30,6 +30,8 @@ export const useSchemaStore = defineStore('schema', () => {
   const createdAt = ref<string>('')
   const updatedAt = ref<string>('')
 
+  const statements1 = ref<{ [key: UUID]: StatementSchema }>({})
+
   // Meta state
   const isLoading = ref(false)
   const isDirty = ref(false)
@@ -41,7 +43,7 @@ export const useSchemaStore = defineStore('schema', () => {
       Object.keys(labels.value).length > 0 ||
       Object.keys(descriptions.value).length > 0 ||
       Object.keys(aliases.value).length > 0 ||
-      statements.value.length > 0
+      Object.keys(statements1.value).length > 0
 
     return projectId.value !== null && isDirty.value && !isLoading.value && hasContent
   })
@@ -112,6 +114,41 @@ export const useSchemaStore = defineStore('schema', () => {
     markDirty()
   }
 
+  const loadSchema = (response: WikibaseSchemaResponse, metadata: boolean = true) => {
+    schemaId.value = response.id as UUID
+    projectId.value = response.project_id as UUID
+    schemaName.value = response.name
+    wikibase.value = response.wikibase
+    createdAt.value = response.created_at
+    updatedAt.value = response.updated_at
+
+    if (metadata) {
+      labels.value = response.schema.terms?.labels || {}
+      descriptions.value = response.schema.terms?.descriptions || {}
+      aliases.value = response.schema.terms?.aliases || {}
+      statements.value = response.schema.statements || []
+      statements1.value = response.schema.statements.reduce(
+        (acc, stmt) => {
+          acc[stmt.id as UUID] = {
+            ...stmt,
+            id: stmt.id as UUID,
+          }
+          return acc
+        },
+        {} as { [key: UUID]: StatementSchema },
+      )
+      isDirty.value = false
+      lastSaved.value = new Date(response.updated_at)
+    }
+  }
+
+  const addNewStatement = () => {
+    const id = crypto.randomUUID()
+    statements1.value[id] = {
+      id,
+    }
+  }
+
   const addStatement = (
     property: PropertyReference,
     valueMapping: ValueMapping,
@@ -121,6 +158,10 @@ export const useSchemaStore = defineStore('schema', () => {
   ): UUID => {
     const statement = buildStatement(property, valueMapping, rank, qualifiers, references)
     statements.value.push(statement)
+    statements1.value[statement.id as UUID] = {
+      ...statement,
+      id: statement.id as UUID,
+    }
     markDirty()
 
     return statement.id as UUID
@@ -131,8 +172,13 @@ export const useSchemaStore = defineStore('schema', () => {
 
     if (index !== -1) {
       statements.value.splice(index, 1)
+      delete statements1.value[statementId]
       markDirty()
     }
+  }
+
+  const removeStatement1 = (statementId: UUID) => {
+    delete statements1.value[statementId]
   }
 
   const updateStatementRank = (statementId: UUID, rank: StatementRank) => {
@@ -140,6 +186,7 @@ export const useSchemaStore = defineStore('schema', () => {
 
     if (statement) {
       statement.rank = rank
+      statements1.value[statementId]!.rank = rank
       markDirty()
     }
   }
@@ -149,6 +196,7 @@ export const useSchemaStore = defineStore('schema', () => {
 
     if (statement) {
       statement.qualifiers = qualifiers
+      statements1.value[statementId]!.qualifiers = qualifiers
       markDirty()
     }
   }
@@ -158,6 +206,7 @@ export const useSchemaStore = defineStore('schema', () => {
 
     if (statement) {
       statement.qualifiers.push(qualifier)
+      statements1.value[statementId]!.qualifiers!.push(qualifier)
       markDirty()
     }
   }
@@ -167,6 +216,7 @@ export const useSchemaStore = defineStore('schema', () => {
 
     if (statement && qualifierIndex >= 0 && qualifierIndex < statement.qualifiers.length) {
       statement.qualifiers.splice(qualifierIndex, 1)
+      statements1.value[statementId]!.qualifiers!.splice(qualifierIndex, 1)
       markDirty()
     }
   }
@@ -192,9 +242,39 @@ export const useSchemaStore = defineStore('schema', () => {
           qualifiers,
           references,
         }
+        statements1.value[statementId] = {
+          id: existingStatement.id as UUID,
+          property,
+          value,
+          rank,
+          qualifiers,
+          references,
+        }
         markDirty()
       }
     }
+  }
+
+  const updateStatement1 = (statement: StatementSchema) => {
+    statements1.value[statement.id] = statement
+  }
+
+  const updateStatementById = (
+    id: UUID,
+    property: keyof StatementSchema,
+    value?:
+      | PropertyReference
+      | StatementRank
+      | ValueMapping
+      | PropertyValueMap[]
+      | ReferenceSchemaMapping[],
+  ) => {
+    statements1.value[id] = {
+      ...statements1.value[id],
+      id,
+      [property]: value,
+    }
+    markDirty()
   }
 
   const markAsSaved = () => {
@@ -214,6 +294,7 @@ export const useSchemaStore = defineStore('schema', () => {
     descriptions.value = {}
     aliases.value = {}
     statements.value = []
+    statements1.value = {}
     createdAt.value = ''
     updatedAt.value = ''
     isDirty.value = false
@@ -243,6 +324,8 @@ export const useSchemaStore = defineStore('schema', () => {
     createdAt,
     updatedAt,
 
+    statements1,
+
     // Meta state
     isLoading,
     isDirty,
@@ -250,6 +333,8 @@ export const useSchemaStore = defineStore('schema', () => {
 
     // Computed
     canSave,
+    hasStatements: computed(() => Object.keys(statements1.value).length > 0),
+    countStatments: computed(() => Object.keys(statements1.value).length),
 
     // Actions
     updateSchemaName,
@@ -259,9 +344,14 @@ export const useSchemaStore = defineStore('schema', () => {
     removeLabelMapping,
     removeDescriptionMapping,
     removeAliasMapping,
+    loadSchema,
     addStatement,
+    addNewStatement,
     removeStatement,
+    removeStatement1,
     updateStatement,
+    updateStatement1,
+    updateStatementById,
     updateStatementRank,
     updateStatementQualifiers,
     addQualifierToStatement,

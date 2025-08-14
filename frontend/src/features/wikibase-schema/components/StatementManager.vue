@@ -5,25 +5,10 @@ const schemaStore = useSchemaStore()
 // State for new statement creation
 const isAddingStatement = ref(false)
 
-// Computed properties
-const statements = computed(() => schemaStore.statements)
-
 // Methods
 const handleAddStatement = () => {
   isAddingStatement.value = true
-}
-
-const handleReorderStatements = (fromIndex: number, toIndex: number) => {
-  const statementsCopy = [...schemaStore.statements]
-  const [movedStatement] = statementsCopy.splice(fromIndex, 1)
-
-  if (movedStatement) {
-    statementsCopy.splice(toIndex, 0, movedStatement)
-
-    // Update the statements array in the store
-    schemaStore.statements.splice(0, schemaStore.statements.length, ...statementsCopy)
-    schemaStore.markDirty()
-  }
+  schemaStore.addNewStatement()
 }
 
 const handleSaveNewStatement = (statement: Omit<StatementSchemaMapping, 'id'>) => {
@@ -51,10 +36,10 @@ const handleCancelNewStatement = () => {
         <h4 class="text-md font-medium text-surface-900">
           Statements
           <span
-            v-if="statements.length > 0"
+            v-if="schemaStore.hasStatements"
             class="text-sm text-surface-500 font-normal"
           >
-            ({{ statements.length }})
+            ({{ schemaStore.countStatments }})
           </span>
         </h4>
       </div>
@@ -69,7 +54,7 @@ const handleCancelNewStatement = () => {
     </div>
 
     <!-- Add New Statement Editor -->
-    <div
+    <!-- <div
       v-if="isAddingStatement"
       class="statement-editor p-4 border border-blue-200 rounded-lg bg-blue-50 shadow-sm"
     >
@@ -82,28 +67,26 @@ const handleCancelNewStatement = () => {
         @save-new-statement="handleSaveNewStatement"
         @cancel-new-statement="handleCancelNewStatement"
       />
-    </div>
+    </div> -->
 
     <!-- Statements List -->
     <div
-      v-if="statements.length > 0"
+      v-if="schemaStore.hasStatements"
       class="space-y-4"
     >
       <StatementEditor
-        v-for="(statement, index) in statements"
+        v-for="statement in schemaStore.statements1"
         :key="statement.id"
         :statement="statement"
-        :index="index"
-        :can-move-up="index > 0"
-        :can-move-down="index < statements.length - 1"
-        @move-up="handleReorderStatements(index, index - 1)"
-        @move-down="handleReorderStatements(index, index + 1)"
+        :index="1"
+        :can-move-up="false"
+        :can-move-down="false"
       />
     </div>
 
     <!-- Empty State -->
     <div
-      v-if="statements.length === 0 && !isAddingStatement"
+      v-if="!schemaStore.hasStatements && !isAddingStatement"
       class="text-center py-12 border-2 border-dashed border-slate-300 rounded-lg bg-slate-100"
     >
       <div class="space-y-3">

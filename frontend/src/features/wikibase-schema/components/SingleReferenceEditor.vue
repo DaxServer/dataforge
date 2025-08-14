@@ -1,6 +1,7 @@
 <script setup lang="ts">
 // Props
 interface Props {
+  statementId: UUID
   snak?: PropertyValueMap
   isEditing?: boolean
   isAddingToReference?: boolean
@@ -20,12 +21,9 @@ interface Emits {
 
 const emit = defineEmits<Emits>()
 
-// Local state
-const selectedPropertyId = ref('')
-const selectedValue = ref<ValueMapping | null>(null)
-const validationErrors = ref<string[]>([])
-
-const { clearSelection } = usePropertySelection()
+// Use the shared composable
+const { selectedPropertyId, selectedValue, isFormValid, cancelEditing, onValidationChanged } =
+  usePropertyValueEditor()
 
 // Initialize form with existing snak data if editing
 watchEffect(() => {
@@ -33,22 +31,20 @@ watchEffect(() => {
     selectedPropertyId.value = props.snak.property.id
     selectedValue.value = { ...props.snak.value }
   } else {
-    clearSelection()
-    selectedPropertyId.value = ''
-    selectedValue.value = null
+    cancelEditing()
   }
 })
 
 // Methods
 const handleSubmit = () => {
-  if (!selectedPropertyId.value || !selectedValue.value) return
+  if (!isFormValid.value) return
 
   const snak: PropertyValueMap = {
     property: {
       id: selectedPropertyId.value,
-      dataType: selectedValue.value.dataType,
+      dataType: selectedValue.value!.dataType,
     } as PropertyReference,
-    value: selectedValue.value,
+    value: selectedValue.value!,
   }
 
   emit('save', snak)
@@ -57,15 +53,6 @@ const handleSubmit = () => {
 const handleCancel = () => {
   emit('cancel')
 }
-
-const onValidationChanged = (_: any, errors: string[]) => {
-  validationErrors.value = errors
-}
-
-// Computed
-const isFormValid = computed(() => {
-  return selectedPropertyId.value && selectedValue.value && validationErrors.value.length === 0
-})
 
 const formTitle = computed(() => {
   if (props.isEditing) return 'Edit Reference Property'
@@ -105,8 +92,9 @@ const submitButtonLabel = computed(() => {
 
     <!-- Property-Value Mapping Editor -->
     <PropertyValueMappingEditor
-      v-model:property-id="selectedPropertyId"
-      v-model:value-mapping="selectedValue"
+      :property-id="selectedPropertyId"
+      :value-mapping="selectedValue"
+      :statement-id="statementId"
       validation-path="reference"
       @validation-changed="onValidationChanged"
     />
