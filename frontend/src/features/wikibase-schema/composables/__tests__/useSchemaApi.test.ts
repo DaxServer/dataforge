@@ -94,7 +94,7 @@ describe('useSchemaApi', () => {
     setActivePinia(
       createTestingPinia({
         createSpy: mock,
-        stubActions: true, // Stub actions since we're testing the composable, not the store
+        stubActions: false, // Allow actions to work so store state gets updated
       }),
     )
 

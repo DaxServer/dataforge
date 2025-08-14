@@ -1,4 +1,4 @@
-import { describe, test, expect, afterEach, beforeEach } from 'bun:test'
+import { describe, test, expect, expectTypeOf, afterEach, beforeEach } from 'bun:test'
 import { closeDb, getDb, initializeDb } from '@backend/plugins/database'
 
 describe('Database', () => {
@@ -10,7 +10,7 @@ describe('Database', () => {
   test('should initialize database successfully', async () => {
     const db = await initializeDb(':memory:')
     expect(db).toBeDefined()
-    expect(typeof db.run).toBe('function')
+    expectTypeOf(db.run).toBeFunction()
   })
 
   test('getDb should return a database connection', async () => {
@@ -22,7 +22,7 @@ describe('Database', () => {
 
     // Verify the connection exists and has the expected methods
     expect(db).toBeDefined()
-    expect(typeof db.run).toBe('function')
+    expectTypeOf(db.run).toBeFunction()
   })
 
   test('getDb should throw if database is not initialized', () => {
@@ -64,7 +64,7 @@ describe('Database', () => {
       // Should be able to initialize again
       const db = await initializeDb(':memory:')
       expect(db).toBeDefined()
-      expect(typeof db.run).toBe('function')
+      expectTypeOf(db.run).toBeFunction()
     })
   })
 })
