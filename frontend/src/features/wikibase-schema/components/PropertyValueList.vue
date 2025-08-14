@@ -7,7 +7,6 @@ interface Props<T> {
   pluralLabel: string
   addButtonLabel: string
   addButtonTestId?: string
-  emptyMessage: string
   headerIcon?: string
   emptyIcon?: string
   getItemKey?: (item: T, index: number) => string

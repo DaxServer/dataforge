@@ -151,12 +151,13 @@ const handleCancelNewStatement = () => {
         <ClaimEditor
           :statement="statement"
           :statement-index="(index || 0) + 1"
+          :disabled="!statement.property"
         />
 
         <!-- Add New Statement Button -->
         <div v-if="!isNewStatement">
           <Button
-            label="Add New Statement"
+            label="Add New Claim"
             icon="pi pi-plus"
             severity="secondary"
             outlined

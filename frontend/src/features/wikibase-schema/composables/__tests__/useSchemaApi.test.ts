@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach, mock } from 'bun:test'
+import { describe, it, expect, beforeEach, afterEach, mock, expectTypeOf } from 'bun:test'
 import { createTestingPinia } from '@pinia/testing'
 import { setActivePinia } from 'pinia'
 import { useSchemaApi } from '@frontend/features/wikibase-schema/composables/useSchemaApi'
@@ -548,6 +548,261 @@ describe('useSchemaApi', () => {
       expect(mockShowError).toHaveBeenCalled()
       expect(store.setLoading).toHaveBeenCalledWith(true)
       expect(store.setLoading).toHaveBeenLastCalledWith(false)
+    })
+  })
+
+  describe('saveSchema (persistence functionality)', () => {
+    it('should create a new schema when schemaId is null', async () => {
+      const store = useSchemaStore()
+
+      // Set up store state for new schema
+      store.projectId = TEST_PROJECT_ID
+      store.schemaId = null
+      store.schemaName = 'New Schema'
+      store.wikibase = 'https://www.wikidata.org'
+      store.labels = { en: { columnName: 'title', dataType: 'VARCHAR' } }
+      store.descriptions = {}
+      store.aliases = {}
+      store.statements = []
+      store.isDirty = true
+
+      mockSchemaPost.mockResolvedValueOnce({
+        data: { data: mockCreatedSchema },
+        error: null,
+      })
+
+      const { saveSchema } = useSchemaApi()
+      const result = await saveSchema()
+
+      expect(mockSchemaPost).toHaveBeenCalledWith({
+        projectId: TEST_PROJECT_ID,
+        name: 'New Schema',
+        wikibase: 'https://www.wikidata.org',
+        schema: {
+          terms: {
+            labels: { en: { columnName: 'title', dataType: 'VARCHAR' } },
+            descriptions: {},
+            aliases: {},
+          },
+          statements: [],
+        },
+      })
+      expect(store.markAsSaved).toHaveBeenCalled()
+      expect(result.success).toBe(true)
+      expect(result.data).toBe(mockCreatedSchema)
+    })
+
+    it('should update existing schema when schemaId exists', async () => {
+      const store = useSchemaStore()
+
+      // Set up store state for existing schema
+      store.projectId = TEST_PROJECT_ID
+      store.schemaId = TEST_SCHEMA_ID
+      store.schemaName = 'Updated Schema'
+      store.wikibase = 'https://www.wikidata.org'
+      store.labels = { en: { columnName: 'title', dataType: 'VARCHAR' } }
+      store.descriptions = {}
+      store.aliases = {}
+      store.statements = []
+      store.isDirty = true
+
+      mockSchemaIdPut.mockResolvedValueOnce({
+        data: { data: mockUpdatedSchema },
+        error: null,
+      })
+
+      const { saveSchema } = useSchemaApi()
+      await saveSchema()
+
+      expect(mockSchemaIdPut).toHaveBeenCalledWith({
+        name: 'Updated Schema',
+        wikibase: 'https://www.wikidata.org',
+        schema: {
+          terms: {
+            labels: { en: { columnName: 'title', dataType: 'VARCHAR' } },
+            descriptions: {},
+            aliases: {},
+          },
+          statements: [],
+        },
+      })
+      expect(store.markAsSaved).toHaveBeenCalled()
+    })
+
+    it('should return error when projectId is missing', async () => {
+      const store = useSchemaStore()
+
+      // Set up store state without projectId
+      store.projectId = null
+      store.isDirty = true
+
+      const { saveSchema } = useSchemaApi()
+      const result = await saveSchema()
+
+      expect(result.success).toBe(false)
+      if (!result.success) {
+        expect(result.error).toBe('Cannot save schema - missing project ID')
+      }
+      expect(mockSchemaPost).not.toHaveBeenCalled()
+      expect(mockSchemaIdPut).not.toHaveBeenCalled()
+    })
+
+    it('should handle errors during schema creation', async () => {
+      const store = useSchemaStore()
+
+      // Set up store state for new schema with content to make canSave true
+      store.projectId = TEST_PROJECT_ID
+      store.schemaId = null
+      store.schemaName = 'New Schema'
+      store.wikibase = 'https://www.wikidata.org'
+      store.labels = { en: { columnName: 'title', dataType: 'VARCHAR' } } // Add content
+      store.descriptions = {}
+      store.aliases = {}
+      store.statements = []
+      store.isDirty = true
+
+      const testError = new Error('Creation failed')
+      mockSchemaPost.mockRejectedValueOnce(testError)
+
+      const { saveSchema, saveStatus, saveError } = useSchemaApi()
+      const result = await saveSchema()
+
+      expect(result.success).toBe(false)
+      expect(result.error).toBe(testError)
+      expect(saveStatus.value).toBe('error')
+      expect(saveError.value).toBe(testError)
+      expect(store.markAsSaved).not.toHaveBeenCalled()
+    })
+
+    it('should handle errors during schema update', async () => {
+      const store = useSchemaStore()
+
+      // Set up store state for existing schema with content to make canSave true
+      store.projectId = TEST_PROJECT_ID
+      store.schemaId = TEST_SCHEMA_ID
+      store.schemaName = 'Updated Schema'
+      store.wikibase = 'https://www.wikidata.org'
+      store.labels = { en: { columnName: 'title', dataType: 'VARCHAR' } } // Add content
+      store.descriptions = {}
+      store.aliases = {}
+      store.statements = []
+      store.isDirty = true
+
+      const testError = new Error('Update failed')
+      mockSchemaIdPut.mockRejectedValueOnce(testError)
+
+      const { saveSchema, saveStatus, saveError } = useSchemaApi()
+      const result = await saveSchema()
+
+      expect(result.success).toBe(false)
+      expect(result.error).toBe(testError)
+      expect(saveStatus.value).toBe('error')
+      expect(saveError.value).toBe(testError)
+      expect(store.markAsSaved).not.toHaveBeenCalled()
+    })
+
+    it('should manage saving state correctly', async () => {
+      const store = useSchemaStore()
+
+      // Set up store state with content to make canSave true
+      store.projectId = TEST_PROJECT_ID
+      store.schemaId = null
+      store.schemaName = 'New Schema'
+      store.wikibase = 'https://www.wikidata.org'
+      store.labels = { en: { columnName: 'title', dataType: 'VARCHAR' } } // Add content
+      store.descriptions = {}
+      store.aliases = {}
+      store.statements = []
+      store.isDirty = true
+
+      mockSchemaPost.mockResolvedValueOnce({
+        data: { data: mockCreatedSchema },
+        error: null,
+      })
+
+      const { saveSchema, isSaving, saveStatus } = useSchemaApi()
+
+      // Check initial state
+      expect(isSaving.value).toBe(false)
+      expect(saveStatus.value).toBe('idle')
+
+      await saveSchema()
+
+      // Check final state
+      expect(isSaving.value).toBe(false)
+      expect(saveStatus.value).toBe('success')
+    })
+
+    it('should respect canSave computed property', async () => {
+      const store = useSchemaStore()
+
+      // Set up store state where canSave would be false
+      store.projectId = TEST_PROJECT_ID
+      store.isDirty = false // This makes canSave false
+
+      const { saveSchema, canSave } = useSchemaApi()
+
+      expect(canSave.value).toBe(false)
+
+      const result = await saveSchema()
+
+      expect(result.success).toBe(false)
+      expect(result.error).toBe('Cannot save schema - missing project ID')
+      expect(mockSchemaPost).not.toHaveBeenCalled()
+      expect(mockSchemaIdPut).not.toHaveBeenCalled()
+    })
+
+    it('should handle string errors correctly', async () => {
+      const store = useSchemaStore()
+
+      // Set up store state with content to make canSave true
+      store.projectId = TEST_PROJECT_ID
+      store.schemaId = null
+      store.schemaName = 'New Schema'
+      store.wikibase = 'https://www.wikidata.org'
+      store.labels = { en: { columnName: 'title', dataType: 'VARCHAR' } } // Add content
+      store.descriptions = {}
+      store.aliases = {}
+      store.statements = []
+      store.isDirty = true
+
+      const stringError = 'String error message'
+      mockSchemaPost.mockRejectedValueOnce(stringError)
+
+      const { saveSchema, saveError } = useSchemaApi()
+      const result = await saveSchema()
+
+      expect(result.success).toBe(false)
+      expect(result.error).toBe(stringError)
+      expect(saveError.value).toBe(stringError)
+    })
+  })
+
+  describe('persistence state management', () => {
+    it('should provide readonly state references', () => {
+      const { isSaving, saveStatus, saveError } = useSchemaApi()
+
+      // These should be readonly refs
+      expectTypeOf(isSaving.value).toBeBoolean()
+      expectTypeOf(saveStatus.value).toBeString()
+      expect(saveError.value).toBeNull()
+    })
+
+    it('should compute canSave based on store state and saving status', () => {
+      const store = useSchemaStore()
+      const { canSave } = useSchemaApi()
+
+      // Set up store state to make canSave true
+      store.projectId = TEST_PROJECT_ID
+      store.labels = { en: { columnName: 'title', dataType: 'VARCHAR' } } // Add content
+      store.isDirty = true
+      store.isLoading = false
+
+      expect(canSave.value).toBe(true)
+
+      // When store is loading, canSave should be false
+      store.isLoading = true
+      expect(canSave.value).toBe(false)
     })
   })
 })

@@ -10,21 +10,6 @@ const handleAddStatement = () => {
   isAddingStatement.value = true
   schemaStore.addNewStatement()
 }
-
-const handleSaveNewStatement = (statement: Omit<StatementSchemaMapping, 'id'>) => {
-  schemaStore.addStatement(
-    statement.property,
-    statement.value,
-    statement.rank,
-    statement.qualifiers,
-    statement.references,
-  )
-  isAddingStatement.value = false
-}
-
-const handleCancelNewStatement = () => {
-  isAddingStatement.value = false
-}
 </script>
 
 <template>
