@@ -183,12 +183,9 @@ declare global {
   const useDevicesList: typeof import('@vueuse/core')['useDevicesList']
   const useDisplayMedia: typeof import('@vueuse/core')['useDisplayMedia']
   const useDocumentVisibility: typeof import('@vueuse/core')['useDocumentVisibility']
-  const useDragDropContext: typeof import('./src/shared/composables/useDragDropContext')['useDragDropContext']
-  const useDragDropHandlers: typeof import('./src/shared/composables/useDragDropHandlers')['useDragDropHandlers']
   const useDragDropStore: typeof import('./src/features/data-processing/stores/drag-drop.store')['useDragDropStore']
   const useDraggable: typeof import('@vueuse/core')['useDraggable']
   const useDropZone: typeof import('@vueuse/core')['useDropZone']
-  const useDropZoneStyling: typeof import('./src/shared/composables/useDropZoneStyling')['useDropZoneStyling']
   const useElementBounding: typeof import('@vueuse/core')['useElementBounding']
   const useElementByPoint: typeof import('@vueuse/core')['useElementByPoint']
   const useElementHover: typeof import('@vueuse/core')['useElementHover']
@@ -288,7 +285,6 @@ declare global {
   const useSpeechSynthesis: typeof import('@vueuse/core')['useSpeechSynthesis']
   const useStatementConfig: typeof import('./src/features/wikibase-schema/composables/useStatementConfig')['useStatementConfig']
   const useStatementDataTypeValidation: typeof import('./src/features/wikibase-schema/composables/useStatementDataTypeValidation')['useStatementDataTypeValidation']
-  const useStatementDropZone: typeof import('./src/features/wikibase-schema/composables/useStatementDropZone')['useStatementDropZone']
   const useStatementEditor: typeof import('./src/features/wikibase-schema/composables/useStatementEditor')['useStatementEditor']
   const useStatementValidationDisplay: typeof import('./src/features/wikibase-schema/composables/useStatementValidationDisplay')['useStatementValidationDisplay']
   const useStepper: typeof import('@vueuse/core')['useStepper']
@@ -581,12 +577,9 @@ declare module 'vue' {
     readonly useDevicesList: UnwrapRef<typeof import('@vueuse/core')['useDevicesList']>
     readonly useDisplayMedia: UnwrapRef<typeof import('@vueuse/core')['useDisplayMedia']>
     readonly useDocumentVisibility: UnwrapRef<typeof import('@vueuse/core')['useDocumentVisibility']>
-    readonly useDragDropContext: UnwrapRef<typeof import('./src/shared/composables/useDragDropContext')['useDragDropContext']>
-    readonly useDragDropHandlers: UnwrapRef<typeof import('./src/shared/composables/useDragDropHandlers')['useDragDropHandlers']>
     readonly useDragDropStore: UnwrapRef<typeof import('./src/features/data-processing/stores/drag-drop.store')['useDragDropStore']>
     readonly useDraggable: UnwrapRef<typeof import('@vueuse/core')['useDraggable']>
     readonly useDropZone: UnwrapRef<typeof import('@vueuse/core')['useDropZone']>
-    readonly useDropZoneStyling: UnwrapRef<typeof import('./src/shared/composables/useDropZoneStyling')['useDropZoneStyling']>
     readonly useElementBounding: UnwrapRef<typeof import('@vueuse/core')['useElementBounding']>
     readonly useElementByPoint: UnwrapRef<typeof import('@vueuse/core')['useElementByPoint']>
     readonly useElementHover: UnwrapRef<typeof import('@vueuse/core')['useElementHover']>
@@ -686,7 +679,6 @@ declare module 'vue' {
     readonly useSpeechSynthesis: UnwrapRef<typeof import('@vueuse/core')['useSpeechSynthesis']>
     readonly useStatementConfig: UnwrapRef<typeof import('./src/features/wikibase-schema/composables/useStatementConfig')['useStatementConfig']>
     readonly useStatementDataTypeValidation: UnwrapRef<typeof import('./src/features/wikibase-schema/composables/useStatementDataTypeValidation')['useStatementDataTypeValidation']>
-    readonly useStatementDropZone: UnwrapRef<typeof import('./src/features/wikibase-schema/composables/useStatementDropZone')['useStatementDropZone']>
     readonly useStatementEditor: UnwrapRef<typeof import('./src/features/wikibase-schema/composables/useStatementEditor')['useStatementEditor']>
     readonly useStatementValidationDisplay: UnwrapRef<typeof import('./src/features/wikibase-schema/composables/useStatementValidationDisplay')['useStatementValidationDisplay']>
     readonly useStepper: UnwrapRef<typeof import('@vueuse/core')['useStepper']>

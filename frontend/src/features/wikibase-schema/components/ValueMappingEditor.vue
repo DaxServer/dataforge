@@ -9,7 +9,6 @@ interface ValueMappingEditorProps {
 
 const props = withDefaults(defineProps<ValueMappingEditorProps>(), {
   valueMapping: null,
-  propertyDataType: undefined,
   disabled: false,
   showLabels: true,
 })
@@ -21,14 +20,6 @@ const emit = defineEmits<{
 
 // Composables
 const { valueTypes, getCompatibleWikibaseTypes } = useValueMapping()
-const {
-  dropZoneClasses,
-  handleDragOver,
-  handleDragEnter,
-  handleDragLeave,
-  handleDrop,
-  setOnColumnDrop,
-} = useStatementDropZone()
 
 // Computed properties
 const isColumnType = computed(() => props.valueMapping?.type === 'column')
@@ -101,10 +92,30 @@ const clearColumnSelection = () => {
   emit('value-changed', c)
 }
 
-// Set up column drop callback
-setOnColumnDrop((columnInfo: ColumnInfo) => {
+// Handle column drop from DropZone
+const handleColumnDrop = (columnInfo: ColumnInfo) => {
   if (props.disabled || props.valueMapping?.type !== 'column') return
   handleColumnSelection(columnInfo)
+}
+
+// Get accepted types for the drop zone based on property data type
+const acceptedTypes = computed((): WikibaseDataType[] => {
+  // For specific property data types, we can be more restrictive
+  // but for now, accept all types and let the validation handle compatibility
+  return props.propertyDataType
+    ? [props.propertyDataType]
+    : [
+        'string',
+        'url',
+        'external-id',
+        'wikibase-item',
+        'wikibase-property',
+        'commonsMedia',
+        'globe-coordinate',
+        'quantity',
+        'time',
+        'monolingualtext',
+      ]
 })
 </script>
 
@@ -150,50 +161,28 @@ setOnColumnDrop((columnInfo: ColumnInfo) => {
       </label>
 
       <!-- Column Drop Zone -->
-      <div
-        v-if="isColumnType"
-        :class="dropZoneClasses"
-        class="border-2 border-dashed rounded-lg p-4 text-center transition-all duration-200 ease-in-out"
-        @dragover="disabled ? undefined : handleDragOver"
-        @dragenter="disabled ? undefined : handleDragEnter"
-        @dragleave="disabled ? undefined : handleDragLeave"
-        @drop="disabled ? undefined : handleDrop"
-      >
-        <!-- Show dropped column info if column is selected -->
-        <div
-          v-if="valueMapping && valueMapping.type === 'column' && valueMapping.source.columnName"
-          class="flex items-center justify-center gap-3"
-        >
-          <div class="flex items-center gap-2 bg-white border border-surface-200 rounded px-3 py-2">
-            <i class="pi pi-database text-primary-600" />
-            <span class="font-medium text-surface-900">
-              {{ valueMapping?.source.columnName }}
-            </span>
-            <Tag
-              :value="valueMapping?.source.dataType"
-              size="small"
-              severity="secondary"
-            />
-          </div>
-          <Button
-            v-tooltip="'Clear column selection'"
-            icon="pi pi-times"
-            size="small"
-            severity="secondary"
-            text
-            :disabled="disabled"
-            @click="clearColumnSelection"
-          />
-        </div>
-
-        <!-- Show drop zone message if no column selected -->
-        <div
-          v-else
-          class="flex items-center justify-center gap-2 text-surface-600"
-        >
-          <i class="pi pi-upload" />
-          <span class="text-sm font-medium">Drop column here</span>
-        </div>
+      <div v-if="isColumnType">
+        <DropZone
+          icon="pi pi-upload"
+          :placeholder="
+            valueMapping && valueMapping.type === 'column' && valueMapping.source.columnName
+              ? 'Drop column to replace'
+              : 'Drop column here'
+          "
+          test-id="value-mapping-drop-zone"
+          :accepted-types="acceptedTypes"
+          :disabled="disabled"
+          :selected-column="
+            valueMapping && valueMapping.type === 'column' && valueMapping.source.columnName
+              ? {
+                  name: valueMapping.source.columnName,
+                  dataType: valueMapping.source.dataType,
+                }
+              : undefined
+          "
+          @column-dropped="handleColumnDrop"
+          @clear-selection="clearColumnSelection"
+        />
       </div>
 
       <!-- Constant/Expression Input -->
