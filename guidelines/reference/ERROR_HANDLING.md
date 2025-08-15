@@ -3,11 +3,13 @@
 > **Detailed implementation guide for centralized error handling**
 
 ## Related Guidelines
+
 - **[Backend Guidelines](../core/BACKEND.md)** - Core backend development standards
 - **[General Guidelines](../core/GENERAL.md)** - Project-wide error handling philosophy
 - **[Testing Reference](./TESTING.md)** - Error handling test patterns
 
 ## Quick Links
+
 - [Error Handler Class](#error-handler-class)
 - [Error Response Format](#error-response-format)
 - [Available Error Types](#available-error-types)
@@ -49,17 +51,19 @@ All error responses follow this standardized format:
 ## Available Error Types
 
 ### Validation Errors
+
 ```typescript
 // Basic validation error
 ApiErrorHandler.validationError('Invalid input format')
 
 // Validation error with details
 ApiErrorHandler.validationError('Validation failed', [
-  { field: 'email', message: 'Invalid email format' }
+  { field: 'email', message: 'Invalid email format' },
 ])
 ```
 
 ### Not Found Errors
+
 ```typescript
 // Basic not found
 ApiErrorHandler.notFoundError('Project')
@@ -69,6 +73,7 @@ ApiErrorHandler.notFoundError('Project', 'project-123')
 ```
 
 ### Database Errors
+
 ```typescript
 // Basic database error
 ApiErrorHandler.databaseError('Connection failed')
@@ -78,6 +83,7 @@ ApiErrorHandler.databaseError('Query failed', [{ query: 'SELECT * FROM projects'
 ```
 
 ### File Errors
+
 ```typescript
 // Specific file error types
 ApiErrorHandler.fileError('MISSING_FILE', 'File is required')
@@ -91,6 +97,7 @@ ApiErrorHandler.missingFilePathError('File path is required')
 ```
 
 ### Project Errors
+
 ```typescript
 // Project creation errors
 ApiErrorHandler.projectCreationError('Failed to create project')
@@ -98,6 +105,7 @@ ApiErrorHandler.projectCreationError('Invalid project data', [details])
 ```
 
 ### Data Import Errors
+
 ```typescript
 // Data import errors
 ApiErrorHandler.dataImportError('Failed to import CSV')
@@ -105,6 +113,7 @@ ApiErrorHandler.dataImportError('Invalid data format', [rowErrors])
 ```
 
 ### Server Errors
+
 ```typescript
 // Internal server errors
 ApiErrorHandler.internalServerError('Unexpected error occurred')
@@ -112,12 +121,14 @@ ApiErrorHandler.internalServerError('Service unavailable', [serviceDetails])
 ```
 
 ### Table Errors
+
 ```typescript
 // Table already exists
 ApiErrorHandler.tableExistsError('users')
 ```
 
 ### JSON Errors
+
 ```typescript
 // Invalid JSON format
 ApiErrorHandler.invalidJsonError('Malformed JSON')
@@ -127,55 +138,49 @@ ApiErrorHandler.invalidJsonError('Invalid JSON structure', [parseErrors])
 ## Usage in Routes
 
 ### Basic Usage
+
 ```typescript
 import { ApiErrorHandler } from '@backend/types/error-handler'
 
 app.get('/projects/:id', async ({ params }) => {
   const project = await findProject(params.id)
-  
+
   if (!project) {
     return ApiErrorHandler.notFoundError('Project', params.id)
   }
-  
+
   return { data: project }
 })
 ```
 
 ### With Validation
+
 ```typescript
 app.post('/projects', async ({ body }) => {
   const validation = validateProjectData(body)
-  
+
   if (!validation.valid) {
-    return ApiErrorHandler.validationError(
-      'Invalid project data',
-      validation.errors
-    )
+    return ApiErrorHandler.validationError('Invalid project data', validation.errors)
   }
-  
+
   try {
     const project = await createProject(body)
     return { data: project }
   } catch (error) {
-    return ApiErrorHandler.projectCreationError(
-      'Failed to create project',
-      [error.message]
-    )
+    return ApiErrorHandler.projectCreationError('Failed to create project', [error.message])
   }
 })
 ```
 
 ### Database Operations
+
 ```typescript
 app.get('/projects', async () => {
   try {
     const projects = await db.selectFrom('projects').selectAll().execute()
     return { data: projects }
   } catch (error) {
-    return ApiErrorHandler.databaseError(
-      'Failed to fetch projects',
-      [error.message]
-    )
+    return ApiErrorHandler.databaseError('Failed to fetch projects', [error.message])
   }
 })
 ```
@@ -214,7 +219,7 @@ import { ApiErrorHandler } from '@backend/types/error-handler'
 
 test('should create validation error', () => {
   const error = ApiErrorHandler.validationError('Test error')
-  
+
   expect(error.data).toEqual([])
   expect(error.errors).toHaveLength(1)
   expect(error.errors[0].code).toBe('VALIDATION')

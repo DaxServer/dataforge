@@ -78,6 +78,22 @@ export type StatementSchema = Partial<StatementSchemaMapping> & {
   id: UUID
 }
 
+export type StatementSchema1 = {
+  id: UUID
+  property: PropertyReference
+  value: ValueMapping
+  rank: StatementRank
+  qualifiers: {
+    id: UUID
+  }[]
+  references: {
+    id: UUID
+    snaks: {
+      id: UUID
+    }[]
+  }[]
+}
+
 // Column information interface
 export interface ColumnInfo {
   name: string

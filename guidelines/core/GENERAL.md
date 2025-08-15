@@ -3,6 +3,7 @@
 > **Applies to**: Both Frontend and Backend development
 
 ## Related Guidelines
+
 - **[Frontend Guidelines](./FRONTEND.md)** - Vue 3, Tailwind, Pinia specifics
 - **[Backend Guidelines](./BACKEND.md)** - Elysia, DuckDB, API design
 - **[Error Handling Reference](../reference/ERROR_HANDLING.md)** - Detailed error patterns
@@ -10,6 +11,7 @@
 - **[Conflicts & Decisions](../conflicts/CONFLICTS_TO_RESOLVE.md)** - Outstanding team decisions
 
 ## Table of Contents
+
 - [Project Overview](#project-overview)
 - [Development Workflow](#development-workflow)
 - [Code Style Standards](#code-style-standards)
@@ -23,6 +25,7 @@
 This project re-implements OpenRefine using modern web technologies:
 
 ### Tech Stack
+
 - **Runtime**: Bun (package manager, runtime, test runner)
 - **Backend**: Elysia + Elysia Eden + TypeScript
 - **Frontend**: Vue 3 Composition API + PrimeVue + Pinia + Vite + TypeScript
@@ -31,6 +34,7 @@ This project re-implements OpenRefine using modern web technologies:
 - **Testing**: Bun test framework
 
 ### Core Principles
+
 - **Type Safety**: Leverage Elysia Eden for end-to-end type inference
 - **No Runtime Errors**: Use TypeScript and proper error handling patterns
 - **Developer Experience**: Auto-imports, hot reload, comprehensive tooling
@@ -39,11 +43,13 @@ This project re-implements OpenRefine using modern web technologies:
 ## Development Workflow
 
 ### Package Management
+
 - **MANDATORY**: Use `bun` for all package management and script execution
 - **FORBIDDEN**: npm, yarn, pnpm, or any other package managers
 - **FORBIDDEN**: Node.js runtime - use Bun exclusively
 
 ### Script Execution
+
 ```bash
 # Always run scripts from package.json
 bun dev         # Start development servers
@@ -56,18 +62,20 @@ bun format      # Run Prettier
 ## Code Style Standards
 
 ### ESLint and Prettier
+
 - **MANDATORY**: Use ESLint and Prettier for code formatting
 - **MANDATORY**: Follow the project's ESLint configuration
 - **MANDATORY**: Format code before committing
 
 ### Code Formatting Rules
+
 ```typescript
 // Use 2 spaces for indentation
 const example = {
   property: 'value',
   nested: {
-    item: 'data'
-  }
+    item: 'data',
+  },
 }
 
 // Use single quotes for strings
@@ -84,6 +92,7 @@ const array = [
 ## TypeScript Guidelines
 
 ### Variable Declarations
+
 ```typescript
 // Use 'const' for variables that are not reassigned
 const apiUrl = 'http://localhost:3000'
@@ -95,6 +104,7 @@ let currentUser = null
 ```
 
 ### Function Declarations
+
 ```typescript
 // MANDATORY: Always use arrow functions
 const processData = (data: string) => {
@@ -106,6 +116,7 @@ const processData = (data: string) => {
 ```
 
 ### Async Operations
+
 ```typescript
 // MANDATORY: Use async/await for asynchronous operations
 const fetchUserData = async (userId: string) => {
@@ -118,6 +129,7 @@ const fetchUserData = async (userId: string) => {
 ```
 
 ### Loops and Iteration
+
 ```typescript
 // Use for...of for arrays
 for (const item of items) {
@@ -131,6 +143,7 @@ for (const key in object) {
 ```
 
 ### Error Handling
+
 ```typescript
 // FORBIDDEN: Nested try...catch blocks
 // try {
@@ -150,6 +163,7 @@ try {
 ```
 
 ### Type Definitions
+
 ```typescript
 // Prefer 'type' over 'interface' for union/intersection types
 type Status = 'pending' | 'completed' | 'failed'
@@ -166,6 +180,7 @@ interface ApiResponse<T> {
 ## Documentation Standards
 
 ### Code Documentation
+
 ```typescript
 /**
  * Processes user data and returns formatted result
@@ -176,13 +191,14 @@ interface ApiResponse<T> {
  */
 const processUserData = async (
   userData: RawUserData,
-  options: ProcessingOptions
+  options: ProcessingOptions,
 ): Promise<FormattedUserData> => {
   // Implementation
 }
 ```
 
 ### File Headers
+
 ```typescript
 /**
  * @fileoverview User management utilities
@@ -192,6 +208,7 @@ const processUserData = async (
 ```
 
 ### README Standards
+
 - Include clear setup instructions
 - Document all available scripts
 - Provide examples for common use cases
@@ -200,6 +217,7 @@ const processUserData = async (
 ## Testing Philosophy
 
 ### General Testing Rules
+
 ```typescript
 // MANDATORY: Use Bun test framework
 import { test, expect } from 'bun:test'
@@ -214,6 +232,7 @@ test('should process data correctly', async () => {
 ```
 
 ### Test Organization
+
 - Co-locate tests with source code in `__tests__` directories
 - Use descriptive test names that explain the expected behavior
 - Group related tests using `describe` blocks
@@ -222,6 +241,7 @@ test('should process data correctly', async () => {
 ## Project Structure
 
 ### Path Aliases
+
 ```typescript
 // MANDATORY: Use path aliases for imports
 import { db } from '@backend/database'
@@ -233,6 +253,7 @@ import { useApi } from '@frontend/composables'
 ```
 
 ### Directory Organization
+
 ```
 project-root/
 ├── backend/           # Backend application
@@ -251,6 +272,7 @@ project-root/
 ```
 
 ### File Naming Conventions
+
 - Use kebab-case for file names: `user-profile.vue`, `api-client.ts`
 - Use PascalCase for component files: `UserProfile.vue`, `DataTable.vue`
 - Use camelCase for utility files: `dateUtils.ts`, `apiHelpers.ts`
@@ -258,6 +280,7 @@ project-root/
 ---
 
 **Related Guidelines:**
+
 - [Frontend Guidelines](./FRONTEND.md) - Vue 3, Pinia, Tailwind CSS
 - [Backend Guidelines](./BACKEND.md) - Elysia, Database, API design
 - [Conflicts to Resolve](./CONFLICTS_TO_RESOLVE.md) - Outstanding decisions needed

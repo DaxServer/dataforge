@@ -5,10 +5,11 @@ This document lists the main REST API endpoints provided by OpenRefine 3.9.3, wh
 ## Project Management
 
 **Source Files:**
+
 - `main/src/com/google/refine/commands/project/*.java`
 
 | Done | Endpoint                             | Method | Description                         |
-|------|--------------------------------------|--------|-------------------------------------|
+| ---- | ------------------------------------ | ------ | ----------------------------------- |
 | [x]  | `/command/core/create-project`       | `POST` | Create a new project                |
 | [x]  | `/command/core/delete-project`       | `POST` | Delete a project                    |
 | [ ]  | `/command/core/export-project`       | `GET`  | Export a project                    |
@@ -23,10 +24,11 @@ This document lists the main REST API endpoints provided by OpenRefine 3.9.3, wh
 ## Row Operations
 
 **Source Files:**
+
 - `main/src/com/google/refine/commands/row/*.java`
 
 | Done | Endpoint                              | Method | Description                |
-|------|---------------------------------------|--------|----------------------------|
+| ---- | ------------------------------------- | ------ | -------------------------- |
 | [ ]  | `/command/core/add-rows`              | `POST` | Add rows to a project      |
 | [ ]  | `/command/core/annotate-one-row`      | `POST` | Annotate a specific row    |
 | [ ]  | `/command/core/annotate-rows`         | `POST` | Annotate multiple rows     |
@@ -38,10 +40,11 @@ This document lists the main REST API endpoints provided by OpenRefine 3.9.3, wh
 ## Column Operations
 
 **Source Files:**
+
 - `main/src/com/google/refine/commands/column/*.java`
 
 | Done | Endpoint                                    | Method | Description                          |
-|------|---------------------------------------------|--------|--------------------------------------|
+| ---- | ------------------------------------------- | ------ | ------------------------------------ |
 | [ ]  | `/command/core/add-column-by-fetching-urls` | `POST` | Add a column by fetching URLs        |
 | [ ]  | `/command/core/add-column`                  | `POST` | Add a new column                     |
 | [ ]  | `/command/core/get-columns-info`            | `GET`  | Get information about columns        |
@@ -54,10 +57,11 @@ This document lists the main REST API endpoints provided by OpenRefine 3.9.3, wh
 ## History and Operations
 
 **Source Files:**
+
 - `main/src/com/google/refine/commands/history/*.java`
 
 | Done | Endpoint                         | Method | Description                   |
-|------|----------------------------------|--------|-------------------------------|
+| ---- | -------------------------------- | ------ | ----------------------------- |
 | [ ]  | `/command/core/apply-operations` | `POST` | Apply operations to a project |
 | [ ]  | `/command/core/cancel-processes` | `POST` | Cancel running processes      |
 | [ ]  | `/command/core/get-history`      | `GET`  | Get project history           |
@@ -68,10 +72,11 @@ This document lists the main REST API endpoints provided by OpenRefine 3.9.3, wh
 ## Reconciliation
 
 **Source Files:**
+
 - `main/src/com/google/refine/commands/recon/*.java`
 
 | Done | Endpoint                                        | Method | Description                                     |
-|------|-------------------------------------------------|--------|-------------------------------------------------|
+| ---- | ----------------------------------------------- | ------ | ----------------------------------------------- |
 | [ ]  | `/command/core/extend-data`                     | `POST` | Extend data with reconciliation                 |
 | [ ]  | `/command/core/guess-types-of-column`           | `POST` | Guess column types                              |
 | [ ]  | `/command/core/preview-extend-data`             | `POST` | Preview data extension                          |
@@ -90,10 +95,11 @@ This document lists the main REST API endpoints provided by OpenRefine 3.9.3, wh
 ## Importing
 
 **Source Files:**
+
 - `main/src/com/google/refine/commands/importing/*.java`
 
 | Done | Endpoint                                    | Method | Description                             |
-|------|---------------------------------------------|--------|-----------------------------------------|
+| ---- | ------------------------------------------- | ------ | --------------------------------------- |
 | [ ]  | `/command/core/cancel-importing-job`        | `POST` | Cancel an import job                    |
 | [ ]  | `/command/core/create-importing-job`        | `POST` | Create a new import job                 |
 | [ ]  | `/command/core/get-importing-configuration` | `GET`  | Get import configuration                |
@@ -103,12 +109,13 @@ This document lists the main REST API endpoints provided by OpenRefine 3.9.3, wh
 ## System and Preferences
 
 **Source Files:**
+
 - `main/src/com/google/refine/commands/Get*.java`
 - `main/src/com/google/refine/commands/SetPreferenceCommand.java`
 - `main/src/com/google/refine/commands/Open*.java`
 
 | Done | Endpoint                            | Method | Description               |
-|------|-------------------------------------|--------|---------------------------|
+| ---- | ----------------------------------- | ------ | ------------------------- |
 | [ ]  | `/command/core/get-all-preferences` | `GET`  | Get all preferences       |
 | [ ]  | `/command/core/get-preference`      | `GET`  | Get a specific preference |
 | [ ]  | `/command/core/set-preference`      | `POST` | Set a preference          |

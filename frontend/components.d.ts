@@ -22,7 +22,6 @@ declare module 'vue' {
     DataTable: typeof import('primevue/datatable')['default']
     DataTabPanel: typeof import('./src/features/data-processing/components/DataTabPanel.vue')['default']
     DefaultLayout: typeof import('./src/core/layouts/DefaultLayout.vue')['default']
-    FileUpload: typeof import('primevue/fileupload')['default']
     Header: typeof import('./src/shared/components/Header.vue')['default']
     InputText: typeof import('primevue/inputtext')['default']
     ItemEditor: typeof import('./src/features/wikibase-schema/components/ItemEditor.vue')['default']
@@ -50,7 +49,6 @@ declare module 'vue' {
     StatementConfigEditor: typeof import('./src/features/wikibase-schema/components/StatementConfigEditor.vue')['default']
     StatementEditor: typeof import('./src/features/wikibase-schema/components/StatementEditor.vue')['default']
     StatementManager: typeof import('./src/features/wikibase-schema/components/StatementManager.vue')['default']
-    StatementPreview: typeof import('./src/features/wikibase-schema/components/StatementPreview.vue')['default']
     Tab: typeof import('primevue/tab')['default']
     TabList: typeof import('primevue/tablist')['default']
     TabPanel: typeof import('primevue/tabpanel')['default']
@@ -62,6 +60,7 @@ declare module 'vue' {
     Toast: typeof import('primevue/toast')['default']
     ToggleSwitch: typeof import('primevue/toggleswitch')['default']
     ValidationDisplay: typeof import('./src/features/wikibase-schema/components/ValidationDisplay.vue')['default']
+    ValueMappingEditor: typeof import('./src/features/wikibase-schema/components/ValueMappingEditor.vue')['default']
     WikibaseSchemaEditor: typeof import('./src/features/wikibase-schema/components/WikibaseSchemaEditor.vue')['default']
   }
   export interface GlobalDirectives {

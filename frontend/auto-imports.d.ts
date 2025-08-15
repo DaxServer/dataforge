@@ -374,7 +374,7 @@ declare global {
   export type { ProjectColumn } from './src/features/data-processing/composables/useColumnGeneration'
   import('./src/features/data-processing/composables/useColumnGeneration')
   // @ts-ignore
-  export type { PropertyValueEditorState, PropertyValueEditorActions, PropertyValueEditorOptions } from './src/features/wikibase-schema/composables/usePropertyValueEditor'
+  export type { PropertyValueEditorState, PropertyValueEditorActions } from './src/features/wikibase-schema/composables/usePropertyValueEditor'
   import('./src/features/wikibase-schema/composables/usePropertyValueEditor')
   // @ts-ignore
   export type { SchemaRequest } from './src/features/wikibase-schema/composables/useSchemaApi'
@@ -395,7 +395,7 @@ declare global {
   export type { ProjectFile, FileSelectEvent, FileRemoveEvent, ApiClient } from './src/shared/types/index'
   import('./src/shared/types/index')
   // @ts-ignore
-  export type { ValidationErrorType, ValidationErrorCode, ValidationError, ValidationResult, ValidationContext, WikibaseSchemaMapping, TransformationFunction, TransformationParameter, StatementSchema, ColumnInfo } from './src/shared/types/wikibase-schema'
+  export type { ValidationErrorType, ValidationErrorCode, ValidationError, ValidationResult, ValidationContext, WikibaseSchemaMapping, TransformationFunction, TransformationParameter, StatementSchema, StatementSchema1, ColumnInfo } from './src/shared/types/wikibase-schema'
   import('./src/shared/types/wikibase-schema')
 }
 

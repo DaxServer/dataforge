@@ -11,7 +11,7 @@
   "private": true,
   "scripts": {
     "dev": "concurrently -k -n backend,frontend -c blue,green \"bun --cwd backend dev\" \"bun --cwd frontend dev\"",
-    "format": "prettier --write \"**/*.{ts,vue}\"",
+    "format": "prettier --cache --log-level warn --ignore-unknown --write .",
     "lint": "bun -F '*' lint",
     "lint:backend": "bun -F backend lint",
     "lint:frontend": "bun -F frontend lint",

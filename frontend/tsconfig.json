@@ -1,8 +1,5 @@
 {
-  "extends": [
-    "../tsconfig.base.json",
-    "@vue/tsconfig/tsconfig.dom.json"
-  ],
+  "extends": ["../tsconfig.base.json", "@vue/tsconfig/tsconfig.dom.json"],
   "include": [
     "auto-imports.d.ts",
     "components.d.ts",
@@ -11,21 +8,14 @@
     "src/**/*"
   ],
   "compilerOptions": {
-    "lib": [
-      "esnext",
-      "dom"
-    ],
+    "lib": ["esnext", "dom"],
     "jsx": "preserve",
     "jsxImportSource": "vue",
-    "types": [
-      "vite/client",
-      "bun",
-      "node"
-    ],
+    "types": ["vite/client", "bun", "node"],
     "baseUrl": ".",
     "paths": {
       "@backend/*": ["../backend/src/*"],
-      "@frontend/*": ["../frontend/src/*"],
+      "@frontend/*": ["../frontend/src/*"]
     }
   }
 }

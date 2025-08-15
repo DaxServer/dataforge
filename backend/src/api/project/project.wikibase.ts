@@ -73,6 +73,7 @@ export type ValueMapping = typeof ValueMapping.static
 
 // Property-value mapping for qualifiers and references
 const PropertyValueMap = t.Object({
+  id: UUIDPattern,
   property: PropertyReference,
   value: ValueMapping,
 })
@@ -96,14 +97,20 @@ const StatementRank = t.Union([
 
 export type StatementRank = typeof StatementRank.static
 
+const Qualifier = PropertyValueMap
+export type Qualifier = typeof Qualifier.static
+
+const Reference = ReferenceSchemaMapping
+export type Reference = typeof Reference.static
+
 // Statement schema mapping
 const StatementSchemaMapping = t.Object({
   id: UUIDPattern,
   property: PropertyReference,
   value: ValueMapping,
   rank: StatementRank,
-  qualifiers: t.Array(PropertyValueMap),
-  references: t.Array(ReferenceSchemaMapping),
+  qualifiers: t.Array(Qualifier),
+  references: t.Array(Reference),
 })
 
 export type StatementSchemaMapping = typeof StatementSchemaMapping.static

@@ -61,6 +61,7 @@ describe('useReferenceValueMapping', () => {
 
     const snaks: PropertyValueMap[] = [
       {
+        id: Bun.randomUUIDv7() as UUID,
         property: {
           id: 'P123',
           label: 'test property',
@@ -87,6 +88,7 @@ describe('useReferenceValueMapping', () => {
     const { validateReferenceSnakMapping } = useReferenceValueMapping()
 
     const validSnak: PropertyValueMap = {
+      id: Bun.randomUUIDv7() as UUID,
       property: {
         id: 'P123',
         label: 'test property',
@@ -114,6 +116,7 @@ describe('useReferenceValueMapping', () => {
       id: TEST_REFERENCE_ID,
       snaks: [
         {
+          id: Bun.randomUUIDv7() as UUID,
           property: {
             id: 'P123',
             label: 'test property',

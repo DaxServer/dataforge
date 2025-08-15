@@ -3,12 +3,14 @@
 > **Detailed implementation guide for type-safe API integration**
 
 ## Related Guidelines
+
 - **[Backend Guidelines](../core/BACKEND.md)** - Core backend development with Elysia
 - **[Frontend Guidelines](../core/FRONTEND.md)** - API consumption patterns
 - **[General Guidelines](../core/GENERAL.md)** - Project-wide type safety principles
 - **[Testing Reference](./TESTING.md)** - Testing type-safe APIs
 
 ## Quick Links
+
 - [Backend Setup](#backend-setup)
 - [Frontend Integration](#frontend-integration)
 - [Type Safety Patterns](#type-safety-patterns)
@@ -16,6 +18,7 @@
 - [Common Issues](#common-issues)
 
 ## Table of Contents
+
 - [Backend Setup](#backend-setup)
 - [Frontend Integration](#frontend-integration)
 - [Best Practices](#best-practices)
@@ -32,34 +35,35 @@ When setting up Elysia with Eden on the backend, follow these conventions:
    - Document response types
 
 ### Route Definitions
+
 Define routes with proper schemas for type inference:
 
 ```typescript
 // @backend/api/project/routes.ts
 import { t } from 'elysia'
 
-export const projectRoutes = new Elysia({ prefix: '/api/project' })
-  .get(
-    '/:id',
-    async ({ params: { id } }) => {
-      // Implementation
-    },
-    {
-      params: t.Object({
-        id: t.String()
-      }),
-      response: t.Object({
-        id: t.String(),
-        name: t.String(),
-        // ... other fields
-      })
-    }
-  )
+export const projectRoutes = new Elysia({ prefix: '/api/project' }).get(
+  '/:id',
+  async ({ params: { id } }) => {
+    // Implementation
+  },
+  {
+    params: t.Object({
+      id: t.String(),
+    }),
+    response: t.Object({
+      id: t.String(),
+      name: t.String(),
+      // ... other fields
+    }),
+  },
+)
 ```
 
 ## Frontend Integration
 
 ### Using API Client in Components
+
 ```vue
 <script setup lang="ts">
 // MANDATORY: Always use useApi() composable
@@ -82,9 +86,18 @@ onMounted(fetchProjects)
 
 <template>
   <div>
-    <div v-if="error" class="text-red-500">{{ error }}</div>
+    <div
+      v-if="error"
+      class="text-red-500"
+    >
+      {{ error }}
+    </div>
     <div v-else>
-      <div v-for="project in projects" :key="project.id" class="p-4 border-b">
+      <div
+        v-for="project in projects"
+        :key="project.id"
+        class="p-4 border-b"
+      >
         {{ project.name }}
       </div>
     </div>
@@ -95,6 +108,7 @@ onMounted(fetchProjects)
 ## Best Practices
 
 ### Type Safety
+
 - Always define input/output schemas in your backend routes
 - Use the generated `App` type in your frontend
 - Enable strict mode in TypeScript
@@ -122,7 +136,7 @@ const user = await api.users({ id: '123' }).get()
 
 const newUser = await api.users.post({
   name: 'John Doe',
-  email: 'john@example.com'
+  email: 'john@example.com',
 })
 // Request body is typed according to the backend schema
 
@@ -133,6 +147,7 @@ const newUser = await api.users.post({
 ### Error Handling
 
 **Frontend Context (Stores/Composables)**: Use reactive error state instead of throwing
+
 ```typescript
 // ✅ DO: Set error state in frontend stores
 const createProject = async (projectData: { name: string }) => {
@@ -162,6 +177,7 @@ const createProject = async (projectData: { name: string }) => {
 ```
 
 **Service/Utility Context**: Return error results instead of throwing
+
 ```typescript
 // ✅ DO: Return error results in utility functions
 const createProjectService = async (projectData: { name: string }) => {
@@ -178,6 +194,7 @@ const createProjectService = async (projectData: { name: string }) => {
 ```
 
 ### Query Parameters
+
 ```typescript
 // Backend
 .get(

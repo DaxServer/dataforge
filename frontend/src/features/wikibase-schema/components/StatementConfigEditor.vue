@@ -32,7 +32,7 @@ const handlePropertySelection = (property: PropertyReference | null) => {
         <div class="space-y-2">
           <label class="text-sm font-medium text-surface-700">Property</label>
           <PropertySelector
-            :model-value="currentStatement.property"
+            :property="currentStatement.property"
             placeholder="Search for a property..."
             @update="handlePropertySelection"
           />

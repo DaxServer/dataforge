@@ -703,6 +703,7 @@ describe('useSchemaStore', () => {
       }
       const mockQualifiers: PropertyValueMap[] = [
         {
+          id: Bun.randomUUIDv7() as UUID,
           property: { id: 'P456', label: 'Qualifier', dataType: 'string' },
           value: { type: 'constant', source: 'test value', dataType: 'string' },
         },
@@ -780,9 +781,10 @@ describe('useSchemaStore', () => {
       }
       const mockReferences: ReferenceSchemaMapping[] = [
         {
-          id: crypto.randomUUID(),
+          id: Bun.randomUUIDv7() as UUID,
           snaks: [
             {
+              id: Bun.randomUUIDv7() as UUID,
               property: { id: 'P248', label: 'stated in', dataType: 'wikibase-item' },
               value: { type: 'constant', source: 'Wikipedia', dataType: 'wikibase-item' },
             },
@@ -826,9 +828,10 @@ describe('useSchemaStore', () => {
       }
       const mockReferences: ReferenceSchemaMapping[] = [
         {
-          id: crypto.randomUUID(),
+          id: Bun.randomUUIDv7() as UUID,
           snaks: [
             {
+              id: Bun.randomUUIDv7() as UUID,
               property: { id: 'P854', label: 'reference URL', dataType: 'url' },
               value: { type: 'constant', source: 'https://example.com', dataType: 'url' },
             },
@@ -864,9 +867,10 @@ describe('useSchemaStore', () => {
       }
       const mockReferences: ReferenceSchemaMapping[] = [
         {
-          id: crypto.randomUUID(),
+          id: Bun.randomUUIDv7() as UUID,
           snaks: [
             {
+              id: Bun.randomUUIDv7() as UUID,
               property: { id: 'P854', label: 'reference URL', dataType: 'url' },
               value: { type: 'constant', source: 'https://example.com', dataType: 'url' },
             },

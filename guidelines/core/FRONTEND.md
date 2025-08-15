@@ -3,12 +3,14 @@
 > **Applies to**: Vue 3 Frontend Development
 
 ## Related Guidelines
+
 - **[General Guidelines](./GENERAL.md)** - Project-wide standards and setup
 - **[Backend Guidelines](./BACKEND.md)** - API contracts and integration
 - **[Elysia Eden Reference](../reference/ELYSIA_EDEN.md)** - Type-safe API integration
 - **[Style Guide Reference](../reference/STYLE_GUIDE.md)** - Detailed formatting rules
 
 ## Table of Contents
+
 - [Overview](#overview)
 - [Vue 3 Composition API](#vue-3-composition-api)
 - [Component Structure](#component-structure)
@@ -23,6 +25,7 @@
 ## Overview
 
 ### Frontend Tech Stack
+
 - **Framework**: Vue 3 with Composition API
 - **UI Library**: PrimeVue
 - **State Management**: Pinia
@@ -31,6 +34,7 @@
 - **Type Safety**: TypeScript + Elysia Eden
 
 ### Core Principles
+
 - **Type Safety**: All types come from Elysia Eden backend inference
 - **Reactive Programming**: Use reactive elements over computed properties
 - **Composable Architecture**: Prefer composables over methods
@@ -40,6 +44,7 @@
 ## Vue 3 Composition API
 
 ### Script Setup Pattern
+
 ```vue
 <script setup lang="ts">
 // MANDATORY: Always use <script setup> syntax
@@ -55,7 +60,7 @@ interface Props {
   isActive?: boolean
 }
 const props = withDefaults(defineProps<Props>(), {
-  isActive: true
+  isActive: true,
 })
 
 // 3. Emits (if any)
@@ -78,15 +83,19 @@ const { api } = useApi()
 
 // 7. Computed properties (use sparingly)
 const displayName = computed(() =>
-  userData.value ? `${userData.value.firstName} ${userData.value.lastName}` : ''
+  userData.value ? `${userData.value.firstName} ${userData.value.lastName}` : '',
 )
 
 // 8. Watchers (for side effects)
-watch(props.userId, async (newUserId) => {
-  if (newUserId) {
-    await loadUser(newUserId)
-  }
-}, { immediate: true })
+watch(
+  props.userId,
+  async (newUserId) => {
+    if (newUserId) {
+      await loadUser(newUserId)
+    }
+  },
+  { immediate: true },
+)
 
 // 9. Methods
 const loadUser = async (id: string) => {
@@ -112,6 +121,7 @@ onMounted(() => {
 ```
 
 ### Reactive State Guidelines
+
 ```typescript
 // MANDATORY: Use reactive elements for state management
 const count = ref(0)
@@ -122,7 +132,7 @@ const items = ref<Item[]>([])
 const state = reactive({
   isLoading: false,
   error: null,
-  data: []
+  data: [],
 })
 
 // AVOID: computed properties unless absolutely necessary
@@ -134,14 +144,19 @@ const expensiveCalculation = computed(() => {
 
 // PREFER: Simple reactive derivations
 const fullName = ref('')
-watch([firstName, lastName], ([first, last]) => {
-  fullName.value = `${first} ${last}`
-}, { immediate: true })
+watch(
+  [firstName, lastName],
+  ([first, last]) => {
+    fullName.value = `${first} ${last}`
+  },
+  { immediate: true },
+)
 ```
 
 ## Component Structure
 
 ### Single File Component Order
+
 ```vue
 <!-- REQUIRED: Vue Single File Components must follow this exact order -->
 
@@ -162,6 +177,7 @@ watch([firstName, lastName], ([first, last]) => {
 ```
 
 ### Component Design Patterns
+
 ```vue
 <script setup lang="ts">
 // Example: Data display component
@@ -173,7 +189,7 @@ interface Props {
 
 const props = withDefaults(defineProps<Props>(), {
   loading: false,
-  error: ''
+  error: '',
 })
 
 interface Emits {
@@ -195,12 +211,18 @@ const handleRefresh = () => {
 <template>
   <div class="data-table-container">
     <!-- Loading state -->
-    <div v-if="loading" class="flex justify-center p-4">
+    <div
+      v-if="loading"
+      class="flex justify-center p-4"
+    >
       <ProgressSpinner />
     </div>
 
     <!-- Error state -->
-    <div v-else-if="error" class="text-red-500 p-4">
+    <div
+      v-else-if="error"
+      class="text-red-500 p-4"
+    >
       {{ error }}
     </div>
 
@@ -220,13 +242,12 @@ const handleRefresh = () => {
 ## Styling with Tailwind CSS
 
 ### Styling Requirements
+
 ```vue
 <template>
   <!-- MANDATORY: Use Tailwind CSS for ALL styling -->
   <div class="flex items-center justify-between p-4 bg-white rounded-lg shadow-md">
-    <h2 class="text-xl font-semibold text-gray-800">
-      User Profile
-    </h2>
+    <h2 class="text-xl font-semibold text-gray-800">User Profile</h2>
     <button class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors">
       Edit
     </button>
@@ -241,6 +262,7 @@ const handleRefresh = () => {
 ```
 
 ### Responsive Design
+
 ```vue
 <template>
   <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -254,6 +276,7 @@ const handleRefresh = () => {
 ```
 
 ### Component Styling Patterns
+
 ```vue
 <template>
   <!-- Card component pattern -->
@@ -266,9 +289,7 @@ const handleRefresh = () => {
   <!-- Form input pattern -->
   <div class="space-y-4">
     <div class="flex flex-col">
-      <label class="text-sm font-medium text-gray-700 mb-1">
-        Email Address
-      </label>
+      <label class="text-sm font-medium text-gray-700 mb-1">Email Address</label>
       <input
         type="email"
         class="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -281,6 +302,7 @@ const handleRefresh = () => {
 ## State Management with Pinia
 
 ### Store Structure
+
 ```typescript
 // stores/user.ts
 export const useUserStore = defineStore('user', () => {
@@ -292,7 +314,7 @@ export const useUserStore = defineStore('user', () => {
 
   // Getters (computed)
   const userDisplayName = computed(() =>
-    currentUser.value ? `${currentUser.value.firstName} ${currentUser.value.lastName}` : ''
+    currentUser.value ? `${currentUser.value.firstName} ${currentUser.value.lastName}` : '',
   )
 
   // Actions
@@ -336,12 +358,13 @@ export const useUserStore = defineStore('user', () => {
     // Actions
     login,
     logout,
-    clearError
+    clearError,
   }
 })
 ```
 
 ### Store Usage in Components
+
 ```vue
 <script setup lang="ts">
 const userStore = useUserStore()
@@ -367,6 +390,7 @@ const handleLogin = async (credentials: LoginCredentials) => {
 ## Composables
 
 ### Composable Design Principles
+
 ```typescript
 // composables/useLocalStorage.ts
 export const useLocalStorage = <T>(key: string, defaultValue: T) => {
@@ -387,9 +411,13 @@ export const useLocalStorage = <T>(key: string, defaultValue: T) => {
   })
 
   // Watch for changes and update localStorage
-  watch(storedValue, (newValue) => {
-    localStorage.setItem(key, JSON.stringify(newValue))
-  }, { deep: true })
+  watch(
+    storedValue,
+    (newValue) => {
+      localStorage.setItem(key, JSON.stringify(newValue))
+    },
+    { deep: true },
+  )
 
   return storedValue
 }
@@ -422,7 +450,7 @@ export const useAsyncData = <T>(fetcher: () => Promise<T>) => {
     data: readonly(data),
     isLoading: readonly(isLoading),
     error: readonly(error),
-    refresh
+    refresh,
   }
 }
 ```
@@ -430,40 +458,43 @@ export const useAsyncData = <T>(fetcher: () => Promise<T>) => {
 ## Auto-imports
 
 ### Available Auto-imports
+
 ```typescript
 // Vue 3 Composition API (auto-imported)
-ref, reactive, computed, watch, watchEffect
-onMounted, onUnmounted, onUpdated
-nextTick, defineProps, defineEmits
+;(ref, reactive, computed, watch, watchEffect)
+;(onMounted, onUnmounted, onUpdated)
+;(nextTick, defineProps, defineEmits)
 
 // Vue Router (auto-imported)
-useRouter, useRoute, navigateTo
+;(useRouter, useRoute, navigateTo)
 
 // Pinia (auto-imported)
-defineStore, storeToRefs
+;(defineStore, storeToRefs)
 
 // Custom composables (auto-imported from composables/)
-useApi, useLocalStorage, useAsyncData
+;(useApi, useLocalStorage, useAsyncData)
 
 // Utilities (auto-imported)
-toRefs, toRef, unref, isRef
+;(toRefs, toRef, unref, isRef)
 ```
 
 ### Type Imports
+
 ```typescript
 // IMPORTANT: Always explicitly import types from backend
 import type { App, User, Project } from '@backend'
 
 // Component props interface
 interface Props {
-  user: User  // Type comes from backend
-  projects: Project[]  // Type comes from backend
+  user: User // Type comes from backend
+  projects: Project[] // Type comes from backend
 }
 ```
 
 ## API Integration
 
 ### API Usage Patterns
+
 ```vue
 <script setup lang="ts">
 const { api } = useApi()
@@ -508,7 +539,7 @@ const loadUser = async (userId: string) => {
 // Query parameters
 const searchUsers = async (query: string) => {
   const response = await api.users.get({
-    query: { search: query, limit: 10 }
+    query: { search: query, limit: 10 },
   })
 
   if (response.error) {
@@ -524,6 +555,7 @@ const searchUsers = async (query: string) => {
 ## Forms and Validation
 
 ### Form Handling
+
 ```vue
 <script setup lang="ts">
 import type { CreateUserRequest } from '@backend'
@@ -532,14 +564,14 @@ const formData = reactive<CreateUserRequest>({
   firstName: '',
   lastName: '',
   email: '',
-  password: ''
+  password: '',
 })
 
 const errors = reactive({
   firstName: '',
   lastName: '',
   email: '',
-  password: ''
+  password: '',
 })
 
 const isSubmitting = ref(false)
@@ -548,7 +580,7 @@ const validateForm = () => {
   let isValid = true
 
   // Reset errors
-  Object.keys(errors).forEach(key => {
+  Object.keys(errors).forEach((key) => {
     errors[key as keyof typeof errors] = ''
   })
 
@@ -592,18 +624,22 @@ const handleSubmit = async () => {
 </script>
 
 <template>
-  <form @submit.prevent="handleSubmit" class="space-y-4">
+  <form
+    @submit.prevent="handleSubmit"
+    class="space-y-4"
+  >
     <div>
-      <label class="block text-sm font-medium text-gray-700 mb-1">
-        First Name
-      </label>
+      <label class="block text-sm font-medium text-gray-700 mb-1">First Name</label>
       <input
         v-model="formData.firstName"
         type="text"
         class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
         :class="{ 'border-red-500': errors.firstName }"
       />
-      <p v-if="errors.firstName" class="text-red-500 text-sm mt-1">
+      <p
+        v-if="errors.firstName"
+        class="text-red-500 text-sm mt-1"
+      >
         {{ errors.firstName }}
       </p>
     </div>
@@ -622,6 +658,7 @@ const handleSubmit = async () => {
 ## Performance Optimization
 
 ### Component Optimization
+
 ```vue
 <script setup lang="ts">
 // Use v-memo for expensive list rendering
@@ -633,7 +670,7 @@ const largeDataSet = shallowRef({})
 // Use markRaw for non-reactive data
 const staticConfig = markRaw({
   apiUrl: 'https://api.example.com',
-  version: '1.0.0'
+  version: '1.0.0',
 })
 </script>
 
@@ -658,6 +695,7 @@ const staticConfig = markRaw({
 ```
 
 ### Reactivity Optimization
+
 ```typescript
 // Use shallowReactive for objects with many properties
 const config = shallowReactive({

@@ -10,74 +10,71 @@ const props = withDefaults(defineProps<QualifiersEditorProps>(), {
 
 const schemaStore = useSchemaStore()
 
-// Use the composable for state management
-const {
-  isAdding,
-  editingIndex,
-  startAdding,
-  startEditing,
-  cancelEditing,
-  handleSave: composableHandleSave,
-  handleRemove: composableHandleRemove,
-} = usePropertyValueEditor()
-
-// Computed for current item being edited
-const currentItem = computed(() => {
-  return editingIndex.value !== null ? props.qualifiers[editingIndex.value] : undefined
-})
-
-// Handle save with store update
-const handleSave = (qualifier: PropertyValueMap) => {
-  const updatedQualifiers = composableHandleSave(qualifier, props.qualifiers)
-  schemaStore.updateStatementById(props.statementId, 'qualifiers', updatedQualifiers)
+// Methods
+const addQualifier = () => {
+  schemaStore.addNewQualifier(props.statementId)
 }
 
-// Handle remove with store update
-const handleRemove = (index: number) => {
-  const updatedQualifiers = composableHandleRemove(index, props.qualifiers)
-  schemaStore.updateStatementById(props.statementId, 'qualifiers', updatedQualifiers)
+const removeQualifier = (qualifierId: string) => {
+  schemaStore.removeQualifier(props.statementId, qualifierId as UUID)
+}
+
+const handlePropertyChange = (qualifierId: string, property?: PropertyReference) => {
+  schemaStore.updateQualifierProperty(props.statementId, qualifierId as UUID, property)
+}
+
+const handleValueChange = (qualifierId: string, value?: ValueMapping) => {
+  schemaStore.updateQualifierValue(props.statementId, qualifierId as UUID, value)
 }
 </script>
 
 <template>
-  <BasePropertyValueEditor
-    :items="qualifiers"
-    title="Qualifiers"
-    singular-label="qualifier"
-    plural-label="qualifiers"
-    add-button-label="Add Qualifier"
-    add-button-test-id="add-qualifier-button"
-    empty-message="No qualifiers added yet. Click 'Add Qualifier' to get started."
-    header-icon="pi pi-tags"
-    empty-icon="pi pi-tags"
-    :show-editor="isAdding"
-    :current-item="currentItem"
-    :is-editing="editingIndex !== null"
-    @add="startAdding"
-    @edit="startEditing"
-    @remove="handleRemove"
-    @save="handleSave"
-    @cancel="cancelEditing"
-  >
-    <template #item="{ item, onEdit, onRemove }">
-      <PropertyValueItem
-        :item="item"
-        test-id="qualifier-item"
-        edit-tooltip="Edit qualifier"
-        remove-tooltip="Remove qualifier"
-        @edit="onEdit"
-        @remove="onRemove"
+  <div class="space-y-4">
+    <!-- Header -->
+    <div class="flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <i class="pi pi-tags text-primary" />
+        <h4 class="font-medium text-surface-900">Qualifiers</h4>
+        <span class="text-sm text-surface-600">
+          ({{ qualifiers.length }} {{ qualifiers.length === 1 ? 'qualifier' : 'qualifiers' }})
+        </span>
+      </div>
+      <Button
+        label="Add Qualifier"
+        icon="pi pi-plus"
+        severity="secondary"
+        size="small"
+        @click="addQualifier"
       />
-    </template>
+    </div>
 
-    <template #editor="{ currentItem, isEditing, onSave, onCancel }">
-      <SingleQualifierEditor
-        :statement-id="statementId"
-        :qualifier="currentItem"
-        :is-editing="isEditing"
-        @save="onSave"
-        @cancel="onCancel"
-      />
-    </template>
-  </BasePropertyValueEditor>
+    <div
+      v-if="qualifiers.length > 0"
+      class="space-y-3"
+    >
+      <div
+        v-for="(qualifier, index) in qualifiers"
+        :key="`qualifier-${qualifier.id}`"
+        class="border border-surface-200 rounded-lg p-4 bg-surface-25"
+      >
+        <div class="flex items-center justify-between mb-3">
+          <h5 class="font-medium text-surface-900">Qualifier {{ index + 1 }}</h5>
+          <Button
+            icon="pi pi-trash"
+            severity="danger"
+            size="small"
+            text
+            @click="removeQualifier(qualifier.id)"
+          />
+        </div>
+        <PropertyValueMappingEditor
+          :property-value-map="qualifier"
+          :statement-id="statementId"
+          context="qualifier"
+          @property-changed="(p) => handlePropertyChange(qualifier.id, p)"
+          @value-changed="(v) => handleValueChange(qualifier.id, v)"
+        />
+      </div>
+    </div>
+  </div>
 </template>

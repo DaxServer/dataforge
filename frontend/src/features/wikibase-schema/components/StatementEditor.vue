@@ -130,9 +130,9 @@ const handleCancelNewStatement = () => {
           <span class="text-red-500">*</span>
         </label>
         <PropertySelector
-          :statement-id="statement.id"
-          :model-value="statement.property"
+          :property="statement.property"
           placeholder="Search for a property..."
+          @update="(p) => schemaStore.updateProperty(statement.id, p)"
         />
         <!-- Data Type Display -->
         <div

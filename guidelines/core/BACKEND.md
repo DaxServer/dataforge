@@ -3,6 +3,7 @@
 > **Applies to**: Elysia Server, Database, API Development
 
 ## Related Guidelines
+
 - **[General Guidelines](./GENERAL.md)** - Project-wide standards and setup
 - **[Frontend Guidelines](./FRONTEND.md)** - API consumption patterns
 - **[Error Handling Reference](../reference/ERROR_HANDLING.md)** - Detailed error patterns
@@ -10,6 +11,7 @@
 - **[Testing Reference](../reference/TESTING.md)** - Backend testing strategies
 
 ## Table of Contents
+
 - [Overview](#overview)
 - [Elysia Server Setup](#elysia-server-setup)
 - [API Design](#api-design)
@@ -23,6 +25,7 @@
 ## Overview
 
 ### Backend Tech Stack
+
 - **Runtime**: Bun
 - **Framework**: Elysia
 - **Database**: DuckDB
@@ -31,6 +34,7 @@
 - **File Handling**: Native Bun APIs
 
 ### Core Principles
+
 - **Type-First Development**: All types are inferred and shared with frontend
 - **Eden Integration**: Mandatory use of Elysia Eden for type safety
 - **Centralized Error Handling**: Consistent error responses across all endpoints
@@ -50,6 +54,7 @@ Routes should be organized into separate modules with clear separation of concer
 - **Additional files** - Specialized functionality (e.g., `import.ts`)
 
 #### File Structure Example
+
 ```
 src/api/project/
 ├── routes.ts      # Route definitions
@@ -60,6 +65,7 @@ src/api/project/
 ```
 
 #### Routes File (`routes.ts`)
+
 ```typescript
 import { Elysia } from 'elysia'
 import {
@@ -92,33 +98,31 @@ export const projectRoutes = new Elysia({ prefix: '/api/project' })
 ```
 
 #### Handlers File (`handlers.ts`)
+
 ```typescript
 import type { Context } from 'elysia'
-import type {
-  CreateProjectInput,
-  Project,
-  GetProjectByIdInput,
-} from '@backend/api/project/schemas'
+import type { CreateProjectInput, Project, GetProjectByIdInput } from '@backend/api/project/schemas'
 import { getDb } from '@backend/plugins/database'
 import { ApiErrorHandler } from '@backend/types/error-handler'
 
 export const getProjectById = async ({ params, set }: Context<{ params: GetProjectByIdInput }>) => {
-   // Handler implementation logic...
- }
+  // Handler implementation logic...
+}
 
 export const createProject = async ({
-   body,
-   set,
- }: Context<{
-   body: CreateProjectInput
- }>) => {
-   // Handler implementation logic...
- }
+  body,
+  set,
+}: Context<{
+  body: CreateProjectInput
+}>) => {
+  // Handler implementation logic...
+}
 
 // Additional handlers...
 ```
 
 #### Schemas File (`schemas.ts`)
+
 ```typescript
 import { t } from 'elysia'
 import { ErrorResponseWithDataSchema } from '@backend/types/error-schemas'
@@ -128,12 +132,14 @@ import { ErrorResponseWithDataSchema } from '@backend/types/error-schemas'
 ```
 
 #### Index File (`index.ts`)
+
 ```typescript
 export * from '@backend/api/project/routes'
 export * from '@backend/api/project/handlers'
 ```
 
 #### Specialized Files (e.g., `import.ts`)
+
 ```typescript
 import { getDb } from '@backend/plugins/database'
 import type { Context } from 'elysia'
@@ -141,12 +147,12 @@ import type { ImportProjectInput } from './schemas'
 import { ApiErrorHandler } from '@backend/types/error-handler'
 
 export const importProject = async ({
-   params: { id },
-   body,
-   set,
- }: Context<{ body: ImportProjectInput }>) => {
-   // Handler implementation logic...
- }
+  params: { id },
+  body,
+  set,
+}: Context<{ body: ImportProjectInput }>) => {
+  // Handler implementation logic...
+}
 
 // Additional specialized handlers...
 ```
@@ -206,11 +212,13 @@ export const ErrorCodeSchema = t.Union([
 // Standard error response format
 export const ErrorResponseWithDataSchema = t.Object({
   data: t.Array(t.Any()),
-  errors: t.Array(t.Object({
-    code: ErrorCodeSchema,
-    message: t.String(),
-    details: t.Optional(t.Array(t.Any())),
-  })),
+  errors: t.Array(
+    t.Object({
+      code: ErrorCodeSchema,
+      message: t.String(),
+      details: t.Optional(t.Array(t.Any())),
+    }),
+  ),
 })
 ```
 
@@ -272,6 +280,7 @@ export const getProjectById = async ({ params, set }) => {
 ## Type Safety
 
 ### Elysia Eden Integration
+
 ```typescript
 // Export app type for frontend
 export type App = typeof app
@@ -281,6 +290,7 @@ export type App = typeof app
 ```
 
 ### Type Definitions
+
 ```typescript
 // src/types/index.ts
 export interface User {
@@ -366,6 +376,7 @@ afterEach(async () => {
 ```
 
 **Key Features:**
+
 - Isolated test environments
 - No shared state between tests
 - Fast in-memory database operations
@@ -374,6 +385,7 @@ afterEach(async () => {
 ### API Testing Patterns
 
 #### Test App Creation
+
 ```typescript
 // Type-safe API client creation
 const createTestApi = () => {
@@ -382,12 +394,14 @@ const createTestApi = () => {
 ```
 
 #### Common Test Patterns
+
 - **Validation Testing**: Input validation and error responses
 - **Success Path Testing**: Valid operations and expected responses
 - **Error Handling**: 404, 422, and 500 error scenarios
 - **Data Integrity**: Response structure and data validation
 
 #### Test Data Management
+
 ```typescript
 // Test data setup and cleanup
 const setupTestData = async () => {
@@ -402,11 +416,13 @@ const cleanupTestData = async () => {
 ### Unit Testing
 
 #### Database Operations
+
 - Database initialization and connection management
 - CRUD operations validation
 - Error handling for database failures
 
 #### Error Handler Testing
+
 - Validation error responses
 - Not found error handling
 - Internal server error scenarios
@@ -415,6 +431,7 @@ const cleanupTestData = async () => {
 ### Integration Testing
 
 #### Project API Endpoints
+
 - **Create**: Project creation with validation
 - **Read**: Project retrieval by ID and listing
 - **Update**: Project modification operations
@@ -422,6 +439,7 @@ const cleanupTestData = async () => {
 - **Import**: File import functionality with various formats
 
 #### File Operations
+
 - File upload and processing
 - Invalid file handling
 - Temporary file cleanup
@@ -430,12 +448,14 @@ const cleanupTestData = async () => {
 ### Test Utilities
 
 #### Assertions
+
 - UUID format validation
 - Timestamp format verification
 - Response structure validation
 - Error code and message verification
 
 #### Test Helpers
+
 - API client creation
 - Database setup and teardown
 - Test data generation

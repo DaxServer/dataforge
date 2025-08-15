@@ -3,12 +3,14 @@
 > **Comprehensive testing strategies and patterns for backend**
 
 ## Related Guidelines
+
 - **[Backend Guidelines](../core/BACKEND.md)** - Core backend testing principles
 - **[General Guidelines](../core/GENERAL.md)** - Project-wide testing philosophy
 - **[Error Handling Reference](./ERROR_HANDLING.md)** - Testing error scenarios
 - **[Elysia Eden Reference](./ELYSIA_EDEN.md)** - Testing type-safe APIs
 
 ## Table of Contents
+
 - [Elysia and Eden Testing Patterns](#elysia-and-eden-testing-patterns)
 - [Test Structure](#test-structure)
 - [Writing Tests](#writing-tests)
@@ -206,9 +208,11 @@ When testing error responses:
 4. Test specific error codes and messages
 
 ```typescript
-const { data, status, error } = await testApp.api.projects({
-  id: 'invalid-id'
-}).get()
+const { data, status, error } = await testApp.api
+  .projects({
+    id: 'invalid-id',
+  })
+  .get()
 
 expect(status).toBe(422)
 expect(data).toBeNull()
@@ -259,7 +263,7 @@ import { treaty } from '@elysiajs/eden'
 const testUser = {
   username: 'testuser',
   email: 'test@example.com',
-  password: 'securepassword123!'
+  password: 'securepassword123!',
 }
 
 // Create a test client factory
@@ -479,12 +483,12 @@ expect(error).toBeNull()
 
 ### Matcher Guidelines
 
-| Matcher | When to Use | Example |
-|---------|-------------|---------|
-| `toHaveProperty()` | When testing specific fields in an object | `expect(user).toHaveProperty('id', 1)` |
-| `expect.arrayContaining()` | When testing specific items in an array | `expect(users).toEqual(expect.arrayContaining([{ id: 1 }]))` |
-| `expect.any()` | When only the type matters | `expect(user.id).toEqual(expect.any(Number))` |
-| `expect.stringContaining()` | When testing partial strings | `expect(error).toEqual(expect.stringContaining('not found'))` |
+| Matcher                     | When to Use                               | Example                                                       |
+| --------------------------- | ----------------------------------------- | ------------------------------------------------------------- |
+| `toHaveProperty()`          | When testing specific fields in an object | `expect(user).toHaveProperty('id', 1)`                        |
+| `expect.arrayContaining()`  | When testing specific items in an array   | `expect(users).toEqual(expect.arrayContaining([{ id: 1 }]))`  |
+| `expect.any()`              | When only the type matters                | `expect(user.id).toEqual(expect.any(Number))`                 |
+| `expect.stringContaining()` | When testing partial strings              | `expect(error).toEqual(expect.stringContaining('not found'))` |
 
 ## Temporary File Cleanup Patterns
 
@@ -498,15 +502,14 @@ import { afterEach, beforeEach, describe, expect, test } from 'bun:test'
 describe('File operations', () => {
   afterEach(async () => {
     // Clean up temporary files created during tests
-    const tempFiles = [
-      './temp-test-file.json',
-      './temp-invalid-json-file.json'
-    ]
+    const tempFiles = ['./temp-test-file.json', './temp-invalid-json-file.json']
 
     await Promise.all(
-      tempFiles.map(async filePath => {
-        await Bun.file(filePath).delete().catch(() => {})
-      })
+      tempFiles.map(async (filePath) => {
+        await Bun.file(filePath)
+          .delete()
+          .catch(() => {})
+      }),
     )
   })
 
@@ -530,10 +533,12 @@ afterEach(async () => {
   const tempDir = new URL('../../temp', import.meta.url).pathname
   const files = await readdir(tempDir).catch(() => [])
   await Promise.all(
-    files.map(async file => {
+    files.map(async (file) => {
       const filePath = `${tempDir}/${file}`
-      await Bun.file(filePath).delete().catch(() => {})
-    })
+      await Bun.file(filePath)
+        .delete()
+        .catch(() => {})
+    }),
   )
 })
 ```
@@ -606,17 +611,19 @@ Here are some common assertion patterns you'll use, based on typical backend tes
 
   ```typescript
   // ❌ Don't test response directly
-  expect(response.error.status).toBe(422)  // Wrong - destructure first
-  expect(response.error.value.errors).toBeDefined()  // Wrong - destructure first
+  expect(response.error.status).toBe(422) // Wrong - destructure first
+  expect(response.error.value.errors).toBeDefined() // Wrong - destructure first
 
   // ✅ Destructure first, then use toHaveProperty for exact error structure
   const { data, status, error } = await api.endpoint.post({})
   expect(status).toBe(422)
-   expect(error).toHaveProperty('status', 422)
-   expect(error).toHaveProperty('value', {
-     data: [],
-     errors: [/* exact error structure */]
-   })
+  expect(error).toHaveProperty('status', 422)
+  expect(error).toHaveProperty('value', {
+    data: [],
+    errors: [
+      /* exact error structure */
+    ],
+  })
   ```
 
 - **`toBeNull()`**: Verifies that a value is `null`.
@@ -711,13 +718,13 @@ describe('Project API', () => {
 
 ### Best Practices
 
-| Do | Don't |
-|----|-------|
-| ✅ Use application API for test data | ❌ Manually initialize the database |
-| ✅ Let plugin handle migrations | ❌ Create tables in test code |
-| ✅ Use in-memory database | ❌ Use file-based database |
-| ✅ Assume clean state | ❌ Assume database state between tests |
-| ✅ Use factory functions | ❌ Hardcode test data in multiple places |
+| Do                                   | Don't                                    |
+| ------------------------------------ | ---------------------------------------- |
+| ✅ Use application API for test data | ❌ Manually initialize the database      |
+| ✅ Let plugin handle migrations      | ❌ Create tables in test code            |
+| ✅ Use in-memory database            | ❌ Use file-based database               |
+| ✅ Assume clean state                | ❌ Assume database state between tests   |
+| ✅ Use factory functions             | ❌ Hardcode test data in multiple places |
 
 ### Cleanup
 
@@ -728,17 +735,20 @@ describe('Project API', () => {
 ## Test Doubles
 
 ### Mocks
+
 - Use mocks for external dependencies
 - Keep mock implementations close to the tests that use them
 - Use `vi.fn()` for function mocks
 - Clear mocks between tests with `vi.clearAllMocks()`
 
 ### Stubs
+
 - Use stubs for complex dependencies
 - Return consistent test data
 - Avoid over-specifying stub behavior
 
 ### Spies
+
 - Use spies to verify function calls
 - Check call counts and arguments
 - Use `toHaveBeenCalledWith()` for precise assertions
@@ -746,16 +756,19 @@ describe('Project API', () => {
 ## Test Data
 
 ### Factories
+
 - Use factory functions for creating test data
 - Keep factories in `tests/factories`
 - Use Faker.js for realistic test data
 
 ### Fixtures
+
 - Store complex test data in JSON files
 - Keep fixtures in `tests/fixtures`
 - Use meaningful file names
 
 ### Example Factory
+
 ```typescript
 // tests/factories/project.ts
 import { faker } from '@faker-js/faker'
@@ -767,7 +780,7 @@ export const createProject = (overrides = {}) => {
     description: faker.lorem.sentence(),
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
-    ...overrides
+    ...overrides,
   }
 }
 ```
