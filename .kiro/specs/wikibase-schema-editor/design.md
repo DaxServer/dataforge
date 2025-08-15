@@ -2,7 +2,17 @@
 
 ## Overview
 
-The Wikibase Schema Editor is a visual interface that enables users to create mappings between tabular data columns and Wikibase item structures. The editor provides drag-and-drop functionality for mapping data columns to item Terms (Labels, Descriptions, Aliases) and Statements (property-value pairs with qualifiers and references). The design follows a component-based architecture using Vue 3 with TypeScript, integrating with the existing project structure and API endpoints.
+The Wikibase Schema Editor is a comprehensive visual interface that enables users to create sophisticated mappings between tabular data columns and Wikibase item structures. The current implementation provides a complete schema management workflow including schema selection, detailed configuration, and persistence.
+
+The editor features:
+- **Schema Selection Interface**: Initial view for selecting existing schemas or creating new ones
+- **Drag-and-Drop Mapping**: Intuitive column-to-schema mapping with real-time validation
+- **Comprehensive Configuration**: Full support for Terms, Statements, Qualifiers, and References
+- **Always-Active Validation**: Immediate feedback during drag operations and configuration
+- **Autosave Architecture**: Local changes saved immediately with manual backend persistence
+- **Reusable Components**: Consistent DropZone, PropertySelector, and validation components
+
+The implementation uses Vue 3 with Composition API, TypeScript for type safety, Pinia for reactive state management, and integrates with a full-featured Elysia backend API. The architecture emphasizes component reusability, immediate user feedback, and robust error handling.
 
 ## Architecture
 
@@ -22,21 +32,30 @@ graph TB
 
 ### Component Architecture
 
-The schema editor follows a hierarchical component structure:
+The schema editor follows a hierarchical component structure with clear separation between schema selection and main editing:
 
 ```mermaid
 graph TD
     A[WikibaseSchemaEditor] --> B[SchemaSelector]
-    A --> C[SchemaToolbar]
-    A --> D[ColumnPalette]
-    D --> D1[ColumnItem]
-    A --> E[SchemaCanvas]
-    E --> F[ItemEditor]
-    F --> G[TermsEditor]
-    F --> H[StatementsEditor]
-    H --> I[StatementEditor]
-    I --> J[QualifiersEditor]
-    I --> K[ReferencesEditor]
+    A --> C[Main Editor View]
+    C --> D[ColumnPalette - from data-processing feature]
+    C --> E[ValidationDisplay]
+    C --> F[TermsEditor]
+    F --> G[TermSection - Labels]
+    F --> H[TermSection - Descriptions]
+    F --> I[TermSection - Aliases]
+    G --> J[DropZone]
+    H --> J
+    I --> J
+    C --> K[StatementManager]
+    K --> L[StatementEditor - multiple instances]
+    L --> M[PropertySelector]
+    L --> N[ClaimEditor]
+    L --> O[QualifiersEditor]
+    L --> P[ReferencesEditor]
+    N --> Q[DropZone]
+    O --> Q
+    P --> Q
 ```
 
 ## Components and Interfaces
@@ -48,197 +67,214 @@ graph TD
 - **Purpose**: Root component that orchestrates the entire schema editing experience with autosave functionality
 - **Responsibilities**:
   - Manages overall state and data flow with automatic Pinia store updates
-  - Coordinates drag-and-drop operations with immediate store persistence
-  - Uses existing manual persistence layer save button for backend synchronization (unchanged)
-  - Provides validation feedback
+  - Coordinates between SchemaSelector and main editor views
+  - Uses existing manual persistence layer save button for backend synchronization
+  - Provides validation feedback through ValidationDisplay component
   - Manages schema selection and creation workflow
   - Eliminates individual save/cancel buttons throughout the interface
 
 #### 2. SchemaSelector
 
-- **Purpose**: Manages schema selection workflow as the initial interface
+- **Purpose**: Initial interface for schema selection and management
 - **Responsibilities**:
-  - Fetches existing schemas linked to the current project using existing API
-  - Displays list of available schemas with metadata (name, dates, completion status)
-  - Provides "Create New Schema" button that triggers existing initialization code
-  - Handles schema selection and transitions to main editor
+  - Fetches existing schemas using useSchemaApi composable
+  - Displays schemas with metadata (name, dates, completion status, statement/term counts)
+  - Provides "Create New Schema" functionality
+  - Handles schema deletion with confirmation dialogs
   - Shows empty state when no schemas exist
+  - Transitions to main editor upon schema selection or creation
 
-#### 3. ColumnPalette
+#### 3. ColumnPalette (from data-processing feature)
 
-- **Purpose**: Displays available data columns as draggable elements with optional sample data
+- **Purpose**: Displays available data columns as draggable elements with sample data toggle
 - **Responsibilities**:
-  - Fetches column information from project data
-  - Renders columns as draggable chips/badges
-  - Provides visual feedback during drag operations
-  - Shows column data types and conditionally shows sample values
-  - Manages sample data visibility toggle state
-  - Provides toggle button interface for showing/hiding sample data
+  - Located in `frontend/src/features/data-processing/components/ColumnPalette.vue`
+  - Renders columns from `projectStore.columnsForSchema` as draggable chips
+  - Provides sample data visibility toggle (hidden by default)
+  - Shows column data types with icons and severity indicators
+  - Handles drag start/end events with HTML5 drag and drop API
+  - Integrates with validation system for immediate dragstart validation
 
-#### 4. SchemaCanvas
+#### 4. ValidationDisplay
 
-- **Purpose**: Main editing area where schema structure is built with automatic saving
+- **Purpose**: Shows current validation status and detailed error information
 - **Responsibilities**:
-  - Renders the item configuration interface with autosave behavior
-  - Manages drop zones for column mappings with immediate store updates
-  - Displays hierarchical schema structure without individual save buttons
-  - Handles visual feedback for valid/invalid mappings
-  - Automatically persists all changes to Pinia store on user interactions
+  - Displays error and warning counts in the toolbar
+  - Shows detailed validation messages with paths and suggestions
+  - Provides "Clear All" functionality for validation errors
+  - Updates immediately when validation status changes
+  - Integrates with useValidationStore for reactive validation state
 
-#### 5. ItemEditor
+#### 5. TermsEditor
 
-- **Purpose**: Manages the configuration of a single Wikibase item with autosave
+- **Purpose**: Container for three TermSection components (Labels, Descriptions, Aliases)
 - **Responsibilities**:
-  - Provides interface for item metadata with automatic store updates
-  - Coordinates Terms and Statements editors with autosave behavior
-  - Manages item-level validation
-  - Handles item creation/deletion with immediate store persistence
-  - Eliminates save/cancel buttons for item operations
+  - Renders three TermSection components with different configurations
+  - Coordinates term-level validation and feedback
+  - Manages the overall terms editing workflow
 
-#### 6. TermsEditor
+#### 6. TermSection
 
-- **Purpose**: Manages Labels, Descriptions, and Aliases configuration with autosave
+- **Purpose**: Unified interface for configuring individual term types with language selection
 - **Responsibilities**:
-  - Provides drop zones for each term type with immediate store updates
-  - Manages multilingual configurations with automatic persistence
-  - Handles language code selection with instant saving
-  - Validates term mappings
-  - Eliminates save/cancel buttons for term operations
+  - Provides language selector with accepted language codes
+  - Renders DropZone component for column mapping
+  - Displays existing mappings with remove functionality
+  - Handles data type validation for term-specific constraints
+  - Shows validation status with visual indicators
+  - Integrates with schema store for immediate autosave
 
-#### 7. StatementsEditor
+#### 7. StatementManager
 
-- **Purpose**: Container for managing multiple statements with autosave
+- **Purpose**: Container for managing multiple StatementEditor instances
 - **Responsibilities**:
-  - Provides interface to add/remove statements with immediate store updates
-  - Manages statement ordering with automatic persistence
-  - Coordinates individual statement editors with autosave behavior
-  - Eliminates save/cancel buttons for statement management operations
+  - Provides "Add Statement" functionality
+  - Renders multiple StatementEditor components
+  - Shows statement count in header
+  - Displays empty state when no statements exist
+  - Coordinates statement-level operations
 
 #### 8. StatementEditor
 
-- **Purpose**: Configures individual property-value statements with autosave
+- **Purpose**: Comprehensive interface for configuring individual statements
 - **Responsibilities**:
-  - Property selection interface (P-ID autocomplete) with immediate store updates
-  - Value mapping configuration with automatic persistence
-  - Rank selection (preferred/normal/deprecated) with instant saving
-  - Data type validation
-  - Eliminates save/cancel buttons for statement configuration
+  - Integrates PropertySelector for property selection
+  - Uses ClaimEditor for value, rank, qualifiers, and references configuration
+  - Provides statement-level actions (move up/down, remove)
+  - Handles new statement creation workflow
+  - Validates statement completeness (requires property selection)
 
-#### 9. QualifiersEditor & ReferencesEditor
+#### 9. PropertySelector
 
-- **Purpose**: Manages qualifiers and references for statements with autosave
+- **Purpose**: Search and selection interface for Wikibase properties
 - **Responsibilities**:
-  - Provides interfaces to add/remove qualifiers/references with immediate store updates
-  - Property selection for qualifier/reference properties with automatic persistence
-  - Value mapping for qualifier/reference values with instant saving
-  - Eliminates save/cancel buttons for qualifier and reference operations
+  - Provides autocomplete search for property IDs and labels
+  - Displays selected property information (ID, label, data type)
+  - Emits update events when property selection changes
+  - Shows disabled state when no property is selected
+  - Integrates with Wikibase property data
 
-#### 10. ColumnItem
+#### 10. ClaimEditor
 
-- **Purpose**: Individual draggable column element within the ColumnPalette
+- **Purpose**: Comprehensive interface for statement values, ranks, qualifiers, and references
 - **Responsibilities**:
-  - Renders individual column as draggable chip
-  - Shows column name and data type
-  - Conditionally displays sample data based on parent toggle state
-  - Handles drag start/end events for the column
+  - Provides value mapping configuration with DropZone integration
+  - Manages statement rank selection (preferred/normal/deprecated)
+  - Coordinates QualifiersEditor and ReferencesEditor components
+  - Handles data type validation for statement values
+  - Disabled state management based on property selection
+
+#### 11. DropZone
+
+- **Purpose**: Reusable drag-and-drop target component with validation
+- **Responsibilities**:
+  - Provides consistent drop target interface across the application
+  - Handles HTML5 drag and drop events (dragover, dragenter, dragleave, drop)
+  - Validates dropped columns against accepted data types
+  - Shows visual feedback during drag operations (valid/invalid states)
+  - Emits column-dropped events with validated column information
+  - Supports custom validator functions for additional validation logic
+
+#### 12. QualifiersEditor & ReferencesEditor
+
+- **Purpose**: Specialized editors for statement qualifiers and references
+- **Responsibilities**:
+  - Provides add/remove functionality for qualifiers and references
+  - Integrates PropertySelector for qualifier/reference property selection
+  - Uses DropZone components for value mapping
+  - Manages complex reference structures with multiple snaks
+  - Handles immediate autosave for all qualifier and reference operations
 
 ### Data Models
 
 #### Schema Data Structure
 
-```typescript
-import {
-  ItemId,
-  PropertyId,
-  Labels,
-  Descriptions,
-  Aliases,
-  Claims,
-  Item,
-} from '@backend/types/wikibase-schema'
+The current implementation uses TypeScript interfaces that align with the backend API schemas:
 
-interface WikibaseSchemaMapping {
-  id: string
-  projectId: string
+```typescript
+// Main schema mapping structure (from backend API)
+interface WikibaseSchemaResponse {
+  id: UUID
+  project_id: UUID
   name: string
   wikibase: string
-  item: ItemSchemaMapping
-  createdAt: string
-  updatedAt: string
-  // Note: isDirty and lastSyncedAt may already exist in current implementation
-  // Only add if not already present in existing schema structure
+  schema: ItemSchema
+  created_at: string
+  updated_at: string
 }
 
-interface SchemaListItem {
-  id: string
+// Frontend schema mapping type
+interface WikibaseSchemaMapping {
+  id: UUID
+  projectId: UUID
   name: string
+  wikibase: string
+  schema: ItemSchema
   createdAt: string
   updatedAt: string
-  itemCount: number
-  statementCount: number
-  isComplete: boolean
 }
 
-interface SchemaSelectionState {
-  schemas: SchemaListItem[]
-  isLoading: boolean
-  selectedSchemaId: string | null
-  showMainEditor: boolean
-}
-
-interface ItemSchemaMapping {
+// Item schema structure
+interface ItemSchema {
   id?: ItemId
   terms: TermsSchemaMapping
   statements: StatementSchemaMapping[]
 }
 
+// Terms configuration
 interface TermsSchemaMapping {
-  labels: Record<string, ColumnMapping> // language code -> column mapping
-  descriptions: Record<string, ColumnMapping>
-  aliases: Record<string, ColumnMapping[]>
+  labels: Label // Record<string, ColumnMapping>
+  descriptions: Label // Record<string, ColumnMapping>
+  aliases: Alias // Record<string, ColumnMapping[]>
 }
 
+// Column mapping for data transformation
 interface ColumnMapping {
   columnName: string
   dataType: string
   transformation?: TransformationRule
 }
 
+// Statement configuration
 interface StatementSchemaMapping {
-  id: string
+  id: UUID
   property: PropertyReference
   value: ValueMapping
   rank: StatementRank
-  qualifiers: QualifierSchemaMapping[]
+  qualifiers: PropertyValueMap[]
   references: ReferenceSchemaMapping[]
 }
 
+// Property reference
 interface PropertyReference {
-  id: PropertyId // P-ID using existing PropertyId type
+  id: PropertyId // P-ID format (e.g., "P31")
   label?: string
   dataType: string
 }
 
-interface ValueMapping {
-  type: 'column' | 'constant' | 'expression'
-  source: ColumnMapping | string
-  dataType: WikibaseDataType
-}
+// Value mapping types
+type ValueMapping = 
+  | { type: 'column'; source: ColumnMapping; dataType: WikibaseDataType }
+  | { type: 'constant'; source: string; dataType: WikibaseDataType }
+  | { type: 'expression'; source: string; dataType: WikibaseDataType }
 
-interface QualifierSchemaMapping {
+// Property-value mapping for qualifiers and references
+interface PropertyValueMap {
+  id: UUID
   property: PropertyReference
   value: ValueMapping
 }
 
+// Reference structure with multiple snaks
 interface ReferenceSchemaMapping {
-  property: PropertyReference
-  value: ValueMapping
+  id: UUID
+  snaks: PropertyValueMap[]
 }
 
+// Statement rank options
 type StatementRank = 'preferred' | 'normal' | 'deprecated'
 
-// Note: This should be imported from wikibase-sdk when available
-// Currently the backend TODO indicates DataType needs to be defined
+// Wikibase data types
 type WikibaseDataType =
   | 'string'
   | 'wikibase-item'
@@ -250,6 +286,40 @@ type WikibaseDataType =
   | 'external-id'
   | 'monolingualtext'
   | 'commonsMedia'
+
+// Schema store structure (dual statement storage)
+interface SchemaStoreState {
+  // Basic schema metadata
+  schemaId: UUID | null
+  projectId: UUID | null
+  schemaName: string
+  wikibase: string
+  itemId: ItemId | null
+  
+  // Terms storage
+  labels: Label
+  descriptions: Label
+  aliases: Alias
+  
+  // Dual statement storage approach
+  statements: StatementSchemaMapping[] // Array format for API
+  statements1: Record<UUID, StatementSchema> // Object format for editing
+  
+  // Meta state
+  isLoading: boolean
+  isDirty: boolean
+  lastSaved: Date | null
+}
+
+// Statement schema for editing (partial with required id)
+interface StatementSchema {
+  id: UUID
+  property?: PropertyReference
+  value?: ValueMapping
+  rank: StatementRank
+  qualifiers?: PropertyValueMap[]
+  references?: ReferenceSchemaMapping[]
+}
 ```
 
 #### Schema Editor Drag and Drop Integration
@@ -448,13 +518,38 @@ const ValidationErrors = {
 
 ### State Management
 
-- Use Vue 3 Composition API with Pinia stores for state management
-- Implement reactive schema state with automatic persistence to store on every change
-- Use computed properties for derived state (validation status, completion percentage)
-- Validation is always active and triggered on dragstart events
-- All user interactions immediately update the Pinia store without manual save operations
-- Single persistence layer button synchronizes store state with backend API
-- Eliminate all individual save/cancel button patterns throughout the interface
+The current implementation uses a sophisticated state management approach:
+
+#### Pinia Store Architecture
+
+- **useSchemaStore**: Main store for schema data with dual statement storage
+  - `statements`: Array format for API compatibility
+  - `statements1`: Object format for efficient editing operations
+  - Immediate autosave on all mutations (markDirty() called automatically)
+  - Computed properties for derived state (canSave, hasStatements, countStatements)
+
+- **useValidationStore**: Dedicated store for validation state
+  - Always-active validation triggered on dragstart events
+  - Path-based error tracking for precise error location
+  - Reactive error and warning counts
+
+- **useDragDropStore**: Shared store for drag-and-drop operations
+  - Global drag state management across components
+  - Valid drop target calculation based on column data types
+  - Integration with validation system for immediate feedback
+
+#### Autosave Implementation
+
+- **Local Store Autosave**: Every user interaction immediately updates Pinia store
+  - All mutations call `markDirty()` to track changes
+  - No individual save/cancel buttons throughout interface
+  - Optimistic updates with immediate UI feedback
+
+- **Backend Persistence**: Manual "Save to Server" button in toolbar
+  - Uses `useSchemaApi` composable for API operations
+  - Transforms `statements1` object to `statements` array for API
+  - Provides loading states and error handling
+  - Calls `markAsSaved()` on successful persistence
 
 ### Autosave Architecture
 
@@ -484,21 +579,97 @@ The autosave system operates on two levels:
 
 ### Drag and Drop Implementation
 
-- Use VueUse `useDraggable` for making column elements draggable with position tracking and visual feedback
-- Use native HTML5 drag and drop events with `DataTransfer` API for custom data transfer between elements
-- Create custom composables that combine VueUse reactivity with HTML5 drag/drop data transfer
-- Implement validation logic using reactive computed properties triggered on dragstart events
-- Provide visual feedback using CSS transitions and VueUse's reactive state
-- Validation runs continuously without manual start/stop controls
+The current implementation uses a hybrid approach combining VueUse reactivity with native HTML5 drag and drop:
+
+#### Column Dragging (ColumnPalette)
+
+- **VueUse Integration**: Uses `UseDraggable` component for visual feedback and position tracking
+- **HTML5 DataTransfer**: Uses native `dragstart`/`dragend` events for data transfer
+- **Data Format**: Transfers column information as JSON in `application/x-column-data` format
+- **Store Integration**: Updates `useDragDropStore` on drag start/end for global state management
+
+#### Drop Zone Implementation (DropZone Component)
+
+- **Native HTML5 Events**: Uses `dragover`, `dragenter`, `dragleave`, `drop` events
+- **Validation Integration**: Immediate validation on drag operations using `useValidation` composable
+- **Visual Feedback**: CSS classes for valid/invalid drop states (`drop-zone-valid`, `drop-zone-invalid`)
+- **Event Handling**: Prevents default behavior and sets appropriate `dropEffect`
+
+#### Validation System
+
+- **Always Active**: Validation triggers automatically on `dragstart` events
+- **Immediate Feedback**: Uses `triggerDragStartValidation()` for synchronous validation
+- **Data Type Compatibility**: Validates column data types against target accepted types
+- **Path-Based Errors**: Tracks validation errors by schema path for precise error location
+
+#### Implementation Pattern
+
+```typescript
+// Column drag start (ColumnPalette)
+const handleDragStart = (event: DragEvent, columnInfo: ColumnInfo) => {
+  // Set HTML5 drag data
+  event.dataTransfer?.setData('application/x-column-data', JSON.stringify(columnInfo))
+  
+  // Update global drag state
+  dragDropStore.startDrag(columnInfo)
+  
+  // Trigger immediate validation
+  triggerDragStartValidation(columnInfo)
+}
+
+// Drop zone handling (DropZone)
+const handleDrop = (event: DragEvent) => {
+  const columnData = event.dataTransfer?.getData('application/x-column-data')
+  const column = JSON.parse(columnData)
+  
+  if (validateColumnDrop(column)) {
+    emit('column-dropped', column)
+  }
+}
+```
 
 ### API Integration
 
-- Leverage existing Elysia backend routes for schema operations (unchanged)
-- Use existing `loadAllSchemas`, `loadSchema`, and `createSchema` functions (unchanged)
-- Use existing optimistic updates with rollback capability (unchanged)
-- Use Elysia Eden Treaty for type-safe API calls (unchanged)
-- Separate local store updates from existing backend persistence calls
-- No modifications to existing backend synchronization behavior
+The current implementation provides comprehensive API integration through the `useSchemaApi` composable:
+
+#### Backend Routes (Elysia)
+
+- **GET** `/api/project/:projectId/schemas` - List all schemas for a project
+- **POST** `/api/project/:projectId/schemas` - Create new schema
+- **GET** `/api/project/:projectId/schemas/:schemaId` - Get specific schema
+- **PUT** `/api/project/:projectId/schemas/:schemaId` - Update schema
+- **DELETE** `/api/project/:projectId/schemas/:schemaId` - Delete schema
+
+#### API Composable Functions
+
+```typescript
+// useSchemaApi composable provides:
+const {
+  loadSchema,        // Load specific schema by ID
+  loadAllSchemas,    // Load all schemas for project
+  createSchema,      // Create new schema
+  updateSchema,      // Update existing schema
+  deleteSchema,      // Delete schema
+  saveSchema,        // Smart save (create or update)
+  canSave,          // Computed save eligibility
+  isSaving,         // Loading state
+  saveStatus        // Success/error status
+} = useSchemaApi()
+```
+
+#### Data Transformation
+
+- **Frontend to API**: Transforms `statements1` object to `statements` array format
+- **API to Frontend**: Parses JSON schema field and loads into store structure
+- **Type Safety**: Uses Elysia Eden Treaty for fully typed API calls
+- **Error Handling**: Comprehensive error handling with user-friendly messages
+
+#### Persistence Strategy
+
+- **Optimistic Updates**: Immediate UI updates with store mutations
+- **Manual Sync**: "Save to Server" button for backend persistence
+- **Rollback Capability**: Maintains local changes on API failures
+- **Loading States**: Provides loading indicators during API operations
 
 ### Autosave Implementation Patterns
 

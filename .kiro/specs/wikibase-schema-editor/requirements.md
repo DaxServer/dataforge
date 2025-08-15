@@ -2,7 +2,18 @@
 
 ## Introduction
 
-The Wikibase Schema Editor is a visual interface that allows users to create and manage mappings between their tabular data and a single Wikibase item with its properties and statements. This feature enables users to define how their data columns should be transformed into structured Wikibase format, similar to OpenRefine's Wikidata schema functionality. The editor provides an intuitive interface for configuring the item, adding properties, and defining relationships between data elements.
+The Wikibase Schema Editor is a comprehensive visual interface that allows users to create and manage mappings between their tabular data and Wikibase item structures. This feature enables users to define how their data columns should be transformed into structured Wikibase format, similar to OpenRefine's Wikidata schema functionality. 
+
+The editor provides a complete workflow from schema selection to detailed configuration, including:
+- Schema selection and management interface with metadata display
+- Drag-and-drop column mapping with real-time validation
+- Comprehensive terms configuration (Labels, Descriptions, Aliases) with multilingual support
+- Advanced statement configuration with properties, values, ranks, qualifiers, and references
+- Always-active validation system with detailed error reporting
+- Automatic local saving with manual backend persistence
+- Reusable components for consistent user experience across all mapping operations
+
+The implementation uses Vue 3 with TypeScript, Pinia for state management, and integrates with a full-featured Elysia backend API for schema persistence and management.
 
 ## Requirements
 
@@ -149,3 +160,73 @@ The Wikibase Schema Editor is a visual interface that allows users to create and
 7. WHEN the existing persistence save fails THEN the system SHALL display an error message using current implementation without losing local changes
 8. WHEN the user navigates away from the editor THEN the system SHALL retain all locally saved changes in the Pinia store
 9. WHEN implementing autosave THEN the system SHALL NOT modify the existing manual backend synchronization behavior
+
+### Requirement 11
+
+**User Story:** As a data curator, I want a unified interface for configuring each type of term (Labels, Descriptions, Aliases) with language selection and drop zones, so that I can efficiently map my data columns to multilingual metadata.
+
+#### Acceptance Criteria
+
+1. WHEN the user views the terms editor THEN the system SHALL display three TermSection components for Labels, Descriptions, and Aliases
+2. WHEN the user configures any term type THEN the system SHALL provide a language selector with accepted language codes
+3. WHEN the user selects a language THEN the system SHALL enable the drop zone for that language and term type combination
+4. WHEN the user drops a column onto a term drop zone THEN the system SHALL validate data type compatibility and create the mapping immediately
+5. WHEN existing mappings exist for a term type THEN the system SHALL display them with language codes and column information
+6. WHEN the user wants to remove a mapping THEN the system SHALL provide remove buttons for each mapping
+7. WHEN validation errors exist for a term section THEN the system SHALL display visual indicators and error counts
+
+### Requirement 12
+
+**User Story:** As a developer, I want a reusable DropZone component that handles drag-and-drop operations with validation, so that I can provide consistent drop targets throughout the schema editor.
+
+#### Acceptance Criteria
+
+1. WHEN a DropZone component is rendered THEN the system SHALL display an appropriate placeholder message and icon
+2. WHEN the user drags a column over a DropZone THEN the system SHALL provide immediate visual feedback based on validation results
+3. WHEN the user drops a valid column onto a DropZone THEN the system SHALL emit a column-dropped event with the column information
+4. WHEN the user drops an invalid column onto a DropZone THEN the system SHALL prevent the drop and show validation feedback
+5. WHEN a DropZone has accepted data types specified THEN the system SHALL only accept columns with compatible data types
+6. WHEN a DropZone has a custom validator function THEN the system SHALL use it for additional validation logic
+7. WHEN drag operations occur THEN the system SHALL use native HTML5 drag and drop events for data transfer
+
+### Requirement 13
+
+**User Story:** As a data curator, I want a property selector that provides search and autocomplete functionality for Wikibase properties, so that I can easily find and select the correct properties for my statements.
+
+#### Acceptance Criteria
+
+1. WHEN the user opens a property selector THEN the system SHALL display a search input with placeholder text
+2. WHEN the user types in the property selector THEN the system SHALL provide autocomplete suggestions for property IDs and labels
+3. WHEN the user selects a property THEN the system SHALL display the property ID, label, and data type
+4. WHEN a property is selected THEN the system SHALL emit an update event with the property information
+5. WHEN the property selector is cleared THEN the system SHALL reset to the placeholder state
+6. WHEN the selected property has a data type THEN the system SHALL display the data type information below the selector
+7. WHEN the property selector is disabled THEN the system SHALL prevent user interaction and show disabled styling
+
+### Requirement 14
+
+**User Story:** As a data curator, I want a comprehensive claim editor that handles statement values, ranks, qualifiers, and references in a unified interface, so that I can configure all aspects of a statement efficiently.
+
+#### Acceptance Criteria
+
+1. WHEN the user configures a statement THEN the system SHALL provide a ClaimEditor component for value configuration
+2. WHEN the user sets a statement value THEN the system SHALL provide drop zones for column mapping with data type validation
+3. WHEN the user configures statement rank THEN the system SHALL provide a dropdown with preferred, normal, and deprecated options
+4. WHEN the user adds qualifiers THEN the system SHALL provide a QualifiersEditor with property selection and value mapping
+5. WHEN the user adds references THEN the system SHALL provide a ReferencesEditor with snak configuration
+6. WHEN the claim editor is disabled THEN the system SHALL prevent interaction until a property is selected
+7. WHEN the user makes changes in the claim editor THEN the system SHALL immediately update the schema store
+
+### Requirement 15
+
+**User Story:** As a data curator, I want a validation display component that shows the current validation status and errors, so that I can understand and fix issues with my schema configuration.
+
+#### Acceptance Criteria
+
+1. WHEN validation errors exist THEN the system SHALL display a ValidationDisplay component with error and warning counts
+2. WHEN the user views validation status THEN the system SHALL show detailed error messages with specific paths and suggestions
+3. WHEN the user wants to clear validation errors THEN the system SHALL provide a "Clear All" button
+4. WHEN validation status changes THEN the system SHALL update the display immediately with current error and warning counts
+5. WHEN no validation issues exist THEN the system SHALL hide the validation display or show a success state
+6. WHEN validation errors are path-specific THEN the system SHALL highlight the relevant sections in the editor
+7. WHEN the user hovers over validation indicators THEN the system SHALL show detailed error information in tooltips
