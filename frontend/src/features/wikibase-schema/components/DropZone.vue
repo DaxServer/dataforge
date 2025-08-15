@@ -1,26 +1,19 @@
 <script setup lang="ts">
-// Drop zone component for reusability across different contexts
+// Props
 const props = defineProps<{
   icon: string
   placeholder: string
   testId: string
   acceptedTypes: WikibaseDataType[]
   disabled?: boolean
-
-  // Content display props
+  validator?: (columnInfo: ColumnInfo) => boolean
   selectedColumn?: {
     name: string
     dataType: string
   }
-
-  validator?: (columnInfo: ColumnInfo) => {
-    isValid: boolean
-    reason?: string
-    message?: string
-  }
 }>()
 
-// Define emits for generic usage
+// Emits
 const emit = defineEmits<{
   'column-dropped': [columnInfo: ColumnInfo]
   'clear-selection': []
@@ -34,28 +27,23 @@ const { isDataTypeCompatible } = useDataTypeCompatibility()
 /**
  * Core validation function for column-target compatibility
  */
-const validateColumnForTarget = (columnInfo: ColumnInfo) => {
-  // Use custom validator if provided
+const validateColumnForTarget = (columnInfo: ColumnInfo | null) => {
+  if (!columnInfo) {
+    return false
+  }
+
+  // Use validator if provided
   if (props.validator) {
     return props.validator(columnInfo)
   }
 
   // Default validation logic - data type compatibility
   if (!isDataTypeCompatible(columnInfo.dataType, props.acceptedTypes)) {
-    return {
-      isValid: false,
-      reason: 'incompatible_data_type',
-      message: `Column type '${columnInfo.dataType}' is not compatible with target types: ${props.acceptedTypes.join(', ')}`,
-    }
+    return false
   }
 
-  return { isValid: true }
+  return true
 }
-
-const isValidForDrop = computed(() => {
-  if (!dragDropStore.draggedColumn) return { isValid: false }
-  return validateColumnForTarget(dragDropStore.draggedColumn)
-})
 
 // CSS classes using shared styling logic
 const dropZoneClasses = computed(() => {
@@ -65,8 +53,7 @@ const dropZoneClasses = computed(() => {
     }
   }
 
-  const validation = validateColumnForTarget(dragDropStore.draggedColumn)
-  const isValidTarget = validation.isValid
+  const isValidTarget = validateColumnForTarget(dragDropStore.draggedColumn)
 
   return {
     'border-primary-400 bg-primary-50': isOverDropZone.value,
@@ -82,7 +69,7 @@ const handleDragOver = (event: DragEvent): void => {
   event.preventDefault()
   if (event.dataTransfer) {
     event.dataTransfer.dropEffect =
-      dragDropStore.draggedColumn && isValidForDrop.value.isValid ? 'copy' : 'none'
+      validateColumnForTarget(dragDropStore.draggedColumn) ? 'copy' : 'none'
   }
 }
 
@@ -113,10 +100,9 @@ const handleDrop = (event: DragEvent): void => {
 
   try {
     const columnInfo = JSON.parse(columnData) as ColumnInfo
-    const validation = isValidForDrop.value
 
     // Only proceed if drop validation passes
-    if (validation.isValid) {
+    if (validateColumnForTarget(columnInfo)) {
       emit('column-dropped', columnInfo)
     }
   } catch (error) {

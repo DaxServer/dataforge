@@ -84,11 +84,7 @@ const { isDataTypeCompatible } = useDataTypeCompatibility()
 const validateColumnDrop = (columnInfo: ColumnInfo) => {
   // 1. Data type compatibility - only string types for schema fields
   if (!isDataTypeCompatible(columnInfo.dataType, ['string'])) {
-    return {
-      isValid: false,
-      reason: 'incompatible_data_type',
-      message: `Column type '${columnInfo.dataType}' is not compatible with ${props.termType} fields (string types only)`,
-    }
+    return false
   }
 
   // 2. Length constraints for labels and aliases
@@ -96,11 +92,7 @@ const validateColumnDrop = (columnInfo: ColumnInfo) => {
     const maxLength = props.termType === 'label' ? 250 : 100
     const hasLongValues = columnInfo.sampleValues?.some((val) => val.length > maxLength)
     if (hasLongValues) {
-      return {
-        isValid: false,
-        reason: 'length_constraint',
-        message: `${props.termType} values should be shorter than ${maxLength} characters`,
-      }
+      return false
     }
   }
 
@@ -112,15 +104,11 @@ const validateColumnDrop = (columnInfo: ColumnInfo) => {
     )
 
     if (isDuplicate) {
-      return {
-        isValid: false,
-        reason: 'duplicate_alias',
-        message: 'This alias already exists',
-      }
+      return false
     }
   }
 
-  return { isValid: true }
+  return true
 }
 
 // Handle column drop from DropZone

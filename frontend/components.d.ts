@@ -40,7 +40,6 @@ declare module 'vue' {
     ReferencesEditor: typeof import('./src/features/wikibase-schema/components/ReferencesEditor.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
-    SchemaDropZone: typeof import('./src/features/wikibase-schema/components/SchemaDropZone.vue')['default']
     SchemaSelector: typeof import('./src/features/wikibase-schema/components/SchemaSelector.vue')['default']
     SchemaTabPanel: typeof import('./src/features/wikibase-schema/components/SchemaTabPanel.vue')['default']
     Select: typeof import('primevue/select')['default']

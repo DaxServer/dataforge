@@ -9,7 +9,6 @@ interface ValueMappingEditorProps {
 
 const props = withDefaults(defineProps<ValueMappingEditorProps>(), {
   valueMapping: null,
-  propertyDataType: undefined,
   disabled: false,
   showLabels: true,
 })
@@ -101,45 +100,23 @@ const handleColumnDrop = (columnInfo: ColumnInfo) => {
 
 // Get accepted types for the drop zone based on property data type
 const acceptedTypes = computed((): WikibaseDataType[] => {
-  if (!props.propertyDataType) {
-    // Default to all types if no property data type specified
-    return [
-      'string',
-      'url',
-      'external-id',
-      'wikibase-item',
-      'wikibase-property',
-      'commonsMedia',
-      'globe-coordinate',
-      'quantity',
-      'time',
-      'monolingualtext',
-    ]
-  }
-
   // For specific property data types, we can be more restrictive
   // but for now, accept all types and let the validation handle compatibility
-  return [
-    'string',
-    'url',
-    'external-id',
-    'wikibase-item',
-    'wikibase-property',
-    'commonsMedia',
-    'globe-coordinate',
-    'quantity',
-    'time',
-    'monolingualtext',
-  ]
+  return props.propertyDataType
+    ? [props.propertyDataType]
+    : [
+        'string',
+        'url',
+        'external-id',
+        'wikibase-item',
+        'wikibase-property',
+        'commonsMedia',
+        'globe-coordinate',
+        'quantity',
+        'time',
+        'monolingualtext',
+      ]
 })
-
-// Custom validator for the drop zone
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const validateColumnDrop = (columnInfo: ColumnInfo) => {
-  // Always allow drops for value mapping - let the user decide compatibility
-  // This matches the original behavior of useStatementDropZone
-  return { isValid: true }
-}
 </script>
 
 <template>
@@ -203,7 +180,6 @@ const validateColumnDrop = (columnInfo: ColumnInfo) => {
                 }
               : undefined
           "
-          :validator="validateColumnDrop"
           @column-dropped="handleColumnDrop"
           @clear-selection="clearColumnSelection"
         />
