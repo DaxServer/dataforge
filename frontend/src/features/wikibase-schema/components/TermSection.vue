@@ -1,5 +1,6 @@
 <script setup lang="ts">
-interface Props {
+// Props
+const props = defineProps<{
   title: string
   termType: 'label' | 'description' | 'alias'
   icon: string
@@ -8,9 +9,9 @@ interface Props {
   validationPath: string
   values: Label | Alias
   sectionIndex: number
-}
+}>()
 
-const props = defineProps<Props>()
+// Store
 const schemaStore = useSchemaStore()
 
 // Schema validation UI for section-level validation feedback
@@ -25,19 +26,17 @@ const validationIcon = computed(() => getValidationIcon(props.validationPath))
 
 // Compute border and background classes based on validation status
 const containerClasses = computed(() => {
-  const baseClasses = 'border rounded-lg p-3 shadow-sm'
-
   if (validation.value.hasErrors) {
-    return `${baseClasses} border-red-300 bg-red-50`
+    return 'border-red-300 bg-red-50'
   }
 
   if (validation.value.hasWarnings) {
-    return `${baseClasses} border-yellow-300 bg-yellow-50`
+    return 'border-yellow-300 bg-yellow-50'
   }
 
   // Alternating backgrounds for normal state
   const bgClass = props.sectionIndex % 2 === 0 ? 'bg-white' : 'bg-slate-50'
-  return `${baseClasses} border-slate-200 ${bgClass}`
+  return `border-slate-200 ${bgClass}`
 })
 
 // Compute total issues count
@@ -80,10 +79,72 @@ const removeMapping = (languageCode: string, mapping: ColumnMapping) => {
 }
 
 const { getAcceptedLanguages } = useTermsEditor()
+const { isDataTypeCompatible } = useDataTypeCompatibility()
+
+const validateColumnDrop = (columnInfo: ColumnInfo) => {
+  // 1. Data type compatibility - only string types for schema fields
+  if (!isDataTypeCompatible(columnInfo.dataType, ['string'])) {
+    return {
+      isValid: false,
+      reason: 'incompatible_data_type',
+      message: `Column type '${columnInfo.dataType}' is not compatible with ${props.termType} fields (string types only)`,
+    }
+  }
+
+  // 2. Length constraints for labels and aliases
+  if (props.termType === 'label' || props.termType === 'alias') {
+    const maxLength = props.termType === 'label' ? 250 : 100
+    const hasLongValues = columnInfo.sampleValues?.some((val) => val.length > maxLength)
+    if (hasLongValues) {
+      return {
+        isValid: false,
+        reason: 'length_constraint',
+        message: `${props.termType} values should be shorter than ${maxLength} characters`,
+      }
+    }
+  }
+
+  // 3. Check for duplicate aliases
+  if (props.termType === 'alias') {
+    const existingAliases = schemaStore.aliases[selectedLanguage.value] || []
+    const isDuplicate = existingAliases.some(
+      (alias) => alias.columnName === columnInfo.name && alias.dataType === columnInfo.dataType,
+    )
+
+    if (isDuplicate) {
+      return {
+        isValid: false,
+        reason: 'duplicate_alias',
+        message: 'This alias already exists',
+      }
+    }
+  }
+
+  return { isValid: true }
+}
+
+// Handle column drop from DropZone
+const handleColumnDrop = (columnInfo: ColumnInfo) => {
+  const columnMapping = {
+    columnName: columnInfo.name,
+    dataType: columnInfo.dataType,
+  }
+
+  if (props.termType === 'label') {
+    schemaStore.addLabelMapping(selectedLanguage.value, columnMapping)
+  } else if (props.termType === 'description') {
+    schemaStore.addDescriptionMapping(selectedLanguage.value, columnMapping)
+  } else if (props.termType === 'alias') {
+    schemaStore.addAliasMapping(selectedLanguage.value, columnMapping)
+  }
+}
 </script>
 
 <template>
-  <div :class="containerClasses">
+  <div
+    class="border rounded-lg p-3 shadow-sm"
+    :class="containerClasses"
+  >
     <div class="flex items-center justify-between mb-3">
       <h3 class="text-lg font-semibold">{{ title }}</h3>
       <div
@@ -152,12 +213,13 @@ const { getAcceptedLanguages } = useTermsEditor()
         <!-- Drop zone -->
         <div class="flex-1 flex flex-col">
           <label class="block text-sm font-medium text-surface-700 mb-2">&nbsp;</label>
-          <SchemaDropZone
-            :term-type="termType"
+          <DropZone
             :icon="icon"
             :placeholder="placeholder"
             :test-id="testId"
-            :language-code="selectedLanguage"
+            :accepted-types="['string']"
+            :validator="validateColumnDrop"
+            @column-dropped="handleColumnDrop"
           />
         </div>
       </div>

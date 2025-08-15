@@ -15,7 +15,6 @@
 - [Frontend Integration](#frontend-integration)
 - [Type Safety](#type-safety)
 - [Best Practices](#best-practices)
-- [Common Issues](#common-issues)
 
 ## Table of Contents
 

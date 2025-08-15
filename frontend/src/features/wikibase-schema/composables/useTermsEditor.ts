@@ -29,8 +29,6 @@ export const useTermsEditor = () => {
     return [...ACCEPTED_LANGUAGES]
   }
 
-  // Column drop handling is now done directly in the SchemaDropZone component
-
   /**
    * Show the language input field
    */
