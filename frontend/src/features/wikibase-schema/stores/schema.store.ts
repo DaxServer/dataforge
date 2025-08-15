@@ -13,6 +13,7 @@ import type {
   StatementRank,
   StatementSchemaMapping,
   ValueMapping,
+  WikibaseSchemaResponse,
 } from '@backend/api/project/project.wikibase'
 import type { StatementSchema } from '@frontend/shared/types/wikibase-schema'
 
@@ -157,7 +158,10 @@ export const useSchemaStore = defineStore('schema', () => {
     statements1.value[id] = {
       id,
       rank: 'normal',
+      qualifiers: [],
+      references: [],
     }
+    markDirty()
   }
 
   const addStatement = (
@@ -194,6 +198,7 @@ export const useSchemaStore = defineStore('schema', () => {
       id: statementId,
       property,
     }
+    markDirty()
   }
 
   // Qualifiers
@@ -211,7 +216,7 @@ export const useSchemaStore = defineStore('schema', () => {
         dataType: 'string',
         source: {
           columnName: '',
-          dataType: 'string',
+          dataType: 'VARCHAR',
         },
       },
     })
@@ -381,6 +386,7 @@ export const useSchemaStore = defineStore('schema', () => {
 
   const removeStatement1 = (statementId: UUID) => {
     delete statements1.value[statementId]
+    markDirty()
   }
 
   const updateStatementRank = (statementId: UUID, rank: StatementRank) => {

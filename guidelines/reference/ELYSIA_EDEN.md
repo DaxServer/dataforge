@@ -13,7 +13,7 @@
 
 - [Backend Setup](#backend-setup)
 - [Frontend Integration](#frontend-integration)
-- [Type Safety Patterns](#type-safety-patterns)
+- [Type Safety](#type-safety)
 - [Best Practices](#best-practices)
 - [Common Issues](#common-issues)
 

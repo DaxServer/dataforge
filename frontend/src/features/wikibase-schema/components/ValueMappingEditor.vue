@@ -154,10 +154,10 @@ setOnColumnDrop((columnInfo: ColumnInfo) => {
         v-if="isColumnType"
         :class="dropZoneClasses"
         class="border-2 border-dashed rounded-lg p-4 text-center transition-all duration-200 ease-in-out"
-        @dragover="handleDragOver"
-        @dragenter="handleDragEnter"
-        @dragleave="handleDragLeave"
-        @drop="handleDrop"
+        @dragover="disabled ? undefined : handleDragOver"
+        @dragenter="disabled ? undefined : handleDragEnter"
+        @dragleave="disabled ? undefined : handleDragLeave"
+        @drop="disabled ? undefined : handleDrop"
       >
         <!-- Show dropped column info if column is selected -->
         <div

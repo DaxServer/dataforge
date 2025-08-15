@@ -86,18 +86,7 @@ const displayName = computed(() =>
   userData.value ? `${userData.value.firstName} ${userData.value.lastName}` : '',
 )
 
-// 8. Watchers (for side effects)
-watch(
-  props.userId,
-  async (newUserId) => {
-    if (newUserId) {
-      await loadUser(newUserId)
-    }
-  },
-  { immediate: true },
-)
-
-// 9. Methods
+// 8. Methods
 const loadUser = async (id: string) => {
   isLoading.value = true
   errorMessage.value = ''
@@ -113,7 +102,7 @@ const loadUser = async (id: string) => {
   isLoading.value = false
 }
 
-// 10. Lifecycle hooks
+// 9. Lifecycle hooks
 onMounted(() => {
   // onMounted logic
 })
@@ -144,13 +133,6 @@ const expensiveCalculation = computed(() => {
 
 // PREFER: Simple reactive derivations
 const fullName = ref('')
-watch(
-  [firstName, lastName],
-  ([first, last]) => {
-    fullName.value = `${first} ${last}`
-  },
-  { immediate: true },
-)
 ```
 
 ## Component Structure
@@ -410,15 +392,6 @@ export const useLocalStorage = <T>(key: string, defaultValue: T) => {
     }
   })
 
-  // Watch for changes and update localStorage
-  watch(
-    storedValue,
-    (newValue) => {
-      localStorage.setItem(key, JSON.stringify(newValue))
-    },
-    { deep: true },
-  )
-
   return storedValue
 }
 
@@ -461,7 +434,7 @@ export const useAsyncData = <T>(fetcher: () => Promise<T>) => {
 
 ```typescript
 // Vue 3 Composition API (auto-imported)
-;(ref, reactive, computed, watch, watchEffect)
+;(ref, reactive, computed)
 ;(onMounted, onUnmounted, onUpdated)
 ;(nextTick, defineProps, defineEmits)
 
