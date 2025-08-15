@@ -1,6 +1,7 @@
 # Project Structure
 
 ## Root Level Organization
+
 ```
 dataforge/
 ├── backend/           # Elysia API server
@@ -12,6 +13,7 @@ dataforge/
 ```
 
 ## Backend Structure (`backend/`)
+
 ```
 backend/
 ├── src/
@@ -26,6 +28,7 @@ backend/
 ```
 
 ## Frontend Structure (`frontend/`)
+
 ```
 frontend/
 ├── src/
@@ -43,12 +46,14 @@ frontend/
 ## Key Architectural Patterns
 
 ### API Organization
+
 - Routes grouped by domain (`/api/project/*`)
 - Schema definitions in `_schemas.ts` files
 - Separate files for each major operation
 - Tests mirror the API structure
 
 ### Frontend Organization
+
 - **Components**: Reusable UI components (PrimeVue-based)
 - **Composables**: Business logic and state management
 - **Stores**: Global state with Pinia
@@ -56,18 +61,21 @@ frontend/
 - **Types**: Frontend-specific type definitions
 
 ### Configuration Files
+
 - **Root**: Workspace and shared configuration
 - **Backend**: Elysia-specific TypeScript config
 - **Frontend**: Vite and Vue-specific configuration
 - **Shared**: Base TypeScript config with path aliases
 
 ### Testing Structure
+
 - Backend tests mirror `src/` structure
 - Frontend tests in `__tests__/` subdirectories
 - Integration tests for API endpoints
 - Unit tests for composables and utilities
 
 ### Development Guidelines Location
+
 - **guidelines/core/**: Essential development standards
 - **guidelines/reference/**: Detailed implementation guides
 - **.kiro/steering/**: AI assistant guidance rules

@@ -15,13 +15,6 @@ export interface PropertyValueEditorActions {
   onValidationChanged: (errors: string[]) => void
 }
 
-export interface PropertyValueEditorOptions {
-  statementId: UUID
-  items: ComputedRef<PropertyValueMap[]>
-  onSave: (item: PropertyValueMap, editingIndex: number | null) => void
-  onRemove: (index: number) => void
-}
-
 export const usePropertyValueEditor = () => {
   const { clearSelection } = usePropertySelection()
 
@@ -35,10 +28,6 @@ export const usePropertyValueEditor = () => {
   // Computed
   const isFormValid = computed(() => {
     return selectedPropertyId.value && selectedValue.value && validationErrors.value.length === 0
-  })
-
-  const currentItem = computed(() => {
-    return editingIndex.value !== null ? undefined : undefined
   })
 
   // Actions
@@ -93,7 +82,6 @@ export const usePropertyValueEditor = () => {
 
     // Computed
     isFormValid,
-    currentItem,
 
     // Actions
     startAdding,

@@ -1,5 +1,5 @@
-@import "tailwindcss";
-@import "tailwindcss-primeui";
+@import 'tailwindcss';
+@import 'tailwindcss-primeui';
 
 /* This ensures the application always uses the light theme, overriding the device's dark mode settings */
 html {

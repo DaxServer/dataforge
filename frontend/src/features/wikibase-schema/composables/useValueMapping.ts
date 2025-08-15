@@ -254,6 +254,7 @@ export const useValueMapping = () => {
     updateColumnSource,
     validateMapping,
     getCompatibleDataTypes,
+    getCompatibleWikibaseTypes,
     autoSuggestDataType,
     resetMapping,
   }

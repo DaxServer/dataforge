@@ -24,7 +24,7 @@ const handleAddStatement = () => {
             v-if="schemaStore.hasStatements"
             class="text-sm text-surface-500 font-normal"
           >
-            ({{ schemaStore.countStatments }})
+            ({{ schemaStore.countStatements }})
           </span>
         </h4>
       </div>

@@ -1,3 +1,4 @@
+import { ref, computed, readonly } from 'vue'
 import type { ItemSchema } from '@backend/api/project/project.wikibase'
 import { ApiError } from '@backend/types/error-schemas'
 
@@ -163,6 +164,18 @@ export const useSchemaApi = () => {
       saveStatus.value = 'saving'
       saveError.value = null
 
+      // Transform statements1 object to array format expected by API
+      const statements = Object.values(schemaStore.statements1)
+        .filter((stmt) => stmt.property && stmt.value)
+        .map((stmt) => ({
+          id: stmt.id,
+          property: stmt.property!,
+          value: stmt.value!,
+          rank: stmt.rank || 'normal',
+          qualifiers: stmt.qualifiers || [],
+          references: stmt.references || [],
+        }))
+
       let result
 
       if (schemaStore.schemaId) {
@@ -176,7 +189,7 @@ export const useSchemaApi = () => {
               descriptions: schemaStore.descriptions,
               aliases: schemaStore.aliases,
             },
-            statements: schemaStore.statements,
+            statements,
           },
         }
 
@@ -192,7 +205,7 @@ export const useSchemaApi = () => {
               descriptions: schemaStore.descriptions,
               aliases: schemaStore.aliases,
             },
-            statements: schemaStore.statements,
+            statements,
           },
         })
       }

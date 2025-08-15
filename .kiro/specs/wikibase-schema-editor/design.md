@@ -14,7 +14,7 @@ graph TB
     B --> C[API Layer]
     C --> D[Backend Elysia Routes]
     D --> E[DuckDB Storage]
-    
+
     F[Column Data] --> G[Schema Mapping Engine]
     G --> H[Wikibase Schema Structure]
     H --> I[Validation Engine]
@@ -44,6 +44,7 @@ graph TD
 ### Core Components
 
 #### 1. WikibaseSchemaEditor (Main Container)
+
 - **Purpose**: Root component that orchestrates the entire schema editing experience with autosave functionality
 - **Responsibilities**:
   - Manages overall state and data flow with automatic Pinia store updates
@@ -54,6 +55,7 @@ graph TD
   - Eliminates individual save/cancel buttons throughout the interface
 
 #### 2. SchemaSelector
+
 - **Purpose**: Manages schema selection workflow as the initial interface
 - **Responsibilities**:
   - Fetches existing schemas linked to the current project using existing API
@@ -63,6 +65,7 @@ graph TD
   - Shows empty state when no schemas exist
 
 #### 3. ColumnPalette
+
 - **Purpose**: Displays available data columns as draggable elements with optional sample data
 - **Responsibilities**:
   - Fetches column information from project data
@@ -73,6 +76,7 @@ graph TD
   - Provides toggle button interface for showing/hiding sample data
 
 #### 4. SchemaCanvas
+
 - **Purpose**: Main editing area where schema structure is built with automatic saving
 - **Responsibilities**:
   - Renders the item configuration interface with autosave behavior
@@ -82,6 +86,7 @@ graph TD
   - Automatically persists all changes to Pinia store on user interactions
 
 #### 5. ItemEditor
+
 - **Purpose**: Manages the configuration of a single Wikibase item with autosave
 - **Responsibilities**:
   - Provides interface for item metadata with automatic store updates
@@ -91,6 +96,7 @@ graph TD
   - Eliminates save/cancel buttons for item operations
 
 #### 6. TermsEditor
+
 - **Purpose**: Manages Labels, Descriptions, and Aliases configuration with autosave
 - **Responsibilities**:
   - Provides drop zones for each term type with immediate store updates
@@ -100,6 +106,7 @@ graph TD
   - Eliminates save/cancel buttons for term operations
 
 #### 7. StatementsEditor
+
 - **Purpose**: Container for managing multiple statements with autosave
 - **Responsibilities**:
   - Provides interface to add/remove statements with immediate store updates
@@ -108,6 +115,7 @@ graph TD
   - Eliminates save/cancel buttons for statement management operations
 
 #### 8. StatementEditor
+
 - **Purpose**: Configures individual property-value statements with autosave
 - **Responsibilities**:
   - Property selection interface (P-ID autocomplete) with immediate store updates
@@ -117,6 +125,7 @@ graph TD
   - Eliminates save/cancel buttons for statement configuration
 
 #### 9. QualifiersEditor & ReferencesEditor
+
 - **Purpose**: Manages qualifiers and references for statements with autosave
 - **Responsibilities**:
   - Provides interfaces to add/remove qualifiers/references with immediate store updates
@@ -125,6 +134,7 @@ graph TD
   - Eliminates save/cancel buttons for qualifier and reference operations
 
 #### 10. ColumnItem
+
 - **Purpose**: Individual draggable column element within the ColumnPalette
 - **Responsibilities**:
   - Renders individual column as draggable chip
@@ -135,15 +145,16 @@ graph TD
 ### Data Models
 
 #### Schema Data Structure
+
 ```typescript
-import { 
-  ItemId, 
-  PropertyId, 
-  Labels, 
-  Descriptions, 
-  Aliases, 
-  Claims, 
-  Item 
+import {
+  ItemId,
+  PropertyId,
+  Labels,
+  Descriptions,
+  Aliases,
+  Claims,
+  Item,
 } from '@backend/types/wikibase-schema'
 
 interface WikibaseSchemaMapping {
@@ -228,31 +239,32 @@ type StatementRank = 'preferred' | 'normal' | 'deprecated'
 
 // Note: This should be imported from wikibase-sdk when available
 // Currently the backend TODO indicates DataType needs to be defined
-type WikibaseDataType = 
-  | 'string' 
+type WikibaseDataType =
+  | 'string'
   | 'wikibase-item'
-  | 'wikibase-property' 
-  | 'quantity' 
-  | 'time' 
-  | 'globe-coordinate' 
-  | 'url' 
+  | 'wikibase-property'
+  | 'quantity'
+  | 'time'
+  | 'globe-coordinate'
+  | 'url'
   | 'external-id'
   | 'monolingualtext'
   | 'commonsMedia'
 ```
 
 #### Schema Editor Drag and Drop Integration
+
 ```typescript
 // Schema editor specific drag and drop context
 interface SchemaDragDropContext {
   // Global drag state (from Pinia store)
   draggedColumn: Ref<ColumnInfo | null>
   dragState: Ref<DragState>
-  
+
   // Drop zone state from native HTML5 events
   isOverDropZone: Ref<boolean>
   hoveredTarget: Ref<string | null>
-  
+
   // Validation and feedback (always active)
   validDropTargets: ComputedRef<DropTarget[]>
   isValidDrop: ComputedRef<boolean>
@@ -369,24 +381,27 @@ const ValidationErrors = {
   INCOMPATIBLE_DATA_TYPE: 'Column data type incompatible with target',
   DUPLICATE_LANGUAGE_MAPPING: 'Multiple mappings for same language',
   INVALID_PROPERTY_ID: 'Invalid or non-existent property ID',
-  MISSING_STATEMENT_VALUE: 'Statement missing required value mapping'
+  MISSING_STATEMENT_VALUE: 'Statement missing required value mapping',
 }
 ```
 
 ## Testing Strategy
 
 ### Unit Testing
+
 - Component isolation testing using Vue Test Utils
 - Composable logic testing
 - Data transformation function testing
 - Validation rule testing
 
 ### Integration Testing
+
 - API endpoint testing for schema CRUD operations
 - Database schema persistence testing
 - End-to-end drag-and-drop workflow testing
 
 ### User Experience Testing
+
 - Drag-and-drop interaction testing
 - Responsive design testing
 - Accessibility compliance testing
@@ -395,30 +410,35 @@ const ValidationErrors = {
 ## Implementation Approach
 
 ### Phase 1: Core Infrastructure
+
 - Set up base component structure
 - Implement data models and TypeScript interfaces
 - Create basic drag-and-drop functionality
 - Establish API integration patterns
 
 ### Phase 2: Schema Building
+
 - Implement Terms editor with multilingual support
 - Create Statements editor with property selection
 - Add basic validation and error handling
 - Implement schema persistence
 
 ### Phase 3: Advanced Features
+
 - Add Qualifiers and References support
 - Implement advanced validation rules
 - Add data type transformation capabilities
 - Create preview and export functionality
 
 ### Phase 4: Polish and Optimization
+
 - Enhance user experience with animations and feedback
 - Optimize performance for large schemas
 - Add comprehensive error handling
 - Implement accessibility features
 
 ### Phase 5: Schema Selection Enhancement
+
 - Build SchemaSelector component for initial schema selection
 - Integrate schema selection with existing WikibaseSchemaEditor
 - Add schema metadata display and empty state handling
@@ -427,6 +447,7 @@ const ValidationErrors = {
 ## Technical Decisions
 
 ### State Management
+
 - Use Vue 3 Composition API with Pinia stores for state management
 - Implement reactive schema state with automatic persistence to store on every change
 - Use computed properties for derived state (validation status, completion percentage)
@@ -455,12 +476,14 @@ The autosave system operates on two levels:
    - No changes to existing manual backend synchronization behavior
 
 ### Schema Selection Integration
+
 - SchemaSelector will be the initial view within WikibaseSchemaEditor
 - Use existing `useSchemaApi().loadAllSchemas()` to fetch available schemas
 - Transition to main editor by setting a reactive state flag
 - Leverage existing schema initialization code for new schema creation
 
 ### Drag and Drop Implementation
+
 - Use VueUse `useDraggable` for making column elements draggable with position tracking and visual feedback
 - Use native HTML5 drag and drop events with `DataTransfer` API for custom data transfer between elements
 - Create custom composables that combine VueUse reactivity with HTML5 drag/drop data transfer
@@ -469,6 +492,7 @@ The autosave system operates on two levels:
 - Validation runs continuously without manual start/stop controls
 
 ### API Integration
+
 - Leverage existing Elysia backend routes for schema operations (unchanged)
 - Use existing `loadAllSchemas`, `loadSchema`, and `createSchema` functions (unchanged)
 - Use existing optimistic updates with rollback capability (unchanged)
@@ -479,61 +503,64 @@ The autosave system operates on two levels:
 ### Autosave Implementation Patterns
 
 #### Component-Level Autosave
+
 ```typescript
 // Example: TermsEditor autosave pattern
 const handleTermMapping = (termType: string, language: string, columnMapping: ColumnMapping) => {
   // Immediately update Pinia store - no save button needed
   schemaStore.updateTermMapping(termType, language, columnMapping)
-  
+
   // Mark schema as dirty for backend sync
   schemaStore.markDirty()
 }
 
-// Example: StatementEditor autosave pattern  
+// Example: StatementEditor autosave pattern
 const handlePropertySelection = (statementId: string, property: PropertyReference) => {
   // Immediately update Pinia store - no save button needed
   schemaStore.updateStatementProperty(statementId, property)
-  
+
   // Mark schema as dirty for backend sync
   schemaStore.markDirty()
 }
 ```
 
 #### Store-Level Autosave
+
 ```typescript
 // Pinia store with autosave mutations
 export const useSchemaStore = defineStore('schema', () => {
   const schema = ref<WikibaseSchemaMapping | null>(null)
-  
+
   const updateTermMapping = (termType: string, language: string, mapping: ColumnMapping) => {
     if (!schema.value) return
-    
+
     // Immediate store update
     schema.value.item.terms[termType][language] = mapping
     schema.value.isDirty = true
     schema.value.updatedAt = new Date().toISOString()
   }
-  
+
   const markDirty = () => {
     if (schema.value) {
       schema.value.isDirty = true
     }
   }
-  
+
   // Note: Backend sync functionality already exists and should not be modified
-  // The existing manual "Save to Server" implementation will read from the 
+  // The existing manual "Save to Server" implementation will read from the
   // autosave-updated store state without requiring changes to sync logic
-  
+
   return {
     schema: readonly(schema),
     updateTermMapping,
-    markDirty
+    markDirty,
     // Note: syncToBackend already exists in current implementation
   }
 })
 ```
 
 #### UI Patterns Without Save/Cancel Buttons
+
 - Drop zones immediately apply mappings on drop
 - Property selectors immediately update on selection
 - Rank dropdowns immediately update on change
@@ -543,16 +570,17 @@ export const useSchemaStore = defineStore('schema', () => {
 - Existing manual "Save to Server" button in main toolbar remains unchanged
 
 ### Auto-Imports Configuration
+
 The frontend uses `unplugin-auto-import` for seamless development experience:
 
 ```typescript
 // vite.config.ts - Auto-imports configuration
 AutoImport({
   imports: [
-    'vue',           // ref, computed, watch, etc.
-    'vue-router',    // useRoute, useRouter, etc.
-    'pinia',         // defineStore, storeToRefs, etc.
-    '@vueuse/core',  // useDraggable, useDropZone, etc.
+    'vue', // ref, computed, watch, etc.
+    'vue-router', // useRoute, useRouter, etc.
+    'pinia', // defineStore, storeToRefs, etc.
+    '@vueuse/core', // useDraggable, useDropZone, etc.
   ],
   dirs: ['src/**'], // Auto-import from composables and stores
   vueTemplate: true, // Enable in Vue templates
@@ -560,6 +588,7 @@ AutoImport({
 ```
 
 **Available Auto-Imports:**
+
 - **Vue 3**: `ref`, `computed`, `watch`, `useTemplateRef`, `nextTick`, etc.
 - **Vue Router**: `useRoute`, `useRouter`, `useRouteParams`, etc.
 - **Pinia**: `defineStore`, `storeToRefs`, `useProjectStore`, etc.
@@ -603,7 +632,7 @@ const toggleSampleData = () => {
         @click="toggleSampleData"
       />
     </div>
-    
+
     <!-- Column items -->
     <div class="flex flex-wrap gap-2">
       <ColumnItem
@@ -637,12 +666,12 @@ const handleDragStart = (event: DragEvent) => {
   // Set column data in DataTransfer for drop zones to access
   event.dataTransfer?.setData('application/x-column-data', JSON.stringify(props.columnInfo))
   event.dataTransfer?.setData('text/plain', props.columnInfo.name) // Fallback
-  
+
   // Set drag effect
   if (event.dataTransfer) {
     event.dataTransfer.effectAllowed = 'copy'
   }
-  
+
   // Set dragged column data in store
   dragDropStore.startDrag(props.columnInfo)
 }
@@ -654,39 +683,39 @@ const handleDragEnd = (event: DragEvent) => {
 </script>
 
 <template>
-  <UseDraggable 
-    v-slot="{ isDragging }" 
+  <UseDraggable
+    v-slot="{ isDragging }"
     :initial-value="{ x: 0, y: 0 }"
     :prevent-default="true"
   >
-    <div 
-      :class="{ 
+    <div
+      :class="{
         'is-dragging': isDragging,
-        'opacity-50': isDragging 
+        'opacity-50': isDragging,
       }"
       class="column-chip cursor-grab active:cursor-grabbing"
       draggable="true"
       @dragstart="handleDragStart"
       @dragend="handleDragEnd"
     >
-      <Chip 
-        :label="columnInfo.name" 
+      <Chip
+        :label="columnInfo.name"
         class="mb-2"
       >
         <template #default>
           <div class="flex items-center gap-2">
             <span class="font-medium">{{ columnInfo.name }}</span>
-            <Chip 
-              :label="columnInfo.dataType" 
+            <Chip
+              :label="columnInfo.dataType"
               size="small"
               severity="secondary"
             />
           </div>
         </template>
       </Chip>
-      
-      <div 
-        v-if="showSampleData && columnInfo.sampleValues?.length" 
+
+      <div
+        v-if="showSampleData && columnInfo.sampleValues?.length"
         class="text-xs text-surface-600 mt-1"
       >
         Sample: {{ columnInfo.sampleValues.slice(0, 3).join(', ') }}
@@ -718,7 +747,7 @@ const handleDragOver = (event: DragEvent) => {
 const handleDragEnter = (event: DragEvent) => {
   event.preventDefault()
   isOverLabelZone.value = true
-  
+
   // Get column data from drag operation
   const columnData = event.dataTransfer?.getData('application/x-column-data')
   if (columnData) {
@@ -741,7 +770,7 @@ const handleDragLeave = (event: DragEvent) => {
 const handleDrop = (event: DragEvent) => {
   event.preventDefault()
   isOverLabelZone.value = false
-  
+
   // Get the column data from the drag operation
   const columnData = event.dataTransfer?.getData('application/x-column-data')
   if (columnData) {
@@ -750,19 +779,20 @@ const handleDrop = (event: DragEvent) => {
       handleColumnDrop('label', column, 'en')
     }
   }
-  
+
   // Clean up visual feedback
   event.currentTarget?.classList.remove('drop-zone-valid', 'drop-zone-invalid')
 }
 </script>
 
 <template>
-  <div 
+  <div
     ref="labelDropZone"
-    :class="{ 
+    :class="{
       'drop-zone-active': isOverLabelZone,
       'drop-zone-valid': isValidDropForLabels(dragDropStore.draggedColumn),
-      'drop-zone-invalid': dragDropStore.draggedColumn && !isValidDropForLabels(dragDropStore.draggedColumn)
+      'drop-zone-invalid':
+        dragDropStore.draggedColumn && !isValidDropForLabels(dragDropStore.draggedColumn),
     }"
     class="label-drop-zone"
     @dragover="handleDragOver"
@@ -771,7 +801,10 @@ const handleDrop = (event: DragEvent) => {
     @drop="handleDrop"
   >
     <span v-if="!labelMapping">Drop column for labels</span>
-    <ColumnMapping v-else :mapping="labelMapping" />
+    <ColumnMapping
+      v-else
+      :mapping="labelMapping"
+    />
   </div>
 </template>
 ```
@@ -783,51 +816,57 @@ const handleDrop = (event: DragEvent) => {
 // Note: Vue composables are auto-imported (ref, computed, etc.)
 export function useValidation() {
   const draggedColumn = ref<ColumnInfo | null>(null)
-  
+
   const isValidDropForLabels = (column: ColumnInfo | null): boolean => {
     if (!column) return false
     // Labels accept string-like data types
     return ['VARCHAR', 'TEXT', 'STRING'].includes(column.dataType.toUpperCase())
   }
-  
-  const isValidDropForStatements = (column: ColumnInfo | null, propertyDataType: WikibaseDataType): boolean => {
+
+  const isValidDropForStatements = (
+    column: ColumnInfo | null,
+    propertyDataType: WikibaseDataType,
+  ): boolean => {
     if (!column) return false
-    
+
     const compatibilityMap: Record<WikibaseDataType, string[]> = {
-      'string': ['VARCHAR', 'TEXT', 'STRING'],
-      'quantity': ['INTEGER', 'DECIMAL', 'NUMERIC', 'FLOAT'],
-      'time': ['DATE', 'DATETIME', 'TIMESTAMP'],
+      string: ['VARCHAR', 'TEXT', 'STRING'],
+      quantity: ['INTEGER', 'DECIMAL', 'NUMERIC', 'FLOAT'],
+      time: ['DATE', 'DATETIME', 'TIMESTAMP'],
       'wikibase-item': ['VARCHAR', 'TEXT'], // Assuming item IDs as strings
-      'url': ['VARCHAR', 'TEXT'],
+      url: ['VARCHAR', 'TEXT'],
       // ... more mappings
     }
-    
+
     return compatibilityMap[propertyDataType]?.includes(column.dataType.toUpperCase()) ?? false
   }
-  
-  const getDropFeedback = (column: ColumnInfo | null, targetType: DropTargetType): DropFeedback | null => {
+
+  const getDropFeedback = (
+    column: ColumnInfo | null,
+    targetType: DropTargetType,
+  ): DropFeedback | null => {
     if (!column) return null
-    
+
     switch (targetType) {
       case 'label':
-        return isValidDropForLabels(column) 
+        return isValidDropForLabels(column)
           ? { type: 'success', message: 'Valid mapping for labels' }
-          : { 
-              type: 'error', 
+          : {
+              type: 'error',
               message: 'Invalid data type for labels',
-              suggestions: ['Use text-based columns for labels']
+              suggestions: ['Use text-based columns for labels'],
             }
       // ... more cases
     }
   }
-  
+
   // Validation is always active - no start/stop methods needed
-  
+
   return {
     draggedColumn,
     isValidDropForLabels,
     isValidDropForStatements,
-    getDropFeedback
+    getDropFeedback,
   }
 }
 ```
@@ -841,7 +880,7 @@ export const useDragDropStore = defineStore('dragDrop', () => {
   const dragState = ref<DragState>('idle')
   const validDropTargets = ref<string[]>([])
   const hoveredTarget = ref<string | null>(null)
-  
+
   const startDrag = (column: ColumnInfo) => {
     draggedColumn.value = column
     dragState.value = 'dragging'
@@ -849,18 +888,18 @@ export const useDragDropStore = defineStore('dragDrop', () => {
     // Validation is automatically triggered by this state change
     validDropTargets.value = calculateValidTargets(column)
   }
-  
+
   const endDrag = () => {
     draggedColumn.value = null
     dragState.value = 'idle'
     validDropTargets.value = []
     hoveredTarget.value = null
   }
-  
+
   const setHoveredTarget = (targetPath: string | null) => {
     hoveredTarget.value = targetPath
   }
-  
+
   return {
     draggedColumn: readonly(draggedColumn),
     dragState: readonly(dragState),
@@ -868,7 +907,7 @@ export const useDragDropStore = defineStore('dragDrop', () => {
     hoveredTarget: readonly(hoveredTarget),
     startDrag,
     endDrag,
-    setHoveredTarget
+    setHoveredTarget,
   }
 })
 ```

@@ -9,7 +9,9 @@ import pluginPrettier from 'eslint-plugin-prettier'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
-const autoImportGlobals = JSON.parse(readFileSync(join(__dirname, '.eslintrc-auto-import.json'), 'utf8'))
+const autoImportGlobals = JSON.parse(
+  readFileSync(join(__dirname, '.eslintrc-auto-import.json'), 'utf8'),
+)
 
 export default tseslint.config(
   {

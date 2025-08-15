@@ -10,144 +10,125 @@ const props = withDefaults(defineProps<ReferencesEditorProps>(), {
 
 const schemaStore = useSchemaStore()
 
-// Use the composable for state management
-const { isAdding, startAdding, startEditing, cancelEditing } = usePropertyValueEditor()
-
-// Additional state for reference-specific functionality
-const isAddingSnakToReference = ref<number | null>(null)
-const editingSnakInfo = ref<{ referenceIndex: number; snakIndex: number } | null>(null)
-
-// Handle remove with store update
-const handleRemove = (index: number) => {
-  const updatedReferences = props.references.filter((_, i) => i !== index)
-  schemaStore.updateStatementById(props.statementId, 'references', updatedReferences)
+// Methods
+const addReference = () => {
+  schemaStore.addNewReference(props.statementId)
 }
 
-// Reference-specific state reset helper
-const resetReferenceState = () => {
-  isAddingSnakToReference.value = null
-  editingSnakInfo.value = null
+const removeReference = (referenceId: string) => {
+  schemaStore.removeReference(props.statementId, referenceId as UUID)
 }
 
-const startAddingSnakToReference = (referenceIndex: number) => {
-  isAddingSnakToReference.value = referenceIndex
-  cancelEditing()
-  editingSnakInfo.value = null
+const handlePropertyChange = (
+  referenceId: string,
+  snakId: string,
+  property?: PropertyReference,
+) => {
+  schemaStore.updateReferenceProperty(
+    props.statementId,
+    referenceId as UUID,
+    snakId as UUID,
+    property,
+  )
 }
 
-const startEditingSnak = (referenceIndex: number, snakIndex: number) => {
-  cancelEditing()
-  isAddingSnakToReference.value = null
-  editingSnakInfo.value = { referenceIndex, snakIndex }
+const handleValueChange = (referenceId: string, snakId: string, value?: ValueMapping) => {
+  schemaStore.updateReferenceValue(props.statementId, referenceId as UUID, snakId as UUID, value)
 }
 
-const cancelAddingReference = () => {
-  cancelEditing()
-  resetReferenceState()
+const addSnakToReference = (referenceId: string) => {
+  schemaStore.addSnakToReference(props.statementId, referenceId as UUID)
 }
 
-const handleSnakSave = (snak: PropertyValueMap) => {
-  const statement = schemaStore.statements.find((s: any) => s.id === props.statementId)
-  if (!statement) return
-
-  if (isAdding.value) {
-    // Create a new reference with the first snak
-    const reference: ReferenceSchemaMapping = {
-      id: crypto.randomUUID(),
-      snaks: [snak],
-    }
-    const updatedReferences = [...statement.references, reference]
-    schemaStore.updateStatementById(props.statementId, 'references', updatedReferences)
-  } else if (isAddingSnakToReference.value !== null) {
-    // Add snak to existing reference
-    const updatedReferences = [...statement.references]
-    const currentReference = updatedReferences[isAddingSnakToReference.value]
-    if (currentReference) {
-      const updatedReference: ReferenceSchemaMapping = {
-        id: currentReference.id || crypto.randomUUID(),
-        snaks: [...(currentReference.snaks || []), snak],
-      }
-      updatedReferences[isAddingSnakToReference.value] = updatedReference
-      schemaStore.updateStatementById(props.statementId, 'references', updatedReferences)
-    }
-  } else if (editingSnakInfo.value !== null) {
-    // Update existing snak
-    const updatedReferences = [...statement.references]
-    const currentReference = updatedReferences[editingSnakInfo.value.referenceIndex]
-    if (currentReference) {
-      const updatedReference: ReferenceSchemaMapping = {
-        id: currentReference.id,
-        snaks: currentReference.snaks.map((s, i) =>
-          i === editingSnakInfo.value!.snakIndex ? snak : s,
-        ),
-      }
-      updatedReferences[editingSnakInfo.value.referenceIndex] = updatedReference
-      schemaStore.updateStatementById(props.statementId, 'references', updatedReferences)
-    }
-  }
-
-  cancelEditing()
-  resetReferenceState()
-}
-
-const removeSnakFromReference = (referenceIndex: number, snakIndex: number) => {
-  const statement = schemaStore.statements.find((s: any) => s.id === props.statementId)
-  if (statement && statement.references && statement.references[referenceIndex]) {
-    const updatedReferences = [...statement.references]
-    const currentReference = updatedReferences[referenceIndex]
-    if (currentReference) {
-      const updatedReference: ReferenceSchemaMapping = {
-        id: currentReference.id || crypto.randomUUID(),
-        snaks: (currentReference.snaks || []).filter(
-          (_: any, index: number) => index !== snakIndex,
-        ),
-      }
-      updatedReferences[referenceIndex] = updatedReference
-      schemaStore.updateStatementById(props.statementId, 'references', updatedReferences)
-    }
-  }
+const removeSnakFromReference = (referenceId: string, snakId: string) => {
+  schemaStore.removeSnakFromReference(props.statementId, referenceId as UUID, snakId as UUID)
 }
 </script>
 
 <template>
-  <BasePropertyValueEditor
-    :items="references"
-    title="References"
-    singular-label="reference"
-    plural-label="references"
-    add-button-label="Add Reference"
-    add-button-test-id="add-reference-button"
-    empty-message="No references added yet. Click 'Add Reference' to get started."
-    :show-editor="isAdding || isAddingSnakToReference !== null || editingSnakInfo !== null"
-    @add="startAdding"
-    @edit="startEditing"
-    @remove="handleRemove"
-  >
-    <template #item="{ item, index, onRemove }">
-      <ReferenceContainer
-        :reference="item"
-        :index="index"
-        @add-snak="startAddingSnakToReference(index)"
-        @edit-snak="(snakIndex) => startEditingSnak(index, snakIndex)"
-        @remove-snak="(snakIndex) => removeSnakFromReference(index, snakIndex)"
-        @remove="onRemove"
+  <div class="space-y-4">
+    <!-- Header -->
+    <div class="flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <i class="pi pi-bookmark text-primary" />
+        <h4 class="font-medium text-surface-900">References</h4>
+        <span class="text-sm text-surface-600">
+          ({{ references.length }} {{ references.length === 1 ? 'reference' : 'references' }})
+        </span>
+      </div>
+      <Button
+        label="Add Reference"
+        icon="pi pi-plus"
+        severity="secondary"
+        size="small"
+        @click="addReference"
       />
-    </template>
+    </div>
 
-    <template #editor>
-      <SingleReferenceEditor
-        v-if="isAdding || isAddingSnakToReference !== null || editingSnakInfo !== null"
-        :statement-id="statementId"
-        :snak="
-          editingSnakInfo
-            ? references[editingSnakInfo.referenceIndex]?.snaks[editingSnakInfo.snakIndex]
-            : undefined
-        "
-        :is-editing="editingSnakInfo !== null"
-        :is-adding-to-reference="isAddingSnakToReference !== null"
-        @save="handleSnakSave"
-        @cancel="cancelAddingReference"
-      />
-    </template>
-  </BasePropertyValueEditor>
+    <div
+      v-if="references"
+      class="space-y-3"
+    >
+      <div
+        v-for="(reference, refIndex) in references"
+        :key="`reference-${reference.id}`"
+        class="border border-surface-200 rounded-lg p-4 bg-surface-25"
+      >
+        <div class="flex items-center justify-between mb-3">
+          <h5 class="font-medium text-surface-900">Reference {{ refIndex + 1 }}</h5>
+          <Button
+            icon="pi pi-trash"
+            severity="danger"
+            size="small"
+            text
+            @click="removeReference(reference.id)"
+          />
+        </div>
+
+        <!-- Reference Snaks -->
+        <div class="space-y-3">
+          <!-- Snaks Header -->
+          <div class="flex items-center justify-between">
+            <span class="text-sm font-medium text-surface-700">
+              Snaks ({{ reference.snaks.length }})
+            </span>
+            <Button
+              label="Add Snak"
+              icon="pi pi-plus"
+              severity="secondary"
+              size="small"
+              text
+              @click="addSnakToReference(reference.id)"
+            />
+          </div>
+
+          <!-- Individual Snaks -->
+          <div
+            v-for="(snak, snakIndex) in reference.snaks"
+            :key="`snak-${snak.id}`"
+            class="border border-surface-100 rounded p-3 bg-white"
+          >
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-sm font-medium text-surface-700">Snak {{ snakIndex + 1 }}</span>
+              <Button
+                icon="pi pi-times"
+                severity="danger"
+                size="small"
+                text
+                @click="removeSnakFromReference(reference.id, snak.id)"
+              />
+            </div>
+            <PropertyValueMappingEditor
+              :property-value-map="snak"
+              :statement-id="statementId"
+              context="reference"
+              property-placeholder="Search for a reference property..."
+              @property-changed="(p) => handlePropertyChange(reference.id, snak.id, p)"
+              @value-changed="(v) => handleValueChange(reference.id, snak.id, v)"
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </template>

@@ -25,7 +25,6 @@ declare module 'vue' {
     FileUpload: typeof import('primevue/fileupload')['default']
     Header: typeof import('./src/shared/components/Header.vue')['default']
     InputText: typeof import('primevue/inputtext')['default']
-    ItemEditor: typeof import('./src/features/wikibase-schema/components/ItemEditor.vue')['default']
     MainContent: typeof import('./src/shared/components/MainContent.vue')['default']
     OpenProject: typeof import('./src/features/project-management/pages/OpenProject.vue')['default']
     Paginator: typeof import('primevue/paginator')['default']
@@ -45,12 +44,8 @@ declare module 'vue' {
     SchemaTabPanel: typeof import('./src/features/wikibase-schema/components/SchemaTabPanel.vue')['default']
     Select: typeof import('primevue/select')['default']
     Sidebar: typeof import('./src/shared/components/Sidebar.vue')['default']
-    SingleQualifierEditor: typeof import('./src/features/wikibase-schema/components/SingleQualifierEditor.vue')['default']
-    SingleReferenceEditor: typeof import('./src/features/wikibase-schema/components/SingleReferenceEditor.vue')['default']
-    StatementConfigEditor: typeof import('./src/features/wikibase-schema/components/StatementConfigEditor.vue')['default']
     StatementEditor: typeof import('./src/features/wikibase-schema/components/StatementEditor.vue')['default']
     StatementManager: typeof import('./src/features/wikibase-schema/components/StatementManager.vue')['default']
-    StatementPreview: typeof import('./src/features/wikibase-schema/components/StatementPreview.vue')['default']
     Tab: typeof import('primevue/tab')['default']
     TabList: typeof import('primevue/tablist')['default']
     TabPanel: typeof import('primevue/tabpanel')['default']
@@ -62,6 +57,7 @@ declare module 'vue' {
     Toast: typeof import('primevue/toast')['default']
     ToggleSwitch: typeof import('primevue/toggleswitch')['default']
     ValidationDisplay: typeof import('./src/features/wikibase-schema/components/ValidationDisplay.vue')['default']
+    ValueMappingEditor: typeof import('./src/features/wikibase-schema/components/ValueMappingEditor.vue')['default']
     WikibaseSchemaEditor: typeof import('./src/features/wikibase-schema/components/WikibaseSchemaEditor.vue')['default']
   }
   export interface GlobalDirectives {

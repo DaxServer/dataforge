@@ -13,7 +13,9 @@ import type {
   StatementRank,
   StatementSchemaMapping,
   ValueMapping,
+  WikibaseSchemaResponse,
 } from '@backend/api/project/project.wikibase'
+import type { StatementSchema } from '@frontend/shared/types/wikibase-schema'
 
 export const useSchemaStore = defineStore('schema', () => {
   const { buildStatement } = useSchemaBuilder()
@@ -49,20 +51,65 @@ export const useSchemaStore = defineStore('schema', () => {
   })
 
   // Actions
+  const loadSchema = (response: WikibaseSchemaResponse, metadata: boolean = true) => {
+    schemaId.value = response.id as UUID
+    projectId.value = response.project_id as UUID
+    schemaName.value = response.name
+    wikibase.value = response.wikibase
+    createdAt.value = response.created_at
+    updatedAt.value = response.updated_at
+
+    if (metadata) {
+      labels.value = response.schema.terms?.labels || {}
+      descriptions.value = response.schema.terms?.descriptions || {}
+      aliases.value = response.schema.terms?.aliases || {}
+      statements.value = response.schema.statements || []
+
+      statements1.value = response.schema.statements.reduce(
+        (acc, stmt) => {
+          acc[stmt.id as UUID] = {
+            ...stmt,
+            id: stmt.id as UUID,
+          }
+          return acc
+        },
+        {} as { [key: UUID]: StatementSchema },
+      )
+      isDirty.value = false
+      lastSaved.value = new Date(response.updated_at)
+    }
+  }
+
   const updateSchemaName = (name: string) => {
     schemaName.value = name
     markDirty()
   }
+
+  // Labels
 
   const addLabelMapping = (languageCode: string, columnMapping: ColumnMapping) => {
     labels.value[languageCode] = columnMapping
     markDirty()
   }
 
+  const removeLabelMapping = (languageCode: string) => {
+    delete labels.value[languageCode]
+    markDirty()
+  }
+
+  // Descriptions
+
   const addDescriptionMapping = (languageCode: string, columnMapping: ColumnMapping) => {
     descriptions.value[languageCode] = columnMapping
     markDirty()
   }
+
+  const removeDescriptionMapping = (languageCode: string) => {
+    delete descriptions.value[languageCode]
+    markDirty()
+  }
+
+  // Aliases
 
   const addAliasMapping = (languageCode: string, columnMapping: ColumnMapping) => {
     if (!aliases.value[languageCode]) {
@@ -80,16 +127,6 @@ export const useSchemaStore = defineStore('schema', () => {
       aliases.value[languageCode].push(columnMapping)
       markDirty()
     }
-  }
-
-  const removeLabelMapping = (languageCode: string) => {
-    delete labels.value[languageCode]
-    markDirty()
-  }
-
-  const removeDescriptionMapping = (languageCode: string) => {
-    delete descriptions.value[languageCode]
-    markDirty()
   }
 
   const removeAliasMapping = (languageCode: string, columnMapping: ColumnMapping) => {
@@ -114,39 +151,17 @@ export const useSchemaStore = defineStore('schema', () => {
     markDirty()
   }
 
-  const loadSchema = (response: WikibaseSchemaResponse, metadata: boolean = true) => {
-    schemaId.value = response.id as UUID
-    projectId.value = response.project_id as UUID
-    schemaName.value = response.name
-    wikibase.value = response.wikibase
-    createdAt.value = response.created_at
-    updatedAt.value = response.updated_at
-
-    if (metadata) {
-      labels.value = response.schema.terms?.labels || {}
-      descriptions.value = response.schema.terms?.descriptions || {}
-      aliases.value = response.schema.terms?.aliases || {}
-      statements.value = response.schema.statements || []
-      statements1.value = response.schema.statements.reduce(
-        (acc, stmt) => {
-          acc[stmt.id as UUID] = {
-            ...stmt,
-            id: stmt.id as UUID,
-          }
-          return acc
-        },
-        {} as { [key: UUID]: StatementSchema },
-      )
-      isDirty.value = false
-      lastSaved.value = new Date(response.updated_at)
-    }
-  }
+  // Claim
 
   const addNewStatement = () => {
     const id = crypto.randomUUID()
     statements1.value[id] = {
       id,
+      rank: 'normal',
+      qualifiers: [],
+      references: [],
     }
+    markDirty()
   }
 
   const addStatement = (
@@ -177,8 +192,201 @@ export const useSchemaStore = defineStore('schema', () => {
     }
   }
 
+  const updateProperty = (statementId: UUID, property?: PropertyReference) => {
+    statements1.value[statementId] = {
+      ...statements1.value[statementId],
+      id: statementId,
+      property,
+    }
+    markDirty()
+  }
+
+  // Qualifiers
+
+  const addNewQualifier = (statementId: UUID) => {
+    const id = crypto.randomUUID()
+    statements1.value[statementId]!.qualifiers?.push({
+      id,
+      property: {
+        id: '',
+        dataType: '',
+      },
+      value: {
+        type: 'column',
+        dataType: 'string',
+        source: {
+          columnName: '',
+          dataType: 'VARCHAR',
+        },
+      },
+    })
+
+    markDirty()
+  }
+
+  const updateQualifierProperty = (
+    statementId: UUID,
+    qualifierId: UUID,
+    property?: PropertyReference,
+  ) => {
+    const qualifier = statements1.value[statementId]!.qualifiers?.find((q) => q.id === qualifierId)
+    if (!qualifier) return
+
+    qualifier.property = {
+      ...qualifier.property,
+      ...property,
+    }
+
+    markDirty()
+  }
+
+  const updateQualifierValue = (statementId: UUID, qualifierId: UUID, value?: ValueMapping) => {
+    const qualifier = statements1.value[statementId]!.qualifiers?.find((q) => q.id === qualifierId)
+    if (!qualifier) return
+
+    qualifier.value = {
+      ...qualifier.value,
+      ...value,
+    }
+
+    markDirty()
+  }
+
+  const removeQualifier = (statementId: UUID, qualifierId: UUID) => {
+    statements1.value[statementId]!.qualifiers = statements1.value[statementId]!.qualifiers?.filter(
+      (q) => q.id !== qualifierId,
+    )
+    markDirty()
+  }
+
+  // References
+
+  const addNewReference = (statementId: UUID) => {
+    const newReference: ReferenceSchemaMapping = {
+      id: crypto.randomUUID(),
+      snaks: [
+        {
+          id: crypto.randomUUID(),
+          property: {
+            id: '',
+            dataType: '',
+          },
+          value: {
+            type: 'column',
+            dataType: 'string',
+            source: {
+              columnName: '',
+              dataType: 'string',
+            },
+          },
+        },
+      ],
+    }
+
+    if (!statements1.value[statementId]?.references) {
+      statements1.value[statementId]!.references = []
+    }
+    statements1.value[statementId]!.references.push(newReference)
+    markDirty()
+  }
+
+  const updateReferenceProperty = (
+    statementId: UUID,
+    referenceId: UUID,
+    snakId: UUID,
+    property?: PropertyReference,
+  ) => {
+    const statement = statements1.value[statementId]
+    if (!statement?.references) return
+
+    const reference = statement.references.find((r) => r.id === referenceId)
+    if (!reference) return
+
+    const snak = reference.snaks.find((s) => s.id === snakId)
+    if (!snak) return
+
+    snak.property = {
+      ...snak.property,
+      ...property,
+    }
+
+    markDirty()
+  }
+
+  const updateReferenceValue = (
+    statementId: UUID,
+    referenceId: UUID,
+    snakId: UUID,
+    value?: ValueMapping,
+  ) => {
+    const statement = statements1.value[statementId]
+    if (!statement?.references) return
+
+    const reference = statement.references.find((r) => r.id === referenceId)
+    if (!reference) return
+
+    const snak = reference.snaks.find((s) => s.id === snakId)
+    if (!snak) return
+
+    snak.value = {
+      ...snak.value,
+      ...value,
+    }
+
+    markDirty()
+  }
+
+  const addSnakToReference = (statementId: UUID, referenceId: UUID) => {
+    const statement = statements1.value[statementId]
+    if (!statement?.references) return
+
+    const reference = statement.references.find((r) => r.id === referenceId)
+    if (!reference) return
+
+    const newSnak: PropertyValueMap = {
+      id: crypto.randomUUID(),
+      property: {
+        id: '',
+        dataType: '',
+      },
+      value: {
+        type: 'column',
+        dataType: 'string',
+        source: {
+          columnName: '',
+          dataType: 'string',
+        },
+      },
+    }
+
+    reference.snaks.push(newSnak)
+    markDirty()
+  }
+
+  const removeSnakFromReference = (statementId: UUID, referenceId: UUID, snakId: UUID) => {
+    const statement = statements1.value[statementId]
+    if (!statement?.references) return
+
+    const reference = statement.references.find((r) => r.id === referenceId)
+    if (!reference) return
+
+    const snakIndex = reference.snaks.findIndex((s) => s.id === snakId)
+    if (snakIndex < 0) return
+
+    reference.snaks.splice(snakIndex, 1)
+    markDirty()
+  }
+
+  const removeReference = (statementId: UUID, referenceId: UUID) => {
+    statements1.value[statementId]!.references = statements1.value[statementId]!.references?.filter(
+      (r) => r.id !== referenceId,
+    )
+    markDirty()
+  }
+
   const removeStatement1 = (statementId: UUID) => {
     delete statements1.value[statementId]
+    markDirty()
   }
 
   const updateStatementRank = (statementId: UUID, rank: StatementRank) => {
@@ -334,17 +542,25 @@ export const useSchemaStore = defineStore('schema', () => {
     // Computed
     canSave,
     hasStatements: computed(() => Object.keys(statements1.value).length > 0),
-    countStatments: computed(() => Object.keys(statements1.value).length),
+    countStatements: computed(() => Object.keys(statements1.value).length),
 
     // Actions
-    updateSchemaName,
-    addLabelMapping,
-    addDescriptionMapping,
-    addAliasMapping,
-    removeLabelMapping,
-    removeDescriptionMapping,
-    removeAliasMapping,
     loadSchema,
+    updateSchemaName,
+
+    // Labels
+    addLabelMapping,
+    removeLabelMapping,
+
+    // Descriptions
+    addDescriptionMapping,
+    removeDescriptionMapping,
+
+    // Aliases
+    addAliasMapping,
+    removeAliasMapping,
+
+    // Claim
     addStatement,
     addNewStatement,
     removeStatement,
@@ -356,6 +572,25 @@ export const useSchemaStore = defineStore('schema', () => {
     updateStatementQualifiers,
     addQualifierToStatement,
     removeQualifierFromStatement,
+
+    // Properties
+    updateProperty,
+
+    // Qualifiers
+    addNewQualifier,
+    updateQualifierProperty,
+    updateQualifierValue,
+    removeQualifier,
+
+    // References
+    addNewReference,
+    removeReference,
+    updateReferenceProperty,
+    updateReferenceValue,
+    addSnakToReference,
+    removeSnakFromReference,
+
+    // Meta actions
     markAsSaved,
     markDirty,
     $reset,

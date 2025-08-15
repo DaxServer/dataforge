@@ -3,11 +3,13 @@
 > **Detailed formatting and writing standards for code and documentation**
 
 ## Related Guidelines
+
 - **[General Guidelines](../core/GENERAL.md)** - Project-wide code style principles
 - **[Frontend Guidelines](../core/FRONTEND.md)** - Vue and Tailwind specific styles
 - **[Backend Guidelines](../core/BACKEND.md)** - Elysia and TypeScript patterns
 
 ## Quick Links
+
 - [Terminology](#terminology)
 - [Code Examples](#code-examples)
 - [Documentation Standards](#documentation-standards)
@@ -19,6 +21,7 @@ This document defines the writing and formatting standards for all project docum
 ## Terminology
 
 ### Always Use
+
 - **Frontend** (not front-end or Frontend)
 - **Backend** (not back-end or Backend)
 - **TypeScript** (not Typescript or TS)
@@ -35,6 +38,7 @@ This document defines the writing and formatting standards for all project docum
 ## Code Examples
 
 ### TypeScript/JavaScript
+
 - Use 2 spaces for indentation
 - Include type annotations in all examples
 - Use `const` by default, `let` only when necessary
@@ -44,6 +48,7 @@ This document defines the writing and formatting standards for all project docum
 - Use trailing commas in multi-line objects/arrays
 
 ### Vue Components
+
 - Use `<script setup>` syntax
 - **REQUIRED**: Vue Single File Components (SFC) must follow this exact order:
   1. `<script setup>` (or `<script>`) - Always first
@@ -58,6 +63,7 @@ This document defines the writing and formatting standards for all project docum
 - Use `watch` and `watchEffect` sparingly
 
 ### Styling Requirements
+
 - **MANDATORY**: Use Tailwind CSS for ALL styling
 - **FORBIDDEN**: No hardcoded CSS styles in `<style>` blocks
 - **FORBIDDEN**: No inline styles using `style` attribute
@@ -69,7 +75,9 @@ This document defines the writing and formatting standards for all project docum
 ## Documentation Structure
 
 ### File Headers
+
 Each file should start with:
+
 ```markdown
 # [Document Title]
 
@@ -78,17 +86,20 @@ Each file should start with:
 ```
 
 ### Headers
+
 - Use sentence case for headers (only first word and proper nouns capitalized)
 - Use ATX-style headers with closing hashes for better readability
 - Be concise but descriptive
 
 ### Lists
+
 - Use hyphens for unordered lists
 - Add blank lines before and after lists
 - Use ordered lists for sequential steps
 - Use task lists for checklists
 
 ### Code Blocks
+
 - Always specify the language after the opening ```
 - Include a brief description above the code block
 - Keep code blocks focused and concise
@@ -99,7 +110,7 @@ Each file should start with:
 ### Type Definitions
 
 - **NEVER create custom interfaces or types for data structures**
-- **Rare exceptions**: 
+- **Rare exceptions**:
   - Internal utility types, component props, or configuration types not related to API data
   - **Typebox types from backend schemas** (e.g., `import type { Project } from '@backend/api/project/schemas'`)
 - **ALWAYS use Elysia Eden inferred types from the backend for API responses**
@@ -128,6 +139,7 @@ type Status = 'active' | 'inactive' | 'pending'
 ```
 
 ### Tables
+
 - Use pipe syntax for tables
 - Align columns with colons
 - Keep tables simple and scannable
@@ -135,18 +147,21 @@ type Status = 'active' | 'inactive' | 'pending'
 ## Writing Style
 
 ### Voice and Tone
+
 - Use active voice
 - Be concise but clear
 - Use second person for user instructions
 - Use first person plural for team guidelines
 
 ### Formatting Conventions
+
 - **Bold** for UI elements and buttons
 - `code` for file names, paths, and commands
 - _Italics_ for emphasis
 - Use backticks for inline code and file paths
 
 ### Capitalization
+
 - Sentence case for headings
 - Title Case for proper nouns and product names
 - lowercase for general terms unless starting a sentence

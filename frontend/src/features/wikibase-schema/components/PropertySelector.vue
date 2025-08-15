@@ -1,20 +1,21 @@
 <script setup lang="ts">
 // Props
-interface PropertySelectorProps {
-  modelValue?: PropertyReference | null
-  placeholder?: string
-  disabled?: boolean
-}
-
-withDefaults(defineProps<PropertySelectorProps>(), {
-  modelValue: null,
-  placeholder: 'Search for a property...',
-  disabled: false,
-})
+withDefaults(
+  defineProps<{
+    property?: PropertyReference | null
+    placeholder?: string
+    disabled?: boolean
+  }>(),
+  {
+    property: null,
+    placeholder: 'Search for a property...',
+    disabled: false,
+  },
+)
 
 // Emits
 interface PropertySelectorEmits {
-  update: [value: PropertyReference | null]
+  update: [value?: PropertyReference]
 }
 
 const emit = defineEmits<PropertySelectorEmits>()
@@ -42,13 +43,13 @@ const handleSelect = (event: { value: PropertyReference }) => {
 
 // Clear handler
 const handleClear = () => {
-  emit('update', null)
+  // emit('update')
 }
 </script>
 
 <template>
   <AutoComplete
-    :model-value="modelValue"
+    :model-value="property"
     :suggestions="suggestions"
     :placeholder="placeholder"
     :disabled="disabled"
