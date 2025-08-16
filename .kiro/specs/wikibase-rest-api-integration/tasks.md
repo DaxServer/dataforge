@@ -6,21 +6,21 @@
   - Set up basic error handling types and utilities
   - _Requirements: 1.1, 2.1, 3.1_
 
-- [ ] 2. Implement backend Wikibase API service foundation
-  - [ ] 2.1 Create Wikibase API client wrapper service
+- [x] 2. Implement backend Wikibase API service foundation
+  - [x] 2.1 Create Wikibase API client wrapper service
     - Implement WikibaseApiService class with client management
     - Add methods for creating and managing API client instances
     - Write unit tests for client initialization and configuration
     - _Requirements: 1.1, 4.1_
 
-  - [ ] 2.2 Implement property data fetching methods
+  - [x] 2.2 Implement property data fetching methods
     - Add getProperty method to fetch property details from Wikibase REST API
     - Add searchProperties method for property search functionality
     - Implement error handling for API failures and invalid property IDs
     - Write unit tests for property fetching and search operations
     - _Requirements: 1.2, 1.3_
 
-  - [ ] 2.3 Implement constraint data fetching
+  - [x] 2.3 Implement constraint data fetching
     - Add getPropertyConstraints method to fetch constraint information
     - Parse and structure constraint data from property statements
     - Handle different constraint types and validation rules
