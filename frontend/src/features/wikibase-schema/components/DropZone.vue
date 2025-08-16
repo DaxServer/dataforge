@@ -68,8 +68,9 @@ const handleDragOver = (event: DragEvent): void => {
 
   event.preventDefault()
   if (event.dataTransfer) {
-    event.dataTransfer.dropEffect =
-      validateColumnForTarget(dragDropStore.draggedColumn) ? 'copy' : 'none'
+    event.dataTransfer.dropEffect = validateColumnForTarget(dragDropStore.draggedColumn)
+      ? 'copy'
+      : 'none'
   }
 }
 

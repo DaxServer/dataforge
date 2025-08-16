@@ -1,6 +1,6 @@
 # Implementation Plan
 
-- [ ] 1. Set up project dependencies and core types
+- [x] 1. Set up project dependencies and core types
   - Install @wmde/wikibase-rest-api package in backend
   - Create TypeScript type definitions for Wikibase data models
   - Set up basic error handling types and utilities

@@ -17,10 +17,10 @@ graph TB
     B --> D[Wikibase REST API Client]
     D --> E[Wikibase REST API]
     C --> F[Browser Storage/Memory Cache]
-    
+
     G[Configuration Service] --> B
     G --> H[Instance Configuration Store]
-    
+
     I[Validation Service] --> B
     I --> A
 ```
@@ -54,16 +54,24 @@ interface WikibaseApiService {
   // Client management
   createClient(instanceConfig: WikibaseInstanceConfig): WikibaseClient
   getClient(instanceId: string): WikibaseClient
-  
+
   // Property operations
-  searchProperties(instanceId: string, query: string, options?: SearchOptions): Promise<PropertySearchResult[]>
+  searchProperties(
+    instanceId: string,
+    query: string,
+    options?: SearchOptions,
+  ): Promise<PropertySearchResult[]>
   getProperty(instanceId: string, propertyId: string): Promise<PropertyDetails>
   getPropertyConstraints(instanceId: string, propertyId: string): Promise<PropertyConstraint[]>
-  
+
   // Item operations
-  searchItems(instanceId: string, query: string, options?: SearchOptions): Promise<ItemSearchResult[]>
+  searchItems(
+    instanceId: string,
+    query: string,
+    options?: SearchOptions,
+  ): Promise<ItemSearchResult[]>
   getItem(instanceId: string, itemId: string): Promise<ItemDetails>
-  
+
   // Data type operations
   getPropertyDataTypes(instanceId: string): Promise<PropertyDataTypeMap>
 }
@@ -76,7 +84,7 @@ interface WikibaseCacheService {
   get<T>(key: string): Promise<T | null>
   set<T>(key: string, value: T, ttl?: number): Promise<void>
   invalidate(pattern: string): Promise<void>
-  
+
   // Specialized cache methods
   cachePropertyData(instanceId: string, propertyId: string, data: PropertyDetails): Promise<void>
   getCachedPropertyData(instanceId: string, propertyId: string): Promise<PropertyDetails | null>
@@ -154,16 +162,16 @@ interface UseWikibaseApi {
   searchProperties: (query: string, options?: SearchOptions) => Promise<PropertySearchResult[]>
   getProperty: (propertyId: string) => Promise<PropertyDetails>
   getPropertyConstraints: (propertyId: string) => Promise<PropertyConstraint[]>
-  
-  // Item operations  
+
+  // Item operations
   searchItems: (query: string, options?: SearchOptions) => Promise<ItemSearchResult[]>
   getItem: (itemId: string) => Promise<ItemDetails>
-  
+
   // Instance management
   currentInstance: Ref<WikibaseInstanceConfig>
   availableInstances: Ref<WikibaseInstanceConfig[]>
   switchInstance: (instanceId: string) => Promise<void>
-  
+
   // Loading states
   isLoading: Ref<boolean>
   error: Ref<string | null>
@@ -176,11 +184,11 @@ interface UseWikibaseApi {
 interface UseLiveValidation {
   validateProperty: (propertyId: string, value: any) => Promise<ValidationResult>
   validateStatement: (statement: StatementConfig) => Promise<ValidationResult>
-  
+
   // Reactive validation
   validationResults: Ref<Map<string, ValidationResult>>
   isValidating: Ref<boolean>
-  
+
   // Auto-validation
   enableAutoValidation: (enabled: boolean) => void
   validateOnChange: (propertyId: string, value: any) => void
@@ -342,7 +350,7 @@ const mockPropertyResponse = {
   id: 'P31',
   labels: { en: 'instance of' },
   descriptions: { en: 'that class of which this subject is a particular example and member' },
-  dataType: 'wikibase-item'
+  dataType: 'wikibase-item',
 }
 
 // Test API service methods

@@ -5,6 +5,7 @@
 The Wikibase Schema Editor is a comprehensive visual interface that enables users to create sophisticated mappings between tabular data columns and Wikibase item structures. The current implementation provides a complete schema management workflow including schema selection, detailed configuration, and persistence.
 
 The editor features:
+
 - **Schema Selection Interface**: Initial view for selecting existing schemas or creating new ones
 - **Drag-and-Drop Mapping**: Intuitive column-to-schema mapping with real-time validation
 - **Comprehensive Configuration**: Full support for Terms, Statements, Qualifiers, and References
@@ -253,7 +254,7 @@ interface PropertyReference {
 }
 
 // Value mapping types
-type ValueMapping = 
+type ValueMapping =
   | { type: 'column'; source: ColumnMapping; dataType: WikibaseDataType }
   | { type: 'constant'; source: string; dataType: WikibaseDataType }
   | { type: 'expression'; source: string; dataType: WikibaseDataType }
@@ -295,16 +296,16 @@ interface SchemaStoreState {
   schemaName: string
   wikibase: string
   itemId: ItemId | null
-  
+
   // Terms storage
   labels: Label
   descriptions: Label
   aliases: Alias
-  
+
   // Dual statement storage approach
   statements: StatementSchemaMapping[] // Array format for API
   statements1: Record<UUID, StatementSchema> // Object format for editing
-  
+
   // Meta state
   isLoading: boolean
   isDirty: boolean
@@ -609,10 +610,10 @@ The current implementation uses a hybrid approach combining VueUse reactivity wi
 const handleDragStart = (event: DragEvent, columnInfo: ColumnInfo) => {
   // Set HTML5 drag data
   event.dataTransfer?.setData('application/x-column-data', JSON.stringify(columnInfo))
-  
+
   // Update global drag state
   dragDropStore.startDrag(columnInfo)
-  
+
   // Trigger immediate validation
   triggerDragStartValidation(columnInfo)
 }
@@ -621,7 +622,7 @@ const handleDragStart = (event: DragEvent, columnInfo: ColumnInfo) => {
 const handleDrop = (event: DragEvent) => {
   const columnData = event.dataTransfer?.getData('application/x-column-data')
   const column = JSON.parse(columnData)
-  
+
   if (validateColumnDrop(column)) {
     emit('column-dropped', column)
   }
@@ -645,15 +646,15 @@ The current implementation provides comprehensive API integration through the `u
 ```typescript
 // useSchemaApi composable provides:
 const {
-  loadSchema,        // Load specific schema by ID
-  loadAllSchemas,    // Load all schemas for project
-  createSchema,      // Create new schema
-  updateSchema,      // Update existing schema
-  deleteSchema,      // Delete schema
-  saveSchema,        // Smart save (create or update)
-  canSave,          // Computed save eligibility
-  isSaving,         // Loading state
-  saveStatus        // Success/error status
+  loadSchema, // Load specific schema by ID
+  loadAllSchemas, // Load all schemas for project
+  createSchema, // Create new schema
+  updateSchema, // Update existing schema
+  deleteSchema, // Delete schema
+  saveSchema, // Smart save (create or update)
+  canSave, // Computed save eligibility
+  isSaving, // Loading state
+  saveStatus, // Success/error status
 } = useSchemaApi()
 ```
 

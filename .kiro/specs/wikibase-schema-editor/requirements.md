@@ -2,9 +2,10 @@
 
 ## Introduction
 
-The Wikibase Schema Editor is a comprehensive visual interface that allows users to create and manage mappings between their tabular data and Wikibase item structures. This feature enables users to define how their data columns should be transformed into structured Wikibase format, similar to OpenRefine's Wikidata schema functionality. 
+The Wikibase Schema Editor is a comprehensive visual interface that allows users to create and manage mappings between their tabular data and Wikibase item structures. This feature enables users to define how their data columns should be transformed into structured Wikibase format, similar to OpenRefine's Wikidata schema functionality.
 
 The editor provides a complete workflow from schema selection to detailed configuration, including:
+
 - Schema selection and management interface with metadata display
 - Drag-and-drop column mapping with real-time validation
 - Comprehensive terms configuration (Labels, Descriptions, Aliases) with multilingual support
