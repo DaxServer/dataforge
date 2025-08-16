@@ -41,6 +41,10 @@ describe('WikibaseApiService', () => {
 
       expect(client).toBeDefined()
       expect(service.hasClient('test-instance')).toBe(true)
+      expect(client.apiClient.defaultHeaders).toHaveProperty(
+        'Authorization',
+        'Bearer test-token-123',
+      )
     })
 
     test('should retrieve existing client', () => {
@@ -163,14 +167,11 @@ describe('WikibaseApiService', () => {
 
   describe('Error Handling', () => {
     test('should handle client creation with invalid configuration gracefully', () => {
-      // The WikibaseRestApi constructor should handle invalid URLs
-      // This test ensures our service doesn't crash with bad input
       const invalidConfig = {
         ...mockInstanceConfig,
         baseUrl: 'not-a-valid-url',
       }
 
-      // Should not throw during client creation
       expect(() => service.createClient(invalidConfig)).not.toThrow()
     })
 

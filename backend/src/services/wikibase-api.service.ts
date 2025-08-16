@@ -44,14 +44,14 @@ export class WikibaseApiService {
     // Configure authentication if provided
     if (instanceConfig.authToken) {
       apiClient.defaultHeaders = {
-        ...apiClient.defaultHeaders,
+        ...(apiClient.defaultHeaders ?? {}),
         Authorization: `Bearer ${instanceConfig.authToken}`,
       }
     }
 
     // Set user agent
     apiClient.defaultHeaders = {
-      ...apiClient.defaultHeaders,
+      ...(apiClient.defaultHeaders ?? {}),
       'User-Agent': instanceConfig.userAgent,
     }
 
@@ -130,12 +130,15 @@ export class WikibaseApiService {
     options: SearchOptions = {},
   ): Promise<SearchResponse<PropertySearchResult>> {
     const client = this.getClient(instanceId)
+    const limit = options.limit ?? 10
+    const offset = options.offset ?? 0
 
     try {
       const response = await client.propertySearchApi.simplePropertySearch(
         query,
-        options.limit || 10,
-        options.offset || 0,
+        options.language,
+        limit,
+        offset,
       )
 
       const results: PropertySearchResult[] =
@@ -153,7 +156,7 @@ export class WikibaseApiService {
       return {
         results,
         totalCount: results.length, // Simple search doesn't provide total count
-        hasMore: results.length === (options.limit || 10),
+        hasMore: results.length === limit,
         query,
       }
     } catch (error) {
@@ -197,12 +200,15 @@ export class WikibaseApiService {
     options: SearchOptions = {},
   ): Promise<SearchResponse<ItemSearchResult>> {
     const client = this.getClient(instanceId)
+    const limit = options.limit ?? 10
+    const offset = options.offset ?? 0
 
     try {
       const response = await client.itemSearchApi.simpleItemSearch(
         query,
-        options.limit || 10,
-        options.offset || 0,
+        options.language,
+        limit,
+        offset,
       )
 
       const results: ItemSearchResult[] =
@@ -219,7 +225,7 @@ export class WikibaseApiService {
       return {
         results,
         totalCount: results.length, // Simple search doesn't provide total count
-        hasMore: results.length === (options.limit || 10),
+        hasMore: results.length === limit,
         query,
       }
     } catch (error) {
