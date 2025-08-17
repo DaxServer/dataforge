@@ -25,16 +25,16 @@ describe('Wikibase Instances API', () => {
       const response = await elysiaApp.handle(
         new Request('http://localhost:3000/wikibase/instances', {
           method: 'GET',
-        })
+        }),
       )
 
       expect(response.status).toBe(200)
-      
+
       const data = await response.json()
       expect(data.success).toBe(true)
       expect(Array.isArray(data.data)).toBe(true)
       expect(data.data.length).toBeGreaterThan(0)
-      
+
       // Should include pre-defined instances
       expect(data.data.some((instance: any) => instance.id === 'wikidata')).toBe(true)
       expect(data.data.some((instance: any) => instance.id === 'wikimedia-commons')).toBe(true)
@@ -46,11 +46,11 @@ describe('Wikibase Instances API', () => {
       const response = await elysiaApp.handle(
         new Request('http://localhost:3000/wikibase/instances/wikidata', {
           method: 'GET',
-        })
+        }),
       )
 
       expect(response.status).toBe(200)
-      
+
       const data = await response.json()
       expect(data.success).toBe(true)
       expect(data.data.id).toBe('wikidata')
@@ -61,11 +61,11 @@ describe('Wikibase Instances API', () => {
       const response = await elysiaApp.handle(
         new Request('http://localhost:3000/wikibase/instances/non-existent', {
           method: 'GET',
-        })
+        }),
       )
 
       expect(response.status).toBe(404)
-      
+
       const data = await response.json()
       expect(data.data).toEqual([])
       expect(data.errors).toHaveLength(1)
@@ -83,11 +83,11 @@ describe('Wikibase Instances API', () => {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify(mockCustomConfig),
-        })
+        }),
       )
 
       expect(response.status).toBe(200)
-      
+
       const data = await response.json()
       expect(data.success).toBe(true)
       expect(data.message).toContain('added successfully')
@@ -108,11 +108,11 @@ describe('Wikibase Instances API', () => {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify(invalidConfig),
-        })
+        }),
       )
 
       expect(response.status).toBe(400)
-      
+
       const data = await response.json()
       expect(data.data).toEqual([])
       expect(data.errors).toHaveLength(1)
@@ -129,7 +129,7 @@ describe('Wikibase Instances API', () => {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify(mockCustomConfig),
-        })
+        }),
       )
 
       // Try to add the same instance again
@@ -140,11 +140,11 @@ describe('Wikibase Instances API', () => {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify(mockCustomConfig),
-        })
+        }),
       )
 
       expect(response.status).toBe(400)
-      
+
       const data = await response.json()
       expect(data.data).toEqual([])
       expect(data.errors).toHaveLength(1)
@@ -163,7 +163,7 @@ describe('Wikibase Instances API', () => {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify(mockCustomConfig),
-        })
+        }),
       )
 
       // Update the instance
@@ -175,11 +175,11 @@ describe('Wikibase Instances API', () => {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify(updates),
-        })
+        }),
       )
 
       expect(response.status).toBe(200)
-      
+
       const data = await response.json()
       expect(data.success).toBe(true)
       expect(data.message).toContain('updated successfully')
@@ -194,11 +194,11 @@ describe('Wikibase Instances API', () => {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify(updates),
-        })
+        }),
       )
 
       expect(response.status).toBe(400)
-      
+
       const data = await response.json()
       expect(data.data).toEqual([])
       expect(data.errors).toHaveLength(1)
@@ -217,18 +217,18 @@ describe('Wikibase Instances API', () => {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify(mockCustomConfig),
-        })
+        }),
       )
 
       // Remove the instance
       const response = await elysiaApp.handle(
         new Request('http://localhost:3000/wikibase/instances/test-custom', {
           method: 'DELETE',
-        })
+        }),
       )
 
       expect(response.status).toBe(200)
-      
+
       const data = await response.json()
       expect(data.success).toBe(true)
       expect(data.message).toContain('removed successfully')
@@ -238,11 +238,11 @@ describe('Wikibase Instances API', () => {
       const response = await elysiaApp.handle(
         new Request('http://localhost:3000/wikibase/instances/wikidata', {
           method: 'DELETE',
-        })
+        }),
       )
 
       expect(response.status).toBe(400)
-      
+
       const data = await response.json()
       expect(data.data).toEqual([])
       expect(data.errors).toHaveLength(1)
@@ -260,11 +260,11 @@ describe('Wikibase Instances API', () => {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify(mockCustomConfig),
-        })
+        }),
       )
 
       expect(response.status).toBe(200)
-      
+
       const data = await response.json()
       expect(data.success).toBe(true)
       expect(data.data).toHaveProperty('isValid')
@@ -287,11 +287,11 @@ describe('Wikibase Instances API', () => {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify(invalidConfig),
-        })
+        }),
       )
 
       expect(response.status).toBe(200)
-      
+
       const data = await response.json()
       expect(data.success).toBe(true)
       expect(data.data.isValid).toBe(false)
@@ -304,11 +304,11 @@ describe('Wikibase Instances API', () => {
       const response = await elysiaApp.handle(
         new Request('http://localhost:3000/wikibase/instances/wikidata/validate', {
           method: 'POST',
-        })
+        }),
       )
 
       expect(response.status).toBe(200)
-      
+
       const data = await response.json()
       expect(data.success).toBe(true)
       expect(data.data).toHaveProperty('isValid')
@@ -320,11 +320,11 @@ describe('Wikibase Instances API', () => {
       const response = await elysiaApp.handle(
         new Request('http://localhost:3000/wikibase/instances/non-existent/validate', {
           method: 'POST',
-        })
+        }),
       )
 
       expect(response.status).toBe(404)
-      
+
       const data = await response.json()
       expect(data.data).toEqual([])
       expect(data.errors).toHaveLength(1)
@@ -338,11 +338,11 @@ describe('Wikibase Instances API', () => {
       const response = await elysiaApp.handle(
         new Request('http://localhost:3000/wikibase/instances/wikidata/health', {
           method: 'GET',
-        })
+        }),
       )
 
       expect(response.status).toBe(200)
-      
+
       const data = await response.json()
       expect(data.success).toBe(true)
       expect(data.data).toHaveProperty('instanceId')
@@ -356,11 +356,11 @@ describe('Wikibase Instances API', () => {
       const response = await elysiaApp.handle(
         new Request('http://localhost:3000/wikibase/instances/non-existent/health', {
           method: 'GET',
-        })
+        }),
       )
 
       expect(response.status).toBe(200)
-      
+
       const data = await response.json()
       expect(data.success).toBe(true)
       expect(data.data.instanceId).toBe('non-existent')
@@ -374,11 +374,11 @@ describe('Wikibase Instances API', () => {
       const response = await elysiaApp.handle(
         new Request('http://localhost:3000/wikibase/instances/default', {
           method: 'GET',
-        })
+        }),
       )
 
       expect(response.status).toBe(200)
-      
+
       const data = await response.json()
       expect(data.success).toBe(true)
       expect(data.data).not.toBeNull()
@@ -396,18 +396,18 @@ describe('Wikibase Instances API', () => {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify(mockCustomConfig),
-        })
+        }),
       )
 
       // Set it as default
       const response = await elysiaApp.handle(
         new Request('http://localhost:3000/wikibase/instances/test-custom/set-default', {
           method: 'POST',
-        })
+        }),
       )
 
       expect(response.status).toBe(200)
-      
+
       const data = await response.json()
       expect(data.success).toBe(true)
       expect(data.message).toContain('Default instance set successfully')
@@ -417,11 +417,11 @@ describe('Wikibase Instances API', () => {
       const response = await elysiaApp.handle(
         new Request('http://localhost:3000/wikibase/instances/non-existent/set-default', {
           method: 'POST',
-        })
+        }),
       )
 
       expect(response.status).toBe(404)
-      
+
       const data = await response.json()
       expect(data.data).toEqual([])
       expect(data.errors).toHaveLength(1)

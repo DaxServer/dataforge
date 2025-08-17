@@ -7,8 +7,9 @@ import { healthRoutes } from '@backend/api/health'
 import { projectRoutes } from '@backend/api/project'
 import { metaProjectsRoutes } from '@backend/api/_meta_projects'
 import { closeDb } from '@backend/plugins/database'
-import { wikibaseRoutes } from './api/project/project.wikibase'
-import { wikibaseInstancesApi } from './api/wikibase/instances'
+import { wikibaseRoutes } from '@backend/api/project/project.wikibase'
+import { wikibaseInstancesApi } from '@backend/api/wikibase/instances'
+import { wikibaseEntitiesApi } from '@backend/api/wikibase/entities'
 
 export const elysiaApp = new Elysia({
   serve: {
@@ -35,6 +36,7 @@ export const elysiaApp = new Elysia({
   .use(projectRoutes)
   .use(wikibaseRoutes)
   .use(wikibaseInstancesApi)
+  .use(wikibaseEntitiesApi)
   .listen(3000, () => {
     console.log('🦊 Elysia is running at http://localhost:3000')
   })
