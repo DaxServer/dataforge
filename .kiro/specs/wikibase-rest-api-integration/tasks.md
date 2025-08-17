@@ -42,15 +42,15 @@
     - Write integration tests for cached API operations
     - _Requirements: 3.1, 3.2, 3.3_
 
-- [ ] 4. Implement instance configuration management
-  - [ ] 4.1 Create configuration service and data models
+- [x] 4. Implement instance configuration management
+  - [x] 4.1 Create configuration service and data models
     - Implement WikibaseConfigService for managing instance configurations
     - Create data models for WikibaseInstanceConfig with validation
     - Add pre-defined instance configurations (Wikidata, Wikimedia Commons)
     - Write unit tests for configuration validation and management
     - _Requirements: 4.1, 4.2, 4.4_
 
-  - [ ] 4.2 Add instance validation and connectivity testing
+  - [x] 4.2 Add instance validation and connectivity testing
     - Implement validateInstance method to test API connectivity
     - Add health check endpoints for configured instances
     - Handle authentication and authorization for different instances
