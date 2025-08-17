@@ -1,5 +1,5 @@
 /**
- * Core Wikibase API type definitions for REST API integration
+ * Core Wikibase API type definitions for REST API and nodemw integration
  */
 
 // Instance Configuration
@@ -14,6 +14,29 @@ export interface WikibaseInstanceConfig {
     description?: string
     language?: string
     version?: string
+  }
+}
+
+// Enhanced instance configuration for nodemw integration
+export interface NodemwWikibaseInstanceConfig extends WikibaseInstanceConfig {
+  nodemwConfig?: {
+    protocol: 'http' | 'https'
+    server: string
+    path: string
+    concurrency?: number
+    debug?: boolean
+    dryRun?: boolean
+    username?: string
+    password?: string
+    domain?: string
+  }
+  features?: {
+    hasWikidata: boolean
+    hasConstraints: boolean
+    hasSearch: boolean
+    hasStatements: boolean
+    supportedDataTypes: string[]
+    apiVersion: string
   }
 }
 

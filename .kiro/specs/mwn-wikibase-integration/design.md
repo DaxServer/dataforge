@@ -18,20 +18,20 @@ graph TB
         C[Validation Display]
         D[Schema Store]
     end
-    
+
     subgraph "Backend (Elysia)"
         E[Wikibase API Service]
         F[nodemw Client Manager]
         G[Property Cache Service]
         H[Validation Service]
     end
-    
+
     subgraph "External"
         I[Wikibase Instance 1]
         J[Wikibase Instance 2]
         K[Wikidata]
     end
-    
+
     A --> D
     B --> E
     C --> H
@@ -74,16 +74,16 @@ export class NodemwWikibaseService {
   createClient(instanceConfig: WikibaseInstanceConfig): nodemw
   getClient(instanceId: string): nodemw
   getWikidataClient(instanceId: string): WikidataClient
-  
+
   // Property operations
   async searchProperties(instanceId: string, query: string, options: SearchOptions): Promise<PropertySearchResponse>
   async getProperty(instanceId: string, propertyId: string): Promise<PropertyDetails>
   async getPropertyConstraints(instanceId: string, propertyId: string): Promise<PropertyConstraint[]>
-  
+
   // Item ope
 sync searchItems(instanceId: string, query: string, options: SearchOptions): Promise<ItemSearchResponse>
   async getItem(instanceId: string, itemId: string): Promise<ItemDetails>
-  
+
   // Validation operations
   async validatePropertyValue(instanceId: string, propertyId: string, value: any): Promise<ValidationResult>
   async validateSchema(instanceId: string, schema: SchemaMapping): Promise<SchemaValidationResult>
@@ -98,11 +98,11 @@ Intelligent caching layer built on top of `nodemw`'s request management:
 export class PropertyCacheService {
   private cache: Map<string, CacheEntry> = new Map()
   private ttlMap: Map<string, number> = new Map()
-  
+
   async get<T>(key: string, fetcher: () => Promise<T>, ttl?: number): Promise<T>
   async invalidate(pattern: string): Promise<void>
   async clear(instanceId?: string): Promise<void>
-  
+
   // Cache strategies
   private generateCacheKey(instanceId: string, operation: string, params: any): string
   private isExpired(entry: CacheEntry): boolean
@@ -117,11 +117,11 @@ Real-time constraint validation using `nodemw`'s Wikidata API:
 ```typescript
 export class ConstraintValidationService {
   constructor(private nodemwService: NodemwWikibaseService)
-  
+
   async validateProperty(instanceId: string, propertyId: string, value: any): Promise<PropertyValidationResult>
   async getConstraints(instanceId: string, propertyId: string): Promise<PropertyConstraint[]>
   async validateConstraint(constraint: PropertyConstraint, value: any): Promise<ConstraintValidationResult>
-  
+
   // Constraint parsers
   private parseFormatConstraint(constraint: any): FormatConstraint
   private parseValueTypeConstraint(constraint: any): ValueTypeConstraint
@@ -173,7 +173,10 @@ Improved property selector with real-time search and validation:
       @complete="searchProperties"
       @item-select="onPropertySelect"
     />
-    <div v-if="selectedProperty" class="property-details">
+    <div
+      v-if="selectedProperty"
+      class="property-details"
+    >
       <PropertyInfo :property="propertyDetails" />
       <ConstraintList :constraints="propertyConstraints" />
     </div>
@@ -204,22 +207,26 @@ export const useSchemaStore = defineStore('schema', () => {
   // Existing state...
   const validationResults = ref<ValidationResult[]>([])
   const isValidating = ref(false)
-  
+
   // Enhanced actions
   const validateProperty = async (propertyId: string, value: any) => {
     // Real-time validation using nodemw service
   }
-  
+
   const validateSchema = async () => {
     // Full schema validation
   }
-  
+
   // Auto-validation on changes
-  watch([statements1, labels, descriptions], async () => {
-    if (isDirty.value) {
-      await validateSchema()
-    }
-  }, { debounce: 500 })
+  watch(
+    [statements1, labels, descriptions],
+    async () => {
+      if (isDirty.value) {
+        await validateSchema()
+      }
+    },
+    { debounce: 500 },
+  )
 })
 ```
 
@@ -251,7 +258,7 @@ export interface PropertyConstraint {
   exemptions?: string[]
 }
 
-export type ConstraintType = 
+export type ConstraintType =
   | 'format'
   | 'allowed-values'
   | 'value-type'
@@ -345,7 +352,7 @@ export interface InstanceFeatures {
 
 ```typescript
 // Enhanced error types
-export type WikibaseError = 
+export type WikibaseError =
   | 'CONNECTION_FAILED'
   | 'AUTHENTICATION_FAILED'
   | 'RATE_LIMITED'
@@ -363,10 +370,10 @@ export class WikibaseErrorHandler {
     if (error.code === 'ECONNREFUSED') return 'INSTANCE_UNAVAILABLE'
     if (error.response?.status === 401) return 'AUTHENTICATION_FAILED'
     if (error.response?.status === 429) return 'RATE_LIMITED'
-    
+
     return 'CONNECTION_FAILED'
   }
-  
+
   static getRetryStrategy(error: WikibaseError): RetryStrategy {
     switch (error) {
       case 'RATE_LIMITED':
@@ -393,7 +400,7 @@ export class FallbackService {
       // Fall back to cache
       const cached = await this.cache.get(`property:${instanceId}:${propertyId}`)
       if (cached) return cached
-      
+
       // Fall back to basic property info
       return this.createBasicPropertyInfo(propertyId)
     }
@@ -410,33 +417,33 @@ export class FallbackService {
 describe('NodemwWikibaseService', () => {
   let service: NodemwWikibaseService
   let mockNodemw: jest.Mocked<nodemw>
-  
+
   beforeEach(() => {
     mockNodemw = createMockNodemw()
     service = new NodemwWikibaseService()
   })
-  
+
   test('should search properties with autocomplete', async () => {
     mockNodemw.search.mockResolvedValue(mockSearchResults)
-    
+
     const results = await service.searchProperties('wikidata', 'population')
-    
+
     expect(results.results).toHaveLength(10)
     expect(results.results[0]).toMatchObject({
       id: 'P1082',
       label: 'population',
-      dataType: 'quantity'
+      dataType: 'quantity',
     })
   })
-  
+
   test('should handle constraint validation', async () => {
     mockNodemw.getArticleClaims.mockResolvedValue(mockConstraints)
-    
+
     const constraints = await service.getPropertyConstraints('wikidata', 'P1082')
-    
+
     expect(constraints).toContainEqual({
       type: 'value-type',
-      parameters: { allowedTypes: ['quantity'] }
+      parameters: { allowedTypes: ['quantity'] },
     })
   })
 })
@@ -450,9 +457,9 @@ describe('Wikibase Integration', () => {
   test('should connect to Wikidata and search properties', async () => {
     const service = new NodemwWikibaseService()
     await service.createClient(wikidataConfig)
-    
+
     const results = await service.searchProperties('wikidata', 'population', { limit: 5 })
-    
+
     expect(results.results).toBeDefined()
     expect(results.results.length).toBeGreaterThan(0)
   })
@@ -469,7 +476,7 @@ describe('Wikibase API Endpoints', () => {
       .get('/api/wikibase/wikidata/properties/search')
       .query({ q: 'population', limit: 5 })
       .expect(200)
-    
+
     expect(response.body.results).toBeDefined()
     expect(response.body.results.length).toBeGreaterThan(0)
   })
@@ -501,15 +508,15 @@ describe('Wikibase API Endpoints', () => {
 // Performance monitoring
 export class PerformanceMonitor {
   private metrics: Map<string, Metric> = new Map()
-  
+
   recordApiCall(instanceId: string, operation: string, duration: number, success: boolean) {
     const key = `${instanceId}:${operation}`
     const metric = this.metrics.get(key) || new Metric()
-    
+
     metric.addDataPoint(duration, success)
     this.metrics.set(key, metric)
   }
-  
+
   getMetrics(instanceId?: string): PerformanceReport {
     // Generate performance report
   }
@@ -561,18 +568,21 @@ Since breaking changes are acceptable, we can directly replace the existing REST
 ### Implementation Phases
 
 #### Phase 1: Core Service Replacement
+
 1. Install `nodemw` package
 2. Replace `WikibaseApiService` with `NodemwWikibaseService`
 3. Update existing API endpoints to use `nodemw`
 4. Adapt existing type definitions
 
 #### Phase 2: Enhanced Features
+
 1. Add constraint validation service
 2. Implement property caching service
 3. Enhance property search with autocomplete
 4. Add real-time validation to frontend
 
 #### Phase 3: Testing and Optimization
+
 1. Add comprehensive test coverage
 2. Implement performance monitoring
 3. Optimize caching strategies
