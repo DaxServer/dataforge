@@ -29,20 +29,20 @@
     - Add support for item autocomplete and search filtering
     - _Requirements: 2.1, 2.2, 7.4_
 
-- [ ] 3. Implement constraint validation service using nodemw Wikidata API
-  - [ ] 3.1 Create ConstraintValidationService class
+- [x] 3. Implement constraint validation service using nodemw Wikidata API
+  - [x] 3.1 Create ConstraintValidationService class
     - Set up service structure with nodemw Wikidata client integration
     - Implement constraint fetching using nodemw getArticleClaims method
     - Create constraint parsing logic for different constraint types
     - _Requirements: 3.1, 3.2, 4.1_
 
-  - [ ] 3.2 Implement constraint type parsers
+  - [x] 3.2 Implement constraint type parsers
     - Create parsers for format constraints, allowed values, value types
     - Implement range constraints, single value, and qualifier constraints
     - Add constraint parameter extraction from qualifiers and references
     - _Requirements: 3.2, 3.4, 6.1_
 
-  - [ ] 3.3 Add real-time constraint validation
+  - [x] 3.3 Add real-time constraint validation
     - Implement validateProperty method for individual property validation
     - Create validateSchema method for complete schema validation
     - Add constraint violation detection and error message generation
