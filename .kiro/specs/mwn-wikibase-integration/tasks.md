@@ -1,6 +1,6 @@
 # Implementation Plan
 
-- [ ] 1. Set up nodemw package and core infrastructure
+- [x] 1. Set up nodemw package and core infrastructure
   - Install nodemw package and configure TypeScript types
   - Create basic NodemwWikibaseService class structure
   - Set up client management for multiple Wikibase instances
