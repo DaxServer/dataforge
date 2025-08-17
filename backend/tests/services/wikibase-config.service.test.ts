@@ -59,7 +59,7 @@ describe('WikibaseConfigService', () => {
 
     test('should throw error for non-existent instance', async () => {
       await expect(service.getInstance('non-existent')).rejects.toThrow(
-        'Instance not found: non-existent'
+        'Instance not found: non-existent',
       )
     })
 
@@ -69,7 +69,7 @@ describe('WikibaseConfigService', () => {
 
       // Default instance should be first
       expect(instances[0].isDefault).toBe(true)
-      
+
       // Non-default instances should be sorted by name
       const nonDefaultInstances = instances.filter(i => !i.isDefault)
       for (let i = 1; i < nonDefaultInstances.length; i++) {
@@ -94,7 +94,7 @@ describe('WikibaseConfigService', () => {
       await service.addInstance(mockCustomConfig)
 
       await expect(service.addInstance(mockCustomConfig)).rejects.toThrow(
-        "Instance with ID 'custom-test' already exists"
+        "Instance with ID 'custom-test' already exists",
       )
     })
 
@@ -102,7 +102,7 @@ describe('WikibaseConfigService', () => {
       const configWithExistingId = { ...mockCustomConfig, id: 'wikidata' }
 
       await expect(service.addInstance(configWithExistingId)).rejects.toThrow(
-        "Instance with ID 'wikidata' already exists"
+        "Instance with ID 'wikidata' already exists",
       )
     })
 
@@ -119,13 +119,13 @@ describe('WikibaseConfigService', () => {
 
     test('should throw error when updating pre-defined instance', async () => {
       await expect(service.updateInstance('wikidata', { name: 'New Name' })).rejects.toThrow(
-        'Cannot update pre-defined instance configurations'
+        'Cannot update pre-defined instance configurations',
       )
     })
 
     test('should throw error when updating non-existent instance', async () => {
       await expect(service.updateInstance('non-existent', { name: 'New Name' })).rejects.toThrow(
-        'Instance not found: non-existent'
+        'Instance not found: non-existent',
       )
     })
 
@@ -141,13 +141,13 @@ describe('WikibaseConfigService', () => {
 
     test('should throw error when removing pre-defined instance', async () => {
       await expect(service.removeInstance('wikidata')).rejects.toThrow(
-        'Cannot remove pre-defined instance configurations'
+        'Cannot remove pre-defined instance configurations',
       )
     })
 
     test('should throw error when removing non-existent custom instance', async () => {
       await expect(service.removeInstance('non-existent')).rejects.toThrow(
-        'Custom instance not found: non-existent'
+        'Custom instance not found: non-existent',
       )
     })
   })
@@ -194,7 +194,7 @@ describe('WikibaseConfigService', () => {
       const defaultConfig = { ...mockCustomConfig, isDefault: true }
 
       await expect(service.addInstance(defaultConfig)).rejects.toThrow(
-        'A default instance already exists'
+        'A default instance already exists',
       )
     })
 
@@ -202,7 +202,7 @@ describe('WikibaseConfigService', () => {
       await service.addInstance(mockCustomConfig)
 
       await expect(service.updateInstance('custom-test', { isDefault: true })).rejects.toThrow(
-        'A default instance already exists'
+        'A default instance already exists',
       )
     })
   })
@@ -257,7 +257,7 @@ describe('WikibaseConfigService', () => {
 
       expect(result.isValid).toBe(false)
       expect(result.errors).toContain(
-        'Instance ID must contain only lowercase letters, numbers, hyphens, and underscores'
+        'Instance ID must contain only lowercase letters, numbers, hyphens, and underscores',
       )
     })
 

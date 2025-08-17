@@ -128,7 +128,9 @@ export class WikibaseConfigService {
     // Ensure it's not marked as default if we already have a default
     const hasDefault = await this.hasDefaultInstance()
     if (config.isDefault && hasDefault) {
-      throw new Error('A default instance already exists. Remove the default flag from the existing instance first.')
+      throw new Error(
+        'A default instance already exists. Remove the default flag from the existing instance first.',
+      )
     }
 
     // Store the custom instance
@@ -152,7 +154,9 @@ export class WikibaseConfigService {
     if (config.isDefault === true) {
       const hasDefault = await this.hasDefaultInstance()
       if (hasDefault && !existingInstance.isDefault) {
-        throw new Error('A default instance already exists. Remove the default flag from the existing instance first.')
+        throw new Error(
+          'A default instance already exists. Remove the default flag from the existing instance first.',
+        )
       }
     }
 
@@ -202,7 +206,11 @@ export class WikibaseConfigService {
       errors.push('Base URL is required and must be a non-empty string')
     }
 
-    if (!config.userAgent || typeof config.userAgent !== 'string' || config.userAgent.trim() === '') {
+    if (
+      !config.userAgent ||
+      typeof config.userAgent !== 'string' ||
+      config.userAgent.trim() === ''
+    ) {
       errors.push('User agent is required and must be a non-empty string')
     }
 
@@ -222,7 +230,9 @@ export class WikibaseConfigService {
     if (config.id) {
       const idPattern = /^[a-z0-9-_]+$/
       if (!idPattern.test(config.id)) {
-        errors.push('Instance ID must contain only lowercase letters, numbers, hyphens, and underscores')
+        errors.push(
+          'Instance ID must contain only lowercase letters, numbers, hyphens, and underscores',
+        )
       }
 
       if (config.id.length > 50) {
@@ -455,7 +465,9 @@ export class WikibaseConfigService {
   /**
    * Validate instance configuration including connectivity test
    */
-  async validateInstanceWithConnectivity(config: WikibaseInstanceConfig): Promise<ValidationResult & { connectivity?: ConnectivityResult }> {
+  async validateInstanceWithConnectivity(
+    config: WikibaseInstanceConfig,
+  ): Promise<ValidationResult & { connectivity?: ConnectivityResult }> {
     // First perform basic validation
     const basicValidation = await this.validateInstance(config)
 
@@ -470,7 +482,10 @@ export class WikibaseConfigService {
       if (!connectivityResult.isConnected) {
         return {
           isValid: false,
-          errors: [...basicValidation.errors, `Connectivity test failed: ${connectivityResult.error}`],
+          errors: [
+            ...basicValidation.errors,
+            `Connectivity test failed: ${connectivityResult.error}`,
+          ],
           warnings: basicValidation.warnings,
           connectivity: connectivityResult,
         }
@@ -483,7 +498,10 @@ export class WikibaseConfigService {
     } catch (error) {
       return {
         isValid: false,
-        errors: [...basicValidation.errors, `Connectivity test error: ${error instanceof Error ? error.message : 'Unknown error'}`],
+        errors: [
+          ...basicValidation.errors,
+          `Connectivity test error: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        ],
         warnings: basicValidation.warnings,
       }
     }
@@ -508,7 +526,7 @@ export class WikibaseConfigService {
       })
 
       if (response.ok) {
-        const openApiSpec = await response.json() as any
+        const openApiSpec = (await response.json()) as any
         return {
           status: response.status,
           apiVersion: openApiSpec.info?.version || 'unknown',
@@ -586,10 +604,10 @@ export class WikibaseConfigService {
     if (error?.code) {
       // Map common error codes to HTTP status codes
       const codeMap: Record<string, number> = {
-        'ENOTFOUND': 404,
-        'ECONNREFUSED': 503,
-        'ETIMEDOUT': 408,
-        'ECONNRESET': 503,
+        ENOTFOUND: 404,
+        ECONNREFUSED: 503,
+        ETIMEDOUT: 408,
+        ECONNRESET: 503,
       }
       return codeMap[error.code]
     }

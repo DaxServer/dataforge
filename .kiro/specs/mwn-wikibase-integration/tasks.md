@@ -6,29 +6,27 @@
   - Set up client management for multiple Wikibase instances
   - _Requirements: 1.1, 1.2, 1.4_
 
-- [ ] 2. Replace existing WikibaseApiService with NodemwWikibaseService
-  - [ ] 2.1 Implement core client management methods
+- [x] 2. Replace existing WikibaseApiService with NodemwWikibaseService
+  - [x] 2.1 Implement core client management methods
     - Create createClient, getClient, and removeClient methods
     - Implement instance configuration management
-    - Add client validation and connectivity testing
     - _Requirements: 1.1, 1.2, 5.1, 5.2_
 
-  - [ ] 2.2 Implement property search functionality using nodemw
+  - [x] 2.2 Implement property search functionality using nodemw
     - Replace searchProperties method to use nodemw search capabilities
     - Add support for autocomplete and advanced search options
     - Implement property ranking and relevance scoring
     - _Requirements: 2.1, 2.3, 2.5_
 
-  - [ ] 2.3 Implement property details retrieval using nodemw
+  - [x] 2.3 Implement property details retrieval using nodemw
     - Replace getProperty method to use nodemw entity retrieval
     - Add support for multilingual labels, descriptions, and aliases
     - Implement property data type detection and validation
     - _Requirements: 2.2, 4.2, 4.3_
 
-  - [ ] 2.4 Implement item search and retrieval using nodemw
+  - [x] 2.4 Implement item search and retrieval using nodemw
     - Replace searchItems and getItem methods to use nodemw
     - Add support for item autocomplete and search filtering
-    - Implement item relationship detection for validation
     - _Requirements: 2.1, 2.2, 7.4_
 
 - [ ] 3. Implement constraint validation service using nodemw Wikidata API

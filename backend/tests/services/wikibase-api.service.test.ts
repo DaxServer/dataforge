@@ -1,6 +1,7 @@
 import { describe, test, expect, beforeEach, expectTypeOf } from 'bun:test'
 import { WikibaseApiService } from '@backend/services/wikibase-api.service'
 import type { WikibaseInstanceConfig } from '@backend/types/wikibase-api'
+import type { PropertyId, ItemId } from '@backend/types/wikibase-schema'
 
 describe('WikibaseApiService', () => {
   let service: WikibaseApiService
@@ -269,14 +270,14 @@ describe('WikibaseApiService', () => {
     })
 
     test('should throw meaningful errors for invalid property IDs', () => {
-      expect(service.getProperty('test-instance', 'INVALID')).rejects.toThrow(
-        'Failed to get property INVALID',
+      expect(service.getProperty('test-instance', 'P999999' as PropertyId)).rejects.toThrow(
+        'Failed to get property P999999',
       )
     })
 
     test('should throw meaningful errors for invalid item IDs', () => {
-      expect(service.getItem('test-instance', 'INVALID')).rejects.toThrow(
-        'Failed to get item INVALID',
+      expect(service.getItem('test-instance', 'Q999999' as ItemId)).rejects.toThrow(
+        'Failed to get item Q999999',
       )
     })
 
@@ -307,15 +308,15 @@ describe('WikibaseApiService', () => {
     })
 
     test('should return empty constraints array for properties without constraints', () => {
-      expect(service.getPropertyConstraints('test-instance', 'P1')).rejects.toThrow(
+      expect(service.getPropertyConstraints('test-instance', 'P1' as PropertyId)).rejects.toThrow(
         'Failed to get constraints for property P1',
       )
     })
 
     test('should handle constraint parsing errors gracefully', () => {
-      expect(service.getPropertyConstraints('test-instance', 'INVALID')).rejects.toThrow(
-        'Failed to get constraints for property INVALID',
-      )
+      expect(
+        service.getPropertyConstraints('test-instance', 'P999999' as PropertyId),
+      ).rejects.toThrow('Failed to get constraints for property P999999')
     })
 
     test('should return empty data type map by default', () => {

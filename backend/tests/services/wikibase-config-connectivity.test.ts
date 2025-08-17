@@ -9,7 +9,7 @@ describe('WikibaseConfigService - Connectivity Testing', () => {
 
   beforeEach(() => {
     service = new WikibaseConfigService()
-    
+
     validConfig = {
       id: 'test-valid',
       name: 'Test Valid Instance',
@@ -108,12 +108,12 @@ describe('WikibaseConfigService - Connectivity Testing', () => {
     test('should include details for healthy instances', async () => {
       // Add a custom instance first
       await service.addInstance(validConfig)
-      
+
       const result = await service.performHealthCheck('test-valid')
 
       expect(result.instanceId).toBe('test-valid')
       expect(result.lastChecked).toBeInstanceOf(Date)
-      
+
       if (result.isHealthy && result.details) {
         expect(result.details).toHaveProperty('apiVersion')
         expect(result.details).toHaveProperty('features')
@@ -123,7 +123,7 @@ describe('WikibaseConfigService - Connectivity Testing', () => {
     test('should include error details for unhealthy instances', async () => {
       // Add an invalid instance first
       await service.addInstance(invalidConfig)
-      
+
       const result = await service.performHealthCheck('test-invalid')
 
       expect(result.instanceId).toBe('test-invalid')
@@ -141,7 +141,7 @@ describe('WikibaseConfigService - Connectivity Testing', () => {
       expect(result).toHaveProperty('errors')
       expect(result).toHaveProperty('warnings')
       expect(result).toHaveProperty('connectivity')
-      
+
       if (result.connectivity) {
         expect(result.connectivity).toHaveProperty('isConnected')
         expect(result.connectivity).toHaveProperty('responseTime')
@@ -155,7 +155,7 @@ describe('WikibaseConfigService - Connectivity Testing', () => {
       expect(result.errors.length).toBeGreaterThan(0)
       expect(result.errors.some(error => error.includes('Connectivity test failed'))).toBe(true)
       expect(result).toHaveProperty('connectivity')
-      
+
       if (result.connectivity) {
         expect(result.connectivity.isConnected).toBe(false)
       }
@@ -208,7 +208,7 @@ describe('WikibaseConfigService - Connectivity Testing', () => {
       // We can't directly test the private method, but we can test the behavior
       // through connectivity testing with a mock that returns OpenAPI spec
       const result = await service.testConnectivity(validConfig)
-      
+
       // The test should complete without throwing errors
       expect(result).toHaveProperty('isConnected')
       expect(result).toHaveProperty('responseTime')
@@ -273,9 +273,9 @@ describe('WikibaseConfigService - Connectivity Testing', () => {
   describe('Performance', () => {
     test('should complete connectivity test within reasonable time', async () => {
       const startTime = Date.now()
-      
+
       await service.testConnectivity(validConfig)
-      
+
       const duration = Date.now() - startTime
       expect(duration).toBeLessThan(30000) // Should complete within 30 seconds
     })

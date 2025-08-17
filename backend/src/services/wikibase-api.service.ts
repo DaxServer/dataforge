@@ -16,6 +16,7 @@ import type {
   PropertyDataTypeMap,
   SearchResponse,
 } from '@backend/types/wikibase-api'
+import type { PropertyId, ItemId } from '@backend/types/wikibase-schema'
 
 /**
  * Wrapper for Wikibase REST API clients
@@ -169,7 +170,7 @@ export class WikibaseApiService {
   /**
    * Get detailed information about a specific property
    */
-  async getProperty(instanceId: string, propertyId: string): Promise<PropertyDetails> {
+  async getProperty(instanceId: string, propertyId: PropertyId): Promise<PropertyDetails> {
     const client = this.getClient(instanceId)
 
     try {
@@ -238,7 +239,7 @@ export class WikibaseApiService {
   /**
    * Get detailed information about a specific item
    */
-  async getItem(instanceId: string, itemId: string): Promise<ItemDetails> {
+  async getItem(instanceId: string, itemId: ItemId): Promise<ItemDetails> {
     const client = this.getClient(instanceId)
 
     try {
@@ -264,7 +265,7 @@ export class WikibaseApiService {
    */
   async getPropertyConstraints(
     instanceId: string,
-    propertyId: string,
+    propertyId: PropertyId,
   ): Promise<PropertyConstraint[]> {
     // Ensure client exists for the instance
     this.getClient(instanceId)
