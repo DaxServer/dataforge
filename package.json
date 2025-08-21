@@ -2,7 +2,10 @@
   "name": "dataforge",
   "version": "0.1.0",
   "devDependencies": {
-    "concurrently": "^9.2.0"
+    "concurrently": "^9.2.0",
+    "globals": "^16.3.0",
+    "jiti": "^2.5.1",
+    "prettier-plugin-organize-imports": "^4.2.0"
   },
   "engines": {
     "bun": "1.2.20"
@@ -11,7 +14,7 @@
   "private": true,
   "scripts": {
     "dev": "concurrently -k -n backend,frontend -c blue,green \"bun --cwd backend dev\" \"bun --cwd frontend dev\"",
-    "format": "prettier --cache --log-level warn --ignore-unknown --write .",
+    "format": "bun node_modules/.bin/prettier --cache --log-level warn --ignore-unknown --write .",
     "lint": "bun -F '*' lint",
     "lint:backend": "bun -F backend lint",
     "lint:frontend": "bun -F frontend lint",
