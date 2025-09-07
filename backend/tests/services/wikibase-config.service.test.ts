@@ -68,12 +68,16 @@ describe('WikibaseConfigService', () => {
       const instances = await service.getInstances()
 
       // Default instance should be first
-      expect(instances[0].isDefault).toBe(true)
+      expect(instances[0]!.isDefault).toBe(true)
 
       // Non-default instances should be sorted by name
-      const nonDefaultInstances = instances.filter(i => !i.isDefault)
+      const nonDefaultInstances = instances.filter((i) => !i.isDefault)
       for (let i = 1; i < nonDefaultInstances.length; i++) {
-        expect(nonDefaultInstances[i].name >= nonDefaultInstances[i - 1].name).toBe(true)
+        const current = nonDefaultInstances[i]
+        const previous = nonDefaultInstances[i - 1]
+        if (current && previous) {
+          expect(current.name >= previous.name).toBe(true)
+        }
       }
     })
   })
@@ -87,7 +91,7 @@ describe('WikibaseConfigService', () => {
 
       const customInstances = await service.getCustomInstances()
       expect(customInstances.length).toBe(1)
-      expect(customInstances[0].id).toBe('custom-test')
+      expect(customInstances[0]!.id).toBe('custom-test')
     })
 
     test('should throw error when adding instance with existing ID', async () => {

@@ -134,7 +134,11 @@ describe('NodemwWikibaseService', () => {
           {
             id: 'P31' as PropertyId,
             label: 'instance of',
-            dataType: 'wikibase-item',
+            datatype: 'wikibase-item',
+            match: {
+              type: 'label',
+              text: 'instance of',
+            },
           },
         ],
         totalCount: 1,
@@ -145,10 +149,11 @@ describe('NodemwWikibaseService', () => {
       // Mock get property
       getPropertySpy = spyOn(service, 'getProperty').mockResolvedValue({
         id: 'P31' as PropertyId,
+        type: 'property',
         labels: { en: 'instance of' },
         descriptions: { en: 'that class of which this subject is a particular example and member' },
         aliases: {},
-        dataType: 'wikibase-item',
+        datatype: 'wikibase-item',
         statements: [],
       } as PropertyDetails)
 
@@ -168,6 +173,7 @@ describe('NodemwWikibaseService', () => {
       // Mock get item
       getItemSpy = spyOn(service, 'getItem').mockResolvedValue({
         id: 'Q937' as ItemId,
+        type: 'item',
         labels: { en: 'Albert Einstein' },
         descriptions: { en: 'German-born theoretical physicist' },
         aliases: {},
@@ -209,7 +215,7 @@ describe('NodemwWikibaseService', () => {
       expect(property.id).toBe('P31')
       expect(property.labels).toBeDefined()
       expect(property.descriptions).toBeDefined()
-      expect(property.dataType).toBeDefined()
+      expect(property.datatype).toBeDefined()
       expect(getPropertySpy).toHaveBeenCalledWith('wikidata', 'P31')
     })
 

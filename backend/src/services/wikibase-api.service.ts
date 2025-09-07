@@ -178,10 +178,11 @@ export class WikibaseApiService {
 
       return {
         id: response.id,
+        type: 'property',
         labels: response.labels || {},
         descriptions: response.descriptions || {},
         aliases: response.aliases || {},
-        dataType: response.data_type || 'unknown',
+        datatype: response.data_type || 'unknown',
         statements: response.statements || [],
         constraints: [], // Will be populated by getPropertyConstraints
       }
@@ -247,6 +248,7 @@ export class WikibaseApiService {
 
       return {
         id: response.id,
+        type: 'item',
         labels: response.labels || {},
         descriptions: response.descriptions || {},
         aliases: response.aliases || {},

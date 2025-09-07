@@ -43,10 +43,11 @@ export interface NodemwWikibaseInstanceConfig extends WikibaseInstanceConfig {
 // Property Types
 export interface PropertyDetails {
   id: string
+  type: 'property'
   labels: Record<string, string>
   descriptions: Record<string, string>
   aliases: Record<string, string[]>
-  dataType: string
+  datatype: string
   statements: Statement[]
   constraints?: PropertyConstraint[]
 }
@@ -55,7 +56,7 @@ export interface PropertySearchResult {
   id: string
   label: string
   description?: string
-  dataType: string
+  datatype: string
   match: {
     type: 'label' | 'alias' | 'description'
     text: string
@@ -72,6 +73,7 @@ export interface PropertyConstraint {
 // Item Types
 export interface ItemDetails {
   id: string
+  type: 'item'
   labels: Record<string, string>
   descriptions: Record<string, string>
   aliases: Record<string, string[]>
@@ -130,7 +132,7 @@ export interface SearchOptions {
   limit?: number
   offset?: number
   language?: string
-  dataType?: string
+  datatype?: string
   autocomplete?: boolean
 }
 

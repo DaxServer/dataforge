@@ -79,8 +79,33 @@ describe('Wikibase Entities API', () => {
       },
     })
 
-    expect(getSpy).toHaveBeenCalledWith('test-instance', 'P31')
+    expect(mockGetProperty).toHaveBeenCalledWith('test-instance', 'P31')
     expect(response.data).toEqual({ data: mockProperty })
+  })
+
+  test('should get property details with constraints when requested', async () => {
+    const mockProperty: PropertyDetails = {
+      id: 'P31',
+      type: 'property',
+      labels: { en: 'instance of' },
+      descriptions: { en: 'that class of which this subject is a particular example and member' },
+      aliases: {},
+      datatype: 'wikibase-item',
+      statements: [],
+    }
+
+    mockGetProperty.mockResolvedValue(mockProperty)
+
+    const response = await api.api.wikibase.entities.properties({ propertyId: 'P31' }).get({
+      query: {
+        instance: 'test-instance',
+        includeConstraints: true,
+      },
+    })
+
+    expect(mockGetProperty).toHaveBeenCalledWith('test-instance', 'P31')
+    expect(response.data).toBeTruthy()
+    expect(response.data!.data).toEqual(mockProperty)
   })
 
   test('should search items with correct parameters', async () => {
@@ -107,14 +132,16 @@ describe('Wikibase Entities API', () => {
       query: {
         q: 'human',
         instance: 'wikidata',
-        limit: '3',
-        offset: '5',
+        limit: 3,
+        offset: 5,
       },
     })
 
     expect(searchSpy).toHaveBeenCalledWith('wikidata', 'human', {
       limit: 3,
       offset: 5,
+      language: 'en',
+      autocomplete: true,
     })
     expect(response.data).toEqual({ data: mockResults })
   })
@@ -122,6 +149,7 @@ describe('Wikibase Entities API', () => {
   test('should get item details with correct parameters', async () => {
     const mockItem: ItemDetails = {
       id: 'Q5',
+      type: 'item',
       labels: { en: 'human' },
       descriptions: { en: 'common name of Homo sapiens, unique extant species of the genus Homo' },
       aliases: {},
@@ -161,6 +189,9 @@ describe('Wikibase Entities API', () => {
     expect(searchSpy).toHaveBeenCalledWith('wikidata', 'test', {
       limit: 10,
       offset: 0,
+      language: 'en',
+      dataType: undefined,
+      autocomplete: true,
     })
   })
 })

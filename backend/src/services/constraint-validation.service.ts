@@ -232,7 +232,7 @@ export class ConstraintValidationService {
           value,
         }
       }
-    } catch (error) {
+    } catch {
       return {
         constraintType: 'format_constraint',
         message: `Invalid regex pattern in format constraint: ${regex}`,
@@ -368,7 +368,7 @@ export class ConstraintValidationService {
    */
   private validateSingleValueConstraint(
     values: any[],
-    constraint: PropertyConstraint,
+    _constraint: PropertyConstraint,
     propertyId: string,
   ): ConstraintViolation | null {
     if (values.length > 1) {
