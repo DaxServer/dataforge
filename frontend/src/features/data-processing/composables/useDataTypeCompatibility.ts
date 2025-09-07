@@ -1,7 +1,7 @@
-import { ref, readonly } from 'vue'
-import type { ColumnInfo } from '@frontend/shared/types/wikibase-schema'
 import type { WikibaseDataType } from '@backend/api/project/project.wikibase'
 import { useColumnDataTypeIndicators } from '@frontend/features/data-processing/composables/useColumnDataTypeIndicators'
+import type { ColumnInfo } from '@frontend/shared/types/wikibase-schema'
+import { readonly, ref } from 'vue'
 
 /**
  * Composable for handling data type compatibility between database columns and Wikibase data types

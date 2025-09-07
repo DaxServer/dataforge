@@ -1,6 +1,6 @@
-import { describe, it, expect, beforeEach } from 'bun:test'
 import { useValidationErrors } from '@frontend/features/wikibase-schema/composables/useValidationErrors'
-import type { ValidationError, ValidationContext } from '@frontend/shared/types/wikibase-schema'
+import type { ValidationContext, ValidationError } from '@frontend/shared/types/wikibase-schema'
+import { beforeEach, describe, expect, it } from 'bun:test'
 
 describe('useValidationErrors', () => {
   let validationErrors: ReturnType<typeof useValidationErrors>

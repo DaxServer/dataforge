@@ -1,10 +1,10 @@
-import { defineStore } from 'pinia'
-import { ref, computed, readonly } from 'vue'
 import type {
   ValidationError,
   ValidationErrorCode,
   ValidationResult,
 } from '@frontend/shared/types/wikibase-schema'
+import { defineStore } from 'pinia'
+import { computed, readonly, ref } from 'vue'
 
 export interface ValidationRuleConfig {
   id: string

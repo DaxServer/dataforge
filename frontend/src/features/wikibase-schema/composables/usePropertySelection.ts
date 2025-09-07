@@ -1,5 +1,5 @@
-import { ref, readonly } from 'vue'
 import type { PropertyReference } from '@backend/api/project/project.wikibase'
+import { readonly, ref } from 'vue'
 
 /**
  * Composable for property selection with searchable dropdown functionality

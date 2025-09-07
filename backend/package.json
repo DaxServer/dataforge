@@ -27,16 +27,17 @@
   },
   "devDependencies": {
     "@daxserver/validation-schema-codegen": "^0.4.0",
-    "@tsconfig/bun": "^1.0.8",
+    "@tsconfig/bun": "catalog:",
     "@types/bun": "catalog:",
-    "@types/node": "^24.3.0",
-    "@typescript-eslint/eslint-plugin": "^8.41.0",
-    "@typescript-eslint/parser": "^8.41.0",
+    "@types/node": "catalog:",
+    "@typescript-eslint/eslint-plugin": "catalog:",
+    "@typescript-eslint/parser": "catalog:",
     "bun-types": "catalog:",
-    "eslint": "^9.34.0",
-    "eslint-config-prettier": "^10.1.8",
-    "eslint-plugin-prettier": "^5.5.4",
-    "prettier": "^3.6.2",
-    "typescript": "^5.9.2"
+    "eslint": "catalog:",
+    "eslint-config-prettier": "catalog:",
+    "eslint-plugin-no-relative-import-paths": "catalog:",
+    "eslint-plugin-prettier": "catalog:",
+    "prettier": "catalog:",
+    "typescript": "catalog:"
   }
 }

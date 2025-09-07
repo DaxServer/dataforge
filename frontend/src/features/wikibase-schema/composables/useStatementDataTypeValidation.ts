@@ -1,15 +1,15 @@
 import type {
-  ValidationError,
-  ValidationResult,
-  ValidationContext,
-} from '@frontend/shared/types/wikibase-schema'
-import { useDataTypeCompatibility } from '@frontend/features/data-processing/composables/useDataTypeCompatibility'
-import { useValidationErrors } from '@frontend/features/wikibase-schema/composables/useValidationErrors'
-import type {
   PropertyReference,
   ValueMapping,
   WikibaseDataType,
 } from '@backend/api/project/project.wikibase'
+import { useDataTypeCompatibility } from '@frontend/features/data-processing/composables/useDataTypeCompatibility'
+import { useValidationErrors } from '@frontend/features/wikibase-schema/composables/useValidationErrors'
+import type {
+  ValidationContext,
+  ValidationError,
+  ValidationResult,
+} from '@frontend/shared/types/wikibase-schema'
 
 /**
  * Composable for validating data type compatibility in statement values

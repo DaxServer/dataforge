@@ -1,10 +1,10 @@
-import { describe, it, expect, beforeEach, afterEach, mock, expectTypeOf } from 'bun:test'
-import { createTestingPinia } from '@pinia/testing'
-import { setActivePinia } from 'pinia'
+import type { WikibaseSchemaResponse } from '@backend/api/project/project.wikibase'
 import { useSchemaApi } from '@frontend/features/wikibase-schema/composables/useSchemaApi'
 import { useSchemaStore } from '@frontend/features/wikibase-schema/stores/schema.store'
-import type { WikibaseSchemaResponse } from '@backend/api/project/project.wikibase'
+import { createTestingPinia } from '@pinia/testing'
+import { afterEach, beforeEach, describe, expect, expectTypeOf, it, mock } from 'bun:test'
 import type { UUID } from 'crypto'
+import { setActivePinia } from 'pinia'
 
 // Test UUIDs for consistent testing
 const TEST_SCHEMA_ID = Bun.randomUUIDv7() as UUID

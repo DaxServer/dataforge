@@ -1,8 +1,8 @@
-import { defineStore } from 'pinia'
-import { ref, computed } from 'vue'
-import type { ColumnInfo } from '@frontend/shared/types/wikibase-schema'
-import type { DragState, DropTarget } from '@frontend/shared/types/drag-drop'
 import { useDataTypeCompatibility } from '@frontend/features/data-processing/composables/useDataTypeCompatibility'
+import type { DragState, DropTarget } from '@frontend/shared/types/drag-drop'
+import type { ColumnInfo } from '@frontend/shared/types/wikibase-schema'
+import { defineStore } from 'pinia'
+import { computed, ref } from 'vue'
 
 /**
  * Pinia store for managing global drag and drop state in the schema editor

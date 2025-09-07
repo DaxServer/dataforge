@@ -1,6 +1,6 @@
-import { describe, test, expect } from 'bun:test'
 import { useColumnDataTypeIndicators } from '@frontend/features/data-processing/composables/useColumnDataTypeIndicators'
 import type { ColumnInfo } from '@frontend/shared/types/wikibase-schema'
+import { describe, expect, test } from 'bun:test'
 
 describe('useColumnDataTypeIndicators', () => {
   const {

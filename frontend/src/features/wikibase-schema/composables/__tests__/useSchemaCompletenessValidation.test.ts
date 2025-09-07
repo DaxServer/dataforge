@@ -1,14 +1,14 @@
-import { describe, test, expect, beforeEach, mock } from 'bun:test'
-import { createPinia, setActivePinia } from 'pinia'
+import type {
+  PropertyReference,
+  StatementSchemaMapping,
+  ValueMapping,
+} from '@backend/api/project/project.wikibase'
 import { useSchemaCompletenessValidation } from '@frontend/features/wikibase-schema/composables/useSchemaCompletenessValidation'
 import { useSchemaStore } from '@frontend/features/wikibase-schema/stores/schema.store'
 import { useValidationStore } from '@frontend/features/wikibase-schema/stores/validation.store'
-import type {
-  StatementSchemaMapping,
-  PropertyReference,
-  ValueMapping,
-} from '@backend/api/project/project.wikibase'
+import { beforeEach, describe, expect, mock, test } from 'bun:test'
 import type { UUID } from 'crypto'
+import { createPinia, setActivePinia } from 'pinia'
 
 describe('useSchemaCompletenessValidation', () => {
   let schemaStore: ReturnType<typeof useSchemaStore>

@@ -1,10 +1,10 @@
-import { describe, test, expect, beforeEach } from 'bun:test'
 import type {
   PropertyReference,
   ValueMapping,
   WikibaseDataType,
 } from '@backend/api/project/project.wikibase'
 import { useStatementDataTypeValidation } from '@frontend/features/wikibase-schema/composables/useStatementDataTypeValidation'
+import { beforeEach, describe, expect, test } from 'bun:test'
 
 describe('useStatementDataTypeValidation', () => {
   let testProperties: PropertyReference[]

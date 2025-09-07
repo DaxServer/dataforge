@@ -1,8 +1,8 @@
 import type {
-  WikibaseDataType,
-  ValueMapping,
   PropertyValueMap,
   ReferenceSchemaMapping,
+  ValueMapping,
+  WikibaseDataType,
 } from '@backend/api/project/project.wikibase'
 import type { ColumnInfo } from '@frontend/shared/types/wikibase-schema'
 

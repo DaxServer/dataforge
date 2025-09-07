@@ -1,7 +1,7 @@
 import type {
+  ValidationContext,
   ValidationError,
   ValidationErrorCode,
-  ValidationContext,
 } from '@frontend/shared/types/wikibase-schema'
 import { ValidationMessages } from '@frontend/shared/types/wikibase-schema'
 

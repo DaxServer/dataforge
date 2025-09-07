@@ -1,9 +1,9 @@
-import { watch } from 'vue'
+import { useSchemaCompletenessValidation } from '@frontend/features/wikibase-schema/composables/useSchemaCompletenessValidation'
+import { useValidationErrors } from '@frontend/features/wikibase-schema/composables/useValidationErrors'
 import { useSchemaStore } from '@frontend/features/wikibase-schema/stores/schema.store'
 import { useValidationStore } from '@frontend/features/wikibase-schema/stores/validation.store'
-import { useValidationErrors } from '@frontend/features/wikibase-schema/composables/useValidationErrors'
-import { useSchemaCompletenessValidation } from '@frontend/features/wikibase-schema/composables/useSchemaCompletenessValidation'
 import type { ValidationError } from '@frontend/shared/types/wikibase-schema'
+import { watch } from 'vue'
 
 /**
  * Interface for validation status

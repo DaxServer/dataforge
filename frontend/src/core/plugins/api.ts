@@ -1,6 +1,6 @@
-import { treaty } from '@elysiajs/eden'
 import type { App as ElysiaApp } from '@backend/index'
-import { type App as VueApp, inject, type InjectionKey } from 'vue'
+import { treaty } from '@elysiajs/eden'
+import { inject, type InjectionKey, type App as VueApp } from 'vue'
 
 type ApiClient = ReturnType<typeof treaty<ElysiaApp>>
 

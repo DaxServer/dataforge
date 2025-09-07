@@ -1,17 +1,9 @@
 import js from '@eslint/js'
+import eslintPluginPrettier from 'eslint-plugin-prettier'
 import pluginVue from 'eslint-plugin-vue'
 import tseslint from 'typescript-eslint'
 import vueParser from 'vue-eslint-parser'
-import { readFileSync } from 'fs'
-import { fileURLToPath } from 'url'
-import { dirname, join } from 'path'
-import pluginPrettier from 'eslint-plugin-prettier'
-
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = dirname(__filename)
-const autoImportGlobals = JSON.parse(
-  readFileSync(join(__dirname, '.eslintrc-auto-import.json'), 'utf8'),
-)
+import autoImportGlobals from './.eslintrc-auto-import.json'
 
 export default tseslint.config(
   {
@@ -42,24 +34,11 @@ export default tseslint.config(
       },
       globals: {
         ...autoImportGlobals.globals,
-        console: 'readonly',
-        process: 'readonly',
-        Buffer: 'readonly',
-        __dirname: 'readonly',
-        __filename: 'readonly',
-        exports: 'writable',
-        global: 'readonly',
-        module: 'readonly',
-        require: 'readonly',
-        window: 'readonly',
-        document: 'readonly',
-        navigator: 'readonly',
-        location: 'readonly',
       },
     },
     plugins: {
       '@typescript-eslint': tseslint.plugin,
-      prettier: pluginPrettier,
+      prettier: eslintPluginPrettier,
     },
     rules: {
       'vue/multi-word-component-names': 'off',
@@ -69,7 +48,7 @@ export default tseslint.config(
       '@typescript-eslint/no-unsafe-assignment': 'off',
       '@typescript-eslint/no-explicit-any': 'off',
       'comma-dangle': ['error', 'always-multiline'],
-      'prettier/prettier': ['error', { trailingComma: 'all' }],
+      'prettier/prettier': 'error',
     },
   },
 )

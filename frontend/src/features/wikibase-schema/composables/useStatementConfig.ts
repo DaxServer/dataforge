@@ -1,11 +1,11 @@
-import { ref, computed, watch } from 'vue'
-import { useSchemaStore } from '@frontend/features/wikibase-schema/stores/schema.store'
 import type {
   PropertyReference,
-  WikibaseDataType,
-  ValueMapping,
   StatementRank,
+  ValueMapping,
+  WikibaseDataType,
 } from '@backend/api/project/project.wikibase'
+import { useSchemaStore } from '@frontend/features/wikibase-schema/stores/schema.store'
+import { computed, ref, watch } from 'vue'
 
 const createDefaultStatement = () => ({
   property: null as PropertyReference | null,

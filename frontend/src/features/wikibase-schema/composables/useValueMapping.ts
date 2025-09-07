@@ -1,11 +1,11 @@
-import { ref, computed } from 'vue'
-import type { ColumnInfo } from '@frontend/shared/types/wikibase-schema'
-import { useDataTypeCompatibility } from '@frontend/features/data-processing/composables/useDataTypeCompatibility'
 import type {
+  PropertyReference,
   ValueMapping,
   WikibaseDataType,
-  PropertyReference,
 } from '@backend/api/project/project.wikibase'
+import { useDataTypeCompatibility } from '@frontend/features/data-processing/composables/useDataTypeCompatibility'
+import type { ColumnInfo } from '@frontend/shared/types/wikibase-schema'
+import { computed, ref } from 'vue'
 
 /**
  * Composable for handling value mapping configuration and validation

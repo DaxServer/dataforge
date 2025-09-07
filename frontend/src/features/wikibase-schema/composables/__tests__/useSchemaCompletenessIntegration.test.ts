@@ -1,9 +1,9 @@
-import { describe, test, expect, beforeEach, mock } from 'bun:test'
-import { createPinia, setActivePinia } from 'pinia'
+import type { PropertyReference, ValueMapping } from '@backend/api/project/project.wikibase'
+import { useSchemaValidationUI } from '@frontend/features/wikibase-schema/composables/useSchemaValidationUI'
 import { useSchemaStore } from '@frontend/features/wikibase-schema/stores/schema.store'
 import { useValidationStore } from '@frontend/features/wikibase-schema/stores/validation.store'
-import { useSchemaValidationUI } from '@frontend/features/wikibase-schema/composables/useSchemaValidationUI'
-import type { PropertyReference, ValueMapping } from '@backend/api/project/project.wikibase'
+import { beforeEach, describe, expect, mock, test } from 'bun:test'
+import { createPinia, setActivePinia } from 'pinia'
 
 describe('Schema Completeness Validation Integration', () => {
   let schemaStore: ReturnType<typeof useSchemaStore>

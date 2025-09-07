@@ -1,12 +1,7 @@
-import { defineStore } from 'pinia'
-import { ref, computed } from 'vue'
-import type { UUID } from 'crypto'
-import { useSchemaBuilder } from '@frontend/features/wikibase-schema/composables/useSchemaBuilder'
-import { ItemId } from '@backend/types/wikibase-schema'
 import type {
+  Alias,
   ColumnMapping,
   Label,
-  Alias,
   PropertyReference,
   PropertyValueMap,
   ReferenceSchemaMapping,
@@ -15,7 +10,12 @@ import type {
   ValueMapping,
   WikibaseSchemaResponse,
 } from '@backend/api/project/project.wikibase'
+import { ItemId } from '@backend/types/wikibase-schema'
+import { useSchemaBuilder } from '@frontend/features/wikibase-schema/composables/useSchemaBuilder'
 import type { StatementSchema } from '@frontend/shared/types/wikibase-schema'
+import type { UUID } from 'crypto'
+import { defineStore } from 'pinia'
+import { computed, ref } from 'vue'
 
 export const useSchemaStore = defineStore('schema', () => {
   const { buildStatement } = useSchemaBuilder()
