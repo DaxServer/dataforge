@@ -1,5 +1,3 @@
-import jiti from 'jiti'
-jiti(new URL(import.meta.url).pathname)
 
 import globals from 'globals'
 import tseslint from 'typescript-eslint'

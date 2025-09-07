@@ -30,63 +30,29 @@
 
 When testing Elysia applications with Eden:
 
-1. **Create a test client factory** directly in your test file
+1. **Create a test client factory** inside the describe block using beforeAll
 2. **Use in-memory database** for all tests
-3. **Create a new app instance** for each test to ensure isolation
+3. **Create a new app instance** once per test suite for better performance
 4. **Use Eden's treaty client** for type-safe API calls
+5. **Use descriptive describe blocks** that specify the HTTP method and endpoint being tested
 
 ```typescript
-// In your test file
-import { afterEach, beforeEach, describe, expect, it } from 'bun:test'
-import { Elysia } from 'elysia'
-import { projectRoutes } from '@backend/api/project'
-import { treaty } from '@elysiajs/eden'
-
-// Create a test app with the project routes
-const createTestApi = () => {
-  return treaty(new Elysia().use(projectRoutes)).api
-}
-
-describe('Project API', () => {
-  let api: ReturnType<typeof createTestApi>
-
-  beforeEach(async () => {
-    // Initialize logic goes here
-
-    // Create a fresh app instance for each test
-    api = createTestApi()
-  })
-
-  afterEach(async () => {
-    // Cleanup logic goes here
-  })
-
-  it('should do something', async () => {
-    const { data, status, error } = await api.endpoint.get(params)
-    // assertions
-  })
-})
-```
-
-### Example: Backend Tests for a Specific Endpoint
-
-```typescript
-// tests/api/project/getById.test.ts
-import { afterEach, beforeEach, describe, expect, it } from 'bun:test'
+// tests/api/project/project.get-all.test.ts
+import { afterEach, beforeAll, describe, expect, test } from 'bun:test'
 import { Elysia } from 'elysia'
 import { projectRoutes } from '@backend/api/project'
 import { initializeDb, closeDb } from '@backend/plugins/database'
 import { treaty } from '@elysiajs/eden'
 
-// Create a test client factory
-const createTestApi = () => {
-  return treaty(new Elysia().use(projectRoutes)).api
-}
-
-describe('Project API - GET /:id', () => {
+describe('GET /api/project - retrieve all projects', () => {
   let api: ReturnType<typeof createTestApi>
 
-  beforeEach(async () => {
+  // Create a test client factory
+  const createTestApi = () => {
+    return treaty(new Elysia().use(projectRoutes)).api
+  }
+
+  beforeAll(async () => {
     await initializeDb(':memory:')
     api = createTestApi()
   })
@@ -95,35 +61,85 @@ describe('Project API - GET /:id', () => {
     await closeDb()
   })
 
-  it('should return a project by ID', async () => {
-    // Assume a project exists or create one for testing
-    const projectId = 'some-valid-uuid'
-    const { data, status, error } = await api.project({ id: projectId }).get()
+  test('should return all projects with pagination', async () => {
+    const { data, status, error } = await api.project.get({
+      query: {
+        page: 1,
+        limit: 10,
+      },
+    })
 
     expect(status).toBe(200)
     expect(error).toBeNull()
-    expect(data).toHaveProperty('data', {
-      id: projectId,
-      name: 'Project Name',
-    })
+    expect(data).toHaveProperty('data')
+    expect(data).toHaveProperty('pagination')
+  })
+})
+```
+
+### Example: Backend Tests for a Specific Endpoint
+
+```typescript
+// tests/api/project/project.create.test.ts
+import { afterEach, beforeAll, describe, expect, test } from 'bun:test'
+import { Elysia } from 'elysia'
+import { projectRoutes } from '@backend/api/project'
+import { initializeDb, closeDb } from '@backend/plugins/database'
+import { treaty } from '@elysiajs/eden'
+import { UUID_REGEX_PATTERN } from '@backend/api/project/_schemas'
+
+describe('POST /api/project - create new project', () => {
+  let api: ReturnType<typeof createTestApi>
+
+  // Create a test client factory
+  const createTestApi = () => {
+    return treaty(new Elysia().use(projectRoutes)).api
+  }
+
+  beforeAll(async () => {
+    await initializeDb(':memory:')
+    api = createTestApi()
   })
 
-  it('should return 404 if project not found', async () => {
-    const nonExistentId = 'non-existent-uuid'
-    const { data, status, error } = await api.project({ id: nonExistentId }).get()
+  afterEach(async () => {
+    await closeDb()
+  })
 
-    expect(status).toBe(404)
-    expect(data).toBeNull()
-    expect(error).toHaveProperty('status', 404)
-    expect(error).toHaveProperty('value', {
-      data: [],
-      errors: [
-        {
-          code: 'NOT_FOUND',
-          message: 'Project not found',
-          details: [],
-        },
-      ],
+  describe('Validation', () => {
+    test('should create a new project with required fields', async () => {
+      const projectData = {
+        name: 'Test Project',
+      }
+
+      const { data, status, error } = await api.project.post(projectData)
+
+      expect(status).toBe(201)
+      expect(data).toHaveProperty('data', {
+        name: projectData.name,
+        id: expect.stringMatching(UUID_REGEX_PATTERN),
+        created_at: expect.stringMatching(/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}(\.\d{1,3})?$/),
+        updated_at: expect.stringMatching(/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}(\.\d{1,3})?$/),
+      })
+      expect(error).toBeNull()
+    })
+
+    test('should return 422 when name is missing', async () => {
+      // @ts-expect-error - Testing invalid input where name is missing
+      const { data, status, error } = await api.project.post({})
+
+      expect(status).toBe(422)
+      expect(data).toBeNull()
+      expect(error).toHaveProperty('status', 422)
+      expect(error).toHaveProperty('value', {
+        data: [],
+        errors: [
+          {
+            code: 'VALIDATION_ERROR',
+            message: expect.stringContaining('name'),
+            details: expect.any(Array),
+          },
+        ],
+      })
     })
   })
 })
@@ -172,6 +188,16 @@ expect(error).toHaveProperty('value', {
     },
   ],
 })
+
+// Use expectTypeOf for type checking instead of expect(typeof
+expectTypeOf(data).toEqualTypeOf<ProjectData>()
+expectTypeOf(error).toEqualTypeOf<ApiError>()
+
+// All error responses should follow ApiError format
+expect(error).toHaveProperty('status')
+expect(error).toHaveProperty('value.errors')
+expect(error?.value.errors[0]).toHaveProperty('code')
+expect(error?.value.errors[0]).toHaveProperty('message')
 ```
 
 **❌ Don't:**
@@ -196,6 +222,10 @@ expect(error).toHaveProperty('status', 400) // ✅ Use toHaveProperty instead
 expect(error).toHaveProperty('value', {
   data: ...
 }) // ✅ Use exact object structure
+
+// Don't use `expect(typeof ...` for type checking
+expect(typeof data).toBe('object') // ❌ Use expectTypeOf instead
+expect(typeof error).toBe('object') // ❌ Use expectTypeOf instead
 ```
 
 ### Error Testing
