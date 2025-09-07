@@ -8,7 +8,6 @@ import { databasePlugin } from '@backend/plugins/database'
 import { errorHandlerPlugin } from '@backend/plugins/error-handler'
 import { wikibasePlugin } from '@backend/plugins/wikibase'
 import { ApiErrorHandler } from '@backend/types/error-handler'
-import type { ItemId, PropertyId } from '@backend/types/wikibase-schema'
 import { cors } from '@elysiajs/cors'
 import { Elysia } from 'elysia'
 
@@ -51,13 +50,7 @@ export const wikibaseEntitiesApi = new Elysia({ prefix: '/api/wikibase/entities'
   .get(
     '/properties/:propertyId',
     async ({ params: { propertyId }, query: { instance = 'wikidata' }, wikibase }) => {
-      if (!propertyId || !/^P\d+$/i.test(propertyId)) {
-        return ApiErrorHandler.validationError(
-          'Property ID must be in format P followed by numbers (e.g., P31)',
-        )
-      }
-
-      const property = await wikibase.getProperty(instance, propertyId as PropertyId)
+      const property = await wikibase.getProperty(instance, propertyId)
       if (!property) {
         return ApiErrorHandler.notFoundError(`Property ${propertyId} not found`)
       }
@@ -97,13 +90,7 @@ export const wikibaseEntitiesApi = new Elysia({ prefix: '/api/wikibase/entities'
   .get(
     '/items/:itemId',
     async ({ params: { itemId }, query: { instance = 'wikidata' }, wikibase }) => {
-      if (!itemId || !/^Q\d+$/i.test(itemId)) {
-        return ApiErrorHandler.validationError(
-          'Item ID must be in format Q followed by numbers (e.g., Q42)',
-        )
-      }
-
-      const item = await wikibase.getItem(instance, itemId as ItemId)
+      const item = await wikibase.getItem(instance, itemId)
       if (!item) {
         return ApiErrorHandler.notFoundError(`Item ${itemId} not found`)
       }

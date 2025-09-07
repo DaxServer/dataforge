@@ -43,6 +43,8 @@ export class NodemwWikibaseService {
    * Get an existing client for the given instance ID
    */
   getClient(instanceId: string): any {
+    if (instanceId === 'wikidata') return this.getWikidataClient(instanceId)
+
     const client = this.clients.get(instanceId)
     if (!client) {
       throw new Error(`No client found for instance: ${instanceId}`)

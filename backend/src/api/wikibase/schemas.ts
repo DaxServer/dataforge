@@ -1,4 +1,5 @@
 import { ApiError } from '@backend/types/error-schemas'
+import { ItemId, PropertyId } from '@backend/types/wikibase-schema'
 import { t } from 'elysia'
 
 // Base schemas for Wikibase entities
@@ -14,7 +15,7 @@ export const PropertySearchResultSchema = t.Object({
 })
 
 export const PropertyDetailsSchema = t.Object({
-  id: t.String({ pattern: '^P[0-9]+$' }),
+  id: PropertyId,
   pageid: t.Optional(t.Number()),
   ns: t.Optional(t.Number()),
   title: t.Optional(t.String()),
@@ -45,7 +46,7 @@ export const SiteLinkSchema = t.Object({
 })
 
 export const ItemDetailsSchema = t.Object({
-  id: t.String({ pattern: '^Q[0-9]+$' }),
+  id: ItemId,
   pageid: t.Optional(t.Number()),
   ns: t.Optional(t.Number()),
   title: t.Optional(t.String()),
@@ -111,7 +112,7 @@ export const PropertySearchSchema = {
 export const InstancePropertyDetailsSchema = {
   params: t.Object({
     instanceId: t.String({ description: 'Wikibase instance ID' }),
-    propertyId: t.String({ pattern: '^P[0-9]+$', description: 'Property ID (e.g., P31)' }),
+    propertyId: PropertyId,
   }),
   query: t.Object({
     includeConstraints: t.Optional(
@@ -138,7 +139,7 @@ export const InstancePropertyDetailsSchema = {
 export const InstancePropertyConstraintsSchema = {
   params: t.Object({
     instanceId: t.String({ description: 'Wikibase instance ID' }),
-    propertyId: t.String({ pattern: '^P[0-9]+$', description: 'Property ID (e.g., P31)' }),
+    propertyId: PropertyId,
   }),
   response: {
     200: t.Object({
@@ -167,7 +168,7 @@ export const PropertyValidationSchema = {
     instanceId: t.String({ description: 'Wikibase instance ID' }),
   }),
   body: t.Object({
-    propertyId: t.String({ pattern: '^P[0-9]+$', description: 'Property ID to validate' }),
+    propertyId: PropertyId,
     value: t.Any({ description: 'Value to validate against property constraints' }),
     context: t.Optional(
       t.Object({
@@ -274,7 +275,7 @@ export const SchemaValidationSchema = {
 
 export const PropertyDetailsRouteSchema = {
   params: t.Object({
-    propertyId: t.String({ pattern: '^P[0-9]+$' }),
+    propertyId: PropertyId,
   }),
   query: t.Object({
     instance: t.Optional(t.String({ description: 'Wikibase instance ID', default: 'wikidata' })),
@@ -326,7 +327,7 @@ export const ItemSearchSchema = {
 
 export const ItemDetailsRouteSchema = {
   params: t.Object({
-    itemId: t.String({ pattern: '^Q[0-9]+$' }),
+    itemId: ItemId,
   }),
   query: t.Object({
     instance: t.Optional(t.String({ description: 'Wikibase instance ID', default: 'wikidata' })),

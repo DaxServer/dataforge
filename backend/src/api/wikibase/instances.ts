@@ -12,7 +12,7 @@ import { errorHandlerPlugin } from '@backend/plugins/error-handler'
 import { wikibasePlugin } from '@backend/plugins/wikibase'
 import { constraintValidationService } from '@backend/services/constraint-validation.service'
 import { ApiErrorHandler } from '@backend/types/error-handler'
-import type { ItemId, PropertyId } from '@backend/types/wikibase-schema'
+import { ItemId, PropertyId } from '@backend/types/wikibase-schema'
 import { cors } from '@elysiajs/cors'
 import { Elysia, t } from 'elysia'
 
@@ -126,13 +126,7 @@ export const wikibaseInstanceApi = new Elysia({ prefix: '/api/wikibase' })
       query: { includeConstraints = false },
       wikibase,
     }) => {
-      if (!propertyId || !/^P\d+$/i.test(propertyId)) {
-        return ApiErrorHandler.validationError(
-          'Property ID must be in format P followed by numbers (e.g., P31)',
-        )
-      }
-
-      const property = await wikibase.getProperty(instanceId, propertyId as PropertyId)
+      const property = await wikibase.getProperty(instanceId, propertyId)
       if (!property) {
         return ApiErrorHandler.notFoundError(`Property ${propertyId} not found`)
       }
@@ -141,7 +135,7 @@ export const wikibaseInstanceApi = new Elysia({ prefix: '/api/wikibase' })
       if (includeConstraints) {
         const constraints = await constraintValidationService.getPropertyConstraints(
           instanceId,
-          propertyId as PropertyId,
+          propertyId,
         )
         property.constraints = constraints
       }
@@ -151,7 +145,7 @@ export const wikibaseInstanceApi = new Elysia({ prefix: '/api/wikibase' })
     {
       params: t.Object({
         instanceId: t.String({ description: 'Wikibase instance ID' }),
-        propertyId: t.String({ description: 'Property ID (e.g., P31)' }),
+        propertyId: PropertyId,
       }),
       query: t.Object({
         includeConstraints: t.Optional(
@@ -175,22 +169,16 @@ export const wikibaseInstanceApi = new Elysia({ prefix: '/api/wikibase' })
   .get(
     '/:instanceId/properties/:propertyId/constraints',
     async ({ params: { instanceId, propertyId } }) => {
-      if (!propertyId || !/^P\d+$/i.test(propertyId)) {
-        return ApiErrorHandler.validationError(
-          'Property ID must be in format P followed by numbers (e.g., P31)',
-        )
-      }
-
       const constraints = await constraintValidationService.getPropertyConstraints(
         instanceId,
-        propertyId as PropertyId,
+        propertyId,
       )
       return { data: constraints }
     },
     {
       params: t.Object({
         instanceId: t.String({ description: 'Wikibase instance ID' }),
-        propertyId: t.String({ description: 'Property ID (e.g., P31)' }),
+        propertyId: PropertyId,
       }),
       response: InstancePropertyConstraintsSchema.response,
       detail: {
@@ -205,15 +193,9 @@ export const wikibaseInstanceApi = new Elysia({ prefix: '/api/wikibase' })
   .post(
     '/:instanceId/validate/property',
     async ({ params: { instanceId }, body: { propertyId, value } }) => {
-      if (!propertyId || !/^P\d+$/i.test(propertyId)) {
-        return ApiErrorHandler.validationError(
-          'Property ID must be in format P followed by numbers (e.g., P31)',
-        )
-      }
-
       const validationResult = await constraintValidationService.validateProperty(
         instanceId,
-        propertyId as PropertyId,
+        propertyId,
         [value], // Convert single value to array as expected by the service
       )
       return { data: validationResult }
@@ -271,6 +253,7 @@ export const wikibaseInstanceApi = new Elysia({ prefix: '/api/wikibase' })
         language,
         autocomplete,
       })
+
       return { data: results }
     },
     {
@@ -301,13 +284,7 @@ export const wikibaseInstanceApi = new Elysia({ prefix: '/api/wikibase' })
   .get(
     '/:instanceId/items/:itemId',
     async ({ params: { instanceId, itemId }, wikibase }) => {
-      if (!itemId || !/^Q\d+$/i.test(itemId)) {
-        return ApiErrorHandler.validationError(
-          'Item ID must be in format Q followed by numbers (e.g., Q42)',
-        )
-      }
-
-      const item = await wikibase.getItem(instanceId, itemId as ItemId)
+      const item = await wikibase.getItem(instanceId, itemId)
       if (!item) {
         return ApiErrorHandler.notFoundError(`Item ${itemId} not found`)
       }
@@ -316,7 +293,7 @@ export const wikibaseInstanceApi = new Elysia({ prefix: '/api/wikibase' })
     {
       params: t.Object({
         instanceId: t.String({ description: 'Wikibase instance ID' }),
-        itemId: t.String({ description: 'Item ID (e.g., Q42)' }),
+        itemId: ItemId,
       }),
       response: ItemDetailsRouteSchema.response,
       detail: {

@@ -2,6 +2,8 @@
  * Core Wikibase API type definitions for REST API and nodemw integration
  */
 
+import type { ItemId, PropertyId } from '@backend/types/wikibase-schema'
+
 // Instance Configuration
 export interface WikibaseInstanceConfig {
   id: string
@@ -42,7 +44,7 @@ export interface NodemwWikibaseInstanceConfig extends WikibaseInstanceConfig {
 
 // Property Types
 export interface PropertyDetails {
-  id: string
+  id: PropertyId
   type: 'property'
   labels: Record<string, string>
   descriptions: Record<string, string>
@@ -53,7 +55,7 @@ export interface PropertyDetails {
 }
 
 export interface PropertySearchResult {
-  id: string
+  id: PropertyId
   label: string
   description?: string
   datatype: string
@@ -72,7 +74,7 @@ export interface PropertyConstraint {
 
 // Item Types
 export interface ItemDetails {
-  id: string
+  id: ItemId
   type: 'item'
   labels: Record<string, string>
   descriptions: Record<string, string>
