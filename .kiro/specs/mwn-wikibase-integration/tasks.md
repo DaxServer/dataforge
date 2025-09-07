@@ -48,26 +48,26 @@
     - Add constraint violation detection and error message generation
     - _Requirements: 3.3, 6.2, 6.3_
 
-- [ ] 4. Update API endpoints to use NodemwWikibaseService
-  - [ ] 4.1 Update property search endpoints
+- [x] 4. Update API endpoints to use NodemwWikibaseService
+  - [x] 4.1 Update property search endpoints
     - Modify /api/wikibase/:instanceId/properties/search to use nodemw
     - Add support for enhanced search parameters and filtering
     - Implement response formatting for frontend compatibility
     - _Requirements: 2.1, 2.3, 2.5_
 
-  - [ ] 4.2 Update property details endpoints
+  - [x] 4.2 Update property details endpoints
     - Modify /api/wikibase/:instanceId/properties/:propertyId to use nodemw
     - Add constraint information to property details response
     - Implement error handling for property not found scenarios
     - _Requirements: 2.2, 3.1, 3.2_
 
-  - [ ] 4.3 Add new constraint validation endpoints
+  - [x] 4.3 Add new constraint validation endpoints
     - Create /api/wikibase/:instanceId/properties/:propertyId/constraints endpoint
     - Add /api/wikibase/:instanceId/validate/property endpoint for real-time validation
     - Implement /api/wikibase/:instanceId/validate/schema endpoint for schema validation
     - _Requirements: 3.1, 3.3, 6.1, 6.2_
 
-  - [ ] 4.4 Update instance management endpoints
+  - [x] 4.4 Update instance management endpoints
     - Modify instance configuration endpoints to support nodemw configuration
     - Add connectivity testing using nodemw client validation
     - Implement health check endpoints for instance monitoring

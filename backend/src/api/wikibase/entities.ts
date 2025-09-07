@@ -17,6 +17,7 @@ export const wikibaseEntitiesApi = new Elysia({ prefix: '/api/wikibase/entities'
   .use(databasePlugin)
   .use(errorHandlerPlugin)
   .use(wikibasePlugin)
+
   .get(
     '/properties/search',
     async ({
@@ -46,6 +47,7 @@ export const wikibaseEntitiesApi = new Elysia({ prefix: '/api/wikibase/entities'
     },
     PropertySearchSchema,
   )
+
   .get(
     '/properties/:propertyId',
     async ({ params: { propertyId }, query: { instance = 'wikidata' }, wikibase }) => {
@@ -63,6 +65,7 @@ export const wikibaseEntitiesApi = new Elysia({ prefix: '/api/wikibase/entities'
     },
     PropertyDetailsRouteSchema,
   )
+
   .get(
     '/items/search',
     async ({
@@ -90,6 +93,7 @@ export const wikibaseEntitiesApi = new Elysia({ prefix: '/api/wikibase/entities'
     },
     ItemSearchSchema,
   )
+
   .get(
     '/items/:itemId',
     async ({ params: { itemId }, query: { instance = 'wikidata' }, wikibase }) => {

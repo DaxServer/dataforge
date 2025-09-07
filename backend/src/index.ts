@@ -2,9 +2,11 @@ import { metaProjectsRoutes } from '@backend/api/_meta_projects'
 import { healthRoutes } from '@backend/api/health'
 import { projectRoutes } from '@backend/api/project'
 import { wikibaseRoutes } from '@backend/api/project/project.wikibase'
-import { wikibaseConstraintsApi } from '@backend/api/wikibase/constraints'
-import { wikibaseInstanceApi } from '@backend/api/wikibase/instance-routes'
-import { wikibaseInstancesApi } from '@backend/api/wikibase/instances'
+import {
+  wikibaseConstraintsApi,
+  wikibaseEntitiesApi,
+  wikibaseInstanceApi,
+} from '@backend/api/wikibase'
 import { closeDb } from '@backend/plugins/database'
 import { errorHandlerPlugin } from '@backend/plugins/error-handler'
 import { logger } from '@bogeychan/elysia-logger'
@@ -36,7 +38,7 @@ export const elysiaApp = new Elysia({
   .use(metaProjectsRoutes)
   .use(projectRoutes)
   .use(wikibaseRoutes)
-  .use(wikibaseInstancesApi)
+  .use(wikibaseEntitiesApi)
   .use(wikibaseInstanceApi)
   .use(wikibaseConstraintsApi)
   .listen(3000, () => {
