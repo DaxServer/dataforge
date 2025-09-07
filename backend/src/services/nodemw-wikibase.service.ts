@@ -157,7 +157,7 @@ export class NodemwWikibaseService {
             id: item.id,
             label: item.label || item.id,
             description: item.description || '',
-            dataType: item.datatype || 'unknown',
+            datatype: item.datatype || 'unknown',
             match: {
               type: item.match?.type || ('label' as const),
               language: item.match?.language || language,
@@ -165,9 +165,9 @@ export class NodemwWikibaseService {
             },
           })) ?? []
 
-        // Filter by dataType if specified
-        if (options.dataType) {
-          results = results.filter(result => result.dataType === options.dataType)
+        // Filter by datatype if specified
+        if (options.datatype) {
+          results = results.filter((result) => result.datatype === options.datatype)
         }
 
         resolve({
@@ -219,7 +219,8 @@ export class NodemwWikibaseService {
 
         const propertyDetails: PropertyDetails = {
           id: propertyId,
-          dataType: entity.datatype ?? 'unknown',
+          type: 'property',
+          datatype: entity.datatype ?? 'unknown',
           labels: Object.fromEntries(
             Object.entries(labels).map(([lang, data]: [string, any]) => [lang, data.value]),
           ),
@@ -346,6 +347,7 @@ export class NodemwWikibaseService {
 
         const itemDetails: ItemDetails = {
           id: itemId,
+          type: 'item',
           labels: Object.fromEntries(
             Object.entries(labels).map(([lang, data]: [string, any]) => [lang, data.value]),
           ),

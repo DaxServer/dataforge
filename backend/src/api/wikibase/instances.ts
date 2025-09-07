@@ -1,5 +1,7 @@
-import { Elysia, t } from 'elysia'
+import { nodemwWikibaseService } from '@backend/services/nodemw-wikibase.service'
 import { wikibaseConfigService } from '@backend/services/wikibase-config.service'
+import { handleWikibaseError, toErrorResponse } from '@backend/utils/wikibase-error-handler'
+import { Elysia, t } from 'elysia'
 
 /**
  * Wikibase instance management API endpoints
@@ -7,7 +9,7 @@ import { wikibaseConfigService } from '@backend/services/wikibase-config.service
 export const wikibaseInstancesApi = new Elysia({ prefix: '/wikibase/instances' })
   .get(
     '/',
-    async () => {
+    async ({ status }) => {
       try {
         const instances = await wikibaseConfigService.getInstances()
         return {
@@ -15,9 +17,9 @@ export const wikibaseInstancesApi = new Elysia({ prefix: '/wikibase/instances' }
           data: instances,
         }
       } catch (error) {
-        throw new Error(
-          `Failed to get instances: ${error instanceof Error ? error.message : 'Unknown error'}`,
-        )
+        const wikibaseError = handleWikibaseError(error, { operation: 'get_instances' })
+        const errorResponse = toErrorResponse(wikibaseError)
+        return status(500, errorResponse)
       }
     },
     {
@@ -39,16 +41,13 @@ export const wikibaseInstancesApi = new Elysia({ prefix: '/wikibase/instances' }
           data: instance,
         }
       } catch (error) {
-        return status(404, {
-          data: [],
-          errors: [
-            {
-              code: 'NOT_FOUND',
-              message: error instanceof Error ? error.message : 'Instance not found',
-              details: [instanceId],
-            },
-          ],
+        const wikibaseError = handleWikibaseError(error, {
+          instanceId,
+          operation: 'get_instance',
         })
+        const errorResponse = toErrorResponse(wikibaseError)
+        const errorMessage = error instanceof Error ? error.message : ''
+        return status(errorMessage.includes('not found') ? 404 : 500, errorResponse)
       }
     },
     {
@@ -68,21 +67,23 @@ export const wikibaseInstancesApi = new Elysia({ prefix: '/wikibase/instances' }
     async ({ body, status }) => {
       try {
         await wikibaseConfigService.addInstance(body)
+
+        // If nodemw configuration is provided, create nodemw client
+        if (body.nodemwConfig || body.features) {
+          nodemwWikibaseService.createClient(body)
+        }
+
         return {
           success: true,
           message: 'Instance added successfully',
         }
       } catch (error) {
-        return status(400, {
-          data: [],
-          errors: [
-            {
-              code: 'VALIDATION',
-              message: error instanceof Error ? error.message : 'Failed to add instance',
-              details: [body],
-            },
-          ],
+        const wikibaseError = handleWikibaseError(error, {
+          instanceId: body.id,
+          operation: 'add_instance',
         })
+        const errorResponse = toErrorResponse(wikibaseError)
+        return status(400, errorResponse)
       }
     },
     {
@@ -100,6 +101,31 @@ export const wikibaseInstancesApi = new Elysia({ prefix: '/wikibase/instances' }
             version: t.Optional(t.String()),
           }),
         ),
+        nodemwConfig: t.Optional(
+          t.Object({
+            protocol: t.Union([t.Literal('http'), t.Literal('https')], {
+              description: 'Protocol to use',
+            }),
+            server: t.String({ description: 'Server hostname' }),
+            path: t.String({ description: 'API path' }),
+            concurrency: t.Optional(t.Number({ description: 'Number of concurrent requests' })),
+            debug: t.Optional(t.Boolean({ description: 'Enable debug mode' })),
+            dryRun: t.Optional(t.Boolean({ description: 'Enable dry run mode' })),
+            username: t.Optional(t.String({ description: 'Username for authentication' })),
+            password: t.Optional(t.String({ description: 'Password for authentication' })),
+            domain: t.Optional(t.String({ description: 'Domain for authentication' })),
+          }),
+        ),
+        features: t.Optional(
+          t.Object({
+            hasWikidata: t.Boolean({ description: 'Whether instance has Wikidata integration' }),
+            hasConstraints: t.Boolean({ description: 'Whether instance supports constraints' }),
+            hasSearch: t.Boolean({ description: 'Whether instance supports search' }),
+            hasStatements: t.Boolean({ description: 'Whether instance supports statements' }),
+            supportedDataTypes: t.Array(t.String(), { description: 'Supported data types' }),
+            apiVersion: t.String({ description: 'API version' }),
+          }),
+        ),
       }),
       detail: {
         summary: 'Add custom Wikibase instance',
@@ -114,21 +140,26 @@ export const wikibaseInstancesApi = new Elysia({ prefix: '/wikibase/instances' }
     async ({ params: { instanceId }, body, status }) => {
       try {
         await wikibaseConfigService.updateInstance(instanceId, body)
+
+        // If nodemw configuration is provided, update nodemw client
+        if (body.nodemwConfig || body.features) {
+          const updatedInstance = await wikibaseConfigService.getInstance(instanceId)
+          if (updatedInstance) {
+            nodemwWikibaseService.createClient(updatedInstance)
+          }
+        }
+
         return {
           success: true,
           message: 'Instance updated successfully',
         }
       } catch (error) {
-        return status(400, {
-          data: [],
-          errors: [
-            {
-              code: 'VALIDATION',
-              message: error instanceof Error ? error.message : 'Failed to update instance',
-              details: [instanceId, body],
-            },
-          ],
+        const wikibaseError = handleWikibaseError(error, {
+          instanceId,
+          operation: 'update_instance',
         })
+        const errorResponse = toErrorResponse(wikibaseError)
+        return status(400, errorResponse)
       }
     },
     {
@@ -147,6 +178,27 @@ export const wikibaseInstancesApi = new Elysia({ prefix: '/wikibase/instances' }
             language: t.Optional(t.String()),
             version: t.Optional(t.String()),
           }),
+          nodemwConfig: t.Object({
+            protocol: t.Union([t.Literal('http'), t.Literal('https')], {
+              description: 'Protocol to use',
+            }),
+            server: t.String({ description: 'Server hostname' }),
+            path: t.String({ description: 'API path' }),
+            concurrency: t.Optional(t.Number({ description: 'Number of concurrent requests' })),
+            debug: t.Optional(t.Boolean({ description: 'Enable debug mode' })),
+            dryRun: t.Optional(t.Boolean({ description: 'Enable dry run mode' })),
+            username: t.Optional(t.String({ description: 'Username for authentication' })),
+            password: t.Optional(t.String({ description: 'Password for authentication' })),
+            domain: t.Optional(t.String({ description: 'Domain for authentication' })),
+          }),
+          features: t.Object({
+            hasWikidata: t.Boolean({ description: 'Whether instance has Wikidata integration' }),
+            hasConstraints: t.Boolean({ description: 'Whether instance supports constraints' }),
+            hasSearch: t.Boolean({ description: 'Whether instance supports search' }),
+            hasStatements: t.Boolean({ description: 'Whether instance supports statements' }),
+            supportedDataTypes: t.Array(t.String(), { description: 'Supported data types' }),
+            apiVersion: t.String({ description: 'API version' }),
+          }),
         }),
       ),
       detail: {
@@ -161,22 +213,21 @@ export const wikibaseInstancesApi = new Elysia({ prefix: '/wikibase/instances' }
     '/:instanceId',
     async ({ params: { instanceId }, status }) => {
       try {
+        // Remove nodemw client if it exists
+        nodemwWikibaseService.removeClient(instanceId)
+
         await wikibaseConfigService.removeInstance(instanceId)
         return {
           success: true,
           message: 'Instance removed successfully',
         }
       } catch (error) {
-        return status(400, {
-          data: [],
-          errors: [
-            {
-              code: 'VALIDATION',
-              message: error instanceof Error ? error.message : 'Failed to remove instance',
-              details: [instanceId],
-            },
-          ],
+        const wikibaseError = handleWikibaseError(error, {
+          instanceId,
+          operation: 'remove_instance',
         })
+        const errorResponse = toErrorResponse(wikibaseError)
+        return status(400, errorResponse)
       }
     },
     {
@@ -203,16 +254,13 @@ export const wikibaseInstancesApi = new Elysia({ prefix: '/wikibase/instances' }
           data: validation,
         }
       } catch (error) {
-        return status(404, {
-          data: [],
-          errors: [
-            {
-              code: 'NOT_FOUND',
-              message: error instanceof Error ? error.message : 'Instance not found',
-              details: [instanceId],
-            },
-          ],
+        const wikibaseError = handleWikibaseError(error, {
+          instanceId,
+          operation: 'validate_instance',
         })
+        const errorResponse = toErrorResponse(wikibaseError)
+        const errorMessage = error instanceof Error ? error.message : ''
+        return status(errorMessage.includes('not found') ? 404 : 500, errorResponse)
       }
     },
     {
@@ -256,6 +304,31 @@ export const wikibaseInstancesApi = new Elysia({ prefix: '/wikibase/instances' }
             description: t.Optional(t.String()),
             language: t.Optional(t.String()),
             version: t.Optional(t.String()),
+          }),
+        ),
+        nodemwConfig: t.Optional(
+          t.Object({
+            protocol: t.Union([t.Literal('http'), t.Literal('https')], {
+              description: 'Protocol to use',
+            }),
+            server: t.String({ description: 'Server hostname' }),
+            path: t.String({ description: 'API path' }),
+            concurrency: t.Optional(t.Number({ description: 'Number of concurrent requests' })),
+            debug: t.Optional(t.Boolean({ description: 'Enable debug mode' })),
+            dryRun: t.Optional(t.Boolean({ description: 'Enable dry run mode' })),
+            username: t.Optional(t.String({ description: 'Username for authentication' })),
+            password: t.Optional(t.String({ description: 'Password for authentication' })),
+            domain: t.Optional(t.String({ description: 'Domain for authentication' })),
+          }),
+        ),
+        features: t.Optional(
+          t.Object({
+            hasWikidata: t.Boolean({ description: 'Whether instance has Wikidata integration' }),
+            hasConstraints: t.Boolean({ description: 'Whether instance supports constraints' }),
+            hasSearch: t.Boolean({ description: 'Whether instance supports search' }),
+            hasStatements: t.Boolean({ description: 'Whether instance supports statements' }),
+            supportedDataTypes: t.Array(t.String(), { description: 'Supported data types' }),
+            apiVersion: t.String({ description: 'API version' }),
           }),
         ),
       }),
@@ -318,16 +391,13 @@ export const wikibaseInstancesApi = new Elysia({ prefix: '/wikibase/instances' }
           message: 'Default instance set successfully',
         }
       } catch (error) {
-        return status(404, {
-          data: [],
-          errors: [
-            {
-              code: 'NOT_FOUND',
-              message: error instanceof Error ? error.message : 'Instance not found',
-              details: [instanceId],
-            },
-          ],
+        const wikibaseError = handleWikibaseError(error, {
+          instanceId,
+          operation: 'set_default_instance',
         })
+        const errorResponse = toErrorResponse(wikibaseError)
+        const errorMessage = error instanceof Error ? error.message : ''
+        return status(errorMessage.includes('not found') ? 404 : 500, errorResponse)
       }
     },
     {

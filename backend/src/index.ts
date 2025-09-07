@@ -1,16 +1,17 @@
-import { Elysia } from 'elysia'
-import { cors } from '@elysiajs/cors'
-import swagger from '@elysiajs/swagger'
-import { logger } from '@bogeychan/elysia-logger'
-import { errorHandlerPlugin } from '@backend/plugins/error-handler'
+import { metaProjectsRoutes } from '@backend/api/_meta_projects'
 import { healthRoutes } from '@backend/api/health'
 import { projectRoutes } from '@backend/api/project'
-import { metaProjectsRoutes } from '@backend/api/_meta_projects'
-import { closeDb } from '@backend/plugins/database'
 import { wikibaseRoutes } from '@backend/api/project/project.wikibase'
-import { wikibaseInstancesApi } from '@backend/api/wikibase/instances'
-import { wikibaseEntitiesApi } from '@backend/api/wikibase/entities'
 import { wikibaseConstraintsApi } from '@backend/api/wikibase/constraints'
+import { wikibaseEntitiesApi } from '@backend/api/wikibase/entities'
+import { wikibaseInstanceApi } from '@backend/api/wikibase/instance-routes'
+import { wikibaseInstancesApi } from '@backend/api/wikibase/instances'
+import { closeDb } from '@backend/plugins/database'
+import { errorHandlerPlugin } from '@backend/plugins/error-handler'
+import { logger } from '@bogeychan/elysia-logger'
+import { cors } from '@elysiajs/cors'
+import swagger from '@elysiajs/swagger'
+import { Elysia } from 'elysia'
 
 export const elysiaApp = new Elysia({
   serve: {
@@ -38,6 +39,7 @@ export const elysiaApp = new Elysia({
   .use(wikibaseRoutes)
   .use(wikibaseInstancesApi)
   .use(wikibaseEntitiesApi)
+  .use(wikibaseInstanceApi)
   .use(wikibaseConstraintsApi)
   .listen(3000, () => {
     console.log('🦊 Elysia is running at http://localhost:3000')
