@@ -1,21 +1,23 @@
-import eslintPluginPrettier from 'eslint-plugin-prettier'
+import prettierConfig from 'eslint-config-prettier'
+import { defineConfig } from 'eslint/config'
 import tseslint from 'typescript-eslint'
 
-export default tseslint.config(
+export default defineConfig(
   {
     ignores: ['node_modules/**', 'dist/**', '*.d.ts', 'dataforge.db'],
   },
   ...tseslint.configs.recommended,
+  prettierConfig,
   {
     files: ['**/*.ts'],
     languageOptions: {
       parserOptions: {
-        project: './tsconfig.json',
+        projectService: true,
+        tsconfigRootDir: import.meta.dirname,
       },
     },
     plugins: {
       '@typescript-eslint': tseslint.plugin,
-      prettier: eslintPluginPrettier,
     },
     rules: {
       '@typescript-eslint/no-explicit-any': 'warn',
@@ -25,7 +27,6 @@ export default tseslint.config(
         { 'ts-expect-error': 'allow-with-description' },
       ],
       'comma-dangle': ['error', 'always-multiline'],
-      'prettier/prettier': 'error',
     },
   },
 )

@@ -201,7 +201,7 @@ describe('NodemwWikibaseService', () => {
       expect(response.results.length).toBeGreaterThan(0)
       expect(response.results[0]).toHaveProperty('id')
       expect(response.results[0]).toHaveProperty('label')
-      expect(response.results[0]).toHaveProperty('dataType')
+      expect(response.results[0]).toHaveProperty('datatype')
       expect(searchPropertiesSpy).toHaveBeenCalledWith('wikidata', 'instance of', {
         limit: 5,
         offset: 0,

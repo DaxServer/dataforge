@@ -1,446 +1,328 @@
-import { nodemwWikibaseService } from '@backend/services/nodemw-wikibase.service'
-import { wikibaseConfigService } from '@backend/services/wikibase-config.service'
-import { handleWikibaseError, toErrorResponse } from '@backend/utils/wikibase-error-handler'
+import {
+  InstancePropertyConstraintsSchema,
+  InstancePropertyDetailsSchema,
+  ItemDetailsRouteSchema,
+  ItemSearchSchema,
+  PropertySearchSchema,
+  PropertyValidationSchema,
+  SchemaValidationSchema,
+} from '@backend/api/wikibase/schemas'
+import { databasePlugin } from '@backend/plugins/database'
+import { errorHandlerPlugin } from '@backend/plugins/error-handler'
+import { wikibasePlugin } from '@backend/plugins/wikibase'
+import { constraintValidationService } from '@backend/services/constraint-validation.service'
+import { ApiErrorHandler } from '@backend/types/error-handler'
+import type { ItemId, PropertyId } from '@backend/types/wikibase-schema'
+import { cors } from '@elysiajs/cors'
 import { Elysia, t } from 'elysia'
 
 /**
- * Wikibase instance management API endpoints
+ * Instance-specific Wikibase API routes following the pattern /api/wikibase/:instanceId/...
+ * These routes use the NodemwWikibaseService with enhanced search parameters and constraint support
  */
-export const wikibaseInstancesApi = new Elysia({ prefix: '/wikibase/instances' })
+export const wikibaseInstanceApi = new Elysia({ prefix: '/api/wikibase' })
+  .use(cors())
+  .use(databasePlugin)
+  .use(errorHandlerPlugin)
+  .use(wikibasePlugin)
+
+  // Property search endpoint with enhanced filtering
   .get(
-    '/',
-    async ({ status }) => {
-      try {
-        const instances = await wikibaseConfigService.getInstances()
-        return {
-          success: true,
-          data: instances,
-        }
-      } catch (error) {
-        const wikibaseError = handleWikibaseError(error, { operation: 'get_instances' })
-        const errorResponse = toErrorResponse(wikibaseError)
-        return status(500, errorResponse)
-      }
-    },
-    {
-      detail: {
-        summary: 'Get all Wikibase instances',
-        description: 'Retrieve all configured Wikibase instances (pre-defined and custom)',
-        tags: ['Wikibase', 'Instances'],
+    '/:instanceId/properties/search',
+    async ({
+      params: { instanceId },
+      query: {
+        q,
+        limit = 10,
+        offset = 0,
+        language = 'en',
+        dataType,
+        autocomplete = true,
+        includeUsageStats = false,
+        sortBy = 'relevance',
       },
-    },
-  )
-
-  .get(
-    '/:instanceId',
-    async ({ params: { instanceId }, status }) => {
-      try {
-        const instance = await wikibaseConfigService.getInstance(instanceId)
-        return {
-          success: true,
-          data: instance,
-        }
-      } catch (error) {
-        const wikibaseError = handleWikibaseError(error, {
-          instanceId,
-          operation: 'get_instance',
-        })
-        const errorResponse = toErrorResponse(wikibaseError)
-        const errorMessage = error instanceof Error ? error.message : ''
-        return status(errorMessage.includes('not found') ? 404 : 500, errorResponse)
+      wikibase,
+    }) => {
+      if (!q || q.trim().length === 0) {
+        return ApiErrorHandler.validationError('Search query is required and cannot be empty')
       }
+
+      const results = await wikibase.searchProperties(instanceId, q, {
+        limit,
+        offset,
+        language,
+        datatype: dataType,
+        autocomplete,
+      })
+
+      // Enhanced response formatting for frontend compatibility
+      const enhancedResults = {
+        ...results,
+        results: results.results.map((property: any) => ({
+          ...property,
+          // Add relevance indicators
+          relevanceScore: property.match?.type === 'label' ? 1.0 : 0.8,
+          // Add usage statistics if requested
+          ...(includeUsageStats && {
+            usageStats: {
+              statementCount: 0, // Would be populated from actual usage data
+              lastUsed: null,
+              popularity: 'unknown',
+            },
+          }),
+        })),
+        // Add search metadata
+        searchMetadata: {
+          query: q,
+          language,
+          datatype: dataType,
+          sortBy,
+          enhancedFiltering: true,
+        },
+      }
+
+      return { data: enhancedResults }
     },
     {
       params: t.Object({
         instanceId: t.String({ description: 'Wikibase instance ID' }),
       }),
-      detail: {
-        summary: 'Get Wikibase instance by ID',
-        description: 'Retrieve a specific Wikibase instance configuration',
-        tags: ['Wikibase', 'Instances'],
-      },
-    },
-  )
-
-  .post(
-    '/',
-    async ({ body, status }) => {
-      try {
-        await wikibaseConfigService.addInstance(body)
-
-        // If nodemw configuration is provided, create nodemw client
-        if (body.nodemwConfig || body.features) {
-          nodemwWikibaseService.createClient(body)
-        }
-
-        return {
-          success: true,
-          message: 'Instance added successfully',
-        }
-      } catch (error) {
-        const wikibaseError = handleWikibaseError(error, {
-          instanceId: body.id,
-          operation: 'add_instance',
-        })
-        const errorResponse = toErrorResponse(wikibaseError)
-        return status(400, errorResponse)
-      }
-    },
-    {
-      body: t.Object({
-        id: t.String({ description: 'Unique instance identifier' }),
-        name: t.String({ description: 'Human-readable instance name' }),
-        baseUrl: t.String({ description: 'Base URL for the Wikibase REST API' }),
-        userAgent: t.String({ description: 'User agent string for API requests' }),
-        authToken: t.Optional(t.String({ description: 'Authentication token (optional)' })),
-        isDefault: t.Optional(t.Boolean({ description: 'Whether this is the default instance' })),
-        metadata: t.Optional(
-          t.Object({
-            description: t.Optional(t.String()),
-            language: t.Optional(t.String()),
-            version: t.Optional(t.String()),
-          }),
+      query: t.Object({
+        q: t.String({ description: 'Search query for properties' }),
+        limit: t.Optional(t.Number({ description: 'Maximum number of results', default: 10 })),
+        offset: t.Optional(t.Number({ description: 'Offset for pagination', default: 0 })),
+        language: t.Optional(
+          t.String({ description: 'Language code for search results', default: 'en' }),
         ),
-        nodemwConfig: t.Optional(
-          t.Object({
-            protocol: t.Union([t.Literal('http'), t.Literal('https')], {
-              description: 'Protocol to use',
-            }),
-            server: t.String({ description: 'Server hostname' }),
-            path: t.String({ description: 'API path' }),
-            concurrency: t.Optional(t.Number({ description: 'Number of concurrent requests' })),
-            debug: t.Optional(t.Boolean({ description: 'Enable debug mode' })),
-            dryRun: t.Optional(t.Boolean({ description: 'Enable dry run mode' })),
-            username: t.Optional(t.String({ description: 'Username for authentication' })),
-            password: t.Optional(t.String({ description: 'Password for authentication' })),
-            domain: t.Optional(t.String({ description: 'Domain for authentication' })),
-          }),
+        dataType: t.Optional(t.String({ description: 'Filter by property data type' })),
+        autocomplete: t.Optional(
+          t.Boolean({ description: 'Enable autocomplete mode', default: true }),
         ),
-        features: t.Optional(
-          t.Object({
-            hasWikidata: t.Boolean({ description: 'Whether instance has Wikidata integration' }),
-            hasConstraints: t.Boolean({ description: 'Whether instance supports constraints' }),
-            hasSearch: t.Boolean({ description: 'Whether instance supports search' }),
-            hasStatements: t.Boolean({ description: 'Whether instance supports statements' }),
-            supportedDataTypes: t.Array(t.String(), { description: 'Supported data types' }),
-            apiVersion: t.String({ description: 'API version' }),
+        includeUsageStats: t.Optional(
+          t.Boolean({ description: 'Include property usage statistics', default: false }),
+        ),
+        sortBy: t.Optional(
+          t.Union([t.Literal('relevance'), t.Literal('alphabetical'), t.Literal('usage')], {
+            description: 'Sort results by criteria',
+            default: 'relevance',
           }),
         ),
       }),
+      response: PropertySearchSchema.response,
       detail: {
-        summary: 'Add custom Wikibase instance',
-        description: 'Add a new custom Wikibase instance configuration',
-        tags: ['Wikibase', 'Instances'],
-      },
-    },
-  )
-
-  .put(
-    '/:instanceId',
-    async ({ params: { instanceId }, body, status }) => {
-      try {
-        await wikibaseConfigService.updateInstance(instanceId, body)
-
-        // If nodemw configuration is provided, update nodemw client
-        if (body.nodemwConfig || body.features) {
-          const updatedInstance = await wikibaseConfigService.getInstance(instanceId)
-          if (updatedInstance) {
-            nodemwWikibaseService.createClient(updatedInstance)
-          }
-        }
-
-        return {
-          success: true,
-          message: 'Instance updated successfully',
-        }
-      } catch (error) {
-        const wikibaseError = handleWikibaseError(error, {
-          instanceId,
-          operation: 'update_instance',
-        })
-        const errorResponse = toErrorResponse(wikibaseError)
-        return status(400, errorResponse)
-      }
-    },
-    {
-      params: t.Object({
-        instanceId: t.String({ description: 'Wikibase instance ID' }),
-      }),
-      body: t.Partial(
-        t.Object({
-          name: t.String({ description: 'Human-readable instance name' }),
-          baseUrl: t.String({ description: 'Base URL for the Wikibase REST API' }),
-          userAgent: t.String({ description: 'User agent string for API requests' }),
-          authToken: t.String({ description: 'Authentication token' }),
-          isDefault: t.Boolean({ description: 'Whether this is the default instance' }),
-          metadata: t.Object({
-            description: t.Optional(t.String()),
-            language: t.Optional(t.String()),
-            version: t.Optional(t.String()),
-          }),
-          nodemwConfig: t.Object({
-            protocol: t.Union([t.Literal('http'), t.Literal('https')], {
-              description: 'Protocol to use',
-            }),
-            server: t.String({ description: 'Server hostname' }),
-            path: t.String({ description: 'API path' }),
-            concurrency: t.Optional(t.Number({ description: 'Number of concurrent requests' })),
-            debug: t.Optional(t.Boolean({ description: 'Enable debug mode' })),
-            dryRun: t.Optional(t.Boolean({ description: 'Enable dry run mode' })),
-            username: t.Optional(t.String({ description: 'Username for authentication' })),
-            password: t.Optional(t.String({ description: 'Password for authentication' })),
-            domain: t.Optional(t.String({ description: 'Domain for authentication' })),
-          }),
-          features: t.Object({
-            hasWikidata: t.Boolean({ description: 'Whether instance has Wikidata integration' }),
-            hasConstraints: t.Boolean({ description: 'Whether instance supports constraints' }),
-            hasSearch: t.Boolean({ description: 'Whether instance supports search' }),
-            hasStatements: t.Boolean({ description: 'Whether instance supports statements' }),
-            supportedDataTypes: t.Array(t.String(), { description: 'Supported data types' }),
-            apiVersion: t.String({ description: 'API version' }),
-          }),
-        }),
-      ),
-      detail: {
-        summary: 'Update Wikibase instance',
-        description: 'Update an existing custom Wikibase instance configuration',
-        tags: ['Wikibase', 'Instances'],
-      },
-    },
-  )
-
-  .delete(
-    '/:instanceId',
-    async ({ params: { instanceId }, status }) => {
-      try {
-        // Remove nodemw client if it exists
-        nodemwWikibaseService.removeClient(instanceId)
-
-        await wikibaseConfigService.removeInstance(instanceId)
-        return {
-          success: true,
-          message: 'Instance removed successfully',
-        }
-      } catch (error) {
-        const wikibaseError = handleWikibaseError(error, {
-          instanceId,
-          operation: 'remove_instance',
-        })
-        const errorResponse = toErrorResponse(wikibaseError)
-        return status(400, errorResponse)
-      }
-    },
-    {
-      params: t.Object({
-        instanceId: t.String({ description: 'Wikibase instance ID' }),
-      }),
-      detail: {
-        summary: 'Remove custom Wikibase instance',
-        description: 'Remove a custom Wikibase instance configuration',
-        tags: ['Wikibase', 'Instances'],
-      },
-    },
-  )
-
-  .post(
-    '/:instanceId/validate',
-    async ({ params: { instanceId }, status }) => {
-      try {
-        const instance = await wikibaseConfigService.getInstance(instanceId)
-        const validation = await wikibaseConfigService.validateInstanceWithConnectivity(instance)
-
-        return {
-          success: true,
-          data: validation,
-        }
-      } catch (error) {
-        const wikibaseError = handleWikibaseError(error, {
-          instanceId,
-          operation: 'validate_instance',
-        })
-        const errorResponse = toErrorResponse(wikibaseError)
-        const errorMessage = error instanceof Error ? error.message : ''
-        return status(errorMessage.includes('not found') ? 404 : 500, errorResponse)
-      }
-    },
-    {
-      params: t.Object({
-        instanceId: t.String({ description: 'Wikibase instance ID' }),
-      }),
-      detail: {
-        summary: 'Validate Wikibase instance',
-        description: 'Validate instance configuration and test connectivity',
-        tags: ['Wikibase', 'Instances', 'Validation'],
-      },
-    },
-  )
-
-  .post(
-    '/validate',
-    async ({ body }) => {
-      try {
-        const validation = await wikibaseConfigService.validateInstanceWithConnectivity(body)
-
-        return {
-          success: true,
-          data: validation,
-        }
-      } catch (error) {
-        throw new Error(
-          `Failed to validate instance configuration: ${error instanceof Error ? error.message : 'Unknown error'}`,
-        )
-      }
-    },
-    {
-      body: t.Object({
-        id: t.String({ description: 'Unique instance identifier' }),
-        name: t.String({ description: 'Human-readable instance name' }),
-        baseUrl: t.String({ description: 'Base URL for the Wikibase REST API' }),
-        userAgent: t.String({ description: 'User agent string for API requests' }),
-        authToken: t.Optional(t.String({ description: 'Authentication token (optional)' })),
-        isDefault: t.Optional(t.Boolean({ description: 'Whether this is the default instance' })),
-        metadata: t.Optional(
-          t.Object({
-            description: t.Optional(t.String()),
-            language: t.Optional(t.String()),
-            version: t.Optional(t.String()),
-          }),
-        ),
-        nodemwConfig: t.Optional(
-          t.Object({
-            protocol: t.Union([t.Literal('http'), t.Literal('https')], {
-              description: 'Protocol to use',
-            }),
-            server: t.String({ description: 'Server hostname' }),
-            path: t.String({ description: 'API path' }),
-            concurrency: t.Optional(t.Number({ description: 'Number of concurrent requests' })),
-            debug: t.Optional(t.Boolean({ description: 'Enable debug mode' })),
-            dryRun: t.Optional(t.Boolean({ description: 'Enable dry run mode' })),
-            username: t.Optional(t.String({ description: 'Username for authentication' })),
-            password: t.Optional(t.String({ description: 'Password for authentication' })),
-            domain: t.Optional(t.String({ description: 'Domain for authentication' })),
-          }),
-        ),
-        features: t.Optional(
-          t.Object({
-            hasWikidata: t.Boolean({ description: 'Whether instance has Wikidata integration' }),
-            hasConstraints: t.Boolean({ description: 'Whether instance supports constraints' }),
-            hasSearch: t.Boolean({ description: 'Whether instance supports search' }),
-            hasStatements: t.Boolean({ description: 'Whether instance supports statements' }),
-            supportedDataTypes: t.Array(t.String(), { description: 'Supported data types' }),
-            apiVersion: t.String({ description: 'API version' }),
-          }),
-        ),
-      }),
-      detail: {
-        summary: 'Validate instance configuration',
+        summary: 'Search properties in Wikibase instance',
         description:
-          'Validate a Wikibase instance configuration and test connectivity without saving',
-        tags: ['Wikibase', 'Instances', 'Validation'],
+          'Search for properties in a specific Wikibase instance with enhanced filtering, usage statistics, and relevance indicators',
+        tags: ['Wikibase', 'Properties', 'Search'],
       },
     },
   )
 
+  // Property details endpoint with constraint information
   .get(
-    '/:instanceId/health',
-    async ({ params: { instanceId } }) => {
-      try {
-        const healthCheck = await wikibaseConfigService.performHealthCheck(instanceId)
-
-        return {
-          success: true,
-          data: healthCheck,
-        }
-      } catch (error) {
-        // Health check should return the result even if the instance doesn't exist
-        // The health check itself will indicate the failure
-        const healthCheck = {
-          instanceId,
-          isHealthy: false,
-          lastChecked: new Date(),
-          responseTime: 0,
-          error: error instanceof Error ? error.message : 'Health check failed',
-        }
-
-        return {
-          success: true,
-          data: healthCheck,
-        }
-      }
-    },
-    {
-      params: t.Object({
-        instanceId: t.String({ description: 'Wikibase instance ID' }),
-      }),
-      detail: {
-        summary: 'Health check for Wikibase instance',
-        description: 'Perform a health check on a configured Wikibase instance',
-        tags: ['Wikibase', 'Instances', 'Health'],
-      },
-    },
-  )
-
-  .post(
-    '/:instanceId/set-default',
-    async ({ params: { instanceId }, status }) => {
-      try {
-        await wikibaseConfigService.setDefaultInstance(instanceId)
-
-        return {
-          success: true,
-          message: 'Default instance set successfully',
-        }
-      } catch (error) {
-        const wikibaseError = handleWikibaseError(error, {
-          instanceId,
-          operation: 'set_default_instance',
-        })
-        const errorResponse = toErrorResponse(wikibaseError)
-        const errorMessage = error instanceof Error ? error.message : ''
-        return status(errorMessage.includes('not found') ? 404 : 500, errorResponse)
-      }
-    },
-    {
-      params: t.Object({
-        instanceId: t.String({ description: 'Wikibase instance ID' }),
-      }),
-      detail: {
-        summary: 'Set default Wikibase instance',
-        description: 'Set a Wikibase instance as the default for new operations',
-        tags: ['Wikibase', 'Instances'],
-      },
-    },
-  )
-
-  .get(
-    '/default',
-    async () => {
-      try {
-        const defaultInstance = await wikibaseConfigService.getDefaultInstance()
-
-        if (!defaultInstance) {
-          return {
-            success: true,
-            data: null,
-            message: 'No default instance configured',
-          }
-        }
-
-        return {
-          success: true,
-          data: defaultInstance,
-        }
-      } catch (error) {
-        throw new Error(
-          `Failed to get default instance: ${error instanceof Error ? error.message : 'Unknown error'}`,
+    '/:instanceId/properties/:propertyId',
+    async ({
+      params: { instanceId, propertyId },
+      query: { includeConstraints = false },
+      wikibase,
+    }) => {
+      if (!propertyId || !/^P\d+$/i.test(propertyId)) {
+        return ApiErrorHandler.validationError(
+          'Property ID must be in format P followed by numbers (e.g., P31)',
         )
       }
+
+      const property = await wikibase.getProperty(instanceId, propertyId as PropertyId)
+      if (!property) {
+        return ApiErrorHandler.notFoundError(`Property ${propertyId} not found`)
+      }
+
+      // Add constraint information if requested
+      if (includeConstraints) {
+        const constraints = await constraintValidationService.getPropertyConstraints(
+          instanceId,
+          propertyId as PropertyId,
+        )
+        property.constraints = constraints
+      }
+
+      return { data: property }
     },
     {
+      params: t.Object({
+        instanceId: t.String({ description: 'Wikibase instance ID' }),
+        propertyId: t.String({ description: 'Property ID (e.g., P31)' }),
+      }),
+      query: t.Object({
+        includeConstraints: t.Optional(
+          t.Boolean({ description: 'Include property constraints in response', default: false }),
+        ),
+        language: t.Optional(
+          t.String({ description: 'Language code for labels and descriptions', default: 'en' }),
+        ),
+      }),
+      response: InstancePropertyDetailsSchema.response,
       detail: {
-        summary: 'Get default Wikibase instance',
-        description: 'Retrieve the currently configured default Wikibase instance',
-        tags: ['Wikibase', 'Instances'],
+        summary: 'Get property details',
+        description:
+          'Retrieve detailed information about a specific property with optional constraint information',
+        tags: ['Wikibase', 'Properties'],
+      },
+    },
+  )
+
+  // Property constraints endpoint
+  .get(
+    '/:instanceId/properties/:propertyId/constraints',
+    async ({ params: { instanceId, propertyId } }) => {
+      if (!propertyId || !/^P\d+$/i.test(propertyId)) {
+        return ApiErrorHandler.validationError(
+          'Property ID must be in format P followed by numbers (e.g., P31)',
+        )
+      }
+
+      const constraints = await constraintValidationService.getPropertyConstraints(
+        instanceId,
+        propertyId as PropertyId,
+      )
+      return { data: constraints }
+    },
+    {
+      params: t.Object({
+        instanceId: t.String({ description: 'Wikibase instance ID' }),
+        propertyId: t.String({ description: 'Property ID (e.g., P31)' }),
+      }),
+      response: InstancePropertyConstraintsSchema.response,
+      detail: {
+        summary: 'Get property constraints',
+        description: 'Retrieve all constraints for a specific property',
+        tags: ['Wikibase', 'Properties', 'Constraints'],
+      },
+    },
+  )
+
+  // Real-time property validation endpoint
+  .post(
+    '/:instanceId/validate/property',
+    async ({ params: { instanceId }, body: { propertyId, value } }) => {
+      if (!propertyId || !/^P\d+$/i.test(propertyId)) {
+        return ApiErrorHandler.validationError(
+          'Property ID must be in format P followed by numbers (e.g., P31)',
+        )
+      }
+
+      const validationResult = await constraintValidationService.validateProperty(
+        instanceId,
+        propertyId as PropertyId,
+        [value], // Convert single value to array as expected by the service
+      )
+      return { data: validationResult }
+    },
+    {
+      params: t.Object({
+        instanceId: t.String({ description: 'Wikibase instance ID' }),
+      }),
+      body: PropertyValidationSchema.body,
+      response: PropertyValidationSchema.response,
+      detail: {
+        summary: 'Validate property value',
+        description: 'Validate a property value against its constraints in real-time',
+        tags: ['Wikibase', 'Properties', 'Validation'],
+      },
+    },
+  )
+
+  // Schema validation endpoint
+  .post(
+    '/:instanceId/validate/schema',
+    async ({ params: { instanceId }, body: { schema } }) => {
+      const validationResult = await constraintValidationService.validateSchema(instanceId, schema)
+      return { data: validationResult }
+    },
+    {
+      params: t.Object({
+        instanceId: t.String({ description: 'Wikibase instance ID' }),
+      }),
+      body: SchemaValidationSchema.body,
+      response: SchemaValidationSchema.response,
+      detail: {
+        summary: 'Validate schema',
+        description: 'Validate a complete schema against Wikibase constraints and rules',
+        tags: ['Wikibase', 'Schema', 'Validation'],
+      },
+    },
+  )
+
+  // Item search endpoint (for completeness)
+  .get(
+    '/:instanceId/items/search',
+    async ({
+      params: { instanceId },
+      query: { q, limit = 10, offset = 0, language = 'en', autocomplete = true },
+      wikibase,
+    }) => {
+      if (!q || q.trim().length === 0) {
+        return ApiErrorHandler.validationError('Search query is required and cannot be empty')
+      }
+
+      const results = await wikibase.searchItems(instanceId, q, {
+        limit,
+        offset,
+        language,
+        autocomplete,
+      })
+      return { data: results }
+    },
+    {
+      params: t.Object({
+        instanceId: t.String({ description: 'Wikibase instance ID' }),
+      }),
+      query: t.Object({
+        q: t.String({ description: 'Search query for items' }),
+        limit: t.Optional(t.Number({ description: 'Maximum number of results', default: 10 })),
+        offset: t.Optional(t.Number({ description: 'Offset for pagination', default: 0 })),
+        language: t.Optional(
+          t.String({ description: 'Language code for search results', default: 'en' }),
+        ),
+        autocomplete: t.Optional(
+          t.Boolean({ description: 'Enable autocomplete mode', default: true }),
+        ),
+      }),
+      response: ItemSearchSchema.response,
+      detail: {
+        summary: 'Search items in Wikibase instance',
+        description: 'Search for items in a specific Wikibase instance',
+        tags: ['Wikibase', 'Items', 'Search'],
+      },
+    },
+  )
+
+  // Item details endpoint (for completeness)
+  .get(
+    '/:instanceId/items/:itemId',
+    async ({ params: { instanceId, itemId }, wikibase }) => {
+      if (!itemId || !/^Q\d+$/i.test(itemId)) {
+        return ApiErrorHandler.validationError(
+          'Item ID must be in format Q followed by numbers (e.g., Q42)',
+        )
+      }
+
+      const item = await wikibase.getItem(instanceId, itemId as ItemId)
+      if (!item) {
+        return ApiErrorHandler.notFoundError(`Item ${itemId} not found`)
+      }
+      return { data: item }
+    },
+    {
+      params: t.Object({
+        instanceId: t.String({ description: 'Wikibase instance ID' }),
+        itemId: t.String({ description: 'Item ID (e.g., Q42)' }),
+      }),
+      response: ItemDetailsRouteSchema.response,
+      detail: {
+        summary: 'Get item details',
+        description: 'Retrieve detailed information about a specific item',
+        tags: ['Wikibase', 'Items'],
       },
     },
   )

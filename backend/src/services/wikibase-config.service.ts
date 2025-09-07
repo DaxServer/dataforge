@@ -49,12 +49,12 @@ const PREDEFINED_INSTANCES: WikibaseInstanceConfig[] = [
     id: 'wikidata',
     name: 'Wikidata',
     baseUrl: 'https://www.wikidata.org/w/rest.php/wikibase/v1',
-    userAgent: 'DataForge/0.1 (https://github.com/dataforge/dataforge)',
+    userAgent: 'DataForge/1.0 (https://github.com/DaxServer/dataforge)',
     isDefault: true,
     metadata: {
       description: 'The free knowledge base that anyone can edit',
       language: 'en',
-      version: 'v0',
+      version: 'v1',
     },
   },
 ]

@@ -13,7 +13,6 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
 
-    "rootDir": ".",
     "baseUrl": ".",
     "paths": {
       "@backend/*": ["./backend/src/*"],

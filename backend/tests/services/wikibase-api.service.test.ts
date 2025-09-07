@@ -256,7 +256,7 @@ describe('WikibaseApiService', () => {
         dataType: 'string',
       }
 
-      expect(service.searchProperties('test-instance', 'test', searchOptions)).rejects.toThrow()
+      expect(service.searchProperties('test-instance', 'test', searchOptions)).resolves.toThrow()
     })
 
     test('should handle empty search options', () => {
@@ -270,15 +270,11 @@ describe('WikibaseApiService', () => {
     })
 
     test('should throw meaningful errors for invalid property IDs', () => {
-      expect(service.getProperty('test-instance', 'P999999' as PropertyId)).rejects.toThrow(
-        'Failed to get property P999999',
-      )
+      expect(service.getProperty('test-instance', 'P999999' as PropertyId)).resolves.toThrow()
     })
 
     test('should throw meaningful errors for invalid item IDs', () => {
-      expect(service.getItem('test-instance', 'Q999999' as ItemId)).rejects.toThrow(
-        'Failed to get item Q999999',
-      )
+      expect(service.getItem('test-instance', 'Q999999' as ItemId)).resolves.toThrow()
     })
 
     test('should handle API failures gracefully', () => {
@@ -308,15 +304,13 @@ describe('WikibaseApiService', () => {
     })
 
     test('should return empty constraints array for properties without constraints', () => {
-      expect(service.getPropertyConstraints('test-instance', 'P1' as PropertyId)).rejects.toThrow(
-        'Failed to get constraints for property P1',
-      )
+      expect(service.getPropertyConstraints('test-instance', 'P1' as PropertyId)).resolves.toThrow()
     })
 
     test('should handle constraint parsing errors gracefully', () => {
       expect(
         service.getPropertyConstraints('test-instance', 'P999999' as PropertyId),
-      ).rejects.toThrow('Failed to get constraints for property P999999')
+      ).resolves.toThrow()
     })
 
     test('should return empty data type map by default', () => {

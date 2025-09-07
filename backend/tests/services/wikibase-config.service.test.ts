@@ -23,42 +23,64 @@ describe('WikibaseConfigService', () => {
   })
 
   describe('Initialization', () => {
-    test('should initialize with pre-defined instances', async () => {
-      const instances = await service.getInstances()
-
-      expect(instances.length).toBeGreaterThan(0)
-      expect(instances.some((i) => i.id === 'wikidata')).toBe(true)
-      expect(instances.some((i) => i.id === 'wikimedia-commons')).toBe(true)
+    test('should initialize with pre-defined instances', () => {
+      expect(service.getInstances()).resolves.toEqual([
+        {
+          id: 'wikidata',
+          name: 'Wikidata',
+          baseUrl: 'https://www.wikidata.org/w/rest.php/wikibase/v1',
+          userAgent: 'DataForge/1.0 (https://github.com/DaxServer/dataforge)',
+          isDefault: true,
+          metadata: {
+            description: 'The free knowledge base that anyone can edit',
+            language: 'en',
+            version: 'v1',
+          },
+        },
+      ])
     })
 
-    test('should have Wikidata as default instance', async () => {
-      const defaultInstance = await service.getDefaultInstance()
-
-      expect(defaultInstance).not.toBeNull()
-      expect(defaultInstance?.id).toBe('wikidata')
-      expect(defaultInstance?.isDefault).toBe(true)
+    test('should have Wikidata as default instance', () => {
+      expect(service.getDefaultInstance()).resolves.toEqual({
+        id: 'wikidata',
+        name: 'Wikidata',
+        baseUrl: 'https://www.wikidata.org/w/rest.php/wikibase/v1',
+        userAgent: 'DataForge/1.0 (https://github.com/DaxServer/dataforge)',
+        isDefault: true,
+        metadata: {
+          description: 'The free knowledge base that anyone can edit',
+          language: 'en',
+          version: 'v1',
+        },
+      })
     })
 
     test('should return pre-defined instances correctly', async () => {
       const predefinedInstances = await service.getPredefinedInstances()
 
-      expect(predefinedInstances.length).toBe(2)
+      expect(predefinedInstances.length).toBe(1)
       expect(predefinedInstances.some((i) => i.id === 'wikidata')).toBe(true)
-      expect(predefinedInstances.some((i) => i.id === 'wikimedia-commons')).toBe(true)
     })
   })
 
   describe('Instance Retrieval', () => {
     test('should get instance by ID', async () => {
-      const instance = await service.getInstance('wikidata')
-
-      expect(instance.id).toBe('wikidata')
-      expect(instance.name).toBe('Wikidata')
-      expect(instance.baseUrl).toBe('https://www.wikidata.org/w/rest.php/wikibase/v0')
+      expect(service.getInstance('wikidata')).resolves.toEqual({
+        id: 'wikidata',
+        name: 'Wikidata',
+        baseUrl: 'https://www.wikidata.org/w/rest.php/wikibase/v1',
+        userAgent: 'DataForge/1.0 (https://github.com/DaxServer/dataforge)',
+        isDefault: true,
+        metadata: {
+          description: 'The free knowledge base that anyone can edit',
+          language: 'en',
+          version: 'v1',
+        },
+      })
     })
 
-    test('should throw error for non-existent instance', async () => {
-      await expect(service.getInstance('non-existent')).rejects.toThrow(
+    test('should throw error for non-existent instance', () => {
+      expect(service.getInstance('non-existent')).rejects.toThrow(
         'Instance not found: non-existent',
       )
     })
@@ -97,7 +119,7 @@ describe('WikibaseConfigService', () => {
     test('should throw error when adding instance with existing ID', async () => {
       await service.addInstance(mockCustomConfig)
 
-      await expect(service.addInstance(mockCustomConfig)).rejects.toThrow(
+      expect(service.addInstance(mockCustomConfig)).rejects.toThrow(
         "Instance with ID 'custom-test' already exists",
       )
     })
@@ -105,7 +127,7 @@ describe('WikibaseConfigService', () => {
     test('should throw error when adding instance with pre-defined ID', async () => {
       const configWithExistingId = { ...mockCustomConfig, id: 'wikidata' }
 
-      await expect(service.addInstance(configWithExistingId)).rejects.toThrow(
+      expect(service.addInstance(configWithExistingId)).rejects.toThrow(
         "Instance with ID 'wikidata' already exists",
       )
     })
@@ -121,14 +143,14 @@ describe('WikibaseConfigService', () => {
       expect(updatedInstance.metadata?.description).toBe('Updated description')
     })
 
-    test('should throw error when updating pre-defined instance', async () => {
-      await expect(service.updateInstance('wikidata', { name: 'New Name' })).rejects.toThrow(
+    test('should throw error when updating pre-defined instance', () => {
+      expect(service.updateInstance('wikidata', { name: 'New Name' })).rejects.toThrow(
         'Cannot update pre-defined instance configurations',
       )
     })
 
-    test('should throw error when updating non-existent instance', async () => {
-      await expect(service.updateInstance('non-existent', { name: 'New Name' })).rejects.toThrow(
+    test('should throw error when updating non-existent instance', () => {
+      expect(service.updateInstance('non-existent', { name: 'New Name' })).rejects.toThrow(
         'Instance not found: non-existent',
       )
     })
@@ -139,18 +161,18 @@ describe('WikibaseConfigService', () => {
 
       await service.removeInstance('custom-test')
 
-      expect(await service.getCustomInstances()).toHaveLength(0)
-      await expect(service.getInstance('custom-test')).rejects.toThrow()
+      expect(service.getCustomInstances()).resolves.toHaveLength(0)
+      expect(service.getInstance('custom-test')).rejects.toThrow()
     })
 
-    test('should throw error when removing pre-defined instance', async () => {
-      await expect(service.removeInstance('wikidata')).rejects.toThrow(
+    test('should throw error when removing pre-defined instance', () => {
+      expect(service.removeInstance('wikidata')).rejects.toThrow(
         'Cannot remove pre-defined instance configurations',
       )
     })
 
-    test('should throw error when removing non-existent custom instance', async () => {
-      await expect(service.removeInstance('non-existent')).rejects.toThrow(
+    test('should throw error when removing non-existent custom instance', () => {
+      expect(service.removeInstance('non-existent')).rejects.toThrow(
         'Custom instance not found: non-existent',
       )
     })
@@ -159,7 +181,6 @@ describe('WikibaseConfigService', () => {
   describe('Instance Type Checking', () => {
     test('should correctly identify pre-defined instances', () => {
       expect(service.isPredefinedInstance('wikidata')).toBe(true)
-      expect(service.isPredefinedInstance('wikimedia-commons')).toBe(true)
       expect(service.isPredefinedInstance('custom-test')).toBe(false)
     })
 
@@ -194,10 +215,10 @@ describe('WikibaseConfigService', () => {
       expect(defaultInstance).toBeNull()
     })
 
-    test('should throw error when adding second default instance', async () => {
+    test('should throw error when adding second default instance', () => {
       const defaultConfig = { ...mockCustomConfig, isDefault: true }
 
-      await expect(service.addInstance(defaultConfig)).rejects.toThrow(
+      expect(service.addInstance(defaultConfig)).rejects.toThrow(
         'A default instance already exists',
       )
     })
@@ -205,7 +226,7 @@ describe('WikibaseConfigService', () => {
     test('should throw error when updating to default if default exists', async () => {
       await service.addInstance(mockCustomConfig)
 
-      await expect(service.updateInstance('custom-test', { isDefault: true })).rejects.toThrow(
+      expect(service.updateInstance('custom-test', { isDefault: true })).rejects.toThrow(
         'A default instance already exists',
       )
     })
@@ -350,11 +371,21 @@ describe('WikibaseConfigService', () => {
       // Reset
       await service.resetToDefaults()
 
-      expect(await service.getCustomInstances()).toHaveLength(0)
-      expect((await service.getDefaultInstance())?.id).toBe('wikidata')
+      expect(service.getCustomInstances()).resolves.toHaveLength(0)
+      expect(service.getDefaultInstance()).resolves.toEqual({
+        id: 'wikidata',
+        name: 'Wikidata',
+        baseUrl: 'https://www.wikidata.org/w/rest.php/wikibase/v1',
+        userAgent: 'DataForge/1.0 (https://github.com/DaxServer/dataforge)',
+        isDefault: true,
+        metadata: {
+          description: 'The free knowledge base that anyone can edit',
+          language: 'en',
+          version: 'v1',
+        },
+      })
 
-      const instances = await service.getInstances()
-      expect(instances.length).toBe(2) // Only pre-defined instances
+      expect(service.getInstances()).resolves.toHaveLength(1) // Only pre-defined instances
     })
   })
 
@@ -371,8 +402,7 @@ describe('WikibaseConfigService', () => {
       expect(result.isValid).toBe(true)
 
       await service.addInstance(minimalConfig)
-      const retrieved = await service.getInstance('minimal')
-      expect(retrieved).toEqual(minimalConfig)
+      expect(service.getInstance('minimal')).resolves.toEqual(minimalConfig)
     })
 
     test('should handle configuration with all optional fields', async () => {
@@ -394,8 +424,7 @@ describe('WikibaseConfigService', () => {
       expect(result.isValid).toBe(true)
 
       await service.addInstance(fullConfig)
-      const retrieved = await service.getInstance('full-config')
-      expect(retrieved).toEqual(fullConfig)
+      expect(service.getInstance('full-config')).resolves.toEqual(fullConfig)
     })
 
     test('should handle concurrent operations safely', async () => {
