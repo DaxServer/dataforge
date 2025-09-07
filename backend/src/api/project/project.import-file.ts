@@ -1,6 +1,6 @@
-import { t } from 'elysia'
-import type { DuckDBConnection } from '@duckdb/node-api'
 import { ApiError } from '@backend/types/error-schemas'
+import type { DuckDBConnection } from '@duckdb/node-api'
+import { t } from 'elysia'
 
 export const generateProjectName = (fileName: string) => {
   const now = new Date()

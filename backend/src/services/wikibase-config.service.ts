@@ -288,7 +288,7 @@ export class WikibaseConfigService {
    */
   async getDefaultInstance(): Promise<WikibaseInstanceConfig | null> {
     const instances = await this.getInstances()
-    return instances.find(instance => instance.isDefault) || null
+    return instances.find((instance) => instance.isDefault) || null
   }
 
   /**
@@ -334,7 +334,7 @@ export class WikibaseConfigService {
    */
   private async hasDefaultInstance(): Promise<boolean> {
     const instances = await this.getInstances()
-    return instances.some(instance => instance.isDefault)
+    return instances.some((instance) => instance.isDefault)
   }
 
   /**
@@ -562,25 +562,25 @@ export class WikibaseConfigService {
         const paths = Object.keys(openApiSpec.paths)
 
         // Check for common Wikibase API features
-        if (paths.some(path => path.includes('/entities/items'))) {
+        if (paths.some((path) => path.includes('/entities/items'))) {
           features.push('items')
         }
-        if (paths.some(path => path.includes('/entities/properties'))) {
+        if (paths.some((path) => path.includes('/entities/properties'))) {
           features.push('properties')
         }
-        if (paths.some(path => path.includes('/search'))) {
+        if (paths.some((path) => path.includes('/search'))) {
           features.push('search')
         }
-        if (paths.some(path => path.includes('/statements'))) {
+        if (paths.some((path) => path.includes('/statements'))) {
           features.push('statements')
         }
-        if (paths.some(path => path.includes('/labels'))) {
+        if (paths.some((path) => path.includes('/labels'))) {
           features.push('labels')
         }
-        if (paths.some(path => path.includes('/descriptions'))) {
+        if (paths.some((path) => path.includes('/descriptions'))) {
           features.push('descriptions')
         }
-        if (paths.some(path => path.includes('/aliases'))) {
+        if (paths.some((path) => path.includes('/aliases'))) {
           features.push('aliases')
         }
       }

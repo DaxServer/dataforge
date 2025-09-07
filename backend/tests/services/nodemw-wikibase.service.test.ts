@@ -1,14 +1,14 @@
-import { describe, test, expect, beforeEach, afterEach, spyOn } from 'bun:test'
 import { NodemwWikibaseService } from '@backend/services/nodemw-wikibase.service'
 import type {
-  WikibaseInstanceConfig,
-  SearchResponse,
-  PropertySearchResult,
+  ItemDetails,
   ItemSearchResult,
   PropertyDetails,
-  ItemDetails,
+  PropertySearchResult,
+  SearchResponse,
+  WikibaseInstanceConfig,
 } from '@backend/types/wikibase-api'
-import type { PropertyId, ItemId } from 'wikibase-sdk'
+import { afterEach, beforeEach, describe, expect, spyOn, test } from 'bun:test'
+import type { ItemId, PropertyId } from 'wikibase-sdk'
 
 describe('NodemwWikibaseService', () => {
   const service = new NodemwWikibaseService()
@@ -89,8 +89,8 @@ describe('NodemwWikibaseService', () => {
 
     const instances = service.getAllInstances()
     expect(instances).toHaveLength(2)
-    expect(instances.find(i => i.id === 'instance1')).toBeDefined()
-    expect(instances.find(i => i.id === 'instance2')).toBeDefined()
+    expect(instances.find((i) => i.id === 'instance1')).toBeDefined()
+    expect(instances.find((i) => i.id === 'instance2')).toBeDefined()
 
     // Cleanup
     service.removeClient('instance1')

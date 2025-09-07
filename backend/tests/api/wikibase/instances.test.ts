@@ -1,6 +1,6 @@
-import { describe, test, expect, beforeEach } from 'bun:test'
 import { elysiaApp } from '@backend/index'
 import type { WikibaseInstanceConfig } from '@backend/types/wikibase-api'
+import { beforeEach, describe, expect, test } from 'bun:test'
 
 describe('Wikibase Instances API', () => {
   let mockCustomConfig: WikibaseInstanceConfig

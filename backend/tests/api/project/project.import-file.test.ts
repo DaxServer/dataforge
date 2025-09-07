@@ -1,10 +1,10 @@
-import { afterEach, beforeEach, describe, expect, test } from 'bun:test'
-import { readdir } from 'node:fs/promises'
-import { Elysia } from 'elysia'
-import { treaty } from '@elysiajs/eden'
-import { initializeDb, closeDb, getDb } from '@backend/plugins/database'
 import { projectRoutes } from '@backend/api/project'
 import { UUID_REGEX_PATTERN } from '@backend/api/project/_schemas'
+import { closeDb, getDb, initializeDb } from '@backend/plugins/database'
+import { treaty } from '@elysiajs/eden'
+import { afterEach, beforeEach, describe, expect, test } from 'bun:test'
+import { Elysia } from 'elysia'
+import { readdir } from 'node:fs/promises'
 
 const TEST_DATA = [
   { name: 'John', age: 30, city: 'New York' },
@@ -29,7 +29,7 @@ describe('POST /api/project/import', () => {
     const tempDir = new URL('../../temp', import.meta.url).pathname
     const files = await readdir(tempDir).catch(() => [])
     await Promise.all(
-      files.map(async file => {
+      files.map(async (file) => {
         const filePath = `${tempDir}/${file}`
         await Bun.file(filePath)
           .delete()
@@ -349,7 +349,7 @@ describe('POST /api/project/import', () => {
         const columns = result.getRowObjectsJson()
 
         // Verify there is an 'id' column with autoincrement and primary key
-        const idColumn = columns.find(col => col.name === 'id')
+        const idColumn = columns.find((col) => col.name === 'id')
         expect(idColumn).toHaveProperty('pk', true)
         expect(idColumn).toHaveProperty('type', 'BIGINT')
         expect(idColumn).toHaveProperty('notnull', true)
@@ -357,7 +357,7 @@ describe('POST /api/project/import', () => {
 
       test('should handle JSON with existing id column by creating unique primary key column', async () => {
         const testDataWithId = JSON.stringify(
-          TEST_DATA.map(item => ({
+          TEST_DATA.map((item) => ({
             ...item,
             id: item.name,
           })),
@@ -374,11 +374,11 @@ describe('POST /api/project/import', () => {
         const columns = result.getRowObjectsJson()
 
         // Should have the original 'id' column from JSON
-        const originalIdColumn = columns.find(col => col.name === 'id')
+        const originalIdColumn = columns.find((col) => col.name === 'id')
         expect(originalIdColumn).toHaveProperty('pk', false)
 
         // Should have a different primary key column (e.g., '_pk_id')
-        const primaryKeyColumn = columns.find(col => col.pk)
+        const primaryKeyColumn = columns.find((col) => col.pk)
         expect(primaryKeyColumn).toHaveProperty('name', expect.not.stringMatching('^id$'))
         expect(primaryKeyColumn).toHaveProperty('pk', true)
         expect(primaryKeyColumn).toHaveProperty('type', 'BIGINT')

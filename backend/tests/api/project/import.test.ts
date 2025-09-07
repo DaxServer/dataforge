@@ -1,8 +1,8 @@
-import { describe, expect, test, beforeEach, afterEach } from 'bun:test'
-import { Elysia } from 'elysia'
-import { treaty } from '@elysiajs/eden'
-import { initializeDb, closeDb, getDb } from '@backend/plugins/database'
 import { projectRoutes } from '@backend/api/project'
+import { closeDb, getDb, initializeDb } from '@backend/plugins/database'
+import { treaty } from '@elysiajs/eden'
+import { afterEach, beforeEach, describe, expect, test } from 'bun:test'
+import { Elysia } from 'elysia'
 
 const createTestApi = () => {
   return treaty(new Elysia().use(projectRoutes)).api
@@ -26,7 +26,7 @@ describe('POST /project/:projectId/import', () => {
     const tempFiles = ['./temp-test-file.json', './temp-invalid-json-file.json']
 
     await Promise.all(
-      tempFiles.map(async filePath => {
+      tempFiles.map(async (filePath) => {
         await Bun.file(filePath)
           .delete()
           .catch(() => {})

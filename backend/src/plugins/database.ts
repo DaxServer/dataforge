@@ -1,5 +1,5 @@
-import { Elysia } from 'elysia'
 import { DuckDBConnection, DuckDBInstance } from '@duckdb/node-api'
+import { Elysia } from 'elysia'
 import path from 'node:path'
 
 let connection: DuckDBConnection | null = null

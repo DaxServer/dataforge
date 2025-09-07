@@ -1,9 +1,9 @@
 import { nodemwWikibaseService } from '@backend/services/nodemw-wikibase.service'
 import type {
-  PropertyConstraint,
-  ValidationResult,
   ConstraintViolation,
   ConstraintWarning,
+  PropertyConstraint,
+  ValidationResult,
 } from '@backend/types/wikibase-api'
 import type { PropertyId } from 'wikibase-sdk'
 
@@ -259,7 +259,7 @@ export class ConstraintValidationService {
     }
 
     const valueId = typeof value === 'object' && value?.id ? value.id : value
-    const isAllowed = allowedValues.some(allowed => {
+    const isAllowed = allowedValues.some((allowed) => {
       const allowedId = typeof allowed === 'object' && allowed?.id ? allowed.id : allowed
       return allowedId === valueId
     })
@@ -501,7 +501,7 @@ export class ConstraintValidationService {
     const propertyIds = Object.keys(schema) as PropertyId[]
 
     // Validate each property in parallel
-    const validationPromises = propertyIds.map(async propertyId => {
+    const validationPromises = propertyIds.map(async (propertyId) => {
       const values = schema[propertyId] || []
       return this.validateProperty(instanceId, propertyId, values)
     })
@@ -558,7 +558,7 @@ export class ConstraintValidationService {
    */
   clearCache(instanceId?: string): void {
     if (instanceId) {
-      const keysToDelete = Array.from(this.constraintCache.keys()).filter(key =>
+      const keysToDelete = Array.from(this.constraintCache.keys()).filter((key) =>
         key.startsWith(`${instanceId}:`),
       )
       for (const key of keysToDelete) {

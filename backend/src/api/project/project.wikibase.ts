@@ -1,11 +1,11 @@
-import { Elysia, t } from 'elysia'
-import cors from '@elysiajs/cors'
+import { UUIDPattern } from '@backend/api/project/_schemas'
 import { databasePlugin } from '@backend/plugins/database'
 import { errorHandlerPlugin } from '@backend/plugins/error-handler'
-import { ApiError } from '@backend/types/error-schemas'
-import { UUIDPattern } from '@backend/api/project/_schemas'
 import { ApiErrorHandler } from '@backend/types/error-handler'
+import { ApiError } from '@backend/types/error-schemas'
 import { ItemId, PropertyId } from '@backend/types/wikibase-schema'
+import cors from '@elysiajs/cors'
+import { Elysia, t } from 'elysia'
 
 // Transformation rule for column mapping
 const TransformationRule = t.Object({
@@ -221,7 +221,7 @@ export const wikibaseRoutes = new Elysia({ prefix: '/api/project/:projectId/sche
         [projectId],
       )
       const rows = reader.getRowObjectsJson()
-      const schemas = rows.map(row => {
+      const schemas = rows.map((row) => {
         return { ...row, schema: parseSchemaField(row.schema) } as WikibaseSchemaResponse
       })
 
@@ -290,7 +290,7 @@ export const wikibaseRoutes = new Elysia({ prefix: '/api/project/:projectId/sche
       [schemaId, projectId],
     )
 
-    const schemas = reader.getRowObjectsJson().map(item => {
+    const schemas = reader.getRowObjectsJson().map((item) => {
       return { ...item, schema: parseSchemaField(item.schema) } as WikibaseSchemaResponse
     })
 

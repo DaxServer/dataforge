@@ -2,11 +2,11 @@
  * Wikibase API error handling utilities
  */
 
-import type { WikibaseError, RetryConfig, ErrorResponse } from '@backend/types/wikibase-errors'
+import type { ErrorResponse, RetryConfig, WikibaseError } from '@backend/types/wikibase-errors'
 import {
-  WikibaseErrorCode,
   createWikibaseError,
   DEFAULT_RETRY_CONFIG,
+  WikibaseErrorCode,
 } from '@backend/types/wikibase-errors'
 
 // Error Handler Class
@@ -222,7 +222,7 @@ export class WikibaseErrorHandler {
         )
 
         // Wait before retrying
-        await new Promise(resolve => setTimeout(resolve, delay))
+        await new Promise((resolve) => setTimeout(resolve, delay))
       }
     }
 

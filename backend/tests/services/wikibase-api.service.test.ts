@@ -1,7 +1,7 @@
-import { describe, test, expect, beforeEach, expectTypeOf } from 'bun:test'
 import { WikibaseApiService } from '@backend/services/wikibase-api.service'
 import type { WikibaseInstanceConfig } from '@backend/types/wikibase-api'
-import type { PropertyId, ItemId } from '@backend/types/wikibase-schema'
+import type { ItemId, PropertyId } from '@backend/types/wikibase-schema'
+import { beforeEach, describe, expect, expectTypeOf, test } from 'bun:test'
 
 describe('WikibaseApiService', () => {
   let service: WikibaseApiService
@@ -124,8 +124,8 @@ describe('WikibaseApiService', () => {
       const instances = service.getAllInstances()
 
       expect(instances).toHaveLength(2)
-      expect(instances.find(i => i.id === 'instance-1')?.name).toBe('Instance 1')
-      expect(instances.find(i => i.id === 'instance-2')?.name).toBe('Instance 2')
+      expect(instances.find((i) => i.id === 'instance-1')?.name).toBe('Instance 1')
+      expect(instances.find((i) => i.id === 'instance-2')?.name).toBe('Instance 2')
     })
   })
 

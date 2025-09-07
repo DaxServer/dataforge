@@ -1,10 +1,10 @@
 /// <reference types="bun-types" />
-import { afterEach, beforeEach, describe, expect, it } from 'bun:test'
-import { Elysia } from 'elysia'
-import { treaty } from '@elysiajs/eden'
-import { initializeDb, closeDb } from '@backend/plugins/database'
 import { projectRoutes } from '@backend/api/project'
 import { UUID_REGEX } from '@backend/api/project/_schemas'
+import { closeDb, initializeDb } from '@backend/plugins/database'
+import { treaty } from '@elysiajs/eden'
+import { afterEach, beforeEach, describe, expect, it } from 'bun:test'
+import { Elysia } from 'elysia'
 
 const TEST_DATA = [
   { name: 'John', age: 30, city: 'New York' },
@@ -19,7 +19,7 @@ const TEST_DATA = [
 
 // Helper function to convert TEST_DATA to expected API response format (with string ages)
 const getExpectedData = (offset = 0, limit = TEST_DATA.length) => {
-  return TEST_DATA.slice(offset, offset + limit).map(item => ({
+  return TEST_DATA.slice(offset, offset + limit).map((item) => ({
     ...item,
     age: item.age.toString(), // API returns age as string
   }))
@@ -30,7 +30,7 @@ const generateSchema = (data: any[]) => {
   if (data.length === 0) return []
 
   const sampleItem = data[0]
-  return Object.keys(sampleItem).map(key => ({
+  return Object.keys(sampleItem).map((key) => ({
     name: key,
     pk: false,
     type: typeof sampleItem[key] === 'number' ? 'BIGINT' : 'VARCHAR',

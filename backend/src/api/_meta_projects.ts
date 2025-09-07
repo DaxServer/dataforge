@@ -1,8 +1,8 @@
-import { Elysia, t } from 'elysia'
 import { databasePlugin } from '@backend/plugins/database'
 import { errorHandlerPlugin } from '@backend/plugins/error-handler'
 import { ApiError } from '@backend/types/error-schemas'
 import type { DuckDBColumnNameAndType } from '@backend/utils/duckdb-types'
+import { Elysia, t } from 'elysia'
 
 const MetaProject = t.Object({
   id: t.String(),
@@ -60,11 +60,13 @@ export const metaProjectsRoutes = new Elysia({ prefix: '/api' })
       `)
 
       const columns = reader.columnNameAndTypeObjectsJson() as DuckDBColumnNameAndType[]
-      const jsonColumns = columns.filter(c => c.columnType.alias === 'JSON').map(c => c.columnName)
+      const jsonColumns = columns
+        .filter((c) => c.columnType.alias === 'JSON')
+        .map((c) => c.columnName)
 
-      const rows = reader.getRowObjectsJson().map(row => {
+      const rows = reader.getRowObjectsJson().map((row) => {
         const newRow: Record<string, unknown> = { ...row }
-        jsonColumns.forEach(column => {
+        jsonColumns.forEach((column) => {
           if (newRow[column] && typeof newRow[column] === 'string') {
             newRow[column] = JSON.parse(newRow[column] as string)
           }

@@ -1,10 +1,10 @@
 /// <reference types="bun-types" />
-import { afterEach, beforeEach, describe, expect, test } from 'bun:test'
-import { Elysia } from 'elysia'
-import { treaty } from '@elysiajs/eden'
-import { closeDb, initializeDb, getDb } from '@backend/plugins/database'
 import { projectRoutes } from '@backend/api/project'
 import { UUID_REGEX } from '@backend/api/project/_schemas'
+import { closeDb, getDb, initializeDb } from '@backend/plugins/database'
+import { treaty } from '@elysiajs/eden'
+import { afterEach, beforeEach, describe, expect, test } from 'bun:test'
+import { Elysia } from 'elysia'
 
 const createTestApi = () => {
   return treaty(new Elysia().use(projectRoutes)).api

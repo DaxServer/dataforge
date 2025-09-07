@@ -1,6 +1,6 @@
-import { t } from 'elysia'
 import { ProjectResponseSchema } from '@backend/api/project/_schemas'
 import { ApiError } from '@backend/types/error-schemas'
+import { t } from 'elysia'
 
 export const ProjectCreateSchema = {
   body: t.Object({

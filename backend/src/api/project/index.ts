@@ -1,10 +1,4 @@
-import { Elysia, t } from 'elysia'
-import cors from '@elysiajs/cors'
-import { errorHandlerPlugin } from '@backend/plugins/error-handler'
-import { ApiErrorHandler } from '@backend/types/error-handler'
-import { databasePlugin } from '@backend/plugins/database'
-import { ProjectResponseSchema, type Project, UUIDPattern } from '@backend/api/project/_schemas'
-import { enhanceSchemaWithTypes, type DuckDBTablePragma } from '@backend/utils/duckdb-types'
+import { ProjectResponseSchema, UUIDPattern, type Project } from '@backend/api/project/_schemas'
 import { ProjectImportFileAltSchema, ProjectImportSchema } from '@backend/api/project/import'
 import { ProjectCreateSchema } from '@backend/api/project/project.create'
 import { ProjectDeleteSchema } from '@backend/api/project/project.delete'
@@ -15,6 +9,12 @@ import {
   generateProjectName,
   ProjectImportFileSchema,
 } from '@backend/api/project/project.import-file'
+import { databasePlugin } from '@backend/plugins/database'
+import { errorHandlerPlugin } from '@backend/plugins/error-handler'
+import { ApiErrorHandler } from '@backend/types/error-handler'
+import { enhanceSchemaWithTypes, type DuckDBTablePragma } from '@backend/utils/duckdb-types'
+import cors from '@elysiajs/cors'
+import { Elysia, t } from 'elysia'
 
 export const projectRoutes = new Elysia({ prefix: '/api/project' })
   .use(errorHandlerPlugin)
@@ -152,7 +152,7 @@ export const projectRoutes = new Elysia({ prefix: '/api/project' })
       // Check if 'id' column already exists and generate unique primary key column name
       const tableInfo = await db().runAndReadAll(`PRAGMA table_info("project_${project.id}")`)
       const columns = tableInfo.getRowObjectsJson() as Array<{ name: string }>
-      const existingColumnNames = columns.map(col => col.name)
+      const existingColumnNames = columns.map((col) => col.name)
 
       let primaryKeyColumnName = 'id'
       let counter = 1

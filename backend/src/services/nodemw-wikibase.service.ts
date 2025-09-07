@@ -1,15 +1,15 @@
-import nodemw from 'nodemw'
 import type {
-  WikibaseInstanceConfig,
+  ItemDetails,
+  ItemSearchResult,
   NodemwWikibaseInstanceConfig,
   PropertyDetails,
   PropertySearchResult,
-  ItemDetails,
-  ItemSearchResult,
   SearchOptions,
   SearchResponse,
+  WikibaseInstanceConfig,
 } from '@backend/types/wikibase-api'
-import type { PropertyId, ItemId } from 'wikibase-sdk'
+import nodemw from 'nodemw'
+import type { ItemId, PropertyId } from 'wikibase-sdk'
 
 /**
  * Wikibase API Service using nodemw for comprehensive MediaWiki API coverage

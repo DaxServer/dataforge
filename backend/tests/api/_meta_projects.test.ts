@@ -1,8 +1,8 @@
+import { metaProjectsRoutes } from '@backend/api/_meta_projects'
+import { closeDb, databasePlugin, getDb, initializeDb } from '@backend/plugins/database'
+import { treaty } from '@elysiajs/eden'
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test'
 import { Elysia } from 'elysia'
-import { treaty } from '@elysiajs/eden'
-import { metaProjectsRoutes } from '@backend/api/_meta_projects'
-import { databasePlugin, initializeDb, closeDb, getDb } from '@backend/plugins/database'
 
 const TEST_PROJECT_ID = Bun.randomUUIDv7()
 
@@ -97,7 +97,7 @@ describe('GET /api/_meta_projects', () => {
         ...project,
         created_at: expect.any(String),
         updated_at: expect.any(String),
-        wikibase_schema: wikibaseRows.map(w => ({
+        wikibase_schema: wikibaseRows.map((w) => ({
           ...w,
           name: w.name || `Schema for ${w.wikibase}`,
           created_at: expect.any(String),
