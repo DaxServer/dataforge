@@ -1,6 +1,6 @@
-import { describe, test, expect, beforeEach } from 'bun:test'
 import { WikibaseConfigService } from '@backend/services/wikibase-config.service'
 import type { WikibaseInstanceConfig } from '@backend/types/wikibase-api'
+import { beforeEach, describe, expect, test } from 'bun:test'
 
 describe('WikibaseConfigService', () => {
   let service: WikibaseConfigService
@@ -27,8 +27,8 @@ describe('WikibaseConfigService', () => {
       const instances = await service.getInstances()
 
       expect(instances.length).toBeGreaterThan(0)
-      expect(instances.some(i => i.id === 'wikidata')).toBe(true)
-      expect(instances.some(i => i.id === 'wikimedia-commons')).toBe(true)
+      expect(instances.some((i) => i.id === 'wikidata')).toBe(true)
+      expect(instances.some((i) => i.id === 'wikimedia-commons')).toBe(true)
     })
 
     test('should have Wikidata as default instance', async () => {
@@ -43,8 +43,8 @@ describe('WikibaseConfigService', () => {
       const predefinedInstances = await service.getPredefinedInstances()
 
       expect(predefinedInstances.length).toBe(2)
-      expect(predefinedInstances.some(i => i.id === 'wikidata')).toBe(true)
-      expect(predefinedInstances.some(i => i.id === 'wikimedia-commons')).toBe(true)
+      expect(predefinedInstances.some((i) => i.id === 'wikidata')).toBe(true)
+      expect(predefinedInstances.some((i) => i.id === 'wikimedia-commons')).toBe(true)
     })
   })
 
@@ -406,10 +406,10 @@ describe('WikibaseConfigService', () => {
       }))
 
       // Add multiple instances concurrently
-      await Promise.all(configs.map(config => service.addInstance(config)))
+      await Promise.all(configs.map((config) => service.addInstance(config)))
 
       const instances = await service.getInstances()
-      const customInstances = instances.filter(i => i.id.startsWith('concurrent-'))
+      const customInstances = instances.filter((i) => i.id.startsWith('concurrent-'))
       expect(customInstances).toHaveLength(5)
     })
   })

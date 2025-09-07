@@ -3,7 +3,6 @@ import { healthRoutes } from '@backend/api/health'
 import { projectRoutes } from '@backend/api/project'
 import { wikibaseRoutes } from '@backend/api/project/project.wikibase'
 import { wikibaseConstraintsApi } from '@backend/api/wikibase/constraints'
-import { wikibaseEntitiesApi } from '@backend/api/wikibase/entities'
 import { wikibaseInstanceApi } from '@backend/api/wikibase/instance-routes'
 import { wikibaseInstancesApi } from '@backend/api/wikibase/instances'
 import { closeDb } from '@backend/plugins/database'
@@ -38,7 +37,6 @@ export const elysiaApp = new Elysia({
   .use(projectRoutes)
   .use(wikibaseRoutes)
   .use(wikibaseInstancesApi)
-  .use(wikibaseEntitiesApi)
   .use(wikibaseInstanceApi)
   .use(wikibaseConstraintsApi)
   .listen(3000, () => {
@@ -62,7 +60,7 @@ process.on('SIGINT', () => gracefulShutdown('SIGINT'))
 process.on('SIGTERM', () => gracefulShutdown('SIGTERM'))
 
 // Listen for process exit event
-process.on('exit', code => {
+process.on('exit', (code) => {
   console.log(`Process exiting with code ${code}`)
 })
 

@@ -1,5 +1,5 @@
-import { Elysia } from 'elysia'
 import { ApiErrorHandler } from '@backend/types/error-handler'
+import { Elysia } from 'elysia'
 
 /**
  * Error handler plugin for Elysia

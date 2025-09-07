@@ -1,4 +1,4 @@
-import type { ErrorCode, ApiError } from '@backend/types/error-schemas'
+import type { ApiError, ErrorCode } from '@backend/types/error-schemas'
 
 /**
  * Centralized error handler for creating consistent API error responses

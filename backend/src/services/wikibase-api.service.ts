@@ -1,22 +1,22 @@
-import {
-  ApiClient,
-  PropertiesApi,
-  PropertySearchApi,
-  ItemsApi,
-  ItemSearchApi,
-} from '@wmde/wikibase-rest-api'
 import type {
-  WikibaseInstanceConfig,
-  PropertyConstraint,
-  SearchOptions,
-  PropertyDataTypeMap,
-  SearchResponse,
-  PropertySearchResult,
-  PropertyDetails,
   ItemDetails,
   ItemSearchResult,
+  PropertyConstraint,
+  PropertyDataTypeMap,
+  PropertyDetails,
+  PropertySearchResult,
+  SearchOptions,
+  SearchResponse,
+  WikibaseInstanceConfig,
 } from '@backend/types/wikibase-api'
-import type { PropertyId, ItemId } from '@backend/types/wikibase-schema'
+import type { ItemId, PropertyId } from '@backend/types/wikibase-schema'
+import {
+  ApiClient,
+  ItemsApi,
+  ItemSearchApi,
+  PropertiesApi,
+  PropertySearchApi,
+} from '@wmde/wikibase-rest-api'
 
 /**
  * Wrapper for Wikibase REST API clients

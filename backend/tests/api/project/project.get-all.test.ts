@@ -1,18 +1,18 @@
 /// <reference types="bun-types" />
+import { projectRoutes } from '@backend/api/project'
+import { closeDb, getDb, initializeDb } from '@backend/plugins/database'
+import { treaty } from '@elysiajs/eden'
 import {
+  afterAll,
   afterEach,
+  beforeAll,
   beforeEach,
   describe,
   expect,
-  test,
-  beforeAll,
-  afterAll,
   setSystemTime,
+  test,
 } from 'bun:test'
 import { Elysia } from 'elysia'
-import { treaty } from '@elysiajs/eden'
-import { closeDb, initializeDb, getDb } from '@backend/plugins/database'
-import { projectRoutes } from '@backend/api/project'
 
 const createTestApi = () => {
   return treaty(new Elysia().use(projectRoutes)).api
@@ -80,7 +80,7 @@ describe('getAllProjects', () => {
     // Sort projects by created_at in descending order
     const expectedProjects = [...sampleProjects]
       .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
-      .map(project => ({
+      .map((project) => ({
         ...project,
         // DuckDB returns timestamps in format: 'YYYY-MM-DD HH:MM:SS' (naive timestamp without timezone)
         created_at: project.created_at,

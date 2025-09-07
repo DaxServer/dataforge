@@ -1,5 +1,5 @@
-import { DuckDBTypeId } from '@duckdb/node-api'
 import type { DuckDBColumnSchema } from '@backend/api/project/_schemas'
+import { DuckDBTypeId } from '@duckdb/node-api'
 
 export type DuckDBTablePragma = {
   cid: number
@@ -53,7 +53,7 @@ export const getTypeFromTypeId = (typeId: number): string => {
 }
 
 export const enhanceSchemaWithTypes = (schema: DuckDBTablePragma[]): DuckDBColumnSchema => {
-  return schema.map(col => ({
+  return schema.map((col) => ({
     name: col.name,
     type: col.type,
     pk: col.pk,
