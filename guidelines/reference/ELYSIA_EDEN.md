@@ -38,24 +38,26 @@ When setting up Elysia with Eden on the backend, follow these conventions:
 Define routes with proper schemas for type inference:
 
 ```typescript
-// @backend/api/project/routes.ts
+// @backend/api/project/index.ts
 import { t } from 'elysia'
+
+const ProjectSchema = {
+  params: t.Object({
+    id: t.String(),
+  }),
+  response: t.Object({
+    id: t.String(),
+    name: t.String(),
+    // ... other fields
+  }),
+}
 
 export const projectRoutes = new Elysia({ prefix: '/api/project' }).get(
   '/:id',
   async ({ params: { id } }) => {
     // Implementation
   },
-  {
-    params: t.Object({
-      id: t.String(),
-    }),
-    response: t.Object({
-      id: t.String(),
-      name: t.String(),
-      // ... other fields
-    }),
-  },
+  ProjectSchema,
 )
 ```
 

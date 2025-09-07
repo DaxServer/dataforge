@@ -7,20 +7,20 @@ const mockConstraints: PropertyConstraint[] = [
     type: 'format constraint',
     parameters: { pattern: '^[A-Z]{2}$' },
     description: 'Format constraint for country codes',
-    violationMessage: 'Value must be a two-letter country code'
+    violationMessage: 'Value must be a two-letter country code',
   },
   {
     type: 'allowed values constraint',
     parameters: { allowedValues: ['Q30', 'Q142', 'Q183'] },
     description: 'Allowed values constraint',
-    violationMessage: 'Value must be one of the allowed values'
+    violationMessage: 'Value must be one of the allowed values',
   },
   {
     type: 'single value constraint',
     parameters: {},
     description: 'Single value constraint',
-    violationMessage: 'Property should have only one value'
-  }
+    violationMessage: 'Property should have only one value',
+  },
 ]
 
 describe('ConstraintValidationService', () => {
@@ -63,7 +63,7 @@ describe('ConstraintValidationService', () => {
     test('should handle multiple values for single value constraint', async () => {
       const values = [
         { type: 'string', content: 'first value' },
-        { type: 'string', content: 'second value' }
+        { type: 'string', content: 'second value' },
       ]
 
       const result = await service.validateProperty('wikidata', 'P1', values)
@@ -78,11 +78,11 @@ describe('ConstraintValidationService', () => {
     test('should validate complete schema', async () => {
       const schema = {
         P1: [{ type: 'string', content: 'invalid_format' }], // Should fail format constraint
-        P2: [{ type: 'string', content: 'Q999' }] // Should fail allowed values constraint
+        P2: [{ type: 'string', content: 'Q999' }], // Should fail allowed values constraint
       }
-      
+
       const result = await service.validateSchema('wikidata', schema)
-      
+
       expect(result).toBeDefined()
       expect(result.isValid).toBeDefined()
       expect(result.violations).toBeDefined()

@@ -7,14 +7,14 @@ import {
 } from '@wmde/wikibase-rest-api'
 import type {
   WikibaseInstanceConfig,
-  PropertyDetails,
-  PropertySearchResult,
   PropertyConstraint,
-  ItemDetails,
-  ItemSearchResult,
   SearchOptions,
   PropertyDataTypeMap,
   SearchResponse,
+  PropertySearchResult,
+  PropertyDetails,
+  ItemDetails,
+  ItemSearchResult,
 } from '@backend/types/wikibase-api'
 import type { PropertyId, ItemId } from '@backend/types/wikibase-schema'
 

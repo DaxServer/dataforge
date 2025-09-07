@@ -45,116 +45,125 @@
 
 ### Route Organization
 
-Routes should be organized into separate modules with clear separation of concerns. Each API module should contain the following files:
+**IMPORTANT**: All endpoints must be declared in the `index.ts` file with inline handlers to ensure type safety in Elysia. Do not separate handlers into individual files.
 
-- **`routes.ts`** - Route definitions and middleware
-- **`handlers.ts`** - Business logic handlers
-- **`schemas.ts`** - Type definitions and validation schemas
-- **`index.ts`** - Module exports
-- **Additional files** - Specialized functionality (e.g., `import.ts`)
+Routes should be organized into modules with the following structure. Each API module should contain:
+
+- **`index.ts`** - Route definitions with **inline handlers** (required for type safety)
+- **`schemas.ts`** - Shared type definitions and validation schemas
+- **Additional files** - Specialized functionality, rare cases only (e.g., `import.ts`)
+
+#### Type Safety Requirement
+
+Inline handlers in `index.ts` ensure that Elysia can properly infer types and maintain type safety throughout the application. Separating handlers into different files breaks this type inference.
 
 #### File Structure Example
 
 ```
 src/api/project/
-├── routes.ts      # Route definitions
-├── handlers.ts    # Handler functions
-├── schemas.ts     # Schemas and types
-├── import.ts      # Specialized import handlers
-└── index.ts       # Module exports
+├── index.ts                    # Routes with inline handlers
+├── schemas.ts                  # Schemas and types
+├── project.wikibase.ts         # Wikibase-related schemas
+└── import.ts                   # Import-related schemas
 ```
 
-#### Routes File (`routes.ts`)
+#### Routes File (`index.ts`)
 
 ```typescript
-import { Elysia } from 'elysia'
+import { Elysia, t } from 'elysia'
+import cors from '@elysiajs/cors'
+import { errorHandlerPlugin } from '@backend/plugins/error-handler'
+import { databasePlugin } from '@backend/plugins/database'
 import {
-  createProject,
-  deleteProject,
-  getAllProjects,
-  getProjectById,
-  importWithFile,
-} from '@backend/api/project/handlers'
-import {
-  CreateProjectSchema,
-  DeleteProjectSchema,
-  GetAllProjectsSchema,
+  ProjectCreateSchema,
+  ProjectDeleteSchema,
   GetProjectByIdSchema,
-  ImportProjectSchema,
-  ImportFileProjectSchema,
-  ImportWithFileSchema,
-} from './schemas'
-import { importProject, importProjectFile } from '@backend/api/project/import'
-import { ApiErrorHandler } from '@backend/types/error-handler'
+  ProjectResponseSchema,
+  UUIDPattern,
+} from '@backend/api/project/schemas'
 
 export const projectRoutes = new Elysia({ prefix: '/api/project' })
-  .get('/', getAllProjects, GetAllProjectsSchema)
-  .get('/:id', getProjectById, GetProjectByIdSchema)
-  .post('/', createProject, CreateProjectSchema)
-  .delete('/:id', deleteProject, DeleteProjectSchema)
-  .post('/:id/import', importProject, ImportProjectSchema)
-  .post('/:id/import/file', importProjectFile, ImportFileProjectSchema)
-  .post('/import', importWithFile, ImportWithFileSchema)
+  .use(errorHandlerPlugin)
+  .use(databasePlugin)
+  .use(cors())
+
+  .get(
+    '/',
+    async ({ db }) => {
+      const reader = await db().runAndReadAll(
+        'SELECT * FROM _meta_projects ORDER BY created_at DESC',
+      )
+      const projects = reader.getRowObjectsJson()
+      return {
+        data: projects as (typeof ProjectResponseSchema.static)[],
+      }
+    },
+    ProjectsGetAllSchema,
+  )
+
+  .post(
+    '/',
+    async ({ db, body: { name } }) => {
+      const reader = await db().runAndReadAll(
+        `INSERT INTO _meta_projects (name)
+         VALUES (?)
+         RETURNING *`,
+        [name],
+      )
+      const projects = reader.getRowObjectsJson()
+      return {
+        data: projects[0] as typeof ProjectResponseSchema.static,
+      }
+    },
+    ProjectCreateSchema,
+  )
+
+// Additional routes with inline handlers...
 ```
 
-#### Handlers File (`handlers.ts`)
-
-```typescript
-import type { Context } from 'elysia'
-import type { CreateProjectInput, Project, GetProjectByIdInput } from '@backend/api/project/schemas'
-import { getDb } from '@backend/plugins/database'
-import { ApiErrorHandler } from '@backend/types/error-handler'
-
-export const getProjectById = async ({ params, set }: Context<{ params: GetProjectByIdInput }>) => {
-  // Handler implementation logic...
-}
-
-export const createProject = async ({
-  body,
-  set,
-}: Context<{
-  body: CreateProjectInput
-}>) => {
-  // Handler implementation logic...
-}
-
-// Additional handlers...
-```
-
-#### Schemas File (`schemas.ts`)
+#### Schemas and Types File (`schemas.ts`)
 
 ```typescript
 import { t } from 'elysia'
-import { ErrorResponseWithDataSchema } from '@backend/types/error-schemas'
 
-// Schema definitions and validation rules...
-// Type exports and schema objects...
-```
+// Single UUID regex pattern that accepts any valid UUID version with hyphens (case-insensitive)
+export const UUID_REGEX =
+  '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$'
 
-#### Index File (`index.ts`)
+// RegExp version of UUID_REGEX for test matching
+export const UUID_REGEX_PATTERN = new RegExp(UUID_REGEX, 'i')
 
-```typescript
-export * from '@backend/api/project/routes'
-export * from '@backend/api/project/handlers'
-```
+export const ProjectResponseSchema = t.Object({
+  id: t.String(),
+  name: t.String(),
+  created_at: t.String(),
+  updated_at: t.String(),
+})
 
-#### Specialized Files (e.g., `import.ts`)
+export type Project = typeof ProjectResponseSchema.static
 
-```typescript
-import { getDb } from '@backend/plugins/database'
-import type { Context } from 'elysia'
-import type { ImportProjectInput } from './schemas'
-import { ApiErrorHandler } from '@backend/types/error-handler'
+export const UUIDPattern = t.String({ pattern: UUID_REGEX })
 
-export const importProject = async ({
-  params: { id },
-  body,
-  set,
-}: Context<{ body: ImportProjectInput }>) => {
-  // Handler implementation logic...
+export const PaginationQuery = t.Object({
+  offset: t.Optional(t.Numeric({ minimum: 0, default: 0 })),
+  limit: t.Optional(t.Numeric({ minimum: 1, maximum: 1000, default: 25 })),
+})
+
+export const ProjectCreateSchema = {
+  body: t.Object({
+    name: t.String({
+      minLength: 1,
+      error: 'Project name is required and must be at least 1 character long',
+    }),
+  }),
+  response: {
+    201: t.Object({
+      data: ProjectResponseSchema,
+    }),
+    422: ApiError,
+    500: ApiError,
+  },
 }
-
-// Additional specialized handlers...
 ```
 
 ## API Design
@@ -165,7 +174,121 @@ ToDo
 
 ### Validation Schemas
 
-ToDo
+**IMPORTANT**: All Elysia endpoint schemas must be complete and use correct types. Follow DRY (Don't Repeat Yourself) principles.
+
+#### Schema Completeness Requirements
+
+- **Complete Type Definitions**: All schema properties must use appropriate Elysia types
+- **Correct Type Usage**: Use `t.Number()` for numeric values, not `t.String()` masquerading as numbers
+- **DRY Principle**: Reuse common schemas and patterns across endpoints
+- **Exceptions Only**: Incomplete schemas like `t.Any()` should only be used in exceptional cases
+
+#### Type Usage Examples
+
+```typescript
+// CORRECT: Use appropriate types
+export const ProjectCreateSchema = {
+  body: t.Object({
+    name: t.String({ minLength: 1 }),
+    budget: t.Number({ minimum: 0 }), // Use t.Number for numeric values
+    priority: t.Union([
+      // Use unions for enums
+      t.Literal('low'),
+      t.Literal('medium'),
+      t.Literal('high'),
+    ]),
+    isActive: t.Boolean(), // Use t.Boolean for booleans
+    tags: t.Array(t.String()), // Use t.Array for arrays
+    metadata: t.Optional(
+      t.Object({
+        // Use t.Optional for optional fields
+        description: t.String(),
+        category: t.String(),
+      }),
+    ),
+  }),
+  response: {
+    201: t.Object({
+      data: ProjectResponseSchema,
+    }),
+    422: ApiError,
+    500: ApiError,
+  },
+}
+
+// WRONG: Incorrect type usage
+export const BadProjectSchema = {
+  body: t.Object({
+    name: t.String(),
+    budget: t.String(), // DON'T: Use t.String for numbers
+    priority: t.String(), // DON'T: Use t.String for enums
+    isActive: t.String(), // DON'T: Use t.String for booleans
+    tags: t.Any(), // DON'T: Use t.Any unless exceptional
+  }),
+}
+```
+
+#### DRY Schema Patterns
+
+```typescript
+// Reusable base schemas
+export const BaseEntitySchema = t.Object({
+  id: UUIDPattern,
+  created_at: t.String(),
+  updated_at: t.String(),
+})
+
+// Extend base schemas
+export const ProjectResponseSchema = t.Intersect([
+  BaseEntitySchema,
+  t.Object({
+    name: t.String(),
+    budget: t.Number(),
+    priority: ProjectPrioritySchema,
+  }),
+])
+
+// Reusable query schemas
+export const PaginationQuery = t.Object({
+  offset: t.Optional(t.Numeric({ minimum: 0, default: 0 })),
+  limit: t.Optional(t.Numeric({ minimum: 1, maximum: 1000, default: 25 })),
+})
+
+// Reusable response wrappers
+export const createDataResponse = <T extends TSchema>(schema: T) =>
+  t.Object({
+    data: schema,
+  })
+
+export const createPaginatedResponse = <T extends TSchema>(schema: T) =>
+  t.Object({
+    data: t.Array(schema),
+    pagination: PaginationMetaSchema,
+  })
+```
+
+#### Exceptional Cases
+
+Use incomplete schemas only when absolutely necessary:
+
+```typescript
+// Acceptable: Dynamic data structures
+export const DynamicDataSchema = {
+  body: t.Object({
+    tableName: t.String(),
+    data: t.Any(), // Acceptable: Unknown structure from file import
+  }),
+}
+
+// Acceptable: Legacy system integration
+export const LegacyApiSchema = {
+  response: {
+    200: t.Object({
+      result: t.Any(), // Acceptable: Third-party API with unknown structure
+    }),
+  },
+}
+```
 
 ### Path Parameters
 
@@ -193,6 +316,8 @@ ToDo
 ### Centralized Error Handler
 
 The project uses a centralized error handling system with two main components:
+
+**Important**: All error responses MUST follow the `ApiError` format. Never create custom error response structures.
 
 #### Error Schemas and Types
 
@@ -247,34 +372,62 @@ export class ApiErrorHandler {
 #### Usage in Handlers
 
 ```typescript
-// src/api/project/handlers.ts
+// src/api/project/index.ts
 import { ApiErrorHandler } from '@backend/types/error-handler'
 
-export const getProjectById = async ({ params, set }) => {
-  // Check if resource exists
+// Resource not found
+.onBeforeHandle(async ({ params: { projectId }, projects, status }) => {
   if (projects.length === 0) {
-    set.status = 404
-    return ApiErrorHandler.notFoundErrorWithData('Project')
+    return status(404, ApiErrorHandler.notFoundErrorWithData('Project', projectId))
   }
+})
 
-  // Handle database errors
+// Database operation errors
+.get('/:projectId', async ({ db, params: { projectId }, status }) => {
   try {
-    // Database operations...
+    const tableName = `project_${projectId}`
+    const reader = await db().runAndReadAll(`SELECT * FROM "${tableName}"`)
+    return { data: reader.getRowObjectsJson() }
   } catch (error) {
-    if (error.message.includes('does not exist')) {
-      set.status = 404
-      return ApiErrorHandler.notFoundErrorWithData('Project', params.id)
+    if (error instanceof Error && error.message.includes('does not exist')) {
+      return status(404, ApiErrorHandler.notFoundErrorWithData('Project', projectId))
     }
-
-    // Handle specific error cases...
-    if (...) {
-      set.status = ...
-      return ApiErrorHandler....
-    }
-
-    throw error // Let route error handler catch it
+    throw error // Let global error handler catch it
   }
-}
+})
+
+// File validation errors
+.post('/import', async ({ body: { file }, status }) => {
+  const fileExists = await Bun.file(filePath).exists()
+  if (!fileExists) {
+    return status(400, ApiErrorHandler.fileNotFoundError(filePath))
+  }
+
+  // JSON parsing errors
+  try {
+    await Bun.file(tempFilePath).json()
+  } catch (parseError) {
+    return status(400, ApiErrorHandler.invalidJsonErrorWithData(
+      'Invalid JSON format in uploaded file',
+      [parseError.message]
+    ))
+  }
+
+  // Table exists errors
+  const tableExistsReader = await db().runAndReadAll(
+    `SELECT 1 FROM duckdb_tables() WHERE table_name = 'project_${projectId}'`
+  )
+  if (tableExistsReader.getRows().length > 0) {
+    return status(409, ApiErrorHandler.tableExistsErrorWithData(`project_${projectId}`))
+  }
+
+  // Project creation errors
+  if (projects.length === 0) {
+    return status(500, ApiErrorHandler.projectCreationErrorWithData(
+      'Failed to create project: No project returned from database'
+    ))
+  }
+})
 ```
 
 ## Type Safety
