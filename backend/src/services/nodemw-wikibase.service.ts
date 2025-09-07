@@ -127,9 +127,10 @@ export class NodemwWikibaseService {
     const client = this.getClient(instanceId)
     const limit = options.limit ?? 10
     const language = options.language ?? 'en'
+    const autocomplete = options.autocomplete ?? true
 
     // Use Wikibase search entities API for better property search
-    const searchParams = {
+    const searchParams: any = {
       action: 'wbsearchentities',
       search: query,
       type: 'property',
@@ -139,6 +140,11 @@ export class NodemwWikibaseService {
       format: 'json',
     }
 
+    // Add strictlanguage for autocomplete mode
+    if (autocomplete) {
+      searchParams.strictlanguage = false
+    }
+
     return new Promise((resolve, reject) => {
       ;(client as any).api.call(searchParams, (err: any, data: any) => {
         if (err) {
@@ -146,7 +152,7 @@ export class NodemwWikibaseService {
           return
         }
 
-        const results: PropertySearchResult[] =
+        let results: PropertySearchResult[] =
           data.search?.map((item: any) => ({
             id: item.id,
             label: item.label || item.id,
@@ -158,6 +164,11 @@ export class NodemwWikibaseService {
               text: item.match?.text || item.label || item.id,
             },
           })) ?? []
+
+        // Filter by dataType if specified
+        if (options.dataType) {
+          results = results.filter(result => result.dataType === options.dataType)
+        }
 
         resolve({
           results,
@@ -250,9 +261,10 @@ export class NodemwWikibaseService {
     const client = this.getClient(instanceId)
     const limit = options.limit ?? 10
     const language = options.language ?? 'en'
+    const autocomplete = options.autocomplete ?? true
 
     return new Promise((resolve, reject) => {
-      const searchParams = {
+      const searchParams: any = {
         action: 'wbsearchentities',
         search: query,
         type: 'item',
@@ -260,6 +272,11 @@ export class NodemwWikibaseService {
         limit,
         continue: options.offset ?? 0,
         format: 'json',
+      }
+
+      // Add strictlanguage for autocomplete mode
+      if (autocomplete) {
+        searchParams.strictlanguage = false
       }
 
       ;(client as any).api.call(searchParams, (err: any, data: any) => {

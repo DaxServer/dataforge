@@ -126,14 +126,14 @@ export class ConstraintValidationService {
 
     // Common constraint parameter properties
     const parameterMap: Record<string, string> = {
-    //   'P2306': 'property', // property
-    //   'P2305': 'item', // item of property constraint
-    //   'P2303': 'regex', // regular expression
-    //   'P2313': 'minimum_value', // minimum value
-    //   'P2312': 'maximum_value', // maximum value
-    //   'P2308': 'class', // class
-    //   'P2309': 'relation', // relation
-    //   'P2316': 'constraint_status', // constraint status
+      //   'P2306': 'property', // property
+      //   'P2305': 'item', // item of property constraint
+      //   'P2303': 'regex', // regular expression
+      //   'P2313': 'minimum_value', // minimum value
+      //   'P2312': 'maximum_value', // maximum value
+      //   'P2308': 'class', // class
+      //   'P2309': 'relation', // relation
+      //   'P2316': 'constraint_status', // constraint status
     }
 
     for (const [propertyId, parameterName] of Object.entries(parameterMap)) {
@@ -198,7 +198,8 @@ export class ConstraintValidationService {
       'conflicts with constraint': 'Property conflicts with other property values',
       'item requires statement constraint': 'Item is missing required statements',
       'subject type constraint': 'Subject is not of the required type',
-      'single best value constraint': 'Property has multiple preferred values but should have only one',
+      'single best value constraint':
+        'Property has multiple preferred values but should have only one',
       'inverse constraint': 'Inverse relationship is not properly maintained',
       'symmetric constraint': 'Symmetric relationship is not properly maintained',
       'property scope constraint': 'Property is used outside its allowed scope',
@@ -388,9 +389,9 @@ export class ConstraintValidationService {
    */
   private getExpectedTypeFromClass(classId: string): string | null {
     const typeMap: Record<string, string> = {
-    //   'Q3176558': 'string', // string
-    //   'Q21027676': 'number', // integer
-    //   'Q1860': 'string', // text
+      //   'Q3176558': 'string', // string
+      //   'Q21027676': 'number', // integer
+      //   'Q1860': 'string', // text
     }
 
     return typeMap[classId] || null
@@ -500,10 +501,10 @@ export class ConstraintValidationService {
     const propertyIds = Object.keys(schema) as PropertyId[]
 
     // Validate each property in parallel
-     const validationPromises = propertyIds.map(async (propertyId) => {
-       const values = schema[propertyId] || []
-       return this.validateProperty(instanceId, propertyId, values)
-     })
+    const validationPromises = propertyIds.map(async propertyId => {
+      const values = schema[propertyId] || []
+      return this.validateProperty(instanceId, propertyId, values)
+    })
 
     try {
       const results = await Promise.all(validationPromises)
@@ -521,7 +522,9 @@ export class ConstraintValidationService {
       }
 
       if (allWarnings.length > 0) {
-        allSuggestions.push('Some constraint types are not yet supported - manual review recommended')
+        allSuggestions.push(
+          'Some constraint types are not yet supported - manual review recommended',
+        )
       }
 
       // Remove duplicate suggestions
@@ -536,12 +539,14 @@ export class ConstraintValidationService {
     } catch (error) {
       return {
         isValid: false,
-        violations: [{
-          constraintType: 'system_error',
-          message: `Schema validation failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
-          severity: 'error',
-          propertyId: 'schema',
-        }],
+        violations: [
+          {
+            constraintType: 'system_error',
+            message: `Schema validation failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
+            severity: 'error',
+            propertyId: 'schema',
+          },
+        ],
         warnings: allWarnings,
         suggestions: ['Check network connection and try again'],
       }
@@ -554,7 +559,7 @@ export class ConstraintValidationService {
   clearCache(instanceId?: string): void {
     if (instanceId) {
       const keysToDelete = Array.from(this.constraintCache.keys()).filter(key =>
-        key.startsWith(`${instanceId}:`)
+        key.startsWith(`${instanceId}:`),
       )
       for (const key of keysToDelete) {
         this.constraintCache.delete(key)

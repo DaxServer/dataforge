@@ -48,130 +48,117 @@
     - Add constraint violation detection and error message generation
     - _Requirements: 3.3, 6.2, 6.3_
 
-- [ ] 4. Implement property caching service for performance optimization
-  - [ ] 4.1 Create PropertyCacheService class
-    - Set up in-memory caching with TTL support
-    - Implement cache key generation and management
-    - Add cache invalidation and cleanup mechanisms
-    - _Requirements: 8.1, 8.3, 8.4_
-
-  - [ ] 4.2 Integrate caching with NodemwWikibaseService
-    - Add caching to property search and retrieval methods
-    - Implement cache-first strategies with fallback to nodemw
-    - Add cache warming for frequently accessed properties
-    - _Requirements: 8.1, 8.2, 8.5_
-
-- [ ] 5. Update API endpoints to use NodemwWikibaseService
-  - [ ] 5.1 Update property search endpoints
+- [ ] 4. Update API endpoints to use NodemwWikibaseService
+  - [ ] 4.1 Update property search endpoints
     - Modify /api/wikibase/:instanceId/properties/search to use nodemw
     - Add support for enhanced search parameters and filtering
     - Implement response formatting for frontend compatibility
     - _Requirements: 2.1, 2.3, 2.5_
 
-  - [ ] 5.2 Update property details endpoints
+  - [ ] 4.2 Update property details endpoints
     - Modify /api/wikibase/:instanceId/properties/:propertyId to use nodemw
     - Add constraint information to property details response
     - Implement error handling for property not found scenarios
     - _Requirements: 2.2, 3.1, 3.2_
 
-  - [ ] 5.3 Add new constraint validation endpoints
+  - [ ] 4.3 Add new constraint validation endpoints
     - Create /api/wikibase/:instanceId/properties/:propertyId/constraints endpoint
     - Add /api/wikibase/:instanceId/validate/property endpoint for real-time validation
     - Implement /api/wikibase/:instanceId/validate/schema endpoint for schema validation
     - _Requirements: 3.1, 3.3, 6.1, 6.2_
 
-  - [ ] 5.4 Update instance management endpoints
+  - [ ] 4.4 Update instance management endpoints
     - Modify instance configuration endpoints to support nodemw configuration
     - Add connectivity testing using nodemw client validation
     - Implement health check endpoints for instance monitoring
     - _Requirements: 5.1, 5.2, 5.4, 5.5_
 
-- [ ] 6. Enhance frontend property selector with nodemw integration
-  - [ ] 6.1 Update PropertySelector component
+- [ ] 5. Enhance frontend property selector with nodemw integration
+  - [ ] 5.1 Update PropertySelector component
     - Enhance autocomplete functionality with improved search results
     - Add property constraint display in selector dropdown
     - Implement property usage statistics and relevance indicators
     - _Requirements: 2.3, 6.1, 6.3_
 
-  - [ ] 6.2 Add real-time validation to property selection
+  - [ ] 5.2 Add real-time validation to property selection
     - Implement constraint checking when properties are selected
     - Add visual indicators for constraint compliance
     - Create validation feedback messages for property selection
     - _Requirements: 6.2, 6.3, 6.4_
 
-- [ ] 7. Implement real-time validation display components
-  - [ ] 7.1 Create ValidationDisplay component
+- [ ] 6. Implement real-time validation display components
+  - [ ] 6.1 Create ValidationDisplay component
     - Build component to show validation results and constraint violations
     - Add support for different violation severity levels
     - Implement validation suggestions and fix recommendations
     - _Requirements: 6.2, 6.3, 6.5_
 
-  - [ ] 7.2 Add constraint violation indicators
+  - [ ] 6.2 Add constraint violation indicators
     - Create visual indicators for different constraint types
     - Implement hover tooltips with detailed constraint information
     - Add click-to-fix functionality for common constraint violations
     - _Requirements: 6.2, 6.4, 6.5_
 
-- [ ] 8. Update schema store with validation integration
-  - [ ] 8.1 Add validation state management
+- [ ] 7. Update schema store with validation integration
+  - [ ] 7.1 Add validation state management
     - Add validation results storage to schema store
     - Implement validation status tracking and updates
     - Create validation history for debugging and analysis
     - _Requirements: 6.1, 6.2, 6.5_
 
-  - [ ] 8.2 Implement auto-validation on schema changes
+  - [ ] 7.2 Implement auto-validation on schema changes
     - Add watchers for schema changes to trigger validation
     - Implement debounced validation to prevent excessive API calls
     - Create validation queuing for complex schema validations
     - _Requirements: 6.1, 6.2, 8.2_
 
-- [ ] 9. Add schema preview and testing functionality
-  - [ ] 9.1 Implement schema preview service
+- [ ] 8. Add schema preview and testing functionality
+  - [ ] 8.1 Implement schema preview service
     - Create preview generation using nodemw entity simulation
     - Add test entity creation without saving to Wikibase
     - Implement data transformation validation using nodemw
     - _Requirements: 7.1, 7.2, 7.3_
 
-  - [ ] 9.2 Add conflict detection and resolution
+  - [ ] 8.2 Add conflict detection and resolution
     - Implement duplicate entity detection using nodemw search
     - Add conflict resolution suggestions and recommendations
     - Create preview validation with detailed feedback
     - _Requirements: 7.4, 7.5_
 
-- [ ] 10. Update type definitions and interfaces for nodemw integration
-  - [ ] 10.1 Update backend type definitions
+- [ ] 9. Update type definitions and interfaces for nodemw integration
+  - [ ] 9.1 Update backend type definitions
     - Modify WikibaseInstanceConfig to include nodemw configuration
     - Update PropertyDetails to include constraint and usage information
     - Create new constraint and validation result type definitions
     - _Requirements: 4.1, 4.2, 4.4_
 
-  - [ ] 10.2 Update frontend type definitions
+  - [ ] 9.2 Update frontend type definitions
     - Enhance property search result types with constraint information
     - Add validation result types for frontend validation display
     - Update schema store types to include validation state
     - _Requirements: 4.3, 6.1, 6.2_
 
-- [ ] 11. Implement comprehensive error handling for nodemw integration
-  - [ ] 11.1 Create WikibaseErrorHandler service
+- [ ] 10. Implement comprehensive error handling for nodemw integration
+  - [ ] 10.1 Create WikibaseErrorHandler service
     - Map nodemw errors to application-specific error types
     - Implement retry strategies for different error scenarios
     - Add graceful degradation for service failures
     - _Requirements: 1.3, 5.5, 8.5_
 
-  - [ ] 11.2 Add fallback mechanisms
+  - [ ] 10.2 Add fallback mechanisms
     - Implement cache fallback when nodemw services are unavailable
     - Create basic property information fallback for critical failures
     - Add user-friendly error messages and recovery suggestions
     - _Requirements: 1.5, 8.5_
 
-- [ ] 12. Add comprehensive testing for nodemw integration
-  - [ ] 12.1 Create unit tests for NodemwWikibaseService
+- [ ] 11. Add comprehensive testing for nodemw integration
+  - [ ] 11.1 Create unit tests for NodemwWikibaseService
     - Test client management and configuration methods
     - Test property search and retrieval with mocked nodemw clients
     - Test constraint validation and error handling scenarios
     - _Requirements: All requirements - testing coverage_
 
-  - [ ] 12.2 Create integration tests with real Wikibase instances
+  - [ ] 11.2 Create integration tests with real Wikibase instances
     - Test connectivity and data retrieval from Wikidata
     - Test constraint validation with real constraint data
     - Test performance and caching behavior under load

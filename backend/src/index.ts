@@ -10,6 +10,7 @@ import { closeDb } from '@backend/plugins/database'
 import { wikibaseRoutes } from '@backend/api/project/project.wikibase'
 import { wikibaseInstancesApi } from '@backend/api/wikibase/instances'
 import { wikibaseEntitiesApi } from '@backend/api/wikibase/entities'
+import { wikibaseConstraintsApi } from '@backend/api/wikibase/constraints'
 
 export const elysiaApp = new Elysia({
   serve: {
@@ -37,6 +38,7 @@ export const elysiaApp = new Elysia({
   .use(wikibaseRoutes)
   .use(wikibaseInstancesApi)
   .use(wikibaseEntitiesApi)
+  .use(wikibaseConstraintsApi)
   .listen(3000, () => {
     console.log('🦊 Elysia is running at http://localhost:3000')
   })

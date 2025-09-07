@@ -131,6 +131,7 @@ export interface SearchOptions {
   offset?: number
   language?: string
   dataType?: string
+  autocomplete?: boolean
 }
 
 export interface SearchResponse<T> {

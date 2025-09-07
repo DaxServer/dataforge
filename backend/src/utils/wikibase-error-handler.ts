@@ -155,6 +155,15 @@ export class WikibaseErrorHandler {
       }
     }
 
+    // Handle instance validation errors
+    if (error.message?.includes('No client found for instance')) {
+      return createWikibaseError(WikibaseErrorCode.INVALID_INSTANCE, error.message, {
+        ...context,
+        originalError: error,
+        retryable: false,
+      })
+    }
+
     // Handle validation errors
     if (error.message?.includes('invalid') || error.message?.includes('malformed')) {
       return createWikibaseError(
