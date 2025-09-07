@@ -1,6 +1,6 @@
-import { describe, test, expect } from 'bun:test'
-import type { ColumnInfo } from '@frontend/shared/types/wikibase-schema'
 import { useDataTypeCompatibility } from '@frontend/features/data-processing/composables/useDataTypeCompatibility'
+import type { ColumnInfo } from '@frontend/shared/types/wikibase-schema'
+import { describe, expect, test } from 'bun:test'
 
 describe('useDataTypeCompatibility Composable', () => {
   const {

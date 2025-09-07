@@ -1,6 +1,6 @@
-import { describe, it, expect } from 'bun:test'
 import type { DuckDBColumnSchema } from '@backend/api/project/_schemas'
 import { useColumnGeneration } from '@frontend/features/data-processing/composables/useColumnGeneration'
+import { describe, expect, it } from 'bun:test'
 
 describe('useColumnGeneration', () => {
   const { generateColumns } = useColumnGeneration()

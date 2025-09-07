@@ -1,7 +1,7 @@
-import { ref, computed, readonly } from 'vue'
+import { createFrontendError } from '@frontend/shared/types/client-errors'
 import type { WikibaseSchemaMapping } from '@frontend/shared/types/wikibase-schema'
 import type { UUID } from 'crypto'
-import { createFrontendError } from '@frontend/shared/types/client-errors'
+import { computed, readonly, ref } from 'vue'
 
 /**
  * Composable for managing schema selection workflow

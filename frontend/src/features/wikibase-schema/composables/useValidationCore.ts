@@ -1,6 +1,6 @@
 import { useDataTypeCompatibility } from '@frontend/features/data-processing/composables/useDataTypeCompatibility'
-import type { ColumnInfo } from '@frontend/shared/types/wikibase-schema'
 import type { DropTarget } from '@frontend/shared/types/drag-drop'
+import type { ColumnInfo } from '@frontend/shared/types/wikibase-schema'
 
 interface CoreValidationResult {
   isValid: boolean

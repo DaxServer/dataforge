@@ -1,7 +1,7 @@
-import { describe, it, expect, beforeEach, mock } from 'bun:test'
-import { createPinia, setActivePinia } from 'pinia'
-import { useValidationStore } from '@frontend/features/wikibase-schema/stores/validation.store'
 import type { ValidationRuleConfig } from '@frontend/features/wikibase-schema/stores/validation.store'
+import { useValidationStore } from '@frontend/features/wikibase-schema/stores/validation.store'
+import { beforeEach, describe, expect, it, mock } from 'bun:test'
+import { createPinia, setActivePinia } from 'pinia'
 
 describe('useValidationStore - Rules functionality', () => {
   let store: ReturnType<typeof useValidationStore>

@@ -1,12 +1,12 @@
+import { PrimeVueResolver } from '@primevue/auto-import-resolver'
 import tailwindcss from '@tailwindcss/vite'
 import vue from '@vitejs/plugin-vue'
 import AutoImport from 'unplugin-auto-import/vite'
 import Components from 'unplugin-vue-components/vite'
-import { PrimeVueResolver } from '@primevue/auto-import-resolver'
 import { defineConfig } from 'vite'
 import VueDevTools from 'vite-plugin-vue-devtools'
-import PackageJson from './package.json' with { type: 'json' }
 import tsconfigPaths from 'vite-tsconfig-paths'
+import PackageJson from './package.json' with { type: 'json' }
 
 process.env.VITE_APP_VERSION = PackageJson.version
 if (process.env.NODE_ENV === 'production') {

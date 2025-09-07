@@ -15,6 +15,7 @@ const config: Config = {
   vueIndentScriptAndStyle: false,
   htmlWhitespaceSensitivity: 'ignore',
   endOfLine: 'lf',
+  plugins: ['prettier-plugin-organize-imports'],
   overrides: [
     {
       files: ['*.ts'],

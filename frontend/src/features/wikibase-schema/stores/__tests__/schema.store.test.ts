@@ -1,13 +1,13 @@
-import { describe, it, expect, expectTypeOf, beforeEach, mock } from 'bun:test'
-import { createTestingPinia } from '@pinia/testing'
-import { setActivePinia } from 'pinia'
-import { useSchemaStore } from '@frontend/features/wikibase-schema/stores/schema.store'
 import type {
   ColumnMapping,
   PropertyReference,
   ValueMapping,
 } from '@backend/api/project/project.wikibase'
+import { useSchemaStore } from '@frontend/features/wikibase-schema/stores/schema.store'
+import { createTestingPinia } from '@pinia/testing'
+import { beforeEach, describe, expect, expectTypeOf, it, mock } from 'bun:test'
 import type { UUID } from 'crypto'
+import { setActivePinia } from 'pinia'
 
 // Test UUID for consistent testing
 const TEST_STATEMENT_ID: UUID = Bun.randomUUIDv7() as UUID

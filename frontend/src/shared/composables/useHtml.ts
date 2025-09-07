@@ -1,5 +1,5 @@
-import linkifyIt from 'linkify-it'
 import escapeHtml from 'escape-html'
+import linkifyIt from 'linkify-it'
 
 export const useHtml = () => {
   const linkify = new linkifyIt()

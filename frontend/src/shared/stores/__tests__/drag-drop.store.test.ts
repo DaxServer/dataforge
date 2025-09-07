@@ -1,9 +1,9 @@
-import { describe, it, expect, beforeEach } from 'bun:test'
-import { createPinia, setActivePinia } from 'pinia'
-import { useDragDropStore } from '@frontend/features/data-processing/stores/drag-drop.store'
-import type { ColumnInfo } from '@frontend/shared/types/wikibase-schema'
 import type { WikibaseDataType } from '@backend/api/project/project.wikibase'
+import { useDragDropStore } from '@frontend/features/data-processing/stores/drag-drop.store'
 import type { DropTarget } from '@frontend/shared/types/drag-drop'
+import type { ColumnInfo } from '@frontend/shared/types/wikibase-schema'
+import { beforeEach, describe, expect, it } from 'bun:test'
+import { createPinia, setActivePinia } from 'pinia'
 
 describe('useDragDropStore', () => {
   let mockColumnInfo: ColumnInfo

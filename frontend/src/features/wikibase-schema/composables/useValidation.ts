@@ -1,16 +1,16 @@
-import { ref, computed, watch } from 'vue'
-import { useDragDropStore } from '@frontend/features/data-processing/stores/drag-drop.store'
-import { useValidationStore } from '@frontend/features/wikibase-schema/stores/validation.store'
-import { useValidationErrors } from '@frontend/features/wikibase-schema/composables/useValidationErrors'
-import { useValidationCore } from '@frontend/features/wikibase-schema/composables/useValidationCore'
+import type { WikibaseDataType } from '@backend/api/project/project.wikibase'
 import { useDataTypeCompatibility } from '@frontend/features/data-processing/composables/useDataTypeCompatibility'
+import { useDragDropStore } from '@frontend/features/data-processing/stores/drag-drop.store'
+import { useValidationCore } from '@frontend/features/wikibase-schema/composables/useValidationCore'
+import { useValidationErrors } from '@frontend/features/wikibase-schema/composables/useValidationErrors'
+import { useValidationStore } from '@frontend/features/wikibase-schema/stores/validation.store'
+import type { DropFeedback, DropTarget } from '@frontend/shared/types/drag-drop'
 import type {
   ColumnInfo,
   ValidationError,
   ValidationResult,
 } from '@frontend/shared/types/wikibase-schema'
-import type { DropTarget, DropFeedback } from '@frontend/shared/types/drag-drop'
-import type { WikibaseDataType } from '@backend/api/project/project.wikibase'
+import { computed, ref, watch } from 'vue'
 
 interface MappingInfo {
   path: string

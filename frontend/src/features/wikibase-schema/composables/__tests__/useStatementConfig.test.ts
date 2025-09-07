@@ -1,9 +1,9 @@
-import { describe, it, expect, beforeEach } from 'bun:test'
-import { createPinia, setActivePinia } from 'pinia'
+import type { StatementRank } from '@backend/api/project/project.wikibase'
+import { PropertyId } from '@backend/types/wikibase-schema'
 import { useStatementConfig } from '@frontend/features/wikibase-schema/composables/useStatementConfig'
 import { useSchemaStore } from '@frontend/features/wikibase-schema/stores/schema.store'
-import { PropertyId } from '@backend/types/wikibase-schema'
-import type { StatementRank } from '@backend/api/project/project.wikibase'
+import { beforeEach, describe, expect, it } from 'bun:test'
+import { createPinia, setActivePinia } from 'pinia'
 
 describe('useStatementConfig', () => {
   beforeEach(() => {

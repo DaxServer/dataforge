@@ -1,14 +1,14 @@
 import type {
+  Alias,
+  ItemSchema,
   Label,
-  StatementSchemaMapping,
-  TermsSchemaMapping,
   PropertyReference,
-  ValueMapping,
-  StatementRank,
   PropertyValueMap,
   ReferenceSchemaMapping,
-  ItemSchema,
-  Alias,
+  StatementRank,
+  StatementSchemaMapping,
+  TermsSchemaMapping,
+  ValueMapping,
 } from '@backend/api/project/project.wikibase'
 import type { UUID } from 'crypto'
 

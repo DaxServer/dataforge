@@ -1,10 +1,10 @@
-import { describe, it, expect, beforeEach, mock } from 'bun:test'
+import { useSchemaSelection } from '@frontend/features/wikibase-schema/composables/useSchemaSelection'
+import { useSchemaStore } from '@frontend/features/wikibase-schema/stores/schema.store'
 import { createTestingPinia } from '@pinia/testing'
+import { beforeEach, describe, expect, it, mock } from 'bun:test'
+import type { UUID } from 'crypto'
 import { setActivePinia } from 'pinia'
 import { ref } from 'vue'
-import { useSchemaStore } from '@frontend/features/wikibase-schema/stores/schema.store'
-import type { UUID } from 'crypto'
-import { useSchemaSelection } from '@frontend/features/wikibase-schema/composables/useSchemaSelection'
 
 // Test UUIDs for consistent testing
 const TEST_PROJECT_ID = Bun.randomUUIDv7() as UUID

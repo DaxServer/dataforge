@@ -1,15 +1,15 @@
-import { createApp, markRaw, type Component } from 'vue'
-import { createPinia } from 'pinia'
-import { createHead } from '@unhead/vue/client'
-import PrimeVue from 'primevue/config'
 import Aura from '@primeuix/themes/aura'
-import ToastService from 'primevue/toastservice'
-import ConfirmationService from 'primevue/confirmationservice'
+import { createHead } from '@unhead/vue/client'
+import { createPinia } from 'pinia'
 import 'primeicons/primeicons.css'
+import PrimeVue from 'primevue/config'
+import ConfirmationService from 'primevue/confirmationservice'
+import ToastService from 'primevue/toastservice'
+import { createApp, markRaw, type Component } from 'vue'
 
 // Import your router and app
-import router from '@frontend/core/router/router'
 import App from '@frontend/App.vue'
+import router from '@frontend/core/router/router'
 
 // Import global styles
 import '@frontend/assets/base.css'

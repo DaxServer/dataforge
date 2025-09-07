@@ -1,6 +1,6 @@
-import type { Ref } from 'vue'
-import type { ColumnInfo } from '@frontend/shared/types/wikibase-schema'
 import type { WikibaseDataType } from '@backend/api/project/project.wikibase'
+import type { ColumnInfo } from '@frontend/shared/types/wikibase-schema'
+import type { Ref } from 'vue'
 
 // Schema editor specific drag and drop context (from design document)
 // This represents what the composable provides, not the store state
