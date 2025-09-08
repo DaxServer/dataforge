@@ -166,6 +166,9 @@ export class WikibaseService {
     const response = (await client.get(params)) as WikibaseGetEntitiesResponse
 
     if (response.error) {
+      if (response.error.code === 'missingentity' || response.error.code === 'no-such-entity') {
+        return null
+      }
       throw new Error(`Failed to get property: ${response.error.info}`)
     }
 
@@ -276,6 +279,9 @@ export class WikibaseService {
     const response = (await client.get(params)) as WikibaseGetEntitiesResponse
 
     if (response.error) {
+      if (response.error.code === 'missingentity' || response.error.code === 'no-such-entity') {
+        return null
+      }
       throw new Error(`Failed to get item: ${response.error.info}`)
     }
 
