@@ -30,12 +30,6 @@ export const errorHandlerPlugin = new Elysia({
       }
     }
 
-    // Handle NOT_FOUND errors
-    if (error instanceof ApiErrorHandler && error.code === 'NOT_FOUND') {
-      set.status = 404
-      return error
-    }
-
     // Handle other errors
     set.status = 500
     const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred'
