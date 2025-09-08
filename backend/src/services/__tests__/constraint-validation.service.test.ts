@@ -5,13 +5,17 @@ import { beforeEach, describe, expect, mock, test } from 'bun:test'
 const mockConstraints: PropertyConstraint[] = [
   {
     type: 'format constraint',
-    parameters: { pattern: '^[A-Z]{2}$' },
+    parameters: {
+      pattern: { type: 'string', value: '^[A-Z]{2}$' } as any,
+    },
     description: 'Format constraint for country codes',
     violationMessage: 'Value must be a two-letter country code',
   },
   {
     type: 'allowed values constraint',
-    parameters: { allowedValues: ['Q30', 'Q142', 'Q183'] },
+    parameters: {
+      allowedValues: { type: 'wikibase-entityid', value: ['Q30', 'Q142', 'Q183'] } as any,
+    },
     description: 'Allowed values constraint',
     violationMessage: 'Value must be one of the allowed values',
   },

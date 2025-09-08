@@ -23,10 +23,10 @@ export const PropertyDetailsSchema = t.Object({
   modified: t.Optional(t.String()),
   type: t.Literal('property'),
   datatype: t.String(),
-  labels: t.Optional(t.Object({})),
-  descriptions: t.Optional(t.Object({})),
-  aliases: t.Optional(t.Object({})),
-  claims: t.Optional(t.Object({})),
+  labels: t.Optional(t.Record(t.String(), t.String())),
+  descriptions: t.Optional(t.Record(t.String(), t.String())),
+  aliases: t.Optional(t.Record(t.String(), t.Array(t.String()))),
+  claims: t.Optional(t.Record(t.String(), t.Array(t.Any()))),
 })
 
 export const ItemSearchResultSchema = t.Object({
@@ -53,11 +53,11 @@ export const ItemDetailsSchema = t.Object({
   lastrevid: t.Optional(t.Number()),
   modified: t.Optional(t.String()),
   type: t.Literal('item'),
-  labels: t.Optional(t.Object({})),
-  descriptions: t.Optional(t.Object({})),
-  aliases: t.Optional(t.Object({})),
-  claims: t.Optional(t.Object({})),
-  sitelinks: t.Optional(t.Object({})),
+  labels: t.Optional(t.Record(t.String(), t.String())),
+  descriptions: t.Optional(t.Record(t.String(), t.String())),
+  aliases: t.Optional(t.Record(t.String(), t.Array(t.String()))),
+  claims: t.Optional(t.Record(t.String(), t.Array(t.Any()))),
+  sitelinks: t.Optional(t.Record(t.String(), t.Any())),
 })
 
 // Response schemas
