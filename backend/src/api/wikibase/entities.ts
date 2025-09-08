@@ -49,10 +49,10 @@ export const wikibaseEntitiesApi = new Elysia({ prefix: '/api/wikibase/entities'
 
   .get(
     '/properties/:propertyId',
-    async ({ params: { propertyId }, query: { instance = 'wikidata' }, wikibase }) => {
+    async ({ params: { propertyId }, query: { instance = 'wikidata' }, wikibase, status }) => {
       const property = await wikibase.getProperty(instance, propertyId)
       if (!property) {
-        return ApiErrorHandler.notFoundError(`Property ${propertyId} not found`)
+        return status(404, ApiErrorHandler.notFoundError('Property', propertyId))
       }
       return { data: property }
     },
@@ -89,10 +89,10 @@ export const wikibaseEntitiesApi = new Elysia({ prefix: '/api/wikibase/entities'
 
   .get(
     '/items/:itemId',
-    async ({ params: { itemId }, query: { instance = 'wikidata' }, wikibase }) => {
+    async ({ params: { itemId }, query: { instance = 'wikidata' }, wikibase, status }) => {
       const item = await wikibase.getItem(instance, itemId)
       if (!item) {
-        return ApiErrorHandler.notFoundError(`Item ${itemId} not found`)
+        return status(404, ApiErrorHandler.notFoundError('Item', itemId))
       }
       return { data: item }
     },

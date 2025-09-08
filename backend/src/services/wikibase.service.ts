@@ -153,7 +153,7 @@ export class WikibaseService {
   /**
    * Get property details by ID
    */
-  async getProperty(instanceId: string, propertyId: PropertyId): Promise<PropertyDetails> {
+  async getProperty(instanceId: string, propertyId: PropertyId): Promise<PropertyDetails | null> {
     const client = this.getClient(instanceId)
 
     const params = {
@@ -166,12 +166,15 @@ export class WikibaseService {
     const response = (await client.get(params)) as WikibaseGetEntitiesResponse
 
     if (response.error) {
+      if (response.error.code === 'missingentity' || response.error.code === 'no-such-entity') {
+        return null
+      }
       throw new Error(`Failed to get property: ${response.error.info}`)
     }
 
     const entity = response.entities?.[propertyId]
     if (!entity || entity.missing !== undefined) {
-      throw new Error(`Property ${propertyId} not found`)
+      return null
     }
 
     const labels = entity.labels ?? {}
@@ -263,7 +266,7 @@ export class WikibaseService {
   /**
    * Get item details by ID
    */
-  async getItem(instanceId: string, itemId: ItemId): Promise<ItemDetails> {
+  async getItem(instanceId: string, itemId: ItemId): Promise<ItemDetails | null> {
     const client = this.getClient(instanceId)
 
     const params = {
@@ -276,12 +279,15 @@ export class WikibaseService {
     const response = (await client.get(params)) as WikibaseGetEntitiesResponse
 
     if (response.error) {
+      if (response.error.code === 'missingentity' || response.error.code === 'no-such-entity') {
+        return null
+      }
       throw new Error(`Failed to get item: ${response.error.info}`)
     }
 
     const entity = response.entities?.[itemId]
     if (!entity || entity.missing !== undefined) {
-      throw new Error(`Item ${itemId} not found`)
+      return null
     }
 
     const itemDetails: ItemDetails = {
