@@ -1,3 +1,4 @@
+import type { WikibaseService } from '@backend/services/wikibase.service'
 import type { ItemId, PropertyId } from 'wikibase-sdk'
 
 // Property handlers
@@ -8,7 +9,7 @@ export const searchProperties = async ({
     limit = '10',
     offset = '0',
     language = 'en',
-    dataType,
+    datatype,
     autocomplete = 'true',
   },
   wikibase,
@@ -19,16 +20,16 @@ export const searchProperties = async ({
     limit?: string
     offset?: string
     language?: string
-    dataType?: string
+    datatype?: string
     autocomplete?: string
   }
-  wikibase: any
+  wikibase: WikibaseService
 }) => {
   const results = await wikibase.searchProperties(instance, q, {
     limit: Number(limit),
     offset: Number(offset),
     language,
-    dataType,
+    datatype,
     autocomplete: autocomplete === 'true',
   })
   return { data: results }
@@ -41,7 +42,7 @@ export const getPropertyDetails = async ({
 }: {
   params: { propertyId: string }
   query: { instance?: string }
-  wikibase: any
+  wikibase: WikibaseService
 }) => {
   const property = await wikibase.getProperty(instance, propertyId as PropertyId)
   return { data: property }
@@ -67,7 +68,7 @@ export const searchItems = async ({
     language?: string
     autocomplete?: string
   }
-  wikibase: any
+  wikibase: WikibaseService
 }) => {
   const results = await wikibase.searchItems(instance, q, {
     limit: Number(limit),
@@ -85,7 +86,7 @@ export const getItemDetails = async ({
 }: {
   params: { itemId: string }
   query: { instance?: string }
-  wikibase: any
+  wikibase: WikibaseService
 }) => {
   const item = await wikibase.getItem(instance, itemId as ItemId)
   return { data: item }

@@ -1,4 +1,4 @@
-import { nodemwWikibaseService } from '@backend/services/nodemw-wikibase.service'
+import { wikibaseService } from '@backend/services/wikibase.service'
 import type {
   ConstraintViolation,
   ConstraintWarning,
@@ -7,15 +7,12 @@ import type {
 } from '@backend/types/wikibase-api'
 import type { PropertyId } from 'wikibase-sdk'
 
-/**
- * Service for validating Wikibase properties against their constraints using nodemw Wikidata API
- */
 export class ConstraintValidationService {
   private constraintCache: Map<string, PropertyConstraint[]> = new Map()
   private cacheTimeout = 5 * 60 * 1000 // 5 minutes
 
   /**
-   * Get constraints for a property using nodemw Wikidata client
+   * Get constraints for a property using MediaWiki API
    */
   async getPropertyConstraints(
     instanceId: string,
@@ -29,11 +26,9 @@ export class ConstraintValidationService {
     }
 
     try {
-      const wikidataClient = nodemwWikibaseService.getWikidataClient(instanceId)
-
-      // Use nodemw getArticleClaims to fetch property constraints
-      const claims = await this.fetchPropertyClaims(wikidataClient, propertyId)
-      const constraints = this.parseConstraintsFromClaims(claims)
+      // Use MediaWiki API to fetch property constraints
+      const property = await wikibaseService.getProperty(instanceId, propertyId)
+      const constraints = this.parseConstraintsFromProperty(property)
 
       // Cache the results
       this.constraintCache.set(cacheKey, constraints)
@@ -52,35 +47,19 @@ export class ConstraintValidationService {
   }
 
   /**
-   * Fetch property claims using nodemw getArticleClaims method
+   * Parse constraints from property data
    */
-  private async fetchPropertyClaims(wikidataClient: any, propertyId: PropertyId): Promise<any> {
-    return new Promise((resolve, reject) => {
-      wikidataClient.getArticleClaims(propertyId, (err: any, data: any) => {
-        if (err) {
-          reject(err)
-          return
-        }
-        resolve(data)
-      })
-    })
-  }
-
-  /**
-   * Parse constraints from property claims data
-   */
-  private parseConstraintsFromClaims(claims: any): PropertyConstraint[] {
+  private parseConstraintsFromProperty(property: any): PropertyConstraint[] {
     const constraints: PropertyConstraint[] = []
 
-    if (!claims || !claims.claims) {
+    if (!property || !property.statements) {
       return constraints
     }
 
-    // P2302 is the "property constraint" property in Wikidata
-    const constraintClaims = claims.claims['P2302'] || []
+    const constraintStatements = property.statements[property.id]
 
-    for (const claim of constraintClaims) {
-      const constraint = this.parseConstraintClaim(claim)
+    for (const statement of constraintStatements) {
+      const constraint = this.parseConstraintStatement(statement)
       if (constraint) {
         constraints.push(constraint)
       }
@@ -90,17 +69,17 @@ export class ConstraintValidationService {
   }
 
   /**
-   * Parse individual constraint claim into PropertyConstraint object
+   * Parse individual constraint statement into PropertyConstraint object
    */
-  private parseConstraintClaim(claim: any): PropertyConstraint | null {
-    try {
-      if (!claim.mainsnak?.datavalue?.value?.id) {
-        return null
-      }
+  private parseConstraintStatement(statement: any): PropertyConstraint | null {
+    if (!statement.mainsnak?.datavalue?.value?.id) {
+      return null
+    }
 
-      const constraintTypeId = claim.mainsnak.datavalue.value.id
+    try {
+      const constraintTypeId = statement.mainsnak.datavalue.value.id
       const constraintType = this.getConstraintTypeName(constraintTypeId)
-      const parameters = this.extractConstraintParameters(claim)
+      const parameters = this.extractConstraintParameters(statement)
 
       return {
         type: constraintType,
@@ -109,7 +88,7 @@ export class ConstraintValidationService {
         violationMessage: this.getConstraintViolationMessage(constraintType),
       }
     } catch (error) {
-      console.warn('Failed to parse constraint claim:', error)
+      console.warn('Failed to parse constraint statement:', error)
       return null
     }
   }
@@ -117,30 +96,19 @@ export class ConstraintValidationService {
   /**
    * Extract constraint parameters from qualifiers and references
    */
-  private extractConstraintParameters(claim: any): Record<string, any> {
+  private extractConstraintParameters(statement: any): Record<string, any> {
     const parameters: Record<string, any> = {}
 
-    if (!claim.qualifiers) {
+    if (!statement.qualifiers) {
       return parameters
     }
 
-    // Common constraint parameter properties
-    const parameterMap: Record<string, string> = {
-      //   'P2306': 'property', // property
-      //   'P2305': 'item', // item of property constraint
-      //   'P2303': 'regex', // regular expression
-      //   'P2313': 'minimum_value', // minimum value
-      //   'P2312': 'maximum_value', // maximum value
-      //   'P2308': 'class', // class
-      //   'P2309': 'relation', // relation
-      //   'P2316': 'constraint_status', // constraint status
-    }
-
-    for (const [propertyId, parameterName] of Object.entries(parameterMap)) {
-      if (claim.qualifiers[propertyId]) {
-        const qualifier = claim.qualifiers[propertyId][0]
+    // Extract parameters from qualifiers
+    for (const [propertyId, qualifiers] of Object.entries(statement.qualifiers)) {
+      if (Array.isArray(qualifiers) && qualifiers.length > 0) {
+        const qualifier = qualifiers[0]
         if (qualifier?.datavalue?.value) {
-          parameters[parameterName] = qualifier.datavalue.value
+          parameters[propertyId] = qualifier.datavalue.value
         }
       }
     }
@@ -216,29 +184,37 @@ export class ConstraintValidationService {
     constraint: PropertyConstraint,
     propertyId: string,
   ): ConstraintViolation | null {
-    const regex = constraint.parameters?.regex
-    if (!regex || typeof value !== 'string') {
+    const patternParam = constraint.parameters?.pattern
+    if (!patternParam) {
       return null
     }
 
+    // Extract pattern from SnakDataValue structure
+    const pattern = typeof patternParam === 'string' ? patternParam : patternParam.value
+
+    if (!pattern || typeof pattern !== 'string') {
+      return null
+    }
+
+    const stringValue = typeof value === 'object' && value?.content ? value.content : String(value)
+
     try {
-      const pattern = new RegExp(regex)
-      if (!pattern.test(value)) {
+      const regex = new RegExp(pattern)
+      if (!regex.test(stringValue)) {
         return {
           constraintType: 'format_constraint',
-          message: `Value "${value}" does not match required format pattern: ${regex}`,
+          message: `Value "${stringValue}" does not match required format: ${pattern}`,
           severity: 'error',
           propertyId,
-          value,
         }
       }
     } catch {
+      // Invalid regex pattern
       return {
         constraintType: 'format_constraint',
-        message: `Invalid regex pattern in format constraint: ${regex}`,
+        message: `Invalid regex pattern: ${pattern}`,
         severity: 'error',
         propertyId,
-        value,
       }
     }
 
@@ -253,8 +229,17 @@ export class ConstraintValidationService {
     constraint: PropertyConstraint,
     propertyId: string,
   ): ConstraintViolation | null {
-    const allowedValues = constraint.parameters?.allowedValues
-    if (!allowedValues || !Array.isArray(allowedValues)) {
+    const allowedValuesParam = constraint.parameters?.allowedValues
+    if (!allowedValuesParam) {
+      return null
+    }
+
+    // Extract array from SnakDataValue structure
+    const allowedValues = Array.isArray(allowedValuesParam)
+      ? allowedValuesParam
+      : allowedValuesParam.value
+
+    if (!Array.isArray(allowedValues)) {
       return null
     }
 
@@ -270,7 +255,6 @@ export class ConstraintValidationService {
         message: `Value "${valueId}" is not in the list of allowed values`,
         severity: 'error',
         propertyId,
-        value,
       }
     }
 
@@ -285,10 +269,16 @@ export class ConstraintValidationService {
     constraint: PropertyConstraint,
     propertyId: string,
   ): ConstraintViolation | null {
-    const requiredClass = constraint.parameters?.class
-    if (!requiredClass) {
+    const requiredClassParam = constraint.parameters?.class
+    if (!requiredClassParam) {
       return null
     }
+
+    // Extract string value from SnakDataValue if needed
+    const requiredClass =
+      typeof requiredClassParam === 'string'
+        ? requiredClassParam
+        : (requiredClassParam as any)?.value || String(requiredClassParam)
 
     // For items, check if they are instances of the required class
     if (typeof value === 'object' && value?.id) {
@@ -307,7 +297,6 @@ export class ConstraintValidationService {
         message: `Value type "${actualType}" does not match required type "${expectedType}"`,
         severity: 'error',
         propertyId,
-        value,
       }
     }
 
@@ -322,8 +311,13 @@ export class ConstraintValidationService {
     constraint: PropertyConstraint,
     propertyId: string,
   ): ConstraintViolation | null {
-    const minValue = constraint.parameters?.minimum_value
-    const maxValue = constraint.parameters?.maximum_value
+    const minValueSnak = constraint.parameters?.minimum_value
+    const maxValueSnak = constraint.parameters?.maximum_value
+
+    const minValue =
+      minValueSnak?.type === 'quantity' ? parseFloat(minValueSnak.value.amount) : undefined
+    const maxValue =
+      maxValueSnak?.type === 'quantity' ? parseFloat(maxValueSnak.value.amount) : undefined
 
     if (minValue === undefined && maxValue === undefined) {
       return null
@@ -367,7 +361,7 @@ export class ConstraintValidationService {
    * Validate cardinality against single value constraint (Q25796498)
    */
   private validateSingleValueConstraint(
-    values: any[],
+    values: unknown[],
     _constraint: PropertyConstraint,
     propertyId: string,
   ): ConstraintViolation | null {
@@ -377,7 +371,6 @@ export class ConstraintValidationService {
         message: `Property has ${values.length} values but should have only one`,
         severity: 'error',
         propertyId,
-        value: values,
       }
     }
 
@@ -492,7 +485,7 @@ export class ConstraintValidationService {
    */
   async validateSchema(
     instanceId: string,
-    schema: Record<PropertyId, any[]>,
+    schema: Record<PropertyId, unknown[]>,
   ): Promise<ValidationResult> {
     const allViolations: ConstraintViolation[] = []
     const allWarnings: ConstraintWarning[] = []

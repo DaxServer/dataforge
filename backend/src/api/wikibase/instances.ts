@@ -58,7 +58,7 @@ export const wikibaseInstanceApi = new Elysia({ prefix: '/api/wikibase' })
       // Enhanced response formatting for frontend compatibility
       const enhancedResults = {
         ...results,
-        results: results.results.map((property: any) => ({
+        results: results.results.map((property) => ({
           ...property,
           // Add relevance indicators
           relevanceScore: property.match?.type === 'label' ? 1.0 : 0.8,
@@ -123,7 +123,7 @@ export const wikibaseInstanceApi = new Elysia({ prefix: '/api/wikibase' })
     '/:instanceId/properties/:propertyId',
     async ({
       params: { instanceId, propertyId },
-      query: { includeConstraints = false },
+      query: { includeConstraints = false, language: _language = 'en' },
       wikibase,
     }) => {
       const property = await wikibase.getProperty(instanceId, propertyId)

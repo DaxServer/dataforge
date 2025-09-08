@@ -1,56 +1,31 @@
-/**
- * Core Wikibase API type definitions for REST API and nodemw integration
- */
+import type {
+  Claim,
+  Item,
+  ItemId,
+  Property,
+  PropertyId,
+  Sitelink,
+  Snak,
+  SnakDataValue,
+} from '@backend/types/wikibase-schema'
 
-import type { ItemId, PropertyId } from '@backend/types/wikibase-schema'
-
-// Instance Configuration
 export interface WikibaseInstanceConfig {
   id: string
   name: string
   baseUrl: string
   userAgent: string
   authToken?: string
-  isDefault?: boolean
-  metadata?: {
-    description?: string
-    language?: string
-    version?: string
-  }
 }
 
-// Enhanced instance configuration for nodemw integration
-export interface NodemwWikibaseInstanceConfig extends WikibaseInstanceConfig {
-  nodemwConfig?: {
-    protocol: 'http' | 'https'
-    server: string
-    path: string
-    concurrency?: number
-    debug?: boolean
-    dryRun?: boolean
-    username?: string
-    password?: string
-    domain?: string
-  }
-  features?: {
-    hasWikidata: boolean
-    hasConstraints: boolean
-    hasSearch: boolean
-    hasStatements: boolean
-    supportedDataTypes: string[]
-    apiVersion: string
-  }
-}
-
-// Property Types
-export interface PropertyDetails {
+// Property Types - using proper Wikibase schema types
+export interface PropertyDetails extends Omit<Property, 'id' | 'type'> {
   id: PropertyId
   type: 'property'
   labels: Record<string, string>
   descriptions: Record<string, string>
   aliases: Record<string, string[]>
   datatype: string
-  statements: Statement[]
+  claims: Record<string, Claim[]>
   constraints?: PropertyConstraint[]
 }
 
@@ -67,19 +42,16 @@ export interface PropertySearchResult {
 
 export interface PropertyConstraint {
   type: string
-  parameters: Record<string, any>
+  parameters: Record<string, SnakDataValue>
   description?: string
   violationMessage?: string
 }
 
-// Item Types
-export interface ItemDetails {
+// Item Types - using proper Wikibase schema types
+export interface ItemDetails extends Omit<Item, 'id' | 'type' | 'claims'> {
   id: ItemId
   type: 'item'
-  labels: Record<string, string>
-  descriptions: Record<string, string>
-  aliases: Record<string, string[]>
-  statements: Statement[]
+  claims: Record<string, Claim[]>
   sitelinks?: Record<string, SiteLink>
 }
 
@@ -93,41 +65,18 @@ export interface ItemSearchResult {
   }
 }
 
-// Statement Types
-export interface Statement {
-  id: string
-  property: string
-  value: StatementValue
-  qualifiers?: Qualifier[]
-  references?: Reference[]
-  rank: 'preferred' | 'normal' | 'deprecated'
-}
+// Statement Types - using proper Wikibase schema types
+export type Statement = Claim
 
-export interface StatementValue {
-  type: string
-  content: any
-}
+export type StatementValue = SnakDataValue
 
-export interface Qualifier {
-  property: string
-  value: StatementValue
-}
+export type Qualifier = Snak
 
-export interface Reference {
-  parts: ReferencePart[]
-}
+// Reference types are already properly defined in wikibase-schema.ts
+export type { Reference } from '@backend/types/wikibase-schema'
 
-export interface ReferencePart {
-  property: string
-  value: StatementValue
-}
-
-// Site Link Types
-export interface SiteLink {
-  site: string
-  title: string
-  badges?: string[]
-}
+// SiteLink Types - using proper Wikibase schema types
+export type SiteLink = Sitelink
 
 // Search and API Response Types
 export interface SearchOptions {
@@ -165,14 +114,14 @@ export interface ConstraintViolation {
   message: string
   severity: 'error' | 'warning'
   propertyId: string
-  value?: any
+  value?: SnakDataValue
 }
 
 export interface ConstraintWarning {
   constraintType: string
   message: string
   propertyId: string
-  value?: any
+  value?: SnakDataValue
 }
 
 // Data Type Mapping
