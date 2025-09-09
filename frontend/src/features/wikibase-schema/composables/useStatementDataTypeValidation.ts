@@ -1,8 +1,5 @@
-import type {
-  PropertyReference,
-  ValueMapping,
-  WikibaseDataType,
-} from '@backend/api/project/project.wikibase'
+import type { PropertyReference, ValueMapping } from '@backend/api/project/project.wikibase'
+import type { WikibaseDataType } from '@backend/types/wikibase-schema'
 import { useDataTypeCompatibility } from '@frontend/features/data-processing/composables/useDataTypeCompatibility'
 import { useValidationErrors } from '@frontend/features/wikibase-schema/composables/useValidationErrors'
 import type {

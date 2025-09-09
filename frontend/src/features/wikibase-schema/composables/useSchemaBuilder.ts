@@ -5,11 +5,11 @@ import type {
   PropertyReference,
   PropertyValueMap,
   ReferenceSchemaMapping,
-  StatementRank,
   StatementSchemaMapping,
   TermsSchemaMapping,
   ValueMapping,
 } from '@backend/api/project/project.wikibase'
+import type { StatementRank } from '@backend/types/wikibase-schema'
 import type { UUID } from 'crypto'
 
 /**

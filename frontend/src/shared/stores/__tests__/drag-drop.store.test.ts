@@ -1,4 +1,4 @@
-import type { WikibaseDataType } from '@backend/api/project/project.wikibase'
+import type { WikibaseDataType } from '@backend/types/wikibase-schema'
 import { useDragDropStore } from '@frontend/features/data-processing/stores/drag-drop.store'
 import type { DropTarget } from '@frontend/shared/types/drag-drop'
 import type { ColumnInfo } from '@frontend/shared/types/wikibase-schema'

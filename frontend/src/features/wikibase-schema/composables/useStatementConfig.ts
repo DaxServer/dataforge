@@ -1,9 +1,5 @@
-import type {
-  PropertyReference,
-  StatementRank,
-  ValueMapping,
-  WikibaseDataType,
-} from '@backend/api/project/project.wikibase'
+import type { PropertyReference, ValueMapping } from '@backend/api/project/project.wikibase'
+import type { StatementRank, WikibaseDataType } from '@backend/types/wikibase-schema'
 import { useSchemaStore } from '@frontend/features/wikibase-schema/stores/schema.store'
 import { computed, ref, watch } from 'vue'
 

@@ -11,20 +11,17 @@
     "start": "bun src/index.ts",
     "build": "bun build ./src/index.ts --outdir dist --target bun",
     "lint": "eslint",
-    "typecheck": "tsc",
-    "generate:wikibase-types": "bun scripts/generate-wikibase-typebox.ts"
+    "typecheck": "tsc"
   },
   "dependencies": {
     "@bogeychan/elysia-logger": "^0.1.10",
-    "@duckdb/node-api": "1.3.2-alpha.26",
+    "@duckdb/node-api": "1.3.4-alpha.27",
     "@elysiajs/cors": "^1.3.3",
     "@elysiajs/eden": "catalog:",
     "@elysiajs/swagger": "^1.3.1",
-    "elysia": "catalog:",
-    "wikibase-sdk": "^10.2.3"
+    "elysia": "catalog:"
   },
   "devDependencies": {
-    "@daxserver/validation-schema-codegen": "^0.4.0",
     "@tsconfig/bun": "catalog:",
     "@types/bun": "catalog:",
     "@types/node": "catalog:",

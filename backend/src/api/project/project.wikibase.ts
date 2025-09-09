@@ -3,7 +3,7 @@ import { databasePlugin } from '@backend/plugins/database'
 import { errorHandlerPlugin } from '@backend/plugins/error-handler'
 import { ApiErrorHandler } from '@backend/types/error-handler'
 import { ApiError } from '@backend/types/error-schemas'
-import { ItemId, PropertyId } from '@backend/types/wikibase-schema'
+import { ItemId, PropertyId, StatementRank, WikibaseDataType } from '@backend/types/wikibase-schema'
 import cors from '@elysiajs/cors'
 import { Elysia, t } from 'elysia'
 
@@ -25,30 +25,14 @@ const ColumnMapping = t.Object({
 
 export type ColumnMapping = typeof ColumnMapping.static
 
-// Property reference for statements
+// Property reference for schema mapping
 const PropertyReference = t.Object({
-  id: t.String(PropertyId),
+  id: PropertyId,
   label: t.Optional(t.String()),
   dataType: t.String(),
 })
 
 export type PropertyReference = typeof PropertyReference.static
-
-// Wikibase data types
-const WikibaseDataType = t.Union([
-  t.Literal('string'),
-  t.Literal('wikibase-item'),
-  t.Literal('wikibase-property'),
-  t.Literal('quantity'),
-  t.Literal('time'),
-  t.Literal('globe-coordinate'),
-  t.Literal('url'),
-  t.Literal('external-id'),
-  t.Literal('monolingualtext'),
-  t.Literal('commonsMedia'),
-])
-
-export type WikibaseDataType = typeof WikibaseDataType.static
 
 // Value mapping types
 const ValueMapping = t.Union([
@@ -88,15 +72,6 @@ const ReferenceSchemaMapping = t.Object({
 
 export type ReferenceSchemaMapping = typeof ReferenceSchemaMapping.static
 
-// Statement rank
-const StatementRank = t.Union([
-  t.Literal('preferred'),
-  t.Literal('normal'),
-  t.Literal('deprecated'),
-])
-
-export type StatementRank = typeof StatementRank.static
-
 const Qualifier = PropertyValueMap
 export type Qualifier = typeof Qualifier.static
 
@@ -134,7 +109,7 @@ export type TermsSchemaMapping = typeof TermsSchemaMapping.static
 
 // Item schema mapping
 const ItemSchemaMapping = t.Object({
-  id: t.Optional(t.String(ItemId)),
+  id: t.Optional(ItemId),
   terms: TermsSchemaMapping,
   statements: t.Array(StatementSchemaMapping),
 })

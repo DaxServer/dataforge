@@ -5,7 +5,7 @@ import type {
   PropertyConstraint,
   ValidationResult,
 } from '@backend/types/wikibase-api'
-import type { PropertyId } from 'wikibase-sdk'
+import type { PropertyId } from '@backend/types/wikibase-schema'
 
 export class ConstraintValidationService {
   private constraintCache: Map<string, PropertyConstraint[]> = new Map()
@@ -182,7 +182,7 @@ export class ConstraintValidationService {
   private validateFormatConstraint(
     value: any,
     constraint: PropertyConstraint,
-    propertyId: string,
+    propertyId: PropertyId,
   ): ConstraintViolation | null {
     const patternParam = constraint.parameters?.pattern
     if (!patternParam) {
@@ -227,7 +227,7 @@ export class ConstraintValidationService {
   private validateAllowedValuesConstraint(
     value: any,
     constraint: PropertyConstraint,
-    propertyId: string,
+    propertyId: PropertyId,
   ): ConstraintViolation | null {
     const allowedValuesParam = constraint.parameters?.allowedValues
     if (!allowedValuesParam) {
@@ -267,7 +267,7 @@ export class ConstraintValidationService {
   private validateValueTypeConstraint(
     value: any,
     constraint: PropertyConstraint,
-    propertyId: string,
+    propertyId: PropertyId,
   ): ConstraintViolation | null {
     const requiredClassParam = constraint.parameters?.class
     if (!requiredClassParam) {
@@ -309,7 +309,7 @@ export class ConstraintValidationService {
   private validateRangeConstraint(
     value: any,
     constraint: PropertyConstraint,
-    propertyId: string,
+    propertyId: PropertyId,
   ): ConstraintViolation | null {
     const minValueSnak = constraint.parameters?.minimum_value
     const maxValueSnak = constraint.parameters?.maximum_value
@@ -363,7 +363,7 @@ export class ConstraintValidationService {
   private validateSingleValueConstraint(
     values: unknown[],
     _constraint: PropertyConstraint,
-    propertyId: string,
+    propertyId: PropertyId,
   ): ConstraintViolation | null {
     if (values.length > 1) {
       return {
@@ -485,7 +485,7 @@ export class ConstraintValidationService {
    */
   async validateSchema(
     instanceId: string,
-    schema: Record<PropertyId, unknown[]>,
+    schema: Record<string, unknown[]>,
   ): Promise<ValidationResult> {
     const allViolations: ConstraintViolation[] = []
     const allWarnings: ConstraintWarning[] = []

@@ -2,11 +2,7 @@ import { metaProjectsRoutes } from '@backend/api/_meta_projects'
 import { healthRoutes } from '@backend/api/health'
 import { projectRoutes } from '@backend/api/project'
 import { wikibaseRoutes } from '@backend/api/project/project.wikibase'
-import {
-  wikibaseConstraintsApi,
-  wikibaseEntitiesApi,
-  wikibaseInstanceApi,
-} from '@backend/api/wikibase'
+import { wikibaseConstraintsApi, wikibaseEntitiesApi } from '@backend/api/wikibase'
 import { closeDb } from '@backend/plugins/database'
 import { errorHandlerPlugin } from '@backend/plugins/error-handler'
 import { logger } from '@bogeychan/elysia-logger'
@@ -39,7 +35,6 @@ export const elysiaApp = new Elysia({
   .use(projectRoutes)
   .use(wikibaseRoutes)
   .use(wikibaseEntitiesApi)
-  .use(wikibaseInstanceApi)
   .use(wikibaseConstraintsApi)
   .listen(3000, () => {
     console.log('🦊 Elysia is running at http://localhost:3000')

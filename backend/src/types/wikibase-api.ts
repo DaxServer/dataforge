@@ -1,13 +1,65 @@
 import type {
-  Claim,
-  Item,
   ItemId,
-  Property,
   PropertyId,
-  Sitelink,
-  Snak,
-  SnakDataValue,
+  StatementRank,
+  WikibaseDataType,
 } from '@backend/types/wikibase-schema'
+
+// Define missing types that are referenced but not defined
+export interface Property {
+  id: string
+  type: 'property'
+  labels: Record<string, string>
+  descriptions: Record<string, string>
+  aliases: Record<string, string[]>
+  datatype: WikibaseDataType
+  claims: Record<string, Claim[]>
+}
+
+export interface Item {
+  id: string
+  type: 'item'
+  labels: Record<string, string>
+  descriptions: Record<string, string>
+  aliases: Record<string, string[]>
+  claims: Record<string, Claim[]>
+  sitelinks?: Record<string, SiteLink>
+}
+
+export interface Claim {
+  id: string
+  mainsnak: Snak
+  qualifiers?: Record<PropertyId, Snak[]>
+  qualifiers_order?: PropertyId[]
+  references?: Reference[]
+  rank: StatementRank
+  type: 'claim'
+}
+
+export interface Snak {
+  snaktype: any
+  property: PropertyId
+  datavalue?: SnakDataValue
+  datatype: WikibaseDataType
+}
+
+export interface SnakDataValue {
+  value: any
+  type: string
+}
+
+export interface Reference {
+  hash: string
+  snaks: Record<PropertyId, Snak[]>
+  snaks_order: PropertyId[]
+}
+
+export interface SiteLink {
+  site: string
+  title: string
+  badges?: ItemId[]
+  url?: string
+}
 
 export interface WikibaseInstanceConfig {
   id: string
@@ -24,7 +76,7 @@ export interface PropertyDetails extends Omit<Property, 'id' | 'type'> {
   labels: Record<string, string>
   descriptions: Record<string, string>
   aliases: Record<string, string[]>
-  datatype: string
+  datatype: WikibaseDataType
   claims: Record<string, Claim[]>
   constraints?: PropertyConstraint[]
 }
@@ -33,7 +85,7 @@ export interface PropertySearchResult {
   id: PropertyId
   label: string
   description?: string
-  datatype: string
+  datatype: WikibaseDataType
   match: {
     type: 'label' | 'alias' | 'description'
     text: string
@@ -51,12 +103,12 @@ export interface PropertyConstraint {
 export interface ItemDetails extends Omit<Item, 'id' | 'type' | 'claims'> {
   id: ItemId
   type: 'item'
-  claims: Record<string, Claim[]>
+  claims: Record<PropertyId, Claim[]>
   sitelinks?: Record<string, SiteLink>
 }
 
 export interface ItemSearchResult {
-  id: string
+  id: ItemId
   label: string
   description?: string
   match: {
@@ -65,26 +117,13 @@ export interface ItemSearchResult {
   }
 }
 
-// Statement Types - using proper Wikibase schema types
-export type Statement = Claim
-
-export type StatementValue = SnakDataValue
-
-export type Qualifier = Snak
-
-// Reference types are already properly defined in wikibase-schema.ts
-export type { Reference } from '@backend/types/wikibase-schema'
-
-// SiteLink Types - using proper Wikibase schema types
-export type SiteLink = Sitelink
-
 // Search and API Response Types
 export interface SearchOptions {
   limit?: number
   offset?: number
   language?: string
-  datatype?: string
-  autocomplete?: boolean
+  datatype?: WikibaseDataType
+  languageFallback?: boolean
 }
 
 export interface SearchResponse<T> {
@@ -92,13 +131,6 @@ export interface SearchResponse<T> {
   totalCount: number
   hasMore: boolean
   query: string
-}
-
-export interface ApiResponse<T> {
-  data: T
-  cached: boolean
-  timestamp: string
-  instanceId: string
 }
 
 // Validation Types
@@ -122,23 +154,4 @@ export interface ConstraintWarning {
   message: string
   propertyId: string
   value?: SnakDataValue
-}
-
-// Data Type Mapping
-export interface PropertyDataTypeMap {
-  [propertyId: string]: string
-}
-
-// Cache Types
-export interface CacheEntry<T> {
-  data: T
-  timestamp: number
-  ttl: number
-  instanceId: string
-}
-
-export interface CacheOptions {
-  ttl?: number
-  skipCache?: boolean
-  invalidateCache?: boolean
 }

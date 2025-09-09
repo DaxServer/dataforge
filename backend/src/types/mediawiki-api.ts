@@ -4,6 +4,9 @@
  * @see https://www.mediawiki.org/wiki/API:Main_page
  */
 
+import type { WikibaseDataType } from '@backend/types/wikibase-schema'
+import { t } from 'elysia'
+
 // Base API Configuration
 export interface MediaWikiConfig {
   endpoint: string
@@ -290,9 +293,7 @@ export interface SiteInfoParams extends BaseApiParams {
 // Error Types
 export interface ApiError {
   code: string
-  info: string
-  docref?: string
-  module?: string
+  key?: string
 }
 
 export interface ApiErrorResponse {
@@ -322,11 +323,11 @@ export interface WikibaseSearchEntityParams extends BaseApiParams {
   strictlanguage?: boolean
 }
 
-export interface WikibaseSearchEntityResult {
-  id: string
+export interface WikibaseSearchEntityResult<T> {
+  id: T
   label?: string
   description?: string
-  datatype?: string
+  datatype?: WikibaseDataType
   match?: {
     type?: string
     language?: string
@@ -334,8 +335,8 @@ export interface WikibaseSearchEntityResult {
   }
 }
 
-export interface WikibaseSearchEntityResponse {
-  search?: WikibaseSearchEntityResult[]
+export interface WikibaseSearchEntityResponse<T> {
+  search?: WikibaseSearchEntityResult<T>[]
   'search-info'?: {
     search?: number
   }
@@ -398,18 +399,18 @@ export interface WikibaseEntitySitelink {
 export interface WikibaseEntity {
   id: string
   type: 'item' | 'property' | 'lexeme'
-  datatype?: string
+  datatype?: WikibaseDataType
   labels?: Record<string, WikibaseEntityLabel>
   descriptions?: Record<string, WikibaseEntityDescription>
   aliases?: Record<string, WikibaseEntityAlias[]>
   claims?: Record<string, WikibaseEntityClaim[]>
   sitelinks?: Record<string, WikibaseEntitySitelink>
-  missing?: boolean
+  missing?: string
 }
 
 export interface WikibaseGetEntitiesResponse {
-  entities?: Record<string, WikibaseEntity>
-  error?: ApiError
+  entities: Record<string, WikibaseEntity>
+  errors?: ApiError[]
 }
 
 // Service Options
@@ -421,3 +422,300 @@ export interface MediaWikiServiceOptions {
   rateLimitDelay?: number
   maxConcurrentRequests?: number
 }
+
+// Elysia schemas for MediaWiki API responses (formatversion=2)
+export const MediaWikiApiBaseResponseSchema = t.Object({
+  batchcomplete: t.Optional(t.Boolean()),
+  continue: t.Optional(t.Record(t.String(), t.String())),
+  warnings: t.Optional(
+    t.Record(
+      t.String(),
+      t.Object({
+        warnings: t.String(),
+        module: t.Optional(t.String()),
+      }),
+    ),
+  ),
+  error: t.Optional(
+    t.Object({
+      code: t.String(),
+      info: t.String(),
+      docref: t.Optional(t.String()),
+    }),
+  ),
+})
+
+export const MediaWikiSearchResultSchema = t.Object({
+  ns: t.Number(),
+  title: t.String(),
+  pageid: t.Optional(t.Number()),
+  size: t.Optional(t.Number()),
+  wordcount: t.Optional(t.Number()),
+  snippet: t.Optional(t.String()),
+  timestamp: t.Optional(t.String()),
+})
+
+export const MediaWikiSearchResponseSchema = t.Intersect([
+  MediaWikiApiBaseResponseSchema,
+  t.Object({
+    query: t.Object({
+      searchinfo: t.Optional(
+        t.Object({
+          totalhits: t.Number(),
+          suggestion: t.Optional(t.String()),
+          suggestionsnippet: t.Optional(t.String()),
+        }),
+      ),
+      search: t.Array(MediaWikiSearchResultSchema),
+    }),
+  }),
+])
+
+export const WikibaseSearchEntityResultSchema = t.Object({
+  id: t.String(),
+  title: t.Optional(t.String()),
+  pageid: t.Optional(t.Number()),
+  repository: t.Optional(t.String()),
+  url: t.Optional(t.String()),
+  concepturi: t.Optional(t.String()),
+  label: t.Optional(t.String()),
+  description: t.Optional(t.String()),
+  match: t.Optional(
+    t.Object({
+      type: t.String(),
+      language: t.Optional(t.String()),
+      text: t.Optional(t.String()),
+    }),
+  ),
+  aliases: t.Optional(t.Array(t.String())),
+  display: t.Optional(
+    t.Object({
+      label: t.Optional(
+        t.Object({
+          value: t.String(),
+          language: t.String(),
+        }),
+      ),
+      description: t.Optional(
+        t.Object({
+          value: t.String(),
+          language: t.String(),
+        }),
+      ),
+    }),
+  ),
+})
+
+export const WikibaseSearchEntitiesResponseSchema = t.Intersect([
+  MediaWikiApiBaseResponseSchema,
+  t.Object({
+    search: t.Array(WikibaseSearchEntityResultSchema),
+    'search-continue': t.Optional(t.Number()),
+    success: t.Optional(t.Number()),
+  }),
+])
+
+// Wikibase entity value schemas
+export const WikibaseEntityValueSchema = t.Object({
+  'entity-type': t.String(),
+  'numeric-id': t.Optional(t.Number()),
+  id: t.Optional(t.String()),
+})
+
+export const WikibaseDataValueSchema = t.Object({
+  value: t.Union([
+    t.String(),
+    WikibaseEntityValueSchema,
+    t.Object({
+      // quantity
+      amount: t.String(),
+      unit: t.String(),
+      upperBound: t.Optional(t.String()),
+      lowerBound: t.Optional(t.String()),
+    }),
+    t.Object({
+      // time
+      time: t.String(),
+      timezone: t.Number(),
+      before: t.Number(),
+      after: t.Number(),
+      precision: t.Number(),
+      calendarmodel: t.String(),
+    }),
+    t.Object({
+      // globe-coordinate
+      latitude: t.Number(),
+      longitude: t.Number(),
+      altitude: t.Optional(t.Number()),
+      precision: t.Number(),
+      globe: t.String(),
+    }),
+    t.Object({
+      // monolingualtext
+      text: t.String(),
+      language: t.String(),
+    }),
+  ]),
+  type: t.String(),
+})
+
+export const WikibaseSnakSchema = t.Object({
+  snaktype: t.String(),
+  property: t.String(),
+  hash: t.Optional(t.String()),
+  datavalue: t.Optional(WikibaseDataValueSchema),
+  datatype: t.Optional(t.String()),
+})
+
+export const WikibaseStatementSchema = t.Object({
+  id: t.String(),
+  mainsnak: WikibaseSnakSchema,
+  type: t.Literal('statement'),
+  rank: t.String(),
+  qualifiers: t.Optional(t.Record(t.String(), t.Array(WikibaseSnakSchema))),
+  'qualifiers-order': t.Optional(t.Array(t.String())),
+  references: t.Optional(
+    t.Array(
+      t.Object({
+        hash: t.String(),
+        snaks: t.Record(t.String(), t.Array(WikibaseSnakSchema)),
+        'snaks-order': t.Array(t.String()),
+      }),
+    ),
+  ),
+})
+
+export const WikibaseTermSchema = t.Object({
+  language: t.String(),
+  value: t.String(),
+})
+
+export const WikibaseEntitySchema = t.Object({
+  type: t.String(),
+  id: t.String(),
+  labels: t.Optional(t.Record(t.String(), WikibaseTermSchema)),
+  descriptions: t.Optional(t.Record(t.String(), WikibaseTermSchema)),
+  aliases: t.Optional(t.Record(t.String(), t.Array(WikibaseTermSchema))),
+  claims: t.Optional(t.Record(t.String(), t.Array(WikibaseStatementSchema))),
+  sitelinks: t.Optional(
+    t.Record(
+      t.String(),
+      t.Object({
+        site: t.String(),
+        title: t.String(),
+        badges: t.Optional(t.Array(t.String())),
+        url: t.Optional(t.String()),
+      }),
+    ),
+  ),
+  lastrevid: t.Optional(t.Number()),
+  pageid: t.Optional(t.Number()),
+  ns: t.Optional(t.Number()),
+  title: t.Optional(t.String()),
+  modified: t.Optional(t.String()),
+  datatype: t.Optional(t.String()),
+})
+
+export const WikibaseGetEntitiesResponseSchema = t.Intersect([
+  MediaWikiApiBaseResponseSchema,
+  t.Object({
+    entities: t.Record(
+      t.String(),
+      t.Union([WikibaseEntitySchema, t.Object({ missing: t.Literal('') })]),
+    ),
+    success: t.Optional(t.Number()),
+  }),
+])
+
+// MediaWiki revision and page info schemas
+export const MediaWikiRevisionSchema = t.Object({
+  revid: t.Number(),
+  parentid: t.Optional(t.Number()),
+  user: t.Optional(t.String()),
+  userid: t.Optional(t.Number()),
+  timestamp: t.String(),
+  size: t.Optional(t.Number()),
+  comment: t.Optional(t.String()),
+  parsedcomment: t.Optional(t.String()),
+  contentformat: t.Optional(t.String()),
+  contentmodel: t.Optional(t.String()),
+  sha1: t.Optional(t.String()),
+  content: t.Optional(t.String()),
+  tags: t.Optional(t.Array(t.String())),
+  minor: t.Optional(t.Boolean()),
+  anon: t.Optional(t.Boolean()),
+})
+
+export const MediaWikiPageSchema = t.Object({
+  pageid: t.Number(),
+  ns: t.Number(),
+  title: t.String(),
+  contentmodel: t.Optional(t.String()),
+  pagelanguage: t.Optional(t.String()),
+  pagelanguagehtmlcode: t.Optional(t.String()),
+  pagelanguagedir: t.Optional(t.String()),
+  touched: t.Optional(t.String()),
+  lastrevid: t.Optional(t.Number()),
+  length: t.Optional(t.Number()),
+  redirect: t.Optional(t.Boolean()),
+  new: t.Optional(t.Boolean()),
+  starttimestamp: t.Optional(t.String()),
+  edittoken: t.Optional(t.String()),
+  revisions: t.Optional(t.Array(MediaWikiRevisionSchema)),
+  missing: t.Optional(t.Boolean()),
+  invalid: t.Optional(t.Boolean()),
+  special: t.Optional(t.Boolean()),
+})
+
+export const MediaWikiQueryPagesResponseSchema = t.Intersect([
+  MediaWikiApiBaseResponseSchema,
+  t.Object({
+    query: t.Object({
+      pages: t.Record(t.String(), MediaWikiPageSchema),
+      normalized: t.Optional(
+        t.Array(
+          t.Object({
+            fromencoded: t.Optional(t.Boolean()),
+            from: t.String(),
+            to: t.String(),
+          }),
+        ),
+      ),
+      redirects: t.Optional(
+        t.Array(
+          t.Object({
+            from: t.String(),
+            to: t.String(),
+            tofragment: t.Optional(t.String()),
+          }),
+        ),
+      ),
+      interwiki: t.Optional(
+        t.Array(
+          t.Object({
+            title: t.String(),
+            iw: t.String(),
+            url: t.Optional(t.String()),
+          }),
+        ),
+      ),
+    }),
+  }),
+])
+
+export const MediaWikiRevisionsResponseSchema = t.Intersect([
+  MediaWikiApiBaseResponseSchema,
+  t.Object({
+    query: t.Object({
+      pages: t.Record(
+        t.String(),
+        t.Object({
+          pageid: t.Number(),
+          ns: t.Number(),
+          title: t.String(),
+          revisions: t.Array(MediaWikiRevisionSchema),
+        }),
+      ),
+    }),
+  }),
+])

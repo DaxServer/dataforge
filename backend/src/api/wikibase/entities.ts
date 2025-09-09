@@ -1,96 +1,158 @@
 import {
+  InstancePropertyConstraintsSchema,
+  InstancePropertyDetailsSchema,
   ItemDetailsRouteSchema,
   ItemSearchSchema,
-  PropertyDetailsRouteSchema,
   PropertySearchSchema,
+  PropertyValidationSchema,
+  SchemaValidationSchema,
 } from '@backend/api/wikibase/schemas'
 import { databasePlugin } from '@backend/plugins/database'
 import { errorHandlerPlugin } from '@backend/plugins/error-handler'
 import { wikibasePlugin } from '@backend/plugins/wikibase'
+import { constraintValidationService } from '@backend/services/constraint-validation.service'
 import { ApiErrorHandler } from '@backend/types/error-handler'
 import { cors } from '@elysiajs/cors'
 import { Elysia } from 'elysia'
 
-export const wikibaseEntitiesApi = new Elysia({ prefix: '/api/wikibase/entities' })
+export const wikibaseEntitiesApi = new Elysia({ prefix: '/api/wikibase' })
   .use(cors())
   .use(databasePlugin)
   .use(errorHandlerPlugin)
   .use(wikibasePlugin)
 
   .get(
-    '/properties/search',
+    '/:instanceId/properties/search',
     async ({
-      query: {
-        q,
-        instance = 'wikidata',
-        limit = 10,
-        offset = 0,
-        language = 'en',
-        datatype,
-        autocomplete = true,
-      },
+      params: { instanceId },
+      query: { q, limit = 10, offset = 0, language = 'en', datatype, languageFallback },
       wikibase,
     }) => {
       if (!q || q.trim().length === 0) {
         return ApiErrorHandler.validationError('Search query is required and cannot be empty')
       }
 
-      const results = await wikibase.searchProperties(instance, q, {
+      const results = await wikibase.searchProperties(instanceId, q, {
         limit,
         offset,
         language,
         datatype,
-        autocomplete,
+        languageFallback,
       })
-      return { data: results }
+
+      // Enhanced response formatting for frontend compatibility
+      const enhancedResults = {
+        ...results,
+        results: results.results.map((property) => ({
+          ...property,
+          // Add relevance indicators
+          relevanceScore: property.match?.type === 'label' ? 1.0 : 0.8,
+        })),
+        // Add search metadata
+        searchMetadata: {
+          query: q,
+          language,
+          datatype,
+          enhancedFiltering: true,
+        },
+      }
+
+      return { data: enhancedResults }
     },
     PropertySearchSchema,
   )
 
   .get(
-    '/properties/:propertyId',
-    async ({ params: { propertyId }, query: { instance = 'wikidata' }, wikibase, status }) => {
-      const property = await wikibase.getProperty(instance, propertyId)
+    '/:instanceId/properties/:propertyId',
+    async ({
+      params: { instanceId, propertyId },
+      query: { includeConstraints = false },
+      wikibase,
+      status,
+    }) => {
+      const property = await wikibase.getProperty(instanceId, propertyId)
       if (!property) {
         return status(404, ApiErrorHandler.notFoundError('Property', propertyId))
       }
+
+      // Add constraint information if requested
+      if (includeConstraints) {
+        const constraints = await constraintValidationService.getPropertyConstraints(
+          instanceId,
+          propertyId,
+        )
+        property.constraints = constraints
+      }
+
       return { data: property }
     },
-    PropertyDetailsRouteSchema,
+    InstancePropertyDetailsSchema,
+  )
+
+  // Property constraints endpoint
+  .get(
+    '/:instanceId/properties/:propertyId/constraints',
+    async ({ params: { instanceId, propertyId } }) => {
+      const constraints = await constraintValidationService.getPropertyConstraints(
+        instanceId,
+        propertyId,
+      )
+      return { data: constraints }
+    },
+    InstancePropertyConstraintsSchema,
+  )
+
+  // Real-time property validation endpoint
+  .post(
+    '/:instanceId/validate/property',
+    async ({ params: { instanceId }, body: { propertyId, value } }) => {
+      const validationResult = await constraintValidationService.validateProperty(
+        instanceId,
+        propertyId,
+        [value], // Convert single value to array as expected by the service
+      )
+      return { data: validationResult }
+    },
+    PropertyValidationSchema,
+  )
+
+  // Schema validation endpoint
+  .post(
+    '/:instanceId/validate/schema',
+    async ({ params: { instanceId }, body: { schema } }) => {
+      const validationResult = await constraintValidationService.validateSchema(instanceId, schema)
+      return { data: validationResult }
+    },
+    SchemaValidationSchema,
   )
 
   .get(
-    '/items/search',
+    '/:instanceId/items/search',
     async ({
-      query: {
-        q,
-        instance = 'wikidata',
-        limit = 10,
-        offset = 0,
-        language = 'en',
-        autocomplete = true,
-      },
+      params: { instanceId },
+      query: { q, limit = 10, offset = 0, language = 'en', languageFallback },
       wikibase,
     }) => {
       if (!q || q.trim().length === 0) {
         return ApiErrorHandler.validationError('Search query is required and cannot be empty')
       }
 
-      const results = await wikibase.searchItems(instance, q, {
+      const results = await wikibase.searchItems(instanceId, q, {
         limit,
         offset,
         language,
-        autocomplete,
+        languageFallback,
       })
+
       return { data: results }
     },
     ItemSearchSchema,
   )
 
   .get(
-    '/items/:itemId',
-    async ({ params: { itemId }, query: { instance = 'wikidata' }, wikibase, status }) => {
-      const item = await wikibase.getItem(instance, itemId)
+    '/:instanceId/items/:itemId',
+    async ({ params: { instanceId, itemId }, wikibase, status }) => {
+      const item = await wikibase.getItem(instanceId, itemId)
       if (!item) {
         return status(404, ApiErrorHandler.notFoundError('Item', itemId))
       }

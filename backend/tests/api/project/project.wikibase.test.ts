@@ -1,9 +1,9 @@
 import { wikibaseRoutes } from '@backend/api/project/project.wikibase'
 import { closeDb, getDb, initializeDb } from '@backend/plugins/database'
+import type { ItemId, PropertyId } from '@backend/types/wikibase-schema'
 import { treaty } from '@elysiajs/eden'
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test'
 import { Elysia } from 'elysia'
-import type { ItemId, PropertyId } from 'wikibase-sdk'
 
 let _strCounter = 0
 const deterministicString = (prefix: string) => `${prefix}_${_strCounter++}`

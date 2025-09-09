@@ -1,8 +1,5 @@
-import type {
-  PropertyReference,
-  ValueMapping,
-  WikibaseDataType,
-} from '@backend/api/project/project.wikibase'
+import type { PropertyReference, ValueMapping } from '@backend/api/project/project.wikibase'
+import type { WikibaseDataType } from '@backend/types/wikibase-schema'
 import { useStatementDataTypeValidation } from '@frontend/features/wikibase-schema/composables/useStatementDataTypeValidation'
 import { beforeEach, describe, expect, test } from 'bun:test'
 
