@@ -5,11 +5,11 @@ import type {
   PropertyReference,
   PropertyValueMap,
   ReferenceSchemaMapping,
-  StatementRank,
   StatementSchemaMapping,
   ValueMapping,
   WikibaseSchemaResponse,
 } from '@backend/api/project/project.wikibase'
+import type { StatementRank } from '@backend/types/wikibase-schema'
 import { ItemId } from '@backend/types/wikibase-schema'
 import { useSchemaBuilder } from '@frontend/features/wikibase-schema/composables/useSchemaBuilder'
 import type { StatementSchema } from '@frontend/shared/types/wikibase-schema'
@@ -208,7 +208,7 @@ export const useSchemaStore = defineStore('schema', () => {
     statements1.value[statementId]!.qualifiers?.push({
       id,
       property: {
-        id: '',
+        id: 'P31',
         dataType: '',
       },
       value: {
@@ -268,7 +268,7 @@ export const useSchemaStore = defineStore('schema', () => {
         {
           id: crypto.randomUUID(),
           property: {
-            id: '',
+            id: 'P31',
             dataType: '',
           },
           value: {
@@ -346,7 +346,7 @@ export const useSchemaStore = defineStore('schema', () => {
     const newSnak: PropertyValueMap = {
       id: crypto.randomUUID(),
       property: {
-        id: '',
+        id: 'P31',
         dataType: '',
       },
       value: {

@@ -11,6 +11,7 @@
     "lint:backend": "bun -F backend lint",
     "lint:frontend": "bun -F frontend lint",
     "mcpi": "bunx @modelcontextprotocol/inspector",
+    "tsc": "bun -F '*' typecheck",
     "typecheck": "bun -F '*' typecheck"
   },
   "workspaces": {

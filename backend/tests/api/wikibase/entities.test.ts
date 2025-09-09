@@ -30,11 +30,10 @@ describe('Wikibase Entities API', () => {
 
   describe('Property endpoints', () => {
     test('should return 404 for non-existent property', async () => {
-      const { data, status, error } = await api.wikibase.entities
+      const { data, status, error } = await api
+        .wikibase({ instanceId: 'wikidata' })
         .properties({ propertyId: 'P1000000' })
-        .get({
-          query: { instance: 'wikidata' },
-        })
+        .get({ query: {} })
 
       expect(data).toBeNull()
       expect(status).toBe(404)
@@ -53,11 +52,10 @@ describe('Wikibase Entities API', () => {
 
   describe('Item endpoints', () => {
     test('should return 404 for non-existent item', async () => {
-      const { data, status, error } = await api.wikibase.entities
+      const { data, status, error } = await api
+        .wikibase({ instanceId: 'wikidata' })
         .items({ itemId: 'Q1000000' })
-        .get({
-          query: { instance: 'wikidata' },
-        })
+        .get()
 
       expect(data).toBeNull()
       expect(status).toBe(404)
@@ -74,11 +72,10 @@ describe('Wikibase Entities API', () => {
     })
 
     test('should return 404 when wikibase.getItem throws an error for not found', async () => {
-      const { data, status, error } = await api.wikibase.entities
+      const { data, status, error } = await api
+        .wikibase({ instanceId: 'wikidata' })
         .items({ itemId: 'Q9999999' })
-        .get({
-          query: { instance: 'wikidata' },
-        })
+        .get()
 
       expect(data).toBeNull()
       expect(status).toBe(404)
@@ -97,11 +94,10 @@ describe('Wikibase Entities API', () => {
 
   describe('Item endpoints', () => {
     test('should return 404 for non-existent item', async () => {
-      const { data, status, error } = await api.wikibase.entities
+      const { data, status, error } = await api
+        .wikibase({ instanceId: 'wikidata' })
         .items({ itemId: 'Q1000000' })
-        .get({
-          query: { instance: 'wikidata' },
-        })
+        .get()
 
       expect(data).toBeNull()
       expect(status).toBe(404)

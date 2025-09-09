@@ -1,7 +1,6 @@
 import { MediaWikiApiService } from '@backend/services/mediawiki-api.service'
-import { mediaWikiConfigService } from '@backend/services/mediawiki-config.service'
 import type {
-  MediaWikiInstanceConfig,
+  MediaWikiConfig,
   WikibaseGetEntitiesResponse,
   WikibaseSearchEntityResponse,
   WikibaseSearchEntityResult,
@@ -13,7 +12,6 @@ import type {
   PropertySearchResult,
   SearchOptions,
   SearchResponse,
-  WikibaseInstanceConfig,
 } from '@backend/types/wikibase-api'
 import type { ItemId, PropertyId } from '@backend/types/wikibase-schema'
 
@@ -21,29 +19,26 @@ import type { ItemId, PropertyId } from '@backend/types/wikibase-schema'
  * Wikibase API Service using MediaWiki API for comprehensive Wikibase coverage
  */
 export class WikibaseService {
-  private wikidataClient: MediaWikiApiService = new MediaWikiApiService(
-    mediaWikiConfigService.getInstance('wikidata'),
-  )
-  private clients: Map<string, MediaWikiApiService> = new Map()
-  private instances: Map<string, WikibaseInstanceConfig> = new Map()
+  private clients: Record<string, MediaWikiApiService> = {
+    wikidata: new MediaWikiApiService({
+      endpoint: 'https://www.wikidata.org/w/api.php',
+      userAgent: 'DataForge/1.0 (https://github.com/DaxServer/dataforge)',
+      timeout: 30000,
+    }),
+  }
 
   /**
    * Create a new client for a Wikibase instance
    */
-  createClient(instanceConfig: WikibaseInstanceConfig): MediaWikiApiService {
-    const mediaWikiConfig: MediaWikiInstanceConfig = {
-      id: instanceConfig.id,
-      name: instanceConfig.name,
-      endpoint: this.getApiEndpoint(instanceConfig.baseUrl),
-      userAgent: instanceConfig.userAgent,
-      timeout: 30000,
-      token: instanceConfig.authToken,
-    }
+  createClient(id: string, config: MediaWikiConfig): MediaWikiApiService {
+    const client = new MediaWikiApiService({
+      endpoint: config.endpoint,
+      userAgent: config.userAgent,
+      timeout: config.timeout,
+      token: config.token,
+    })
 
-    const client = new MediaWikiApiService(mediaWikiConfig)
-
-    this.clients.set(instanceConfig.id, client)
-    this.instances.set(instanceConfig.id, instanceConfig)
+    this.clients[id] = client
 
     return client
   }
@@ -52,40 +47,21 @@ export class WikibaseService {
    * Get an existing client for the given instance ID
    */
   getClient(instanceId: string): MediaWikiApiService {
-    if (instanceId === 'wikidata') return this.wikidataClient
-
-    const client = this.clients.get(instanceId)
+    const client = this.clients[instanceId]
     if (!client) {
       throw new Error(`No client found for instance: ${instanceId}`)
     }
     return client
   }
 
-  /**
-   * Get instance configuration
-   */
-  getInstance(instanceId: string): WikibaseInstanceConfig {
-    const instance = this.instances.get(instanceId)
-    if (!instance) {
-      throw new Error(`No instance configuration found for: ${instanceId}`)
-    }
-    return instance
-  }
-
-  /**
-   * Check if a client exists for the given instance
-   */
   hasClient(instanceId: string): boolean {
-    return instanceId === 'wikidata' || this.clients.has(instanceId)
+    return this.clients[instanceId] !== undefined
   }
 
-  /**
-   * Remove a client and its configuration
-   */
   removeClient(instanceId: string): boolean {
-    const clientRemoved = this.clients.delete(instanceId)
-    const instanceRemoved = this.instances.delete(instanceId)
-    return clientRemoved && instanceRemoved
+    const clientRemoved = this.clients[instanceId] !== undefined
+    delete this.clients[instanceId]
+    return clientRemoved
   }
 
   /**
@@ -99,7 +75,7 @@ export class WikibaseService {
     const client = this.getClient(instanceId)
     const limit = options.limit ?? 10
     const language = options.language ?? 'en'
-    const autocomplete = options.autocomplete ?? true
+    const languageFallback = options.languageFallback ?? true
 
     const searchParams: Record<string, string | number | boolean> = {
       action: 'wbsearchentities',
@@ -110,23 +86,22 @@ export class WikibaseService {
       continue: options.offset ?? 0,
       format: 'json',
       formatVersion: 2,
+      strictlanguage: !languageFallback,
     }
 
-    if (autocomplete) {
-      searchParams.strictlanguage = false
-    }
-
-    const response = (await client.get(searchParams)) as WikibaseSearchEntityResponse
+    const response = (await client.get(searchParams)) as WikibaseSearchEntityResponse<PropertyId>
 
     if (response.error) {
-      throw new Error(`Search failed: ${response.error.info}`)
+      throw new Error(`Search failed: ${response.error.code}`)
     }
 
-    const mapSearchResult = (item: WikibaseSearchEntityResult): PropertySearchResult => ({
-      id: item.id as PropertyId,
+    const mapSearchResult = (
+      item: WikibaseSearchEntityResult<PropertyId>,
+    ): PropertySearchResult => ({
+      id: item.id,
       label: item.label || item.id,
       description: item.description || '',
-      datatype: item.datatype || 'unknown',
+      datatype: item.datatype || 'string',
       match: {
         type:
           item.match?.type === 'alias' || item.match?.type === 'description'
@@ -165,15 +140,8 @@ export class WikibaseService {
 
     const response = (await client.get(params)) as WikibaseGetEntitiesResponse
 
-    if (response.error) {
-      if (response.error.code === 'missingentity' || response.error.code === 'no-such-entity') {
-        return null
-      }
-      throw new Error(`Failed to get property: ${response.error.info}`)
-    }
-
-    const entity = response.entities?.[propertyId]
-    if (!entity || entity.missing !== undefined) {
+    const entity = response.entities[propertyId]!
+    if ('missing' in entity) {
       return null
     }
 
@@ -184,7 +152,7 @@ export class WikibaseService {
     const propertyDetails: PropertyDetails = {
       id: propertyId,
       type: 'property',
-      datatype: entity.datatype ?? 'unknown',
+      datatype: entity.datatype ?? 'string',
       labels: Object.fromEntries(
         Object.entries(labels).map(([lang, data]) => [lang, (data as { value: string }).value]),
       ),
@@ -217,7 +185,7 @@ export class WikibaseService {
     const client = this.getClient(instanceId)
     const limit = options.limit ?? 10
     const language = options.language ?? 'en'
-    const autocomplete = options.autocomplete ?? true
+    const languageFallback = options.languageFallback ?? true
 
     const searchParams: Record<string, string | number | boolean> = {
       action: 'wbsearchentities',
@@ -228,19 +196,16 @@ export class WikibaseService {
       continue: options.offset ?? 0,
       format: 'json',
       formatVersion: 2,
+      strictlanguage: !languageFallback,
     }
 
-    if (autocomplete) {
-      searchParams.strictlanguage = false
-    }
-
-    const response = (await client.get(searchParams)) as WikibaseSearchEntityResponse
+    const response = (await client.get(searchParams)) as WikibaseSearchEntityResponse<ItemId>
 
     if (response.error) {
-      throw new Error(`Search failed: ${response.error.info}`)
+      throw new Error(`Search failed: ${response.error.code}`)
     }
 
-    const mapSearchResult = (item: WikibaseSearchEntityResult): ItemSearchResult => ({
+    const mapSearchResult = (item: WikibaseSearchEntityResult<ItemId>): ItemSearchResult => ({
       id: item.id,
       label: item.label || item.id,
       description: item.description || '',
@@ -274,22 +239,18 @@ export class WikibaseService {
       ids: itemId,
       languagefallback: true,
       format: 'json',
+      errorformat: 'raw',
     }
 
     const response = (await client.get(params)) as WikibaseGetEntitiesResponse
 
-    if (response.error) {
-      if (response.error.code === 'missingentity' || response.error.code === 'no-such-entity') {
+    for (const error of response.errors ?? []) {
+      if (error.key === 'wikibase-api-no-such-entity') {
         return null
       }
-      throw new Error(`Failed to get item: ${response.error.info}`)
     }
 
-    const entity = response.entities?.[itemId]
-    if (!entity || entity.missing !== undefined) {
-      return null
-    }
-
+    const entity = response.entities[itemId]!
     const itemDetails: ItemDetails = {
       id: itemId,
       type: 'item',
@@ -336,17 +297,6 @@ export class WikibaseService {
     }
 
     return claims
-  }
-
-  /**
-   * Get API endpoint from base URL
-   */
-  private getApiEndpoint(baseUrl: string): string {
-    const url = new URL(baseUrl)
-    const path = url.pathname.endsWith('/')
-      ? `${url.pathname}w/api.php`
-      : `${url.pathname}/w/api.php`
-    return `${url.protocol}//${url.host}${path}`
   }
 }
 

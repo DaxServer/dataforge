@@ -1,9 +1,5 @@
-import type {
-  PropertyReference,
-  StatementRank,
-  ValueMapping,
-  WikibaseDataType,
-} from '@backend/api/project/project.wikibase'
+import type { PropertyReference, ValueMapping } from '@backend/api/project/project.wikibase'
+import type { StatementRank, WikibaseDataType } from '@backend/types/wikibase-schema'
 import { useStatementEditor } from '@frontend/features/wikibase-schema/composables/useStatementEditor'
 import type { ColumnInfo } from '@frontend/shared/types/wikibase-schema'
 import { beforeEach, describe, expect, test } from 'bun:test'

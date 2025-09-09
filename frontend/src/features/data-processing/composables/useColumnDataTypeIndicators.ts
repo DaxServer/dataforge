@@ -1,4 +1,4 @@
-import type { WikibaseDataType } from '@backend/api/project/project.wikibase'
+import type { WikibaseDataType } from '@backend/types/wikibase-schema'
 import type { ColumnInfo } from '@frontend/shared/types/wikibase-schema'
 
 /**

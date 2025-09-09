@@ -1,5 +1,2 @@
 export { wikibaseConstraintsApi } from '@backend/api/wikibase/constraints'
 export { wikibaseEntitiesApi } from '@backend/api/wikibase/entities'
-export * from '@backend/api/wikibase/handlers'
-export { wikibaseInstanceApi } from '@backend/api/wikibase/instances'
-export * from '@backend/api/wikibase/schemas'

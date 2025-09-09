@@ -1,8 +1,5 @@
-import type {
-  PropertyReference,
-  ValueMapping,
-  WikibaseDataType,
-} from '@backend/api/project/project.wikibase'
+import type { PropertyReference, ValueMapping } from '@backend/api/project/project.wikibase'
+import type { WikibaseDataType } from '@backend/types/wikibase-schema'
 import { useDataTypeCompatibility } from '@frontend/features/data-processing/composables/useDataTypeCompatibility'
 import type { ColumnInfo } from '@frontend/shared/types/wikibase-schema'
 import { computed, ref } from 'vue'
@@ -216,8 +213,8 @@ export const useValueMapping = () => {
       return property.dataType as WikibaseDataType
     }
 
-    // Otherwise, use the first compatible type
-    return compatibleTypes[0] || 'string'
+    // Fallback to string
+    return 'string'
   }
 
   const resetMapping = () => {

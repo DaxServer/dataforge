@@ -1,4 +1,4 @@
-import type { WikibaseDataType } from '@backend/api/project/project.wikibase'
+import type { WikibaseDataType } from '@backend/types/wikibase-schema'
 import { useDataTypeCompatibility } from '@frontend/features/data-processing/composables/useDataTypeCompatibility'
 import { useDragDropStore } from '@frontend/features/data-processing/stores/drag-drop.store'
 import { useValidationCore } from '@frontend/features/wikibase-schema/composables/useValidationCore'
