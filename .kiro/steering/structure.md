@@ -48,7 +48,7 @@ frontend/
 ### API Organization
 
 - Routes grouped by domain (`/api/project/*`)
-- Schema definitions in `_schemas.ts` files
+- Schema definitions in `schemas.ts` files
 - Separate files for each major operation
 - Tests mirror the API structure
 

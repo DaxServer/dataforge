@@ -1,5 +1,5 @@
 import { projectRoutes } from '@backend/api/project'
-import { UUID_REGEX_PATTERN } from '@backend/api/project/_schemas'
+import { UUID_REGEX_PATTERN } from '@backend/api/project/schemas'
 import { closeDb, getDb, initializeDb } from '@backend/plugins/database'
 import { treaty } from '@elysiajs/eden'
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test'
@@ -77,26 +77,20 @@ describe('POST /api/project/import', () => {
         expect(status).toBe(422)
         expect(data).toBeNull()
         expect(error).toHaveProperty('status', 422)
-        expect(error).toHaveProperty('value', {
-          data: [],
-          errors: [
-            {
-              code: 'VALIDATION',
-              details: [
-                {
-                  message: "Expected kind 'File'",
-                  path: '/file',
-                  schema: {
-                    default: 'File',
-                    format: 'binary',
-                    minSize: 1,
-                    type: 'string',
-                  },
-                },
-              ],
+        expect(error).toHaveProperty('value', [
+          {
+            errors: [],
+            message: "Expected kind 'File'",
+            path: '/file',
+            schema: {
+              default: 'File',
+              format: 'binary',
+              minSize: 1,
+              type: 'string',
             },
-          ],
-        })
+            type: 31,
+          },
+        ])
       })
 
       test('should return 422 for empty file', async () => {
@@ -107,26 +101,21 @@ describe('POST /api/project/import', () => {
         expect(status).toBe(422)
         expect(data).toBeNull()
         expect(error).toHaveProperty('status', 422)
-        expect(error).toHaveProperty('value', {
-          data: [],
-          errors: [
-            {
-              code: 'VALIDATION',
-              details: [
-                {
-                  path: '/file',
-                  message: "Expected kind 'File'",
-                  schema: {
-                    default: 'File',
-                    format: 'binary',
-                    minSize: 1,
-                    type: 'string',
-                  },
-                },
-              ],
+        expect(error).toHaveProperty('value', [
+          {
+            errors: [],
+            path: '/file',
+            message: "Expected kind 'File'",
+            schema: {
+              default: 'File',
+              format: 'binary',
+              minSize: 1,
+              type: 'string',
             },
-          ],
-        })
+            type: 31,
+            value: {},
+          },
+        ])
       })
 
       test('should return 422 for invalid name - too long', async () => {
@@ -142,27 +131,21 @@ describe('POST /api/project/import', () => {
         expect(status).toBe(422)
         expect(data).toBeNull()
         expect(error).toHaveProperty('status', 422)
-        expect(error).toHaveProperty('value', {
-          data: [],
-          errors: [
-            {
-              code: 'VALIDATION',
-              message: 'Project name must be between 1 and 255 characters long if provided',
-              details: [
-                {
-                  path: '/name',
-                  message: 'Expected string length less or equal to 255',
-                  schema: {
-                    error: 'Project name must be between 1 and 255 characters long if provided',
-                    maxLength: 255,
-                    minLength: 1,
-                    type: 'string',
-                  },
-                },
-              ],
+        expect(error).toHaveProperty('value', [
+          {
+            errors: [],
+            path: '/name',
+            message: 'Expected string length less or equal to 255',
+            schema: {
+              error: 'Project name must be between 1 and 255 characters long if provided',
+              maxLength: 255,
+              minLength: 1,
+              type: 'string',
             },
-          ],
-        })
+            type: 51,
+            value: longName,
+          },
+        ])
       })
 
       test('should return 422 for invalid name - empty string', async () => {
@@ -177,27 +160,21 @@ describe('POST /api/project/import', () => {
         expect(status).toBe(422)
         expect(data).toBeNull()
         expect(error).toHaveProperty('status', 422)
-        expect(error).toHaveProperty('value', {
-          data: [],
-          errors: [
-            {
-              code: 'VALIDATION',
-              message: 'Project name must be between 1 and 255 characters long if provided',
-              details: [
-                {
-                  path: '/name',
-                  message: 'Expected string length greater or equal to 1',
-                  schema: {
-                    error: 'Project name must be between 1 and 255 characters long if provided',
-                    maxLength: 255,
-                    minLength: 1,
-                    type: 'string',
-                  },
-                },
-              ],
+        expect(error).toHaveProperty('value', [
+          {
+            errors: [],
+            path: '/name',
+            message: 'Expected string length greater or equal to 1',
+            schema: {
+              error: 'Project name must be between 1 and 255 characters long if provided',
+              maxLength: 255,
+              minLength: 1,
+              type: 'string',
             },
-          ],
-        })
+            type: 52,
+            value: '',
+          },
+        ])
       })
     })
 
@@ -212,7 +189,6 @@ describe('POST /api/project/import', () => {
         expect(data).toBeNull()
         expect(error).toHaveProperty('status', 400)
         expect(error).toHaveProperty('value', {
-          data: [],
           errors: [
             {
               code: 'INVALID_JSON',
@@ -233,7 +209,6 @@ describe('POST /api/project/import', () => {
         expect(data).toBeNull()
         expect(error).toHaveProperty('status', 400)
         expect(error).toHaveProperty('value', {
-          data: [],
           errors: [
             {
               code: 'INVALID_JSON',
@@ -259,7 +234,6 @@ describe('POST /api/project/import', () => {
         expect(data).toBeNull()
         expect(error).toHaveProperty('status', 500)
         expect(error).toHaveProperty('value', {
-          data: [],
           errors: [
             {
               code: 'INTERNAL_SERVER_ERROR',

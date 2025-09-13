@@ -4,14 +4,15 @@
  * @see https://www.mediawiki.org/wiki/API:Main_page
  */
 
+import type { Term } from '@backend/api/wikibase/schemas'
 import type { WikibaseDataType } from '@backend/types/wikibase-schema'
 import { t } from 'elysia'
 
 // Base API Configuration
 export interface MediaWikiConfig {
   endpoint: string
-  userAgent: string
-  timeout: number
+  userAgent?: string
+  timeout?: number
   username?: string
   password?: string
   token?: string
@@ -325,20 +326,36 @@ export interface WikibaseSearchEntityParams extends BaseApiParams {
 
 export interface WikibaseSearchEntityResult<T> {
   id: T
-  label?: string
-  description?: string
-  datatype?: WikibaseDataType
-  match?: {
-    type?: string
-    language?: string
-    text?: string
+  title: string
+  pageid: number
+  datatype: WikibaseDataType
+  concepturi: string
+  repository: string
+  url: string
+  display: {
+    label?: {
+      value: string
+      language: string
+    }
+    description?: {
+      value: string
+      language: string
+    }
   }
+  label: string
+  description: string
+  match: {
+    type: Term
+    language: string
+    text: string
+  }
+  aliases?: string[]
 }
 
 export interface WikibaseSearchEntityResponse<T> {
-  search?: WikibaseSearchEntityResult<T>[]
-  'search-info'?: {
-    search?: number
+  search: WikibaseSearchEntityResult<T>[]
+  searchinfo: {
+    search: number
   }
   'search-continue'?: number
   error?: ApiError

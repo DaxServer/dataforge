@@ -1,4 +1,4 @@
-import { DuckDBColumnSchema } from '@backend/api/project/_schemas'
+import { DuckDBColumnSchema } from '@backend/api/project/schemas'
 
 export interface ProjectColumn {
   field: string

@@ -4,8 +4,8 @@ import {
   ItemDetailsRouteSchema,
   ItemSearchSchema,
   PropertySearchSchema,
-  PropertyValidationSchema,
   SchemaValidationSchema,
+  WikibasePropertiesFetchSchema,
 } from '@backend/api/wikibase/schemas'
 import { databasePlugin } from '@backend/plugins/database'
 import { errorHandlerPlugin } from '@backend/plugins/error-handler'
@@ -21,14 +21,29 @@ export const wikibaseEntitiesApi = new Elysia({ prefix: '/api/wikibase' })
   .use(errorHandlerPlugin)
   .use(wikibasePlugin)
 
+  .post(
+    '/:instanceId/properties/fetch',
+    async ({ params: { instanceId }, wikibase, db }) => {
+      const { total, inserted } = await wikibase.fetchAllProperties(instanceId, db())
+
+      return {
+        data: {
+          total,
+          inserted,
+        },
+      }
+    },
+    WikibasePropertiesFetchSchema,
+  )
+
   .get(
     '/:instanceId/properties/search',
     async ({
       params: { instanceId },
-      query: { q, limit = 10, offset = 0, language = 'en', datatype, languageFallback },
+      query: { q, limit, offset, language, languageFallback },
       wikibase,
     }) => {
-      if (!q || q.trim().length === 0) {
+      if (q.trim().length === 0) {
         return ApiErrorHandler.validationError('Search query is required and cannot be empty')
       }
 
@@ -36,28 +51,10 @@ export const wikibaseEntitiesApi = new Elysia({ prefix: '/api/wikibase' })
         limit,
         offset,
         language,
-        datatype,
         languageFallback,
       })
 
-      // Enhanced response formatting for frontend compatibility
-      const enhancedResults = {
-        ...results,
-        results: results.results.map((property) => ({
-          ...property,
-          // Add relevance indicators
-          relevanceScore: property.match?.type === 'label' ? 1.0 : 0.8,
-        })),
-        // Add search metadata
-        searchMetadata: {
-          query: q,
-          language,
-          datatype,
-          enhancedFiltering: true,
-        },
-      }
-
-      return { data: enhancedResults }
+      return { data: results }
     },
     PropertySearchSchema,
   )
@@ -103,18 +100,18 @@ export const wikibaseEntitiesApi = new Elysia({ prefix: '/api/wikibase' })
   )
 
   // Real-time property validation endpoint
-  .post(
-    '/:instanceId/validate/property',
-    async ({ params: { instanceId }, body: { propertyId, value } }) => {
-      const validationResult = await constraintValidationService.validateProperty(
-        instanceId,
-        propertyId,
-        [value], // Convert single value to array as expected by the service
-      )
-      return { data: validationResult }
-    },
-    PropertyValidationSchema,
-  )
+  // .post(
+  //   '/:instanceId/validate/property',
+  //   async ({ params: { instanceId }, body: { propertyId, value } }) => {
+  //     const validationResult = await constraintValidationService.validateProperty(
+  //       instanceId,
+  //       propertyId,
+  //       [value], // Convert single value to array as expected by the service
+  //     )
+  //     return { data: validationResult }
+  //   },
+  //   PropertyValidationSchema,
+  // )
 
   // Schema validation endpoint
   .post(

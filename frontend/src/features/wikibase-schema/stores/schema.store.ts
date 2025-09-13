@@ -7,7 +7,6 @@ import type {
   ReferenceSchemaMapping,
   StatementSchemaMapping,
   ValueMapping,
-  WikibaseSchemaResponse,
 } from '@backend/api/project/project.wikibase'
 import type { StatementRank } from '@backend/types/wikibase-schema'
 import { ItemId } from '@backend/types/wikibase-schema'

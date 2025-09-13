@@ -14,20 +14,7 @@ export const errorHandlerPlugin = new Elysia({
     // Handle validation errors
     if (code === 'VALIDATION') {
       set.status = 422
-      return {
-        data: [],
-        errors: [
-          {
-            code,
-            message: error.validator.Errors(error.value).First().schema.error,
-            details: Array.from(error.validator.Errors(error.value)).map((e: any) => ({
-              path: e.path,
-              message: e.message,
-              schema: e.schema,
-            })),
-          },
-        ],
-      }
+      return [error.valueError]
     }
 
     // Handle other errors

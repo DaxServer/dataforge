@@ -1,4 +1,3 @@
-import type { WikibaseSchemaResponse } from '@backend/api/project/project.wikibase'
 import { useSchemaApi } from '@frontend/features/wikibase-schema/composables/useSchemaApi'
 import { useSchemaStore } from '@frontend/features/wikibase-schema/stores/schema.store'
 import { createTestingPinia } from '@pinia/testing'

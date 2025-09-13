@@ -1,50 +1,49 @@
-import { t } from 'elysia'
+import z from 'zod'
 
 /**
  * Error codes used throughout the application
  */
-export const ErrorCodeSchema = t.Union([
-  t.Literal('VALIDATION'),
-  t.Literal('MISSING_FILE_PATH'),
-  t.Literal('MISSING_FILE'),
-  t.Literal('INVALID_FILE_TYPE'),
-  t.Literal('EMPTY_FILE'),
-  t.Literal('FILE_NOT_FOUND'),
-  t.Literal('TABLE_ALREADY_EXISTS'),
-  t.Literal('INTERNAL_SERVER_ERROR'),
-  t.Literal('DATABASE_ERROR'),
-  t.Literal('PROJECT_CREATION_FAILED'),
-  t.Literal('DATA_IMPORT_FAILED'),
-  t.Literal('INVALID_JSON'),
-  t.Literal('NOT_FOUND'),
+export const ErrorCodeSchema = z.union([
+  z.literal('VALIDATION'),
+  z.literal('MISSING_FILE_PATH'),
+  z.literal('MISSING_FILE'),
+  z.literal('INVALID_FILE_TYPE'),
+  z.literal('EMPTY_FILE'),
+  z.literal('FILE_NOT_FOUND'),
+  z.literal('TABLE_ALREADY_EXISTS'),
+  z.literal('INTERNAL_SERVER_ERROR'),
+  z.literal('DATABASE_ERROR'),
+  z.literal('PROJECT_CREATION_FAILED'),
+  z.literal('DATA_IMPORT_FAILED'),
+  z.literal('INVALID_JSON'),
+  z.literal('NOT_FOUND'),
 ])
 
 /**
  * Single error object schema
  */
-export const ErrorSchema = t.Object({
-  code: ErrorCodeSchema,
-  message: t.String(),
-  details: t.Optional(t.Array(t.Any())),
-})
+// const ErrorSchema = z.object({
+//   code: ErrorCodeSchema,
+//   message: z.string(),
+//   details: z.array(z.any()),
+// })
 
 /**
  * Standard error response format for API errors
  */
-export const ErrorResponseSchema = t.Object({
-  errors: t.Array(ErrorSchema),
-})
+// export const ErrorResponseSchema = z.object({
+//   errors: z.array(ErrorSchema),
+// })
 
 /**
- * Error response with data array (for compatibility with existing schemas)
+ * Error response with data array
  */
-export const ApiError = t.Object({
-  data: t.Array(t.Any()),
-  errors: t.Array(ErrorSchema),
+export const ApiError = z.object({
+  errors: z.array(z.any()),
 })
 
 /**
  * Type definitions derived from schemas
  */
-export type ErrorCode = typeof ErrorCodeSchema.static
-export type ApiError = typeof ApiError.static
+export type ErrorCode = z.infer<typeof ErrorCodeSchema>
+export type ApiError = z.infer<typeof ApiError>

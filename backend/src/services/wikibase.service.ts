@@ -1,6 +1,6 @@
-import { MediaWikiApiService } from '@backend/services/mediawiki-api.service'
+import type { PropertySearchResult } from '@backend/api/wikibase/schemas'
+import { WikibaseClient } from '@backend/services/wikibase-clients'
 import type {
-  MediaWikiConfig,
   WikibaseGetEntitiesResponse,
   WikibaseSearchEntityResponse,
   WikibaseSearchEntityResult,
@@ -9,59 +9,86 @@ import type {
   ItemDetails,
   ItemSearchResult,
   PropertyDetails,
-  PropertySearchResult,
   SearchOptions,
   SearchResponse,
 } from '@backend/types/wikibase-api'
 import type { ItemId, PropertyId } from '@backend/types/wikibase-schema'
+import type { DuckDBConnection } from '@duckdb/node-api'
 
-/**
- * Wikibase API Service using MediaWiki API for comprehensive Wikibase coverage
- */
-export class WikibaseService {
-  private clients: Record<string, MediaWikiApiService> = {
-    wikidata: new MediaWikiApiService({
-      endpoint: 'https://www.wikidata.org/w/api.php',
-      userAgent: 'DataForge/1.0 (https://github.com/DaxServer/dataforge)',
-      timeout: 30000,
-    }),
+interface AllPagesResponse {
+  batchcomplete?: string
+  continue?: {
+    apcontinue: string
+    continue: string
   }
-
-  /**
-   * Create a new client for a Wikibase instance
-   */
-  createClient(id: string, config: MediaWikiConfig): MediaWikiApiService {
-    const client = new MediaWikiApiService({
-      endpoint: config.endpoint,
-      userAgent: config.userAgent,
-      timeout: config.timeout,
-      token: config.token,
-    })
-
-    this.clients[id] = client
-
-    return client
+  query: {
+    allpages: Array<{
+      pageid: number
+      ns: number
+      title: string
+    }>
   }
+}
 
-  /**
-   * Get an existing client for the given instance ID
-   */
-  getClient(instanceId: string): MediaWikiApiService {
-    const client = this.clients[instanceId]
-    if (!client) {
-      throw new Error(`No client found for instance: ${instanceId}`)
+export class WikibaseService extends WikibaseClient {
+  async fetchAllProperties(
+    instanceId: string,
+    db: DuckDBConnection,
+  ): Promise<{ total: number; inserted: number }> {
+    let total = 0
+    let inserted = 0
+    let continueToken: string | undefined
+    const client = this.getClient(instanceId)
+
+    const params: Record<string, string | number> = {
+      action: 'query',
+      list: 'allpages',
+      apnamespace: 120, // Property namespace
+      aplimit: 500, // Maximum allowed
+      format: 'json',
     }
-    return client
-  }
 
-  hasClient(instanceId: string): boolean {
-    return this.clients[instanceId] !== undefined
-  }
+    do {
+      if (continueToken) {
+        params.apcontinue = continueToken
+      }
 
-  removeClient(instanceId: string): boolean {
-    const clientRemoved = this.clients[instanceId] !== undefined
-    delete this.clients[instanceId]
-    return clientRemoved
+      const response = await client.get<AllPagesResponse>(params)
+
+      if (response.error) {
+        throw new Error(`API Error: ${response.error.code}`)
+      }
+
+      if (response.query?.allpages) {
+        const properties = response.query.allpages.map((page) => ({
+          id: page.title.replace('Property:', ''),
+          title: page.title,
+          pageid: page.pageid,
+          namespace: page.ns,
+        }))
+
+        total += properties.length
+
+        // Insert properties into database
+        for (const property of properties) {
+          try {
+            await db.run(
+              `INSERT OR REPLACE INTO wikibase_properties
+               (id, title, pageid, namespace)
+               VALUES (?, ?, ?, ?)`,
+              [property.id, property.title, property.pageid, property.namespace],
+            )
+            inserted++
+          } catch (error) {
+            console.error(`Failed to insert property ${property.id}:`, error)
+          }
+        }
+      }
+
+      continueToken = response.continue?.apcontinue
+    } while (continueToken)
+
+    return { total, inserted }
   }
 
   /**
@@ -70,22 +97,20 @@ export class WikibaseService {
   async searchProperties(
     instanceId: string,
     query: string,
-    options: SearchOptions = {},
+    options: SearchOptions,
   ): Promise<SearchResponse<PropertySearchResult>> {
     const client = this.getClient(instanceId)
-    const limit = options.limit ?? 10
-    const language = options.language ?? 'en'
     const languageFallback = options.languageFallback ?? true
 
     const searchParams: Record<string, string | number | boolean> = {
       action: 'wbsearchentities',
       search: query,
       type: 'property',
-      language,
-      limit,
-      continue: options.offset ?? 0,
+      language: options.language,
+      uselang: options.language,
+      limit: options.limit,
+      continue: options.offset,
       format: 'json',
-      formatVersion: 2,
       strictlanguage: !languageFallback,
     }
 
@@ -95,31 +120,18 @@ export class WikibaseService {
       throw new Error(`Search failed: ${response.error.code}`)
     }
 
-    const mapSearchResult = (
-      item: WikibaseSearchEntityResult<PropertyId>,
-    ): PropertySearchResult => ({
-      id: item.id,
-      label: item.label || item.id,
-      description: item.description || '',
-      datatype: item.datatype || 'string',
-      match: {
-        type:
-          item.match?.type === 'alias' || item.match?.type === 'description'
-            ? item.match.type
-            : 'label',
-        text: item.match?.text || item.label || item.id,
-      },
-    })
-
-    let results: PropertySearchResult[] = response.search?.map(mapSearchResult) ?? []
-
-    if (options.datatype) {
-      results = results.filter((result) => result.datatype === options.datatype)
-    }
-
     return {
-      results,
-      totalCount: response['search-info']?.search || results.length,
+      results: response.search.map((item) => ({
+        id: item.id,
+        title: item.title,
+        pageid: item.pageid,
+        datatype: item.datatype,
+        label: item.label,
+        description: item.description,
+        match: item.match,
+        aliases: item.aliases ?? [],
+      })),
+      totalCount: response.search.length,
       hasMore: response['search-continue'] !== undefined,
       query,
     }
@@ -180,7 +192,7 @@ export class WikibaseService {
   async searchItems(
     instanceId: string,
     query: string,
-    options: SearchOptions = {},
+    options: SearchOptions,
   ): Promise<SearchResponse<ItemSearchResult>> {
     const client = this.getClient(instanceId)
     const limit = options.limit ?? 10
@@ -222,7 +234,7 @@ export class WikibaseService {
 
     return {
       results,
-      totalCount: response['search-info']?.search || results.length,
+      totalCount: results.length,
       hasMore: response['search-continue'] !== undefined,
       query,
     }

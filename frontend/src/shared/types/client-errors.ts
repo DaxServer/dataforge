@@ -26,7 +26,6 @@ export interface ExtendedError {
     message: string
     details?: any[]
   }[]
-  data: any[]
 }
 
 /**
@@ -38,5 +37,4 @@ export const createFrontendError = (
   details?: any[],
 ): ExtendedError => ({
   errors: [{ code, message: _message, details }],
-  data: [],
 })

@@ -2,27 +2,27 @@ import { databasePlugin } from '@backend/plugins/database'
 import { errorHandlerPlugin } from '@backend/plugins/error-handler'
 import { ApiError } from '@backend/types/error-schemas'
 import type { DuckDBColumnNameAndType } from '@backend/utils/duckdb-types'
-import { Elysia, t } from 'elysia'
+import { Elysia } from 'elysia'
+import z from 'zod'
 
-const MetaProject = t.Object({
-  id: t.String(),
-  name: t.String(),
-  schema_for: t.Union([t.String(), t.Null()]),
-  schema: t.Any(),
-  created_at: t.String(),
-  updated_at: t.String(),
-  wikibase_schema: t.Array(
-    t.Object({
-      id: t.String(),
-      wikibase: t.String(),
-      name: t.String(),
-      created_at: t.String(),
-      updated_at: t.String(),
+const MetaProject = z.object({
+  id: z.string(),
+  name: z.string(),
+  schema_for: z.union([z.string(), z.null()]),
+  schema: z.any(),
+  created_at: z.string(),
+  updated_at: z.string(),
+  wikibase_schema: z.array(
+    z.object({
+      id: z.string(),
+      wikibase: z.string(),
+      name: z.string(),
+      created_at: z.string(),
+      updated_at: z.string(),
     }),
   ),
 })
-
-type MetaProject = typeof MetaProject.static
+type MetaProject = z.infer<typeof MetaProject>
 
 export const metaProjectsRoutes = new Elysia({ prefix: '/api' })
   .use(errorHandlerPlugin)
@@ -40,8 +40,8 @@ export const metaProjectsRoutes = new Elysia({ prefix: '/api' })
           p.updated_at,
           COALESCE(
             array_agg(
-              CASE 
-                WHEN w.id IS NOT NULL THEN 
+              CASE
+                WHEN w.id IS NOT NULL THEN
                   struct_pack(
                     id := w.id,
                     wikibase := w.wikibase,
@@ -64,22 +64,22 @@ export const metaProjectsRoutes = new Elysia({ prefix: '/api' })
         .filter((c) => c.columnType.alias === 'JSON')
         .map((c) => c.columnName)
 
-      const rows = reader.getRowObjectsJson().map((row) => {
+      const data = reader.getRowObjectsJson().map((row) => {
         const newRow: Record<string, unknown> = { ...row }
         jsonColumns.forEach((column) => {
           if (newRow[column] && typeof newRow[column] === 'string') {
             newRow[column] = JSON.parse(newRow[column] as string)
           }
         })
-        return newRow
+        return newRow as MetaProject
       })
 
-      return { data: rows as MetaProject[] }
+      return { data }
     },
     {
       response: {
-        200: t.Object({
-          data: t.Array(MetaProject),
+        200: z.object({
+          data: z.array(MetaProject),
         }),
         500: ApiError,
       },

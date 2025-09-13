@@ -70,14 +70,6 @@ export const useSchemaApi = () => {
       }
 
       // @ts-expect-error Elysia Eden thinks non-200 2xx responses are errors
-      if (!data?.data) {
-        showError({
-          errors: [{ code: 'NOT_FOUND', message: 'Schema not found' }],
-        } as ApiError)
-        return
-      }
-
-      // @ts-expect-error Elysia Eden thinks non-200 2xx responses are errors
       schemaStore.loadSchema(data.data, false)
 
       // @ts-expect-error Elysia Eden thinks non-200 2xx responses are errors

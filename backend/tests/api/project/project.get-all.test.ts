@@ -1,4 +1,3 @@
-/// <reference types="bun-types" />
 import { projectRoutes } from '@backend/api/project'
 import { closeDb, getDb, initializeDb } from '@backend/plugins/database'
 import { treaty } from '@elysiajs/eden'

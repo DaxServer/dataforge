@@ -64,26 +64,21 @@ describe('POST /project/:projectId/import-file', () => {
     expect(status).toBe(422)
     expect(data).toBeNull()
     expect(error).toHaveProperty('status', 422)
-    expect(error).toHaveProperty('value', {
-      data: [],
-      errors: [
-        {
-          code: 'VALIDATION',
-          details: [
-            {
-              message: "Expected kind 'File'",
-              path: '/file',
-              schema: {
-                default: 'File',
-                format: 'binary',
-                minSize: 1,
-                type: 'string',
-              },
-            },
-          ],
+    expect(error).toHaveProperty('value', [
+      {
+        errors: [],
+        message: "Expected kind 'File'",
+        path: '/file',
+        schema: {
+          default: 'File',
+          format: 'binary',
+          minSize: 1,
+          type: 'string',
         },
-      ],
-    })
+        type: 31,
+        value: {},
+      },
+    ])
   })
 
   test('should save uploaded file to temporary location', async () => {
