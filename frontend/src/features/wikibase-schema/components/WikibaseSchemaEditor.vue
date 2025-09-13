@@ -50,12 +50,12 @@ const hasItem = computed(() => {
 })
 
 // Lifecycle
-onMounted(async () => {
-  await initializeEditor()
+onMounted(() => {
+  initializeEditor()
 })
 
 // Methods
-const initializeEditor = async () => {
+const initializeEditor = () => {
   try {
     // Initialize drag-drop available targets
     initializeDragDropTargets()
@@ -63,7 +63,7 @@ const initializeEditor = async () => {
     // The schema selection workflow will handle loading schemas
     // No need to load schema here - it's handled by useSchemaSelection
     isInitialized.value = true
-  } catch (error) {
+  } catch {
     showError(
       createFrontendError('SCHEMA_EDITOR_INIT_FAILED', 'Failed to initialize schema editor'),
     )

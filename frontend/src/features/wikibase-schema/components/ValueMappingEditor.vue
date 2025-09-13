@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { type WikibaseDataType } from '@backend/types/wikibase-schema'
+
 // Props
 interface ValueMappingEditorProps {
   valueMapping?: ValueMapping | null
@@ -9,6 +11,7 @@ interface ValueMappingEditorProps {
 
 const props = withDefaults(defineProps<ValueMappingEditorProps>(), {
   valueMapping: null,
+  propertyDataType: 'string' as WikibaseDataType,
   disabled: false,
   showLabels: true,
 })
@@ -28,7 +31,7 @@ const isExpressionType = computed(() => props.valueMapping?.type === 'expression
 
 const handleValueTypeChange = (newType: 'column' | 'constant' | 'expression') => {
   let c: ValueMapping
-  const dataType: WikibaseDataType = props.propertyDataType ?? 'string'
+  const dataType: WikibaseDataType = props.propertyDataType
 
   if (newType === 'column') {
     c = {

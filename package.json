@@ -37,7 +37,6 @@
       "eslint-plugin-no-relative-import-paths": "^1.6.1",
       "eslint-plugin-prettier": "^5.5.4",
       "prettier": "^3.5.3",
-      "zod": "^4.0.0",
       "typescript": "^5.9.0"
     }
   },

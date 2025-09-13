@@ -19,8 +19,7 @@
     "@elysiajs/cors": "catalog:",
     "@elysiajs/eden": "catalog:",
     "@elysiajs/openapi": "catalog:",
-    "elysia": "catalog:",
-    "zod": "catalog:"
+    "elysia": "catalog:"
   },
   "devDependencies": {
     "@tsconfig/bun": "catalog:",

@@ -1,6 +1,5 @@
 import { ApiError } from '@backend/types/error-schemas'
 import { t } from 'elysia'
-import z from 'zod'
 
 // Single UUID regex pattern that accepts any valid UUID version with hyphens (case-insensitive)
 export const UUID_REGEX =
@@ -8,49 +7,58 @@ export const UUID_REGEX =
 
 // RegExp version of UUID_REGEX for test matching
 export const UUID_REGEX_PATTERN = new RegExp(UUID_REGEX, 'i')
-export const UUIDPattern = z.uuid()
-
-export const ProjectResponseSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  created_at: z.string(),
-  updated_at: z.string(),
+export const UUIDPattern = t.String({
+  pattern: UUID_REGEX,
 })
 
-export type Project = z.infer<typeof ProjectResponseSchema>
-
-export const PaginationQuery = z.object({
-  offset: z.coerce.number().default(0).optional(),
-  limit: z.coerce.number().default(25).optional(),
+export const ProjectResponseSchema = t.Object({
+  id: t.String(),
+  name: t.String(),
+  created_at: t.String(),
+  updated_at: t.String(),
 })
 
-export const DuckDBColumnSchema = z.array(
-  z.object({
-    name: z.string(),
-    type: z.string(),
-    pk: z.boolean(),
+export type Project = typeof ProjectResponseSchema.static
+
+export const PaginationQuery = t.Object({
+  offset: t.Optional(
+    t.Number({
+      default: 0,
+    }),
+  ),
+  limit: t.Optional(
+    t.Number({
+      default: 25,
+    }),
+  ),
+})
+
+export const DuckDBColumnSchema = t.Array(
+  t.Object({
+    name: t.String(),
+    type: t.String(),
+    pk: t.Boolean(),
   }),
 )
 
-export type DuckDBColumnSchema = z.infer<typeof DuckDBColumnSchema>
+export type DuckDBColumnSchema = typeof DuckDBColumnSchema.static
 
-export const ProjectParams = z.object({
+export const ProjectParams = t.Object({
   projectId: UUIDPattern,
 })
 
 const tags = ['Project']
 
 export const ProjectCreateSchema = {
-  body: z.object({
-    name: z
-      .string({
-        error: 'Project name is required and must be at least 1 character long',
-      })
-      .trim()
-      .min(1),
+  body: t.Object({
+    name: t.String({
+      minLength: 1,
+      maxLength: 255,
+      error: 'Project name is required and must be between 1 and 255 characters long',
+    }),
   }),
   response: {
-    201: z.object({
+    201: t.Object({
       data: ProjectResponseSchema,
     }),
     422: ApiError,
@@ -65,8 +73,8 @@ export const ProjectCreateSchema = {
 
 export const ProjectsGetAllSchema = {
   response: {
-    200: z.object({
-      data: z.array(ProjectResponseSchema),
+    200: t.Object({
+      data: t.Array(ProjectResponseSchema),
     }),
     422: ApiError,
     500: ApiError,
@@ -78,14 +86,14 @@ export const ProjectsGetAllSchema = {
   },
 }
 
-const ResponseSchema = z.object({
-  data: z.array(z.any()),
-  meta: z.object({
-    name: z.string(),
+const ResponseSchema = t.Object({
+  data: t.Array(t.Any()),
+  meta: t.Object({
+    name: t.String(),
     schema: DuckDBColumnSchema,
-    total: z.number(),
-    limit: z.number(),
-    offset: z.number(),
+    total: t.Number(),
+    limit: t.Number(),
+    offset: t.Number(),
   }),
 })
 
@@ -105,11 +113,11 @@ export const GetProjectByIdSchema = {
   },
 }
 
-export type GetProjectByIdResponse = z.infer<typeof ResponseSchema>
+export type GetProjectByIdResponse = typeof ResponseSchema.static
 
 export const ProjectDeleteSchema = {
   response: {
-    204: z.void(),
+    204: t.Void(),
     404: ApiError,
     422: ApiError,
     500: ApiError,
@@ -138,9 +146,9 @@ export const ProjectImportFileSchema = {
     ),
   }),
   response: {
-    201: z.object({
-      data: z.object({
-        id: z.string(),
+    201: t.Object({
+      data: t.Object({
+        id: t.String(),
       }),
     }),
     400: ApiError,

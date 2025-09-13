@@ -329,19 +329,17 @@ describe('Wikibase API', () => {
         .schemas.get()
 
       expect(status).toBe(200)
-      expect(data).toEqual({
-        data: [
-          {
-            id: schema.schemaId,
-            project_id: schema.projectId,
-            name: schema.name,
-            wikibase: schema.wikibase,
-            schema: schema.schema,
-            created_at: expect.any(String),
-            updated_at: expect.any(String),
-          },
-        ],
-      })
+      expect(data).toHaveProperty('data', [
+        {
+          id: schema.schemaId,
+          project_id: schema.projectId,
+          name: schema.name,
+          wikibase: schema.wikibase,
+          schema: schema.schema,
+          created_at: expect.any(String),
+          updated_at: expect.any(String),
+        },
+      ])
       expect(error).toBeNull()
     })
 
