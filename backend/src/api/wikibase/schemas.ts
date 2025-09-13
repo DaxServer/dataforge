@@ -1,96 +1,133 @@
 import { ApiError } from '@backend/types/error-schemas'
 import { ItemId, PropertyId, WikibaseDataType } from '@backend/types/wikibase-schema'
-import { t } from 'elysia'
+import z from 'zod'
 
-export const PropertySearchResultSchema = t.Object({
-  id: t.String(),
-  label: t.String(),
-  description: t.Optional(t.String()),
+// interface WikibaseSearchEntityResult<T> {
+//   id: T
+//   title: string
+//   pageid: number
+//   datatype: WikibaseDataType
+//   concepturi: string
+//   repository: string
+//   url: string
+//   display: {
+//     label?: {
+//       value: string
+//       language: string
+//     }
+//     description?: {
+//       value: string
+//       language: string
+//     }
+//   }
+//   label: string
+//   description: string
+//   match: {
+//     type: string
+//     language: string
+//     text: string
+//   }
+//   aliases?: string[]
+// }
+
+const Term = z.union([z.literal('label'), z.literal('alias'), z.literal('description')])
+export type Term = z.infer<typeof Term>
+
+const PropertySearchResultSchema = z.object({
+  id: z.string(),
+  title: z.string(),
+  pageid: z.number(),
   datatype: WikibaseDataType,
-  match: t.Object({
-    type: t.Union([t.Literal('label'), t.Literal('alias'), t.Literal('description')]),
-    text: t.String(),
+  label: z.string(),
+  description: z.string(),
+  aliases: z.array(z.string()),
+  match: z.object({
+    type: Term,
+    language: z.string(),
+    text: z.string(),
+  }),
+})
+export type PropertySearchResult = z.infer<typeof PropertySearchResultSchema>
+
+export const PropertyDetailsSchema = z.object({
+  id: z.string(),
+  pageid: z.number().optional(),
+  ns: z.number().optional(),
+  title: z.string().optional(),
+  lastrevid: z.number().optional(),
+  modified: z.string().optional(),
+  type: z.literal('property'),
+  datatype: WikibaseDataType,
+  labels: z.record(z.string(), z.string()).optional(),
+  descriptions: z.record(z.string(), z.string()).optional(),
+  aliases: z.record(z.string(), z.array(z.string())).optional(),
+  claims: z.record(z.string(), z.array(z.any())).optional(),
+})
+
+export const ItemSearchResultSchema = z.object({
+  id: z.string(),
+  label: z.string(),
+  description: z.string().optional(),
+  match: z.object({
+    type: Term,
+    text: z.string(),
   }),
 })
 
-export const PropertyDetailsSchema = t.Object({
-  id: t.String(),
-  pageid: t.Optional(t.Number()),
-  ns: t.Optional(t.Number()),
-  title: t.Optional(t.String()),
-  lastrevid: t.Optional(t.Number()),
-  modified: t.Optional(t.String()),
-  type: t.Literal('property'),
-  datatype: WikibaseDataType,
-  labels: t.Optional(t.Record(t.String(), t.String())),
-  descriptions: t.Optional(t.Record(t.String(), t.String())),
-  aliases: t.Optional(t.Record(t.String(), t.Array(t.String()))),
-  claims: t.Optional(t.Record(t.String(), t.Array(t.Any()))),
+export const SiteLinkSchema = z.object({
+  site: z.string(),
+  title: z.string(),
+  badges: z.optional(z.array(z.string())),
 })
 
-export const ItemSearchResultSchema = t.Object({
-  id: t.String(),
-  label: t.String(),
-  description: t.Optional(t.String()),
-  match: t.Object({
-    type: t.Union([t.Literal('label'), t.Literal('alias'), t.Literal('description')]),
-    text: t.String(),
-  }),
-})
-
-export const SiteLinkSchema = t.Object({
-  site: t.String(),
-  title: t.String(),
-  badges: t.Optional(t.Array(t.String())),
-})
-
-export const ItemDetailsSchema = t.Object({
-  id: t.String(),
-  pageid: t.Optional(t.Number()),
-  ns: t.Optional(t.Number()),
-  title: t.Optional(t.String()),
-  lastrevid: t.Optional(t.Number()),
-  modified: t.Optional(t.String()),
-  type: t.Literal('item'),
-  labels: t.Optional(t.Record(t.String(), t.String())),
-  descriptions: t.Optional(t.Record(t.String(), t.String())),
-  aliases: t.Optional(t.Record(t.String(), t.Array(t.String()))),
-  claims: t.Optional(t.Record(t.String(), t.Array(t.Any()))),
-  sitelinks: t.Optional(t.Record(t.String(), t.Any())),
+export const ItemDetailsSchema = z.object({
+  id: z.string(),
+  pageid: z.number().optional(),
+  ns: z.number().optional(),
+  title: z.string().optional(),
+  lastrevid: z.number().optional(),
+  modified: z.string().optional(),
+  type: z.literal('item'),
+  labels: z.record(z.string(), z.string()).optional(),
+  descriptions: z.record(z.string(), z.string()).optional(),
+  aliases: z.record(z.string(), z.array(z.string())).optional(),
+  claims: z.record(z.string(), z.array(z.any())).optional(),
+  sitelinks: z.record(z.string(), z.any()).optional(),
 })
 
 // Response schemas
-export const PropertySearchResponseSchema = t.Object({
-  results: t.Array(PropertySearchResultSchema),
-  totalCount: t.Number(),
-  hasMore: t.Boolean(),
-  query: t.String(),
+export const ItemSearchResponseSchema = z.object({
+  results: z.array(ItemSearchResultSchema),
+  totalCount: z.number(),
+  hasMore: z.boolean(),
+  query: z.string(),
 })
 
-export const ItemSearchResponseSchema = t.Object({
-  results: t.Array(ItemSearchResultSchema),
-  totalCount: t.Number(),
-  hasMore: t.Boolean(),
-  query: t.String(),
-})
+const InstanceId = z.string().describe('Wikibase instance ID').default('wikidata')
 
 // Route schemas
 export const PropertySearchSchema = {
-  query: t.Object({
-    q: t.String({ description: 'Search query for properties' }),
-    instance: t.Optional(t.String({ description: 'Wikibase instance ID', default: 'wikidata' })),
-    limit: t.Optional(t.Number({ description: 'Maximum number of results', default: 10 })),
-    offset: t.Optional(t.Number({ description: 'Offset for pagination', default: 0 })),
-    language: t.Optional(
-      t.String({ description: 'Language code for search results', default: 'en' }),
-    ),
-    datatype: t.Optional(WikibaseDataType),
-    languageFallback: t.Optional(
-      t.Boolean({ description: 'Enable language fallback for partial matches', default: true }),
-    ),
+  query: z.object({
+    q: z.string().min(1).describe('Search query for properties'),
+    instance: InstanceId,
+    limit: z.coerce.number().default(10).describe('Maximum number of results'),
+    offset: z.coerce.number().default(0).describe('Offset for pagination'),
+    language: z.string().default('en').describe('Language code for search results'),
+    languageFallback: z
+      .boolean()
+      .default(true)
+      .describe('Enable language fallback for partial matches')
+      .optional(),
   }),
   response: {
-    200: t.Object({ data: PropertySearchResponseSchema }),
+    200: z.object({
+      data: z.object({
+        results: z.array(PropertySearchResultSchema),
+        totalCount: z.number(),
+        hasMore: z.boolean(),
+        query: z.string(),
+      }),
+    }),
     400: ApiError,
     422: ApiError,
     500: ApiError,
@@ -105,17 +142,19 @@ export const PropertySearchSchema = {
 
 // Instance-specific schemas for the new API structure
 export const InstancePropertyDetailsSchema = {
-  params: t.Object({
-    instanceId: t.String({ description: 'Wikibase instance ID' }),
+  params: z.object({
+    instanceId: InstanceId,
     propertyId: PropertyId,
   }),
-  query: t.Object({
-    includeConstraints: t.Optional(
-      t.Boolean({ description: 'Include property constraints in response', default: false }),
-    ),
+  query: z.object({
+    includeConstraints: z
+      .boolean()
+      .default(false)
+      .describe('Include property constraints in response')
+      .optional(),
   }),
   response: {
-    200: t.Object({ data: PropertyDetailsSchema }),
+    200: z.object({ data: PropertyDetailsSchema }),
     400: ApiError,
     404: ApiError,
     422: ApiError,
@@ -130,20 +169,13 @@ export const InstancePropertyDetailsSchema = {
 }
 
 export const InstancePropertyConstraintsSchema = {
-  params: t.Object({
-    instanceId: t.String({ description: 'Wikibase instance ID' }),
+  params: z.object({
+    instanceId: InstanceId,
     propertyId: PropertyId,
   }),
   response: {
-    200: t.Object({
-      data: t.Array(
-        t.Object({
-          type: t.String(),
-          parameters: t.Object({}),
-          description: t.Optional(t.String()),
-          violationMessage: t.Optional(t.String()),
-        }),
-      ),
+    200: z.object({
+      data: z.any(),
     }),
     400: ApiError,
     404: ApiError,
@@ -157,49 +189,49 @@ export const InstancePropertyConstraintsSchema = {
 }
 
 export const PropertyValidationSchema = {
-  params: t.Object({
-    instanceId: t.String({ description: 'Wikibase instance ID' }),
+  params: z.object({
+    instanceId: InstanceId,
   }),
-  body: t.Object({
-    propertyId: PropertyId,
-    value: t.Any({ description: 'Value to validate against property constraints' }),
-    context: t.Optional(
-      t.Object({
-        entityId: t.Optional(t.String({ description: 'Entity ID for context' })),
-        additionalProperties: t.Optional(
-          t.Array(
-            t.Object({
-              property: t.String(),
-              value: t.Any(),
+  body: z
+    .object({
+      propertyId: PropertyId,
+      value: z.any().describe('Value to validate against property constraints'),
+      context: z.object({
+        entityId: z.string().describe('Entity ID for context').optional(),
+        additionalProperties: z
+          .array(
+            z.object({
+              property: z.string(),
+              value: z.any(),
             }),
-            { description: 'Additional properties for validation context' },
-          ),
-        ),
+          )
+          .describe('Additional properties for validation context')
+          .optional(),
       }),
-    ),
-  }),
+    })
+    .optional(),
   response: {
-    200: t.Object({
-      data: t.Object({
-        isValid: t.Boolean(),
-        violations: t.Array(
-          t.Object({
-            constraintType: t.String(),
-            message: t.String(),
-            severity: t.Union([t.Literal('error'), t.Literal('warning')]),
-            propertyId: t.String(),
-            value: t.Optional(t.Any()),
+    200: z.object({
+      data: z.object({
+        isValid: z.boolean(),
+        violations: z.array(
+          z.object({
+            constraintType: z.string(),
+            message: z.string(),
+            severity: z.union([z.literal('error'), z.literal('warning')]),
+            propertyId: z.string(),
+            value: z.optional(z.any()),
           }),
         ),
-        warnings: t.Array(
-          t.Object({
-            constraintType: t.String(),
-            message: t.String(),
-            propertyId: t.String(),
-            value: t.Optional(t.Any()),
+        warnings: z.array(
+          z.object({
+            constraintType: z.string(),
+            message: z.string(),
+            propertyId: z.string(),
+            value: z.optional(z.any()),
           }),
         ),
-        suggestions: t.Array(t.String()),
+        suggestions: z.array(z.string()),
       }),
     }),
     400: ApiError,
@@ -213,47 +245,49 @@ export const PropertyValidationSchema = {
 }
 
 export const SchemaValidationSchema = {
-  params: t.Object({
-    instanceId: t.String({ description: 'Wikibase instance ID' }),
+  params: z.object({
+    instanceId: InstanceId,
   }),
-  body: t.Object({
-    schema: t.Any({ description: 'Schema object to validate' }),
-    options: t.Optional(
-      t.Object({
-        strictMode: t.Optional(
-          t.Boolean({ description: 'Enable strict validation mode', default: false }),
-        ),
-        includeWarnings: t.Optional(
-          t.Boolean({ description: 'Include warnings in validation results', default: true }),
-        ),
-        validateReferences: t.Optional(
-          t.Boolean({ description: 'Validate referenced entities', default: false }),
-        ),
-      }),
-    ),
+  body: z.object({
+    schema: z.any().describe('Schema object to validate'),
+    options: z
+      .object({
+        strictMode: z.boolean().default(false).describe('Enable strict validation mode').optional(),
+        includeWarnings: z
+          .boolean()
+          .default(true)
+          .describe('Include warnings in validation results')
+          .optional(),
+        validateReferences: z
+          .boolean()
+          .default(false)
+          .describe('Validate referenced entities')
+          .optional(),
+      })
+      .optional(),
   }),
   response: {
-    200: t.Object({
-      data: t.Object({
-        isValid: t.Boolean(),
-        violations: t.Array(
-          t.Object({
-            constraintType: t.String(),
-            message: t.String(),
-            severity: t.Union([t.Literal('error'), t.Literal('warning')]),
-            propertyId: t.String(),
-            value: t.Optional(t.Any()),
+    200: z.object({
+      data: z.object({
+        isValid: z.boolean(),
+        violations: z.array(
+          z.object({
+            constraintType: z.string(),
+            message: z.string(),
+            severity: z.union([z.literal('error'), z.literal('warning')]),
+            propertyId: z.string(),
+            value: z.optional(z.any()),
           }),
         ),
-        warnings: t.Array(
-          t.Object({
-            constraintType: t.String(),
-            message: t.String(),
-            propertyId: t.String(),
-            value: t.Optional(t.Any()),
+        warnings: z.array(
+          z.object({
+            constraintType: z.string(),
+            message: z.string(),
+            propertyId: z.string(),
+            value: z.optional(z.any()),
           }),
         ),
-        suggestions: t.Array(t.String()),
+        suggestions: z.array(z.string()),
       }),
     }),
     400: ApiError,
@@ -267,34 +301,32 @@ export const SchemaValidationSchema = {
 }
 
 export const PropertyDetailsRouteSchema = {
-  params: t.Object({
+  params: z.object({
     propertyId: PropertyId,
   }),
-  query: t.Object({
-    instance: t.Optional(t.String({ description: 'Wikibase instance ID', default: 'wikidata' })),
-    includeConstraints: t.Optional(
-      t.Boolean({ description: 'Include property constraints in response', default: false }),
-    ),
+  query: z.object({
+    instance: InstanceId.optional(),
+    includeConstraints: z
+      .boolean()
+      .default(false)
+      .describe('Include property constraints in response')
+      .optional(),
   }),
   response: InstancePropertyDetailsSchema.response,
   detail: InstancePropertyDetailsSchema.detail,
 }
 
 export const ItemSearchSchema = {
-  query: t.Object({
-    q: t.String({ description: 'Search query for items' }),
-    instance: t.Optional(t.String({ description: 'Wikibase instance ID', default: 'wikidata' })),
-    limit: t.Optional(t.Number({ description: 'Maximum number of results', default: 10 })),
-    offset: t.Optional(t.Number({ description: 'Offset for pagination', default: 0 })),
-    language: t.Optional(
-      t.String({ description: 'Language code for search results', default: 'en' }),
-    ),
-    languageFallback: t.Optional(
-      t.Boolean({ description: 'Enable language fallback', default: true }),
-    ),
+  query: z.object({
+    q: z.string().describe('Search query for items'),
+    instance: InstanceId.optional(),
+    limit: z.number().default(10).describe('Maximum number of results').optional(),
+    offset: z.number().default(0).describe('Offset for pagination').optional(),
+    language: z.string().default('en').describe('Language code for search results').optional(),
+    languageFallback: z.boolean().default(true).describe('Enable language fallback').optional(),
   }),
   response: {
-    200: t.Object({ data: ItemSearchResponseSchema }),
+    200: z.object({ data: ItemSearchResponseSchema }),
     400: ApiError,
     422: ApiError,
     500: ApiError,
@@ -308,12 +340,12 @@ export const ItemSearchSchema = {
 }
 
 export const ItemDetailsRouteSchema = {
-  params: t.Object({
-    instanceId: t.String({ description: 'Wikibase instance ID' }),
+  params: z.object({
+    instanceId: InstanceId,
     itemId: ItemId,
   }),
   response: {
-    200: t.Object({ data: ItemDetailsSchema }),
+    200: z.object({ data: ItemDetailsSchema }),
     400: ApiError,
     404: ApiError,
     422: ApiError,
@@ -327,55 +359,55 @@ export const ItemDetailsRouteSchema = {
 }
 
 // Constraint-related schemas extracted from constraints.ts
-export const PropertyConstraintSchema = t.Object({
-  type: t.String(),
-  parameters: t.Record(t.String(), t.Any()),
-  description: t.Optional(t.String()),
-  violationMessage: t.Optional(t.String()),
+export const PropertyConstraintSchema = z.object({
+  type: z.string(),
+  parameters: z.record(z.string(), z.any()),
+  description: z.string().optional(),
+  violationMessage: z.string().optional(),
 })
 
-export const ConstraintViolationSchema = t.Object({
-  constraintType: t.String(),
-  message: t.String(),
-  severity: t.Union([t.Literal('error'), t.Literal('warning')]),
-  propertyId: t.String(),
-  value: t.Optional(t.Any()),
+export const ConstraintViolationSchema = z.object({
+  constraintType: z.string(),
+  message: z.string(),
+  severity: z.union([z.literal('error'), z.literal('warning')]),
+  propertyId: z.string(),
+  value: z.optional(z.any()),
 })
 
-export const ConstraintWarningSchema = t.Object({
-  constraintType: t.String(),
-  message: t.String(),
-  propertyId: t.String(),
+export const ConstraintWarningSchema = z.object({
+  constraintType: z.string(),
+  message: z.string(),
+  propertyId: z.string(),
 })
 
-export const ValidationResultSchema = t.Object({
-  isValid: t.Boolean(),
-  violations: t.Array(ConstraintViolationSchema),
-  warnings: t.Array(ConstraintWarningSchema),
-  suggestions: t.Array(t.String()),
+export const ValidationResultSchema = z.object({
+  isValid: z.boolean(),
+  violations: z.array(ConstraintViolationSchema),
+  warnings: z.array(ConstraintWarningSchema),
+  suggestions: z.array(z.string()),
 })
 
-export const PropertyConstraintsResponseSchema = t.Array(PropertyConstraintSchema)
+export const PropertyConstraintsResponseSchema = z.array(PropertyConstraintSchema)
 
-export const PropertyValidationRequestSchema = t.Object({
-  propertyId: t.String(),
-  values: t.Array(t.Any()),
+export const PropertyValidationRequestSchema = z.object({
+  propertyId: z.string(),
+  values: z.array(z.any()),
 })
 
-export const SchemaValidationRequestSchema = t.Object({
-  schema: t.Record(t.String(), t.Array(t.Any())),
+export const SchemaValidationRequestSchema = z.object({
+  schema: z.record(z.string(), z.array(z.any())),
 })
 
 // Property Constraints Route Schemas
 export const PropertyConstraintsRouteSchema = {
-  params: t.Object({
-    propertyId: t.String({ description: 'Property ID' }),
+  params: z.object({
+    propertyId: z.string().describe('Property ID'),
   }),
-  query: t.Object({
-    instance: t.Optional(t.String({ description: 'Wikibase instance ID', default: 'wikidata' })),
+  query: z.object({
+    instance: InstanceId.optional(),
   }),
   response: {
-    200: t.Object({ data: PropertyConstraintsResponseSchema }),
+    200: z.object({ data: PropertyConstraintsResponseSchema }),
     400: ApiError,
     404: ApiError,
     500: ApiError,
@@ -390,11 +422,11 @@ export const PropertyConstraintsRouteSchema = {
 // Property Validation Route Schemas
 export const PropertyValidationConstraintsRouteSchema = {
   body: PropertyValidationRequestSchema,
-  query: t.Object({
-    instance: t.Optional(t.String({ description: 'Wikibase instance ID', default: 'wikidata' })),
+  query: z.object({
+    instance: InstanceId.optional(),
   }),
   response: {
-    200: t.Object({ data: ValidationResultSchema }),
+    200: z.object({ data: ValidationResultSchema }),
     400: ApiError,
     500: ApiError,
   },
@@ -408,11 +440,11 @@ export const PropertyValidationConstraintsRouteSchema = {
 // Schema Validation Route Schemas
 export const SchemaValidationConstraintsRouteSchema = {
   body: SchemaValidationRequestSchema,
-  query: t.Object({
-    instance: t.Optional(t.String({ description: 'Wikibase instance ID', default: 'wikidata' })),
+  query: z.object({
+    instance: InstanceId.optional(),
   }),
   response: {
-    200: t.Object({ data: ValidationResultSchema }),
+    200: z.object({ data: ValidationResultSchema }),
     400: ApiError,
     500: ApiError,
   },
@@ -426,21 +458,34 @@ export const SchemaValidationConstraintsRouteSchema = {
 
 // Cache Clear Route Schemas
 export const CacheClearRouteSchema = {
-  query: t.Object({
-    instance: t.Optional(
-      t.String({
-        description:
-          'Wikibase instance ID to clear cache for (optional - clears all if not provided)',
-      }),
-    ),
+  query: z.object({
+    instance: InstanceId.optional(),
   }),
   response: {
-    200: t.Object({ data: t.Object({ message: t.String() }) }),
+    200: z.object({ data: z.object({ message: z.string() }) }),
     500: ApiError,
   },
   detail: {
     summary: 'Clear constraint cache',
     description: 'Clear the constraint validation cache for better performance',
     tags: ['Wikibase', 'Constraints', 'Cache'],
+  },
+}
+
+export const WikibasePropertiesFetchSchema = {
+  response: {
+    200: z.object({
+      data: z.object({
+        total: z.number(),
+        inserted: z.number(),
+      }),
+    }),
+    400: ApiError,
+    500: ApiError,
+  },
+  detail: {
+    summary: 'Fetch all properties',
+    description: 'Fetch all properties from a Wikibase instance',
+    tags: ['Wikibase', 'Properties'],
   },
 }

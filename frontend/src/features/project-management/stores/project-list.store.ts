@@ -1,4 +1,4 @@
-import type { Project } from '@backend/api/project/_schemas'
+import type { Project } from '@backend/api/project/schemas'
 
 export const useProjectListStore = defineStore('project.list', () => {
   const api = useApi()

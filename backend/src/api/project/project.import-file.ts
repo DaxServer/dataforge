@@ -1,6 +1,4 @@
-import { ApiError } from '@backend/types/error-schemas'
 import type { DuckDBConnection } from '@duckdb/node-api'
-import { t } from 'elysia'
 
 export const generateProjectName = (fileName: string) => {
   const now = new Date()
@@ -25,32 +23,4 @@ export const cleanupProject = async (
   if (tempFilePath) {
     await Bun.file(tempFilePath).delete()
   }
-}
-
-export const ProjectImportFileSchema = {
-  body: t.Object({
-    file: t.File({
-      // Note: File type validation has known issues in Elysia 1.3.x
-      // See: https://github.com/elysiajs/elysia/issues/1073
-      // type: ['application/json'], // Temporarily disabled due to validation issues
-      minSize: 1, // Reject empty files
-    }),
-    name: t.Optional(
-      t.String({
-        minLength: 1,
-        maxLength: 255,
-        error: 'Project name must be between 1 and 255 characters long if provided',
-      }),
-    ),
-  }),
-  response: {
-    201: t.Object({
-      data: t.Object({
-        id: t.String(),
-      }),
-    }),
-    400: ApiError,
-    422: ApiError,
-    500: ApiError,
-  },
 }

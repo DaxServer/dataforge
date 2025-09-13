@@ -10,7 +10,6 @@ export const useProjectCreationComposable = () => {
 
     if (eventFiles.length === 0) {
       showError({
-        data: [],
         errors: [{ code: 'VALIDATION', message: 'Please add files first.' }],
       })
       return
@@ -19,7 +18,6 @@ export const useProjectCreationComposable = () => {
     const fileToUpload = eventFiles[0]
     if (!fileToUpload) {
       showError({
-        data: [],
         errors: [{ code: 'VALIDATION', message: 'No file selected for upload' }],
       })
       return
@@ -47,7 +45,6 @@ export const useProjectCreationComposable = () => {
       }, 1000)
     } else {
       showError({
-        data: [],
         errors: [
           {
             code: 'PROJECT_CREATION_FAILED',

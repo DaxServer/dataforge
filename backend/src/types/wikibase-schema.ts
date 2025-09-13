@@ -1,28 +1,28 @@
-import { t } from 'elysia'
+import z from 'zod'
 
-export const ItemId = t.TemplateLiteral([t.Literal('Q'), t.Numeric({ min: 1 })])
-export type ItemId = typeof ItemId.static
+export const ItemId = z.templateLiteral([z.literal('Q'), z.number()])
+export type ItemId = z.infer<typeof ItemId>
 
-export const PropertyId = t.TemplateLiteral([t.Literal('P'), t.Numeric({ min: 1 })])
-export type PropertyId = typeof PropertyId.static
+export const PropertyId = z.templateLiteral([z.literal('P'), z.number()])
+export type PropertyId = z.infer<typeof PropertyId>
 
-export const StatementRank = t.Union([
-  t.Literal('preferred'),
-  t.Literal('normal'),
-  t.Literal('deprecated'),
+export const StatementRank = z.union([
+  z.literal('preferred'),
+  z.literal('normal'),
+  z.literal('deprecated'),
 ])
-export type StatementRank = typeof StatementRank.static
+export type StatementRank = z.infer<typeof StatementRank>
 
-export const WikibaseDataType = t.Union([
-  t.Literal('string'),
-  t.Literal('wikibase-item'),
-  t.Literal('wikibase-property'),
-  t.Literal('quantity'),
-  t.Literal('time'),
-  t.Literal('globe-coordinate'),
-  t.Literal('url'),
-  t.Literal('external-id'),
-  t.Literal('monolingualtext'),
-  t.Literal('commonsMedia'),
+export const WikibaseDataType = z.union([
+  z.literal('string'),
+  z.literal('wikibase-item'),
+  z.literal('wikibase-property'),
+  z.literal('quantity'),
+  z.literal('time'),
+  z.literal('globe-coordinate'),
+  z.literal('url'),
+  z.literal('external-id'),
+  z.literal('monolingualtext'),
+  z.literal('commonsMedia'),
 ])
-export type WikibaseDataType = typeof WikibaseDataType.static
+export type WikibaseDataType = z.infer<typeof WikibaseDataType>

@@ -86,7 +86,7 @@ import { Elysia } from 'elysia'
 import { projectRoutes } from '@backend/api/project'
 import { initializeDb, closeDb } from '@backend/plugins/database'
 import { treaty } from '@elysiajs/eden'
-import { UUID_REGEX_PATTERN } from '@backend/api/project/_schemas'
+import { UUID_REGEX_PATTERN } from '@backend/api/project/schemas'
 
 describe('POST /api/project - create new project', () => {
   let api: ReturnType<typeof createTestApi>

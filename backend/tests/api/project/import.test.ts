@@ -58,7 +58,6 @@ describe('POST /project/:projectId/import', () => {
     expect(data).toBeNull()
     expect(error).toHaveProperty('status', 400)
     expect(error).toHaveProperty('value', {
-      data: [],
       errors: [
         {
           code: 'FILE_NOT_FOUND',
@@ -81,7 +80,6 @@ describe('POST /project/:projectId/import', () => {
     expect(data).toBeNull()
     expect(error).toHaveProperty('status', 500)
     expect(error).toHaveProperty('value', {
-      data: [],
       errors: [
         {
           code: 'INTERNAL_SERVER_ERROR',
@@ -140,7 +138,6 @@ describe('POST /project/:projectId/import', () => {
     expect(data).toBeNull()
     expect(error).toHaveProperty('status', 409)
     expect(error).toHaveProperty('value', {
-      data: [],
       errors: [
         {
           code: 'TABLE_ALREADY_EXISTS',

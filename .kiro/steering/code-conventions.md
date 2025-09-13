@@ -153,7 +153,7 @@ When reviewing code for compliance, check in this order:
 
 - Use Elysia framework patterns and conventions
 - Implement proper error handling with Elysia plugins
-- Define schemas in `_schemas.ts` files
+- Define schemas in `schemas.ts` files
 - Group routes by domain (e.g., `/api/project/*`)
 
 ### Database Operations

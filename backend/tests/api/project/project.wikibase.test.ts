@@ -262,19 +262,16 @@ const expectNotFoundError = (status: number, data: any, error: any, message: str
   expect(status).toBe(404)
   expect(data).toBeNull()
   expect(error).not.toBeNull()
-  expect(error.status).toBe(404)
-  expect(error.value).toEqual(
-    expect.objectContaining({
-      data: [],
-      errors: [
-        expect.objectContaining({
-          code: 'NOT_FOUND',
-          details: [],
-          message: message,
-        }),
-      ],
-    }),
-  )
+  expect(error).toHaveProperty('status', 404)
+  expect(error).toHaveProperty('value', {
+    errors: [
+      {
+        code: 'NOT_FOUND',
+        details: [],
+        message,
+      },
+    ],
+  })
 }
 
 const expectSuccess = (

@@ -1,4 +1,4 @@
-import type { GetProjectByIdResponse } from '@backend/api/project/project.get'
+import type { GetProjectByIdResponse } from "@backend/api/project/schemas"
 
 export const useProjectStore = defineStore('project', () => {
   const api = useApi()

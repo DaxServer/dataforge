@@ -1,6 +1,4 @@
-/// <reference types="bun-types" />
 import { projectRoutes } from '@backend/api/project'
-import { UUID_REGEX } from '@backend/api/project/_schemas'
 import { closeDb, getDb, initializeDb } from '@backend/plugins/database'
 import { treaty } from '@elysiajs/eden'
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test'
@@ -45,7 +43,7 @@ describe('deleteProject', () => {
     ])
     const projects = selectReader.getRowObjectsJson()
 
-    expect(projects).toEqual([])
+    expect(projects).toBeArrayOfSize(0)
   })
 
   test('should return 404 when trying to delete non-existent project', async () => {
@@ -57,7 +55,6 @@ describe('deleteProject', () => {
     expect(data).toBeNull()
     expect(error).toHaveProperty('status', 404)
     expect(error).toHaveProperty('value', {
-      data: [],
       errors: [
         {
           code: 'NOT_FOUND',
@@ -74,23 +71,16 @@ describe('deleteProject', () => {
     expect(status).toBe(422)
     expect(data).toBeNull()
     expect(error).toHaveProperty('status', 422)
-    expect(error).toHaveProperty('value', {
-      data: [],
-      errors: [
-        {
-          code: 'VALIDATION',
-          details: [
-            {
-              path: '/projectId',
-              message: `Expected string to match '${UUID_REGEX}'`,
-              schema: {
-                pattern: UUID_REGEX,
-                type: 'string',
-              },
-            },
-          ],
-        },
-      ],
-    })
+    expect(error).toHaveProperty('value', [
+      {
+        message: 'Invalid UUID',
+        code: 'invalid_format',
+        origin: 'string',
+        format: 'uuid',
+        path: ['projectId'],
+        pattern:
+          '/^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$/',
+      },
+    ])
   })
 })

@@ -40,6 +40,14 @@ export const initializeDb = async (dbPath: string): Promise<DuckDBConnection> =>
       updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
       FOREIGN KEY (project_id) REFERENCES _meta_projects(id)
     );
+    CREATE TABLE IF NOT EXISTS wikibase_properties (
+      id TEXT PRIMARY KEY,
+      title TEXT NOT NULL,
+      pageid INTEGER NOT NULL,
+      namespace INTEGER NOT NULL DEFAULT 120,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
   `)
 
   return connection

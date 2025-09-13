@@ -7,7 +7,7 @@ import { closeDb } from '@backend/plugins/database'
 import { errorHandlerPlugin } from '@backend/plugins/error-handler'
 import { logger } from '@bogeychan/elysia-logger'
 import { cors } from '@elysiajs/cors'
-import swagger from '@elysiajs/swagger'
+import { openapi } from '@elysiajs/openapi'
 import { Elysia } from 'elysia'
 
 export const elysiaApp = new Elysia({
@@ -18,9 +18,9 @@ export const elysiaApp = new Elysia({
   .use(errorHandlerPlugin)
   .use(cors())
   .use(
-    swagger({
+    openapi({
       path: '/docs',
-      scalarConfig: {
+      scalar: {
         servers: [
           {
             url: 'http://localhost:3000',

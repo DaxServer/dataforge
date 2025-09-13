@@ -198,7 +198,6 @@ export class ApiErrorHandler {
     details: unknown[] = [],
   ): ApiError {
     return {
-      data: [],
       errors: [
         {
           code,

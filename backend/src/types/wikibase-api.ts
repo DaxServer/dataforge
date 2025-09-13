@@ -119,10 +119,9 @@ export interface ItemSearchResult {
 
 // Search and API Response Types
 export interface SearchOptions {
-  limit?: number
-  offset?: number
-  language?: string
-  datatype?: WikibaseDataType
+  limit: number
+  offset: number
+  language: string
   languageFallback?: boolean
 }
 

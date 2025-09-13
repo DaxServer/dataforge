@@ -8,32 +8,6 @@ export class MediaWikiApiService {
     this.config = config
   }
 
-  private async request<T>(params: Record<string, any>, method = 'GET'): Promise<ApiResponse<T>> {
-    const url = new URL(this.config.endpoint)
-    const body = new URLSearchParams({ format: 'json', ...params })
-
-    const options: RequestInit = {
-      method,
-      headers: {
-        'User-Agent': this.config.userAgent,
-      },
-    }
-
-    if (method === 'POST') {
-      options.body = body.toString()
-    } else {
-      url.search = body.toString()
-    }
-
-    const response = await fetch(url.toString(), options)
-
-    if (!response.ok) {
-      throw new Error(`HTTP ${response.status}: ${response.statusText}`)
-    }
-
-    return response.json() as Promise<ApiResponse<T>>
-  }
-
   async getToken(type = 'csrf'): Promise<string> {
     if (this.tokens.has(type)) {
       return this.tokens.get(type)!
@@ -72,6 +46,36 @@ export class MediaWikiApiService {
 
   clearTokens(): void {
     this.tokens.clear()
+  }
+
+  private async request<T>(
+    params: Record<string, string>,
+    method = 'GET',
+  ): Promise<ApiResponse<T>> {
+    const url = new URL(this.config.endpoint)
+    const body = new URLSearchParams(params)
+
+    const options: RequestInit = {
+      method,
+      headers: {
+        'User-Agent':
+          this.config.userAgent || 'DataForge/1.0 (https://github.com/DaxServer/dataforge)',
+      },
+    }
+
+    if (method === 'POST') {
+      options.body = body.toString()
+    } else {
+      url.search = body.toString()
+    }
+
+    const response = await fetch(url.toString(), options)
+
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`)
+    }
+
+    return response.json() as Promise<ApiResponse<T>>
   }
 }
 

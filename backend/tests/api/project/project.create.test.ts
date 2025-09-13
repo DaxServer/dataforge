@@ -1,6 +1,5 @@
-/// <reference types="bun-types" />
 import { projectRoutes } from '@backend/api/project'
-import { UUID_REGEX_PATTERN } from '@backend/api/project/_schemas'
+import { UUID_REGEX_PATTERN } from '@backend/api/project/schemas'
 import { closeDb, initializeDb } from '@backend/plugins/database'
 import { treaty } from '@elysiajs/eden'
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test'
@@ -47,26 +46,14 @@ describe('createProject', () => {
       expect(status).toBe(422)
       expect(data).toBeNull()
       expect(error).toHaveProperty('status', 422)
-      expect(error).toHaveProperty('value', {
-        data: [],
-        errors: [
-          {
-            code: 'VALIDATION',
-            message: 'Project name is required and must be at least 1 character long',
-            details: [
-              {
-                path: '/name',
-                message: 'Expected string',
-                schema: {
-                  error: 'Project name is required and must be at least 1 character long',
-                  minLength: 1,
-                  type: 'string',
-                },
-              },
-            ],
-          },
-        ],
-      })
+      expect(error).toHaveProperty('value', [
+        {
+          code: 'invalid_type',
+          expected: 'string',
+          message: 'Project name is required and must be at least 1 character long',
+          path: ['name'],
+        },
+      ])
     })
 
     test('should return 422 when name is empty', async () => {
@@ -77,26 +64,16 @@ describe('createProject', () => {
       expect(status).toBe(422)
       expect(data).toBeNull()
       expect(error).toHaveProperty('status', 422)
-      expect(error).toHaveProperty('value', {
-        data: [],
-        errors: [
-          {
-            code: 'VALIDATION',
-            message: 'Project name is required and must be at least 1 character long',
-            details: [
-              {
-                path: '/name',
-                message: 'Expected string length greater or equal to 1',
-                schema: {
-                  error: 'Project name is required and must be at least 1 character long',
-                  minLength: 1,
-                  type: 'string',
-                },
-              },
-            ],
-          },
-        ],
-      })
+      expect(error).toHaveProperty('value', [
+        {
+          code: 'too_small',
+          inclusive: true,
+          message: 'Too small: expected string to have >=1 characters',
+          minimum: 1,
+          origin: 'string',
+          path: ['name'],
+        },
+      ])
     })
   })
 })

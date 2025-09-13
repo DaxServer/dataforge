@@ -38,7 +38,6 @@ describe('Wikibase Entities API', () => {
       expect(data).toBeNull()
       expect(status).toBe(404)
       expect(error).toHaveProperty('value', {
-        data: [],
         errors: [
           {
             details: [],
@@ -60,7 +59,6 @@ describe('Wikibase Entities API', () => {
       expect(data).toBeNull()
       expect(status).toBe(404)
       expect(error).toHaveProperty('value', {
-        data: [],
         errors: [
           {
             details: [],
@@ -80,7 +78,6 @@ describe('Wikibase Entities API', () => {
       expect(data).toBeNull()
       expect(status).toBe(404)
       expect(error).toHaveProperty('value', {
-        data: [],
         errors: [
           {
             details: [],
@@ -102,7 +99,6 @@ describe('Wikibase Entities API', () => {
       expect(data).toBeNull()
       expect(status).toBe(404)
       expect(error).toHaveProperty('value', {
-        data: [],
         errors: [
           {
             details: [],

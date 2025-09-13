@@ -1,6 +1,4 @@
-/// <reference types="bun-types" />
 import { projectRoutes } from '@backend/api/project'
-import { UUID_REGEX } from '@backend/api/project/_schemas'
 import { closeDb, initializeDb } from '@backend/plugins/database'
 import { treaty } from '@elysiajs/eden'
 import { afterEach, beforeEach, describe, expect, it } from 'bun:test'
@@ -134,7 +132,6 @@ describe('Project API - GET /:id', () => {
     expect(data).toBeNull()
     expect(error).toHaveProperty('status', 404)
     expect(error).toHaveProperty('value', {
-      data: [],
       errors: [
         {
           code: 'NOT_FOUND',
@@ -156,24 +153,17 @@ describe('Project API - GET /:id', () => {
     expect(status).toBe(422)
     expect(data).toBeNull()
     expect(error).toHaveProperty('status', 422)
-    expect(error).toHaveProperty('value', {
-      data: [],
-      errors: [
-        {
-          code: 'VALIDATION',
-          details: [
-            {
-              message: `Expected string to match '${UUID_REGEX}'`,
-              path: '/projectId',
-              schema: {
-                pattern: UUID_REGEX,
-                type: 'string',
-              },
-            },
-          ],
-        },
-      ],
-    })
+    expect(error).toHaveProperty('value', [
+      {
+        code: 'invalid_format',
+        format: 'uuid',
+        message: 'Invalid UUID',
+        origin: 'string',
+        path: ['projectId'],
+        pattern:
+          '/^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$/',
+      },
+    ])
   })
 
   it('should return 404 for project with no data table', async () => {
@@ -194,7 +184,6 @@ describe('Project API - GET /:id', () => {
     expect(data).toBeNull()
     expect(error).toHaveProperty('status', 404)
     expect(error).toHaveProperty('value', {
-      data: [],
       errors: [
         {
           code: 'NOT_FOUND',
@@ -210,10 +199,7 @@ describe('Project API - GET /:id', () => {
   describe('Pagination', () => {
     it('should return first page with default limit', async () => {
       const { data, status, error } = await api.project({ projectId }).get({
-        query: {
-          offset: 0,
-          limit: 25,
-        },
+        query: { limit: 25, offset: 0 },
       })
 
       expect(status).toBe(200)
@@ -224,7 +210,7 @@ describe('Project API - GET /:id', () => {
 
     it('should return first page with custom limit', async () => {
       const { data, status, error } = await api.project({ projectId }).get({
-        query: { limit: 3 },
+        query: { limit: 3, offset: 0 },
       })
 
       expect(status).toBe(200)
@@ -279,7 +265,7 @@ describe('Project API - GET /:id', () => {
 
     it('should handle maximum limit', async () => {
       const { data, status, error } = await api.project({ projectId }).get({
-        query: { limit: 1000 },
+        query: { limit: 1000, offset: 0 },
       })
 
       expect(status).toBe(200)

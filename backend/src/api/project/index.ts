@@ -1,20 +1,20 @@
-import { ProjectResponseSchema, UUIDPattern, type Project } from '@backend/api/project/_schemas'
 import { ProjectImportFileAltSchema, ProjectImportSchema } from '@backend/api/project/import'
-import { ProjectCreateSchema } from '@backend/api/project/project.create'
-import { ProjectDeleteSchema } from '@backend/api/project/project.delete'
-import { GetProjectByIdSchema } from '@backend/api/project/project.get'
-import { ProjectsGetAllSchema } from '@backend/api/project/project.get-all'
+import { cleanupProject, generateProjectName } from '@backend/api/project/project.import-file'
 import {
-  cleanupProject,
-  generateProjectName,
+  GetProjectByIdSchema,
+  ProjectCreateSchema,
+  ProjectDeleteSchema,
   ProjectImportFileSchema,
-} from '@backend/api/project/project.import-file'
+  ProjectParams,
+  ProjectsGetAllSchema,
+  type Project,
+} from '@backend/api/project/schemas'
 import { databasePlugin } from '@backend/plugins/database'
 import { errorHandlerPlugin } from '@backend/plugins/error-handler'
 import { ApiErrorHandler } from '@backend/types/error-handler'
 import { enhanceSchemaWithTypes, type DuckDBTablePragma } from '@backend/utils/duckdb-types'
 import cors from '@elysiajs/cors'
-import { Elysia, t } from 'elysia'
+import { Elysia } from 'elysia'
 
 export const projectRoutes = new Elysia({ prefix: '/api/project' })
   .use(errorHandlerPlugin)
@@ -29,7 +29,7 @@ export const projectRoutes = new Elysia({ prefix: '/api/project' })
       )
       const projects = reader.getRowObjectsJson()
       return {
-        data: projects as (typeof ProjectResponseSchema.static)[],
+        data: projects as Project[],
       }
     },
     ProjectsGetAllSchema,
@@ -58,7 +58,7 @@ export const projectRoutes = new Elysia({ prefix: '/api/project' })
       }
 
       return status(201, {
-        data: projects[0] as typeof ProjectResponseSchema.static,
+        data: projects[0] as Project,
       })
     },
     ProjectCreateSchema,
@@ -196,9 +196,7 @@ export const projectRoutes = new Elysia({ prefix: '/api/project' })
 
   .guard({
     schema: 'standalone',
-    params: t.Object({
-      projectId: UUIDPattern,
-    }),
+    params: ProjectParams,
   })
 
   .resolve(async ({ db, params: { projectId } }) => {
@@ -220,7 +218,7 @@ export const projectRoutes = new Elysia({ prefix: '/api/project' })
 
   .get(
     '/:projectId',
-    async ({ db, params: { projectId }, query: { limit = 0, offset = 0 }, projects, status }) => {
+    async ({ db, params: { projectId }, query: { limit = 25, offset = 0 }, projects, status }) => {
       try {
         // Get the project's data from the project table with pagination
         const tableName = `project_${projectId}`
@@ -275,7 +273,7 @@ export const projectRoutes = new Elysia({ prefix: '/api/project' })
 
       return status(204, undefined)
     },
-    ProjectDeleteSchema,
+    // ProjectDeleteSchema,
   )
 
   .post(

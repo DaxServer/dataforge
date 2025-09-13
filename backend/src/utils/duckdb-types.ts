@@ -1,4 +1,4 @@
-import type { DuckDBColumnSchema } from '@backend/api/project/_schemas'
+import type { DuckDBColumnSchema } from '@backend/api/project/schemas'
 import { DuckDBTypeId } from '@duckdb/node-api'
 
 export type DuckDBTablePragma = {
