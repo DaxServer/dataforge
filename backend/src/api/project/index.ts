@@ -273,7 +273,7 @@ export const projectRoutes = new Elysia({ prefix: '/api/project' })
 
       return status(204, undefined)
     },
-    // ProjectDeleteSchema,
+    ProjectDeleteSchema,
   )
 
   .post(

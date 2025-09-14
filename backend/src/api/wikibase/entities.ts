@@ -1,4 +1,5 @@
 import {
+  InstanceId,
   InstancePropertyConstraintsSchema,
   InstancePropertyDetailsSchema,
   ItemDetailsRouteSchema,
@@ -13,13 +14,20 @@ import { wikibasePlugin } from '@backend/plugins/wikibase'
 import { constraintValidationService } from '@backend/services/constraint-validation.service'
 import { ApiErrorHandler } from '@backend/types/error-handler'
 import { cors } from '@elysiajs/cors'
-import { Elysia } from 'elysia'
+import { Elysia, t } from 'elysia'
 
 export const wikibaseEntitiesApi = new Elysia({ prefix: '/api/wikibase' })
   .use(cors())
   .use(databasePlugin)
   .use(errorHandlerPlugin)
   .use(wikibasePlugin)
+
+  .guard({
+    schema: 'standalone',
+    params: t.Object({
+      instanceId: InstanceId,
+    }),
+  })
 
   .post(
     '/:instanceId/properties/fetch',
@@ -40,7 +48,7 @@ export const wikibaseEntitiesApi = new Elysia({ prefix: '/api/wikibase' })
     '/:instanceId/properties/search',
     async ({
       params: { instanceId },
-      query: { q, limit, offset, language, languageFallback },
+      query: { q, limit = 10, offset = 0, language = 'en', languageFallback = true },
       wikibase,
     }) => {
       if (q.trim().length === 0) {

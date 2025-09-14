@@ -1,13 +1,12 @@
 import { ApiError } from '@backend/types/error-schemas'
 import { t } from 'elysia'
-import z from 'zod'
 
 export const ProjectImportSchema = {
-  body: z.object({
-    filePath: z.string(),
+  body: t.Object({
+    filePath: t.String(),
   }),
   response: {
-    201: z.null(),
+    201: t.Null(),
     400: ApiError,
     409: ApiError,
     422: ApiError,
@@ -25,8 +24,8 @@ export const ProjectImportFileAltSchema = {
     }),
   }),
   response: {
-    201: z.object({
-      tempFilePath: z.string(),
+    201: t.Object({
+      tempFilePath: t.String(),
     }),
     400: ApiError,
     409: ApiError,

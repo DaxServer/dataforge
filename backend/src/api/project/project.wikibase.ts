@@ -1,115 +1,114 @@
 import { ProjectParams, UUIDPattern } from '@backend/api/project/schemas'
+import { InstanceId } from '@backend/api/wikibase/schemas'
 import { databasePlugin } from '@backend/plugins/database'
 import { errorHandlerPlugin } from '@backend/plugins/error-handler'
 import { ApiErrorHandler } from '@backend/types/error-handler'
 import { ApiError } from '@backend/types/error-schemas'
 import { ItemId, PropertyId, StatementRank, WikibaseDataType } from '@backend/types/wikibase-schema'
 import cors from '@elysiajs/cors'
-import { Elysia } from 'elysia'
-import z from 'zod'
+import { Elysia, t } from 'elysia'
 
 const tags = ['Wikibase', 'Schema']
 
 // Transformation rule for column mapping
-const TransformationRule = z.object({
-  type: z.union([z.literal('constant'), z.literal('expression'), z.literal('lookup')]),
-  value: z.string(),
-  parameters: z.optional(z.record(z.string(), z.any())),
+const TransformationRule = t.Object({
+  type: t.Union([t.Literal('constant'), t.Literal('expression'), t.Literal('lookup')]),
+  value: t.String(),
+  parameters: t.Optional(t.Record(t.String(), t.Any())),
 })
-export type TransformationRule = z.infer<typeof TransformationRule>
+export type TransformationRule = typeof TransformationRule.static
 
 // Column mapping for data transformation
-const ColumnMapping = z.object({
-  columnName: z.string(),
-  dataType: z.string(),
-  transformation: TransformationRule.optional(),
+const ColumnMapping = t.Object({
+  columnName: t.String(),
+  dataType: t.String(),
+  transformation: t.Optional(TransformationRule),
 })
-export type ColumnMapping = z.infer<typeof ColumnMapping>
+export type ColumnMapping = typeof ColumnMapping.static
 
 // Property reference for schema mapping
-const PropertyReference = z.object({
+const PropertyReference = t.Object({
   id: PropertyId,
-  label: z.string().optional(),
-  dataType: z.string(),
+  label: t.Optional(t.String()),
+  dataType: t.String(),
 })
-export type PropertyReference = z.infer<typeof PropertyReference>
+export type PropertyReference = typeof PropertyReference.static
 
 // Value mapping types
-const ValueMapping = z.union([
-  z.object({
-    type: z.literal('column'),
+const ValueMapping = t.Union([
+  t.Object({
+    type: t.Literal('column'),
     source: ColumnMapping,
     dataType: WikibaseDataType,
   }),
-  z.object({
-    type: z.literal('constant'),
-    source: z.string(),
+  t.Object({
+    type: t.Literal('constant'),
+    source: t.String(),
     dataType: WikibaseDataType,
   }),
-  z.object({
-    type: z.literal('expression'),
-    source: z.string(),
+  t.Object({
+    type: t.Literal('expression'),
+    source: t.String(),
     dataType: WikibaseDataType,
   }),
 ])
-export type ValueMapping = z.infer<typeof ValueMapping>
+export type ValueMapping = typeof ValueMapping.static
 
 // Property-value mapping for qualifiers and references
-const PropertyValueMap = z.object({
+const PropertyValueMap = t.Object({
   id: UUIDPattern,
   property: PropertyReference,
   value: ValueMapping,
 })
-export type PropertyValueMap = z.infer<typeof PropertyValueMap>
+export type PropertyValueMap = typeof PropertyValueMap.static
 
 // Reference schema mapping
-const ReferenceSchemaMapping = z.object({
+const ReferenceSchemaMapping = t.Object({
   id: UUIDPattern,
-  snaks: z.array(PropertyValueMap),
+  snaks: t.Array(PropertyValueMap),
 })
-export type ReferenceSchemaMapping = z.infer<typeof ReferenceSchemaMapping>
+export type ReferenceSchemaMapping = typeof ReferenceSchemaMapping.static
 
 const Qualifier = PropertyValueMap
-export type Qualifier = z.infer<typeof Qualifier>
+export type Qualifier = typeof Qualifier.static
 
 const Reference = ReferenceSchemaMapping
-export type Reference = z.infer<typeof Reference>
+export type Reference = typeof Reference.static
 
 // Statement schema mapping
-const StatementSchemaMapping = z.object({
+const StatementSchemaMapping = t.Object({
   id: UUIDPattern,
   property: PropertyReference,
   value: ValueMapping,
   rank: StatementRank,
-  qualifiers: z.array(Qualifier),
-  references: z.array(Reference),
+  qualifiers: t.Array(Qualifier),
+  references: t.Array(Reference),
 })
-export type StatementSchemaMapping = z.infer<typeof StatementSchemaMapping>
+export type StatementSchemaMapping = typeof StatementSchemaMapping.static
 
 // Label schema mapping
-const Label = z.record(z.string(), ColumnMapping)
-export type Label = z.infer<typeof Label>
+const Label = t.Record(t.String(), ColumnMapping)
+export type Label = typeof Label.static
 
 // Alias schema mapping
-const Alias = z.record(z.string(), z.array(ColumnMapping))
-export type Alias = z.infer<typeof Alias>
+const Alias = t.Record(t.String(), t.Array(ColumnMapping))
+export type Alias = typeof Alias.static
 
 // Terms schema mapping
-const TermsSchemaMapping = z.object({
+const TermsSchemaMapping = t.Object({
   labels: Label, // language code -> column mapping
   descriptions: Label,
   aliases: Alias,
 })
-
-export type TermsSchemaMapping = z.infer<typeof TermsSchemaMapping>
+export type TermsSchemaMapping = typeof TermsSchemaMapping.static
 
 // Item schema mapping
-const ItemSchemaMapping = z.object({
-  id: ItemId.optional(),
+const ItemSchemaMapping = t.Object({
+  id: t.Optional(ItemId),
   terms: TermsSchemaMapping,
-  statements: z.array(StatementSchemaMapping),
+  statements: t.Array(StatementSchemaMapping),
 })
-export type ItemSchema = z.infer<typeof ItemSchemaMapping>
+export type ItemSchema = typeof ItemSchemaMapping.static
 
 const blankSchema = {
   terms: {
@@ -120,35 +119,39 @@ const blankSchema = {
   statements: [],
 } as ItemSchema
 
-const SchemaName = z.string().min(1).max(255)
+const SchemaName = t.String({
+  minLength: 1,
+  maxLength: 255,
+})
 
-const WikibaseSchemaResponse = z.object({
+const WikibaseSchemaResponse = t.Object({
   id: UUIDPattern,
   project_id: UUIDPattern,
   name: SchemaName,
-  wikibase: z.string(),
+  wikibase: InstanceId,
   schema: ItemSchemaMapping,
-  created_at: z.string(),
-  updated_at: z.string(),
+  created_at: t.String(),
+  updated_at: t.String(),
 })
-export type WikibaseSchemaResponse = z.infer<typeof WikibaseSchemaResponse>
+export type WikibaseSchemaResponse = typeof WikibaseSchemaResponse.static
 
-const WikibaseSchemaUpdateRequest = z.object({
-  name: SchemaName.optional(),
-  wikibase: z.string().optional(),
-  schema: ItemSchemaMapping.optional(),
+const WikibaseSchemaUpdateRequest = t.Object({
+  name: t.Optional(SchemaName),
+  wikibase: t.Optional(InstanceId),
+  schema: t.Optional(ItemSchemaMapping),
 })
 
 const WikibaseSchemaCreateSchema = {
-  body: z.object({
+  body: t.Object({
     ...WikibaseSchemaUpdateRequest.shape,
-    schemaId: UUIDPattern.optional(),
+    schemaId: t.Optional(UUIDPattern),
     projectId: UUIDPattern,
     name: SchemaName,
-    wikibase: z.string().default('wikidata').optional(),
+    wikibase: t.Optional(InstanceId),
+    schema: ItemSchemaMapping,
   }),
   response: {
-    201: z.object({ data: WikibaseSchemaResponse }),
+    201: t.Object({ data: WikibaseSchemaResponse }),
     404: ApiError,
     500: ApiError,
   },
@@ -161,8 +164,8 @@ const WikibaseSchemaCreateSchema = {
 
 const WikibaseSchemaGetAllSchema = {
   response: {
-    200: z.object({
-      data: z.array(WikibaseSchemaResponse),
+    200: t.Object({
+      data: t.Array(WikibaseSchemaResponse),
     }),
     404: ApiError,
     500: ApiError,
@@ -176,7 +179,7 @@ const WikibaseSchemaGetAllSchema = {
 
 const WikibaseSchemaGetSchema = {
   response: {
-    200: z.object({ data: WikibaseSchemaResponse }),
+    200: t.Object({ data: WikibaseSchemaResponse }),
     404: ApiError,
     500: ApiError,
   },
@@ -190,7 +193,7 @@ const WikibaseSchemaGetSchema = {
 const WikibaseSchemaUpdateSchema = {
   body: WikibaseSchemaUpdateRequest,
   response: {
-    200: z.object({ data: WikibaseSchemaResponse }),
+    200: t.Object({ data: WikibaseSchemaResponse }),
     404: ApiError,
     500: ApiError,
   },
@@ -203,7 +206,7 @@ const WikibaseSchemaUpdateSchema = {
 
 const WikibaseSchemaDeleteSchema = {
   response: {
-    204: z.void(),
+    204: t.Void(),
     404: ApiError,
     500: ApiError,
   },
@@ -263,7 +266,11 @@ export const wikibaseRoutes = new Elysia({ prefix: '/api/project/:projectId/sche
   // Create a new Wikibase schema
   .post(
     '/',
-    async ({ db, body: { schemaId = Bun.randomUUIDv7(), projectId, name, wikibase = 'wikidata', schema = blankSchema }, status }) => {
+    async ({
+      db,
+      body: { schemaId = Bun.randomUUIDv7(), projectId, name, wikibase = 'wikidata', schema },
+      status,
+    }) => {
       await db().run(
         'INSERT INTO _meta_wikibase_schema (id, project_id, wikibase, name, schema) VALUES (?, ?, ?, ?, ?)',
         [schemaId, projectId, wikibase, name, JSON.stringify(schema)],
@@ -283,8 +290,7 @@ export const wikibaseRoutes = new Elysia({ prefix: '/api/project/:projectId/sche
 
   .guard({
     schema: 'standalone',
-    params: z.object({
-      ...ProjectParams.shape,
+    params: t.Object({
       schemaId: UUIDPattern,
     }),
   })

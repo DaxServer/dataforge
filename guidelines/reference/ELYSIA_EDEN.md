@@ -30,7 +30,7 @@ When setting up Elysia with Eden on the backend, follow these conventions:
 1. **Route Definitions**
    - Organize routes by resource
    - Use consistent naming for route parameters
-   - Validate all inputs with Zod schemas
+   - Validate all inputs with schemas
    - Document response types
 
 ### Route Definitions

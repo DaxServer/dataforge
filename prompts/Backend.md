@@ -34,7 +34,7 @@ This document provides the core guidelines and rules for backend development tas
 - **Framework**: Elysia, Elysia Eden, Bun, TypeScript.
 - **Error Handling**: No `try...catch`; handler returns `{ error: string | null, data: any }`.
 - **API**: RESTful, type-safe routes. Drizzle ORM for DuckDB.
-- **Elysia Eden**: Export `App` type, use Zod schemas for type inference.
+- **Elysia Eden**: Export `App` type, use schemas for type inference.
 
 ## 5. Testing Guidelines
 
@@ -53,14 +53,14 @@ This document provides the core guidelines and rules for backend development tas
 
 ## 7. Security
 
-- **Input Validation**: Server-side validation (Zod), sanitize output.
+- **Input Validation**: Server-side validation (schemas), sanitize output.
 - **Auth**: JWT for stateless auth, proper session management, least privilege.
 - **Headers**: Configure secure headers.
 
 ## 8. Environment Configuration
 
 - **.env Files**: `.env` for defaults, `.env.local` for local overrides (git-ignored). Never commit sensitive data.
-- **Type-Safe Config**: Zod for validation.
+- **Type-Safe Config**: Elysia types for validation.
 - **Environment-Specific**: Use env vars, maintain parity, feature flags.
 
 ---

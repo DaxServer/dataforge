@@ -6,12 +6,8 @@ import Elysia from 'elysia'
 
 // Mock the wikibase service
 const mockWikibaseService = {
-  getProperty: async () => {
-    return null // Simulate not found
-  },
-  getItem: async () => {
-    return null // Simulate not found
-  },
+  getProperty: async () => null, // Simulate not found
+  getItem: async () => null, // Simulate not found
 }
 
 // Mock the service

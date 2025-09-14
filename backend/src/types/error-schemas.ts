@@ -1,22 +1,22 @@
-import z from 'zod'
+import { t } from 'elysia'
 
 /**
  * Error codes used throughout the application
  */
-export const ErrorCodeSchema = z.union([
-  z.literal('VALIDATION'),
-  z.literal('MISSING_FILE_PATH'),
-  z.literal('MISSING_FILE'),
-  z.literal('INVALID_FILE_TYPE'),
-  z.literal('EMPTY_FILE'),
-  z.literal('FILE_NOT_FOUND'),
-  z.literal('TABLE_ALREADY_EXISTS'),
-  z.literal('INTERNAL_SERVER_ERROR'),
-  z.literal('DATABASE_ERROR'),
-  z.literal('PROJECT_CREATION_FAILED'),
-  z.literal('DATA_IMPORT_FAILED'),
-  z.literal('INVALID_JSON'),
-  z.literal('NOT_FOUND'),
+export const ErrorCodeSchema = t.Union([
+  t.Literal('VALIDATION'),
+  t.Literal('MISSING_FILE_PATH'),
+  t.Literal('MISSING_FILE'),
+  t.Literal('INVALID_FILE_TYPE'),
+  t.Literal('EMPTY_FILE'),
+  t.Literal('FILE_NOT_FOUND'),
+  t.Literal('TABLE_ALREADY_EXISTS'),
+  t.Literal('INTERNAL_SERVER_ERROR'),
+  t.Literal('DATABASE_ERROR'),
+  t.Literal('PROJECT_CREATION_FAILED'),
+  t.Literal('DATA_IMPORT_FAILED'),
+  t.Literal('INVALID_JSON'),
+  t.Literal('NOT_FOUND'),
 ])
 
 /**
@@ -38,12 +38,12 @@ export const ErrorCodeSchema = z.union([
 /**
  * Error response with data array
  */
-export const ApiError = z.object({
-  errors: z.array(z.any()),
+export const ApiError = t.Object({
+  errors: t.Array(t.Any()),
 })
 
 /**
  * Type definitions derived from schemas
  */
-export type ErrorCode = z.infer<typeof ErrorCodeSchema>
-export type ApiError = z.infer<typeof ApiError>
+export type ErrorCode = typeof ErrorCodeSchema.static
+export type ApiError = typeof ApiError.static
