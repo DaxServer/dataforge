@@ -57,15 +57,13 @@ describe('POST /project/:projectId/import', () => {
     expect(status).toBe(400)
     expect(data).toBeNull()
     expect(error).toHaveProperty('status', 400)
-    expect(error).toHaveProperty('value', {
-      errors: [
-        {
-          code: 'FILE_NOT_FOUND',
-          message: 'File not found',
-          details: ['./non-existent-file.json'],
-        },
-      ],
-    })
+    expect(error).toHaveProperty('value', [
+      {
+        code: 'FILE_NOT_FOUND',
+        message: 'File not found',
+        details: ['./non-existent-file.json'],
+      },
+    ])
   })
 
   test('should return 500 for invalid JSON content in file', async () => {
@@ -79,17 +77,15 @@ describe('POST /project/:projectId/import', () => {
     expect(status).toBe(500)
     expect(data).toBeNull()
     expect(error).toHaveProperty('status', 500)
-    expect(error).toHaveProperty('value', {
-      errors: [
-        {
-          code: 'INTERNAL_SERVER_ERROR',
-          message: 'An error occurred while importing the project',
-          details: [
-            'Invalid Input Error: Malformed JSON in file "./temp-invalid-json-file.json", at byte 1 in record/value 2: invalid literal. ',
-          ],
-        },
-      ],
-    })
+    expect(error).toHaveProperty('value', [
+      {
+        code: 'INTERNAL_SERVER_ERROR',
+        message: 'An error occurred while importing the project',
+        details: [
+          'Invalid Input Error: Malformed JSON in file "./temp-invalid-json-file.json", at byte 1 in record/value 2: invalid literal. ',
+        ],
+      },
+    ])
   })
 
   test('should create a DuckDB table after successful import', async () => {
@@ -137,14 +133,12 @@ describe('POST /project/:projectId/import', () => {
     expect(status).toBe(409)
     expect(data).toBeNull()
     expect(error).toHaveProperty('status', 409)
-    expect(error).toHaveProperty('value', {
-      errors: [
-        {
-          code: 'TABLE_ALREADY_EXISTS',
-          message: `Table with name 'project_${projectId}' already exists`,
-          details: [],
-        },
-      ],
-    })
+    expect(error).toHaveProperty('value', [
+      {
+        code: 'TABLE_ALREADY_EXISTS',
+        message: `Table with name 'project_${projectId}' already exists`,
+        details: [],
+      },
+    ])
   })
 })

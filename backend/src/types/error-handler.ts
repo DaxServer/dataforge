@@ -197,14 +197,12 @@ export class ApiErrorHandler {
     message: string,
     details: unknown[] = [],
   ): ApiError {
-    return {
-      errors: [
-        {
-          code,
-          message,
-          details,
-        },
-      ],
-    }
+    return [
+      {
+        code,
+        message,
+        details,
+      },
+    ]
   }
 }

@@ -188,15 +188,13 @@ describe('POST /api/project/import', () => {
         expect(status).toBe(400)
         expect(data).toBeNull()
         expect(error).toHaveProperty('status', 400)
-        expect(error).toHaveProperty('value', {
-          errors: [
-            {
-              code: 'INVALID_JSON',
-              message: 'Invalid JSON format in uploaded file',
-              details: ['Failed to parse JSON'],
-            },
-          ],
-        })
+        expect(error).toHaveProperty('value', [
+          {
+            code: 'INVALID_JSON',
+            message: 'Invalid JSON format in uploaded file',
+            details: ['Failed to parse JSON'],
+          },
+        ])
       })
 
       test('should return 400 for non-JSON file content', async () => {
@@ -208,15 +206,13 @@ describe('POST /api/project/import', () => {
         expect(status).toBe(400)
         expect(data).toBeNull()
         expect(error).toHaveProperty('status', 400)
-        expect(error).toHaveProperty('value', {
-          errors: [
-            {
-              code: 'INVALID_JSON',
-              message: 'Invalid JSON format in uploaded file',
-              details: ['Failed to parse JSON'],
-            },
-          ],
-        })
+        expect(error).toHaveProperty('value', [
+          {
+            code: 'INVALID_JSON',
+            message: 'Invalid JSON format in uploaded file',
+            details: ['Failed to parse JSON'],
+          },
+        ])
       })
     })
 
@@ -233,15 +229,13 @@ describe('POST /api/project/import', () => {
         expect(status).toBe(500)
         expect(data).toBeNull()
         expect(error).toHaveProperty('status', 500)
-        expect(error).toHaveProperty('value', {
-          errors: [
-            {
-              code: 'INTERNAL_SERVER_ERROR',
-              message: 'Database not initialized. Call initializeDb() first.',
-              details: [],
-            },
-          ],
-        })
+        expect(error).toHaveProperty('value', [
+          {
+            code: 'INTERNAL_SERVER_ERROR',
+            message: 'Database not initialized. Call initializeDb() first.',
+            details: [],
+          },
+        ])
 
         // Reinitialize for cleanup
         await initializeDb(':memory:')

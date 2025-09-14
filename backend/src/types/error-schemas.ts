@@ -38,9 +38,7 @@ export const ErrorCodeSchema = z.union([
 /**
  * Error response with data array
  */
-export const ApiError = z.object({
-  errors: z.array(z.any()),
-})
+export const ApiError = z.array(z.any())
 
 /**
  * Type definitions derived from schemas

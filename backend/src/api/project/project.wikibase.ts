@@ -7,6 +7,7 @@ import { ItemId, PropertyId, StatementRank, WikibaseDataType } from '@backend/ty
 import cors from '@elysiajs/cors'
 import { Elysia } from 'elysia'
 import z from 'zod'
+import { InstanceId } from '../wikibase/schemas'
 
 const tags = ['Wikibase', 'Schema']
 
@@ -145,7 +146,7 @@ const WikibaseSchemaCreateSchema = {
     schemaId: UUIDPattern.optional(),
     projectId: UUIDPattern,
     name: SchemaName,
-    wikibase: z.string().default('wikidata').optional(),
+    wikibase: InstanceId,
   }),
   response: {
     201: z.object({ data: WikibaseSchemaResponse }),
@@ -263,7 +264,11 @@ export const wikibaseRoutes = new Elysia({ prefix: '/api/project/:projectId/sche
   // Create a new Wikibase schema
   .post(
     '/',
-    async ({ db, body: { schemaId = Bun.randomUUIDv7(), projectId, name, wikibase = 'wikidata', schema = blankSchema }, status }) => {
+    async ({
+      db,
+      body: { schemaId = Bun.randomUUIDv7(), projectId, name, wikibase, schema = blankSchema },
+      status,
+    }) => {
       await db().run(
         'INSERT INTO _meta_wikibase_schema (id, project_id, wikibase, name, schema) VALUES (?, ?, ?, ?, ?)',
         [schemaId, projectId, wikibase, name, JSON.stringify(schema)],
