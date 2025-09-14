@@ -1,4 +1,4 @@
-import type { ApiError } from '@backend/types/error-schemas'
+import type { ApiErrors } from '@backend/types/error-schemas'
 
 export const useProjectCreationComposable = () => {
   const router = useRouter()
@@ -9,17 +9,23 @@ export const useProjectCreationComposable = () => {
     const eventFiles = Array.isArray(event.files) ? event.files : [event.files]
 
     if (eventFiles.length === 0) {
-      showError({
-        errors: [{ code: 'VALIDATION', message: 'Please add files first.' }],
-      })
+      showError([
+        {
+          code: 'VALIDATION',
+          message: 'Please add files first.',
+        },
+      ])
       return
     }
 
     const fileToUpload = eventFiles[0]
     if (!fileToUpload) {
-      showError({
-        errors: [{ code: 'VALIDATION', message: 'No file selected for upload' }],
-      })
+      showError([
+        {
+          code: 'VALIDATION',
+          message: 'No file selected for upload',
+        },
+      ])
       return
     }
 
@@ -32,26 +38,33 @@ export const useProjectCreationComposable = () => {
     setIsCreating(false)
 
     if (error) {
-      showError(error.value as ApiError)
+      showError(error.value as ApiErrors)
       return
     }
 
     if ((data as any)?.data?.id) {
-      setTimeout(async () => {
-        await router.push({
-          name: 'ProjectView',
-          params: { id: (data as any).data.id, tab: 'data' },
-        })
+      setTimeout(() => {
+        router
+          .push({
+            name: 'ProjectView',
+            params: { id: (data as any).data.id, tab: 'data' },
+          })
+          .catch(() => {
+            showError([
+              {
+                code: 'PROJECT_CREATION_FAILED',
+                message: 'Failed to update URL.',
+              },
+            ])
+          })
       }, 1000)
     } else {
-      showError({
-        errors: [
-          {
-            code: 'PROJECT_CREATION_FAILED',
-            message: 'Failed to create project. Please try again.',
-          },
-        ],
-      })
+      showError([
+        {
+          code: 'PROJECT_CREATION_FAILED',
+          message: 'Failed to create project. Please try again.',
+        },
+      ])
     }
   }
 

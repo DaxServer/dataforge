@@ -1,4 +1,4 @@
-import { ApiError } from '@backend/types/error-schemas'
+import { ApiErrors } from '@backend/types/error-schemas'
 import { ItemId, PropertyId, WikibaseDataType } from '@backend/types/wikibase-schema'
 import z from 'zod'
 
@@ -45,9 +45,9 @@ export const PropertySearchSchema = {
         query: z.string(),
       }),
     }),
-    400: ApiError,
-    422: ApiError,
-    500: ApiError,
+    400: ApiErrors,
+    422: ApiErrors,
+    500: ApiErrors,
   },
   detail: {
     summary: 'Search Wikibase properties',
@@ -86,10 +86,10 @@ export const InstancePropertyDetailsSchema = {
         claims: z.record(z.string(), z.array(z.any())).optional(),
       }),
     }),
-    400: ApiError,
-    404: ApiError,
-    422: ApiError,
-    500: ApiError,
+    400: ApiErrors,
+    404: ApiErrors,
+    422: ApiErrors,
+    500: ApiErrors,
   },
   detail: {
     summary: 'Get property details',
@@ -107,9 +107,9 @@ export const InstancePropertyConstraintsSchema = {
     200: z.object({
       data: z.any(),
     }),
-    400: ApiError,
-    404: ApiError,
-    500: ApiError,
+    400: ApiErrors,
+    404: ApiErrors,
+    500: ApiErrors,
   },
   detail: {
     summary: 'Get property constraints',
@@ -162,8 +162,8 @@ export const PropertyValidationSchema = {
         suggestions: z.array(z.string()),
       }),
     }),
-    400: ApiError,
-    500: ApiError,
+    400: ApiErrors,
+    500: ApiErrors,
   },
   detail: {
     summary: 'Validate property value',
@@ -215,8 +215,8 @@ export const SchemaValidationSchema = {
         suggestions: z.array(z.string()),
       }),
     }),
-    400: ApiError,
-    500: ApiError,
+    400: ApiErrors,
+    500: ApiErrors,
   },
   detail: {
     summary: 'Validate schema',
@@ -252,9 +252,9 @@ export const ItemSearchSchema = {
         query: z.string(),
       }),
     }),
-    400: ApiError,
-    422: ApiError,
-    500: ApiError,
+    400: ApiErrors,
+    422: ApiErrors,
+    500: ApiErrors,
   },
   detail: {
     summary: 'Search Wikibase items',
@@ -285,10 +285,10 @@ export const ItemDetailsRouteSchema = {
         sitelinks: z.record(z.string(), z.any()).optional(),
       }),
     }),
-    400: ApiError,
-    404: ApiError,
-    422: ApiError,
-    500: ApiError,
+    400: ApiErrors,
+    404: ApiErrors,
+    422: ApiErrors,
+    500: ApiErrors,
   },
   detail: {
     summary: 'Get item details',
@@ -305,8 +305,8 @@ export const WikibasePropertiesFetchSchema = {
         inserted: z.number(),
       }),
     }),
-    400: ApiError,
-    500: ApiError,
+    400: ApiErrors,
+    500: ApiErrors,
   },
   detail: {
     summary: 'Fetch all properties',

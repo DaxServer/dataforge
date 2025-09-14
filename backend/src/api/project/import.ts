@@ -1,4 +1,4 @@
-import { ApiError } from '@backend/types/error-schemas'
+import { ApiErrors } from '@backend/types/error-schemas'
 import { t } from 'elysia'
 import z from 'zod'
 
@@ -8,10 +8,10 @@ export const ProjectImportSchema = {
   }),
   response: {
     201: z.null(),
-    400: ApiError,
-    409: ApiError,
-    422: ApiError,
-    500: ApiError,
+    400: ApiErrors,
+    409: ApiErrors,
+    422: ApiErrors,
+    500: ApiErrors,
   },
 }
 
@@ -28,9 +28,9 @@ export const ProjectImportFileAltSchema = {
     201: z.object({
       tempFilePath: z.string(),
     }),
-    400: ApiError,
-    409: ApiError,
-    422: ApiError,
-    500: ApiError,
+    400: ApiErrors,
+    409: ApiErrors,
+    422: ApiErrors,
+    500: ApiErrors,
   },
 }

@@ -1,4 +1,4 @@
-import { ApiError } from '@backend/types/error-schemas'
+import { ApiErrors } from '@backend/types/error-schemas'
 import { t } from 'elysia'
 import z from 'zod'
 
@@ -53,8 +53,8 @@ export const ProjectCreateSchema = {
     201: z.object({
       data: ProjectResponseSchema,
     }),
-    422: ApiError,
-    500: ApiError,
+    422: ApiErrors,
+    500: ApiErrors,
   },
   detail: {
     summary: 'Create a new project',
@@ -68,8 +68,8 @@ export const ProjectsGetAllSchema = {
     200: z.object({
       data: z.array(ProjectResponseSchema),
     }),
-    422: ApiError,
-    500: ApiError,
+    422: ApiErrors,
+    500: ApiErrors,
   },
   detail: {
     summary: 'Get all projects',
@@ -93,10 +93,10 @@ export const GetProjectByIdSchema = {
   query: PaginationQuery,
   response: {
     200: ResponseSchema,
-    400: ApiError,
-    404: ApiError,
-    422: ApiError,
-    500: ApiError,
+    400: ApiErrors,
+    404: ApiErrors,
+    422: ApiErrors,
+    500: ApiErrors,
   },
   detail: {
     summary: 'Get a project by ID',
@@ -110,9 +110,9 @@ export type GetProjectByIdResponse = z.infer<typeof ResponseSchema>
 export const ProjectDeleteSchema = {
   response: {
     204: z.void(),
-    404: ApiError,
-    422: ApiError,
-    500: ApiError,
+    404: ApiErrors,
+    422: ApiErrors,
+    500: ApiErrors,
   },
   detail: {
     summary: 'Delete a project',
@@ -143,9 +143,9 @@ export const ProjectImportFileSchema = {
         id: z.string(),
       }),
     }),
-    400: ApiError,
-    422: ApiError,
-    500: ApiError,
+    400: ApiErrors,
+    422: ApiErrors,
+    500: ApiErrors,
   },
   detail: {
     summary: 'Import a file into a project',

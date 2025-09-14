@@ -1,12 +1,14 @@
 export const useErrorHandling = () => {
   const toast = useToast()
 
-  const showError = (error: ExtendedError): void => {
-    toast.add({
-      severity: 'error',
-      summary: 'Error',
-      detail: error.errors.map((e) => e.message).join('\n'),
-      life: 5000,
+  const showError = (errors: ExtendedError[]): void => {
+    errors.forEach((error) => {
+      toast.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: error.message,
+        life: 5000,
+      })
     })
   }
 

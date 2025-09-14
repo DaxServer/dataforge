@@ -2,7 +2,7 @@ import { ProjectParams, UUIDPattern } from '@backend/api/project/schemas'
 import { databasePlugin } from '@backend/plugins/database'
 import { errorHandlerPlugin } from '@backend/plugins/error-handler'
 import { ApiErrorHandler } from '@backend/types/error-handler'
-import { ApiError } from '@backend/types/error-schemas'
+import { ApiErrors } from '@backend/types/error-schemas'
 import { ItemId, PropertyId, StatementRank, WikibaseDataType } from '@backend/types/wikibase-schema'
 import cors from '@elysiajs/cors'
 import { Elysia } from 'elysia'
@@ -150,8 +150,8 @@ const WikibaseSchemaCreateSchema = {
   }),
   response: {
     201: z.object({ data: WikibaseSchemaResponse }),
-    404: ApiError,
-    500: ApiError,
+    404: ApiErrors,
+    500: ApiErrors,
   },
   detail: {
     summary: 'Create a new Wikibase schema',
@@ -165,8 +165,8 @@ const WikibaseSchemaGetAllSchema = {
     200: z.object({
       data: z.array(WikibaseSchemaResponse),
     }),
-    404: ApiError,
-    500: ApiError,
+    404: ApiErrors,
+    500: ApiErrors,
   },
   detail: {
     summary: 'Get all Wikibase schemas for a project',
@@ -178,8 +178,8 @@ const WikibaseSchemaGetAllSchema = {
 const WikibaseSchemaGetSchema = {
   response: {
     200: z.object({ data: WikibaseSchemaResponse }),
-    404: ApiError,
-    500: ApiError,
+    404: ApiErrors,
+    500: ApiErrors,
   },
   detail: {
     summary: 'Get a Wikibase schema',
@@ -192,8 +192,8 @@ const WikibaseSchemaUpdateSchema = {
   body: WikibaseSchemaUpdateRequest,
   response: {
     200: z.object({ data: WikibaseSchemaResponse }),
-    404: ApiError,
-    500: ApiError,
+    404: ApiErrors,
+    500: ApiErrors,
   },
   detail: {
     summary: 'Update a Wikibase schema',
@@ -205,8 +205,8 @@ const WikibaseSchemaUpdateSchema = {
 const WikibaseSchemaDeleteSchema = {
   response: {
     204: z.void(),
-    404: ApiError,
-    500: ApiError,
+    404: ApiErrors,
+    500: ApiErrors,
   },
   detail: {
     summary: 'Delete a Wikibase schema',

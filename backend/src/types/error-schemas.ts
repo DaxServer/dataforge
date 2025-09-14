@@ -1,8 +1,5 @@
 import z from 'zod'
 
-/**
- * Error codes used throughout the application
- */
 export const ErrorCodeSchema = z.union([
   z.literal('VALIDATION'),
   z.literal('MISSING_FILE_PATH'),
@@ -18,30 +15,15 @@ export const ErrorCodeSchema = z.union([
   z.literal('INVALID_JSON'),
   z.literal('NOT_FOUND'),
 ])
-
-/**
- * Single error object schema
- */
-// const ErrorSchema = z.object({
-//   code: ErrorCodeSchema,
-//   message: z.string(),
-//   details: z.array(z.any()),
-// })
-
-/**
- * Standard error response format for API errors
- */
-// export const ErrorResponseSchema = z.object({
-//   errors: z.array(ErrorSchema),
-// })
-
-/**
- * Error response with data array
- */
-export const ApiError = z.array(z.any())
-
-/**
- * Type definitions derived from schemas
- */
 export type ErrorCode = z.infer<typeof ErrorCodeSchema>
-export type ApiError = z.infer<typeof ApiError>
+
+export const ApiErrors = z.array(
+  z
+    .object({
+      code: ErrorCodeSchema,
+      message: z.string(),
+      details: z.array(z.any()),
+    })
+    .catchall(z.any()),
+)
+export type ApiErrors = z.infer<typeof ApiErrors>
