@@ -1,6 +1,6 @@
 import { databasePlugin } from '@backend/plugins/database'
 import { errorHandlerPlugin } from '@backend/plugins/error-handler'
-import { ApiError } from '@backend/types/error-schemas'
+import { ApiErrors } from '@backend/types/error-schemas'
 import type { DuckDBColumnNameAndType } from '@backend/utils/duckdb-types'
 import { Elysia } from 'elysia'
 import z from 'zod'
@@ -81,7 +81,7 @@ export const metaProjectsRoutes = new Elysia({ prefix: '/api' })
         200: z.object({
           data: z.array(MetaProject),
         }),
-        500: ApiError,
+        500: ApiErrors,
       },
     },
   )

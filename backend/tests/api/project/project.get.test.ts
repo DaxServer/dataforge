@@ -131,15 +131,13 @@ describe('Project API - GET /:id', () => {
     expect(status).toBe(404)
     expect(data).toBeNull()
     expect(error).toHaveProperty('status', 404)
-    expect(error).toHaveProperty('value', {
-      errors: [
-        {
-          code: 'NOT_FOUND',
-          message: `Project with identifier '${NON_EXISTENT_UUID}' not found`,
-          details: [],
-        },
-      ],
-    })
+    expect(error).toHaveProperty('value', [
+      {
+        code: 'NOT_FOUND',
+        message: `Project with identifier '${NON_EXISTENT_UUID}' not found`,
+        details: [],
+      },
+    ])
   })
 
   it('should return 422 for invalid project id format', async () => {
@@ -183,15 +181,13 @@ describe('Project API - GET /:id', () => {
     expect(status).toBe(404)
     expect(data).toBeNull()
     expect(error).toHaveProperty('status', 404)
-    expect(error).toHaveProperty('value', {
-      errors: [
-        {
-          code: 'NOT_FOUND',
-          message: `Project with identifier '${emptyProjectId}' not found`,
-          details: [],
-        },
-      ],
-    })
+    expect(error).toHaveProperty('value', [
+      {
+        code: 'NOT_FOUND',
+        message: `Project with identifier '${emptyProjectId}' not found`,
+        details: [],
+      },
+    ])
 
     await api.project({ projectId: emptyProjectId }).delete()
   })

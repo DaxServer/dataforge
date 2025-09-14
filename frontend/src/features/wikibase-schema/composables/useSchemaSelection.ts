@@ -38,7 +38,7 @@ export const useSchemaSelection = () => {
       currentView.value = 'editor'
     } catch {
       // Handle loading errors
-      showError(createFrontendError('SCHEMA_SELECTION_FAILED', 'Failed to load selected schema'))
+      showError([createFrontendError('SCHEMA_SELECTION_FAILED', 'Failed to load selected schema')])
 
       // Stay on selector view if loading fails
       selectedSchema.value = null

@@ -1,4 +1,4 @@
-import { wikibaseEntitiesApi } from '@backend/api/wikibase/entities'
+import { wikibaseEntitiesApi } from '@backend/api/wikibase'
 import { wikibaseService } from '@backend/services/wikibase.service'
 import { treaty } from '@elysiajs/eden'
 import { beforeEach, describe, expect, test } from 'bun:test'
@@ -37,15 +37,13 @@ describe('Wikibase Entities API', () => {
 
       expect(data).toBeNull()
       expect(status).toBe(404)
-      expect(error).toHaveProperty('value', {
-        errors: [
-          {
-            details: [],
-            code: 'NOT_FOUND',
-            message: "Property with identifier 'P1000000' not found",
-          },
-        ],
-      })
+      expect(error).toHaveProperty('value', [
+        {
+          details: [],
+          code: 'NOT_FOUND',
+          message: "Property with identifier 'P1000000' not found",
+        },
+      ])
     })
   })
 
@@ -58,15 +56,13 @@ describe('Wikibase Entities API', () => {
 
       expect(data).toBeNull()
       expect(status).toBe(404)
-      expect(error).toHaveProperty('value', {
-        errors: [
-          {
-            details: [],
-            code: 'NOT_FOUND',
-            message: "Item with identifier 'Q1000000' not found",
-          },
-        ],
-      })
+      expect(error).toHaveProperty('value', [
+        {
+          details: [],
+          code: 'NOT_FOUND',
+          message: "Item with identifier 'Q1000000' not found",
+        },
+      ])
     })
 
     test('should return 404 when wikibase.getItem throws an error for not found', async () => {
@@ -77,15 +73,13 @@ describe('Wikibase Entities API', () => {
 
       expect(data).toBeNull()
       expect(status).toBe(404)
-      expect(error).toHaveProperty('value', {
-        errors: [
-          {
-            details: [],
-            code: 'NOT_FOUND',
-            message: "Item with identifier 'Q9999999' not found",
-          },
-        ],
-      })
+      expect(error).toHaveProperty('value', [
+        {
+          details: [],
+          code: 'NOT_FOUND',
+          message: "Item with identifier 'Q9999999' not found",
+        },
+      ])
     })
   })
 
@@ -98,15 +92,13 @@ describe('Wikibase Entities API', () => {
 
       expect(data).toBeNull()
       expect(status).toBe(404)
-      expect(error).toHaveProperty('value', {
-        errors: [
-          {
-            details: [],
-            code: 'NOT_FOUND',
-            message: "Item with identifier 'Q1000000' not found",
-          },
-        ],
-      })
+      expect(error).toHaveProperty('value', [
+        {
+          details: [],
+          code: 'NOT_FOUND',
+          message: "Item with identifier 'Q1000000' not found",
+        },
+      ])
     })
   })
 })

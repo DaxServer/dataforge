@@ -54,15 +54,13 @@ describe('deleteProject', () => {
     expect(status).toBe(404)
     expect(data).toBeNull()
     expect(error).toHaveProperty('status', 404)
-    expect(error).toHaveProperty('value', {
-      errors: [
-        {
-          code: 'NOT_FOUND',
-          message: `Project with identifier '${nonExistentId}' not found`,
-          details: [],
-        },
-      ],
-    })
+    expect(error).toHaveProperty('value', [
+      {
+        code: 'NOT_FOUND',
+        message: `Project with identifier '${nonExistentId}' not found`,
+        details: [],
+      },
+    ])
   })
 
   test('should return 422 when trying to delete with invalid UUID format', async () => {

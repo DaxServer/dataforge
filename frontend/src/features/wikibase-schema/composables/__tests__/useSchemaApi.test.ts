@@ -181,9 +181,9 @@ describe('useSchemaApi', () => {
 
       await loadSchema(TEST_PROJECT_ID, TEST_SCHEMA_ID)
 
-      expect(mockShowError).toHaveBeenCalledWith({
-        errors: [{ code: 'NOT_FOUND', message: 'Schema not found' }],
-      })
+      expect(mockShowError).toHaveBeenCalledWith([
+        { code: 'NOT_FOUND', message: 'Schema not found' },
+      ])
       expect(store.$reset).toHaveBeenCalled()
       expect(store.setLoading).toHaveBeenCalledWith(true)
       expect(store.setLoading).toHaveBeenLastCalledWith(false)

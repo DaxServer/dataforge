@@ -2,11 +2,12 @@ import { ProjectParams, UUIDPattern } from '@backend/api/project/schemas'
 import { databasePlugin } from '@backend/plugins/database'
 import { errorHandlerPlugin } from '@backend/plugins/error-handler'
 import { ApiErrorHandler } from '@backend/types/error-handler'
-import { ApiError } from '@backend/types/error-schemas'
+import { ApiErrors } from '@backend/types/error-schemas'
 import { ItemId, PropertyId, StatementRank, WikibaseDataType } from '@backend/types/wikibase-schema'
 import cors from '@elysiajs/cors'
 import { Elysia } from 'elysia'
 import z from 'zod'
+import { InstanceId } from '../wikibase/schemas'
 
 const tags = ['Wikibase', 'Schema']
 
@@ -145,12 +146,12 @@ const WikibaseSchemaCreateSchema = {
     schemaId: UUIDPattern.optional(),
     projectId: UUIDPattern,
     name: SchemaName,
-    wikibase: z.string().default('wikidata').optional(),
+    wikibase: InstanceId,
   }),
   response: {
     201: z.object({ data: WikibaseSchemaResponse }),
-    404: ApiError,
-    500: ApiError,
+    404: ApiErrors,
+    500: ApiErrors,
   },
   detail: {
     summary: 'Create a new Wikibase schema',
@@ -164,8 +165,8 @@ const WikibaseSchemaGetAllSchema = {
     200: z.object({
       data: z.array(WikibaseSchemaResponse),
     }),
-    404: ApiError,
-    500: ApiError,
+    404: ApiErrors,
+    500: ApiErrors,
   },
   detail: {
     summary: 'Get all Wikibase schemas for a project',
@@ -177,8 +178,8 @@ const WikibaseSchemaGetAllSchema = {
 const WikibaseSchemaGetSchema = {
   response: {
     200: z.object({ data: WikibaseSchemaResponse }),
-    404: ApiError,
-    500: ApiError,
+    404: ApiErrors,
+    500: ApiErrors,
   },
   detail: {
     summary: 'Get a Wikibase schema',
@@ -191,8 +192,8 @@ const WikibaseSchemaUpdateSchema = {
   body: WikibaseSchemaUpdateRequest,
   response: {
     200: z.object({ data: WikibaseSchemaResponse }),
-    404: ApiError,
-    500: ApiError,
+    404: ApiErrors,
+    500: ApiErrors,
   },
   detail: {
     summary: 'Update a Wikibase schema',
@@ -204,8 +205,8 @@ const WikibaseSchemaUpdateSchema = {
 const WikibaseSchemaDeleteSchema = {
   response: {
     204: z.void(),
-    404: ApiError,
-    500: ApiError,
+    404: ApiErrors,
+    500: ApiErrors,
   },
   detail: {
     summary: 'Delete a Wikibase schema',
@@ -263,7 +264,11 @@ export const wikibaseRoutes = new Elysia({ prefix: '/api/project/:projectId/sche
   // Create a new Wikibase schema
   .post(
     '/',
-    async ({ db, body: { schemaId = Bun.randomUUIDv7(), projectId, name, wikibase = 'wikidata', schema = blankSchema }, status }) => {
+    async ({
+      db,
+      body: { schemaId = Bun.randomUUIDv7(), projectId, name, wikibase, schema = blankSchema },
+      status,
+    }) => {
       await db().run(
         'INSERT INTO _meta_wikibase_schema (id, project_id, wikibase, name, schema) VALUES (?, ?, ?, ?, ?)',
         [schemaId, projectId, wikibase, name, JSON.stringify(schema)],

@@ -1,10 +1,16 @@
 import z from 'zod'
 
-export const ItemId = z.templateLiteral([z.literal('Q'), z.number()])
-export type ItemId = z.infer<typeof ItemId>
+export const ItemId = z
+  .string()
+  .regex(/^Q[1-9]\d*$/)
+  .transform((val) => val as ItemId)
+export type ItemId = `Q${number}`
 
-export const PropertyId = z.templateLiteral([z.literal('P'), z.number()])
-export type PropertyId = z.infer<typeof PropertyId>
+export const PropertyId = z
+  .string()
+  .regex(/^P[1-9]\d*$/)
+  .transform((val) => val as PropertyId)
+export type PropertyId = `P${number}`
 
 export const StatementRank = z.union([
   z.literal('preferred'),

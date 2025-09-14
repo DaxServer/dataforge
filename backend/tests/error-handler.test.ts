@@ -6,7 +6,7 @@ describe('ApiErrorHandler', () => {
     it('should create a validation error response', () => {
       const result = ApiErrorHandler.validationError('Invalid input')
 
-      expect(result).toHaveProperty('errors', [
+      expect(result).toEqual([
         {
           code: 'VALIDATION',
           message: 'Invalid input',
@@ -19,7 +19,7 @@ describe('ApiErrorHandler', () => {
       const details = ['Name is required']
       const result = ApiErrorHandler.validationError('Validation failed', details)
 
-      expect(result).toHaveProperty('errors', [
+      expect(result).toEqual([
         {
           code: 'VALIDATION',
           message: 'Validation failed',
@@ -33,7 +33,7 @@ describe('ApiErrorHandler', () => {
     it('should create a not found error without identifier', () => {
       const result = ApiErrorHandler.notFoundError('Project')
 
-      expect(result).toHaveProperty('errors', [
+      expect(result).toEqual([
         {
           code: 'NOT_FOUND',
           message: 'Project not found',
@@ -45,7 +45,7 @@ describe('ApiErrorHandler', () => {
     it('should create a not found error with identifier', () => {
       const result = ApiErrorHandler.notFoundError('Project', '123')
 
-      expect(result).toHaveProperty('errors', [
+      expect(result).toEqual([
         {
           code: 'NOT_FOUND',
           message: "Project with identifier '123' not found",
@@ -59,7 +59,7 @@ describe('ApiErrorHandler', () => {
     it('should create a database error response', () => {
       const result = ApiErrorHandler.databaseError('Connection failed')
 
-      expect(result).toHaveProperty('errors', [
+      expect(result).toEqual([
         {
           code: 'DATABASE_ERROR',
           message: 'Connection failed',
@@ -72,7 +72,7 @@ describe('ApiErrorHandler', () => {
       const details = ['Timeout after 30s']
       const result = ApiErrorHandler.databaseError('Query failed', details)
 
-      expect(result).toHaveProperty('errors', [
+      expect(result).toEqual([
         {
           code: 'DATABASE_ERROR',
           message: 'Query failed',
@@ -86,7 +86,7 @@ describe('ApiErrorHandler', () => {
     it('should create a missing file error', () => {
       const result = ApiErrorHandler.fileError('MISSING_FILE', 'File not provided')
 
-      expect(result).toHaveProperty('errors', [
+      expect(result).toEqual([
         {
           code: 'MISSING_FILE',
           message: 'File not provided',
@@ -98,7 +98,7 @@ describe('ApiErrorHandler', () => {
     it('should create an invalid file type error', () => {
       const result = ApiErrorHandler.fileError('INVALID_FILE_TYPE', 'Only JSON files allowed')
 
-      expect(result).toHaveProperty('errors', [
+      expect(result).toEqual([
         {
           code: 'INVALID_FILE_TYPE',
           message: 'Only JSON files allowed',
@@ -110,7 +110,7 @@ describe('ApiErrorHandler', () => {
     it('should create an empty file error', () => {
       const result = ApiErrorHandler.fileError('EMPTY_FILE', 'File is empty')
 
-      expect(result).toHaveProperty('errors', [
+      expect(result).toEqual([
         {
           code: 'EMPTY_FILE',
           message: 'File is empty',
@@ -122,7 +122,7 @@ describe('ApiErrorHandler', () => {
     it('should create a file not found error', () => {
       const result = ApiErrorHandler.fileError('FILE_NOT_FOUND', 'File does not exist')
 
-      expect(result).toHaveProperty('errors', [
+      expect(result).toEqual([
         {
           code: 'FILE_NOT_FOUND',
           message: 'File does not exist',
@@ -136,7 +136,7 @@ describe('ApiErrorHandler', () => {
     it('should create a project creation error', () => {
       const result = ApiErrorHandler.projectCreationError('Failed to create project')
 
-      expect(result).toHaveProperty('errors', [
+      expect(result).toEqual([
         {
           code: 'PROJECT_CREATION_FAILED',
           message: 'Failed to create project',
@@ -150,7 +150,7 @@ describe('ApiErrorHandler', () => {
     it('should create a data import error', () => {
       const result = ApiErrorHandler.dataImportError('Import failed')
 
-      expect(result).toHaveProperty('errors', [
+      expect(result).toEqual([
         {
           code: 'DATA_IMPORT_FAILED',
           message: 'Import failed',
@@ -164,7 +164,7 @@ describe('ApiErrorHandler', () => {
     it('should create an invalid JSON error', () => {
       const result = ApiErrorHandler.invalidJsonError('Invalid JSON format')
 
-      expect(result).toHaveProperty('errors', [
+      expect(result).toEqual([
         {
           code: 'INVALID_JSON',
           message: 'Invalid JSON format',
@@ -177,7 +177,7 @@ describe('ApiErrorHandler', () => {
       const details = ['Unexpected token at line 5']
       const result = ApiErrorHandler.invalidJsonError('JSON parse error', details)
 
-      expect(result).toHaveProperty('errors', [
+      expect(result).toEqual([
         {
           code: 'INVALID_JSON',
           message: 'JSON parse error',
@@ -191,7 +191,7 @@ describe('ApiErrorHandler', () => {
     it('should create an internal server error with default message', () => {
       const result = ApiErrorHandler.internalServerError()
 
-      expect(result).toHaveProperty('errors', [
+      expect(result).toEqual([
         {
           code: 'INTERNAL_SERVER_ERROR',
           message: 'Internal server error',
@@ -203,7 +203,7 @@ describe('ApiErrorHandler', () => {
     it('should create an internal server error with custom message', () => {
       const result = ApiErrorHandler.internalServerError('Custom error message')
 
-      expect(result).toHaveProperty('errors', [
+      expect(result).toEqual([
         {
           code: 'INTERNAL_SERVER_ERROR',
           message: 'Custom error message',
@@ -217,7 +217,7 @@ describe('ApiErrorHandler', () => {
     it('should create a table exists error', () => {
       const result = ApiErrorHandler.tableExistsError('project_123')
 
-      expect(result).toHaveProperty('errors', [
+      expect(result).toEqual([
         {
           code: 'TABLE_ALREADY_EXISTS',
           message: "Table with name 'project_123' already exists",
@@ -231,7 +231,7 @@ describe('ApiErrorHandler', () => {
     it('should return ErrorResponse type for basic methods', () => {
       const result = ApiErrorHandler.validationError('test')
 
-      expect(result).toHaveProperty('errors', [
+      expect(result).toEqual([
         {
           code: 'VALIDATION',
           message: 'test',

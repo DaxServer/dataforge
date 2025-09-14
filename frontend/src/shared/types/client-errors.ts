@@ -21,11 +21,10 @@ export type ExtendedErrorCode = BackendErrorCode | FrontendErrorCode
  * Extended error object that can handle both backend and frontend errors
  */
 export interface ExtendedError {
-  errors: {
-    code: ExtendedErrorCode
-    message: string
-    details?: any[]
-  }[]
+  code: ExtendedErrorCode
+  message: string
+  details?: any[]
+  [key: string]: any
 }
 
 /**
@@ -33,8 +32,10 @@ export interface ExtendedError {
  */
 export const createFrontendError = (
   code: FrontendErrorCode,
-  _message: string,
+  message: string,
   details?: any[],
 ): ExtendedError => ({
-  errors: [{ code, message: _message, details }],
+  code,
+  message,
+  details,
 })

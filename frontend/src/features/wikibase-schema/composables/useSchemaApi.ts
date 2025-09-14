@@ -1,5 +1,5 @@
 import type { ItemSchema } from '@backend/api/project/project.wikibase'
-import { ApiError } from '@backend/types/error-schemas'
+import { ApiErrors } from '@backend/types/error-schemas'
 import { computed, readonly, ref } from 'vue'
 
 export type SchemaRequest = {
@@ -38,15 +38,13 @@ export const useSchemaApi = () => {
       const { data, error: apiError } = await api.project({ projectId }).schemas({ schemaId }).get()
 
       if (apiError) {
-        showError(apiError.value as ApiError)
+        showError(apiError.value as ApiErrors)
         schemaStore.$reset()
         return
       }
 
       if (!data?.data) {
-        showError({
-          errors: [{ code: 'NOT_FOUND', message: 'Schema not found' }],
-        } as ApiError)
+        showError([{ code: 'NOT_FOUND', message: 'Schema not found' }])
         schemaStore.$reset()
         return
       }
@@ -65,7 +63,7 @@ export const useSchemaApi = () => {
       })
 
       if (apiError) {
-        showError(apiError.value as ApiError)
+        showError(apiError.value as ApiErrors)
         return
       }
 
@@ -85,14 +83,12 @@ export const useSchemaApi = () => {
         .put(schemaData)
 
       if (apiError) {
-        showError(apiError.value as ApiError)
+        showError(apiError.value as ApiErrors)
         return
       }
 
       if (!data?.data) {
-        showError({
-          errors: [{ code: 'NOT_FOUND', message: 'Schema not found' }],
-        } as ApiError)
+        showError([{ code: 'NOT_FOUND', message: 'Schema not found' }])
         return
       }
 
@@ -108,7 +104,7 @@ export const useSchemaApi = () => {
       const { error: apiError } = await api.project({ projectId }).schemas({ schemaId }).delete()
 
       if (apiError) {
-        showError(apiError.value as ApiError)
+        showError(apiError.value as ApiErrors)
       } else {
         // Clear current schema if it matches the deleted one
         if (schemaStore.schemaId === schemaId) {
@@ -123,14 +119,12 @@ export const useSchemaApi = () => {
       const { data, error: apiError } = await api.project({ projectId }).schemas.get()
 
       if (apiError) {
-        showError(apiError.value as ApiError)
+        showError(apiError.value as ApiErrors)
         return []
       }
 
       if (!data?.data) {
-        showError({
-          errors: [{ code: 'NOT_FOUND', message: 'Schemas not found' }],
-        } as ApiError)
+        showError([{ code: 'NOT_FOUND', message: 'Schemas not found' }])
         return []
       }
 
