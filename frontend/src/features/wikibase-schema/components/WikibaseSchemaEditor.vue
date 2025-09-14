@@ -50,12 +50,12 @@ const hasItem = computed(() => {
 })
 
 // Lifecycle
-onMounted(async () => {
-  await initializeEditor()
+onMounted(() => {
+  initializeEditor()
 })
 
 // Methods
-const initializeEditor = async () => {
+const initializeEditor = () => {
   try {
     // Initialize drag-drop available targets
     initializeDragDropTargets()
@@ -63,9 +63,9 @@ const initializeEditor = async () => {
     // The schema selection workflow will handle loading schemas
     // No need to load schema here - it's handled by useSchemaSelection
     isInitialized.value = true
-  } catch (error) {
+  } catch {
     showError(
-      createFrontendError('SCHEMA_EDITOR_INIT_FAILED', 'Failed to initialize schema editor'),
+      [createFrontendError('SCHEMA_EDITOR_INIT_FAILED', 'Failed to initialize schema editor')],
     )
   }
 }
@@ -121,12 +121,14 @@ const handleSave = async () => {
     emit('save')
   } else {
     showError(
-      createFrontendError(
-        'UI_STATE_ERROR',
-        typeof result.error === 'string'
-          ? result.error
-          : result.error?.message || 'Failed to save schema',
-      ),
+      [
+        createFrontendError(
+          'UI_STATE_ERROR',
+          typeof result.error === 'string'
+            ? result.error
+            : result.error?.message || 'Failed to save schema',
+        ),
+      ],
     )
   }
 }
