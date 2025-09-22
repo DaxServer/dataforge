@@ -201,34 +201,6 @@ export interface LoginResponse {
   }
 }
 
-export interface TokenParams extends BaseApiParams {
-  action: 'query'
-  meta: 'tokens'
-  type?: string
-}
-
-export interface TokenResponse {
-  batchcomplete?: string
-  query: {
-    tokens: {
-      csrftoken?: string
-      logintoken?: string
-      watchtoken?: string
-      rollbacktoken?: string
-      patroltoken?: string
-      edittoken?: string
-      deletetoken?: string
-      protecttoken?: string
-      movetoken?: string
-      blocktoken?: string
-      unblocktoken?: string
-      importtoken?: string
-      optionstoken?: string
-      userrighttoken?: string
-    }
-  }
-}
-
 // Edit API Types
 export interface EditParams extends BaseApiParams {
   action: 'edit'

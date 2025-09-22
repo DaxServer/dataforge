@@ -104,13 +104,13 @@ const TermsSchemaMapping = z.object({
 
 export type TermsSchemaMapping = z.infer<typeof TermsSchemaMapping>
 
-// Item schema mapping
-const ItemSchemaMapping = z.object({
+// Item schema
+export const ItemSchema = z.object({
   id: ItemId.optional(),
   terms: TermsSchemaMapping,
   statements: z.array(StatementSchemaMapping),
 })
-export type ItemSchema = z.infer<typeof ItemSchemaMapping>
+export type ItemSchema = z.infer<typeof ItemSchema>
 
 const blankSchema = {
   terms: {
@@ -128,7 +128,7 @@ const WikibaseSchemaResponse = z.object({
   project_id: UUIDPattern,
   name: SchemaName,
   wikibase: z.string(),
-  schema: ItemSchemaMapping,
+  schema: ItemSchema,
   created_at: z.string(),
   updated_at: z.string(),
 })
@@ -137,7 +137,7 @@ export type WikibaseSchemaResponse = z.infer<typeof WikibaseSchemaResponse>
 const WikibaseSchemaUpdateRequest = z.object({
   name: SchemaName.optional(),
   wikibase: z.string().optional(),
-  schema: ItemSchemaMapping.optional(),
+  schema: ItemSchema.optional(),
 })
 
 const WikibaseSchemaCreateSchema = {
