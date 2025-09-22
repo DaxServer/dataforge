@@ -64,9 +64,9 @@ const initializeEditor = () => {
     // No need to load schema here - it's handled by useSchemaSelection
     isInitialized.value = true
   } catch {
-    showError(
-      [createFrontendError('SCHEMA_EDITOR_INIT_FAILED', 'Failed to initialize schema editor')],
-    )
+    showError([
+      createFrontendError('SCHEMA_EDITOR_INIT_FAILED', 'Failed to initialize schema editor'),
+    ])
   }
 }
 
@@ -120,16 +120,14 @@ const handleSave = async () => {
     showSuccess(schemaStore.schemaId ? 'Schema saved successfully' : 'Schema created successfully')
     emit('save')
   } else {
-    showError(
-      [
-        createFrontendError(
-          'UI_STATE_ERROR',
-          typeof result.error === 'string'
-            ? result.error
-            : result.error?.message || 'Failed to save schema',
-        ),
-      ],
-    )
+    showError([
+      createFrontendError(
+        'UI_STATE_ERROR',
+        typeof result.error === 'string'
+          ? result.error
+          : result.error?.message || 'Failed to save schema',
+      ),
+    ])
   }
 }
 

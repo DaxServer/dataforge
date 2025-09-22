@@ -9,6 +9,7 @@ import { logger } from '@bogeychan/elysia-logger'
 import { cors } from '@elysiajs/cors'
 import { openapi } from '@elysiajs/openapi'
 import { Elysia } from 'elysia'
+import z from 'zod'
 
 export const elysiaApp = new Elysia({
   serve: {
@@ -20,6 +21,9 @@ export const elysiaApp = new Elysia({
   .use(
     openapi({
       path: '/docs',
+      mapJsonSchema: {
+        zod: z.toJSONSchema,
+      },
       scalar: {
         servers: [
           {

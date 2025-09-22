@@ -22,32 +22,33 @@
     "catalog": {
       "@elysiajs/cors": "1.4.0",
       "@elysiajs/eden": "1.4.1",
-      "@elysiajs/openapi": "1.4.2",
+      "@elysiajs/openapi": "1.4.10",
       "@eslint/eslintrc": "^3.3.1",
       "@eslint/js": "^9.28.0",
       "@tsconfig/bun": "^1.0.0",
       "@types/bun": "1.2.22",
-      "@types/node": "^24.4.0",
-      "@typescript-eslint/eslint-plugin": "^8.43.0",
-      "@typescript-eslint/parser": "^8.43.0",
+      "@types/node": "^24.5.0",
+      "@typescript-eslint/eslint-plugin": "^8.44.0",
+      "@typescript-eslint/parser": "^8.44.0",
       "bun-types": "1.2.22",
-      "elysia": "1.4.5",
-      "eslint": "^9.28.0",
+      "elysia": "1.4.7",
+      "eslint": "^9.36.0",
       "eslint-config-prettier": "^10.1.8",
       "eslint-plugin-no-relative-import-paths": "^1.6.1",
       "eslint-plugin-prettier": "^5.5.4",
       "prettier": "^3.5.3",
-      "zod": "^4.0.0",
+      "zod": "^4.1.0",
       "typescript": "^5.9.0"
     }
   },
   "devDependencies": {
     "concurrently": "^9.2.1",
-    "prettier-plugin-organize-imports": "^4.2.0"
+    "prettier-plugin-organize-imports": "^4.3.0"
   },
   "trustedDependencies": [
     "@tailwindcss/oxide",
-    "esbuild"
+    "esbuild",
+    "sharp"
   ],
   "engines": {
     "bun": "^1.2.22"
