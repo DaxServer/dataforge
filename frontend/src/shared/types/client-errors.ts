@@ -32,10 +32,10 @@ export interface ExtendedError {
  */
 export const createFrontendError = (
   code: FrontendErrorCode,
-  message: string,
+  _message: string,
   details?: any[],
 ): ExtendedError => ({
   code,
-  message,
+  message: _message,
   details,
 })

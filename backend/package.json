@@ -22,8 +22,7 @@
     "elysia": "catalog:",
     "file-type": "^21.0.0",
     "oauth": "^0.10.2",
-    "sharp": "^0.34.4",
-    "zod": "catalog:"
+    "sharp": "^0.34.4"
   },
   "devDependencies": {
     "@tsconfig/bun": "catalog:",

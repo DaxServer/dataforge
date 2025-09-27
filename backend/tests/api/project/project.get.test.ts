@@ -1,4 +1,5 @@
 import { projectRoutes } from '@backend/api/project'
+import { UUID_REGEX } from '@backend/api/project/schemas'
 import { closeDb, initializeDb } from '@backend/plugins/database'
 import { treaty } from '@elysiajs/eden'
 import { afterEach, beforeEach, describe, expect, it } from 'bun:test'
@@ -153,13 +154,15 @@ describe('Project API - GET /:id', () => {
     expect(error).toHaveProperty('status', 422)
     expect(error).toHaveProperty('value', [
       {
-        code: 'invalid_format',
-        format: 'uuid',
-        message: 'Invalid UUID',
-        origin: 'string',
-        path: ['projectId'],
-        pattern:
-          '/^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$/',
+        errors: [],
+        message: `Expected string to match '${UUID_REGEX}'`,
+        path: '/projectId',
+        schema: {
+          pattern: UUID_REGEX,
+          type: 'string',
+        },
+        type: 53,
+        value: 'invalid-uuid',
       },
     ])
   })
