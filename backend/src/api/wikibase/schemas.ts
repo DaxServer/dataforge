@@ -1,31 +1,6 @@
 import { WikibaseDataType } from '@backend/types/wikibase-schema'
 import { t } from 'elysia'
 
-export const OAuthCredentials = t.Object({
-  consumerKey: t.String({
-    description: 'Consumer key',
-  }),
-  consumerSecret: t.String({
-    description: 'Consumer secret',
-  }),
-  accessToken: t.String({
-    description: 'Access token',
-  }),
-  accessTokenSecret: t.String({
-    description: 'Access secret',
-  }),
-})
-export type OAuthCredentials = typeof OAuthCredentials.static
-
-export const CSRFTokenResponse = t.Object({
-  query: t.Object({
-    tokens: t.Object({
-      csrftoken: t.String(),
-    }),
-  }),
-})
-export type CSRFTokenResponse = typeof CSRFTokenResponse.static
-
 export const Term = t.Union([t.Literal('label'), t.Literal('alias'), t.Literal('description')])
 export type Term = typeof Term.static
 

@@ -207,7 +207,6 @@ describe('useSchemaApi', () => {
 
       expect(mockApi.project).toHaveBeenCalledWith({ projectId: TEST_PROJECT_ID })
       expect(mockSchemaPost).toHaveBeenCalledWith({
-        projectId: TEST_PROJECT_ID,
         name: 'New Schema',
         wikibase: 'https://www.wikidata.org',
       })
@@ -574,7 +573,6 @@ describe('useSchemaApi', () => {
       const result = await saveSchema()
 
       expect(mockSchemaPost).toHaveBeenCalledWith({
-        projectId: TEST_PROJECT_ID,
         name: 'New Schema',
         wikibase: 'https://www.wikidata.org',
         schema: {
