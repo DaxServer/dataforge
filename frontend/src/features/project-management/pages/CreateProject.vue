@@ -18,7 +18,7 @@ const { isCreating } = storeToRefs(store)
               <label class="block text-sm font-medium text-gray-700 mb-2">Upload Data File</label>
               <FileUpload
                 name="file"
-                accept=".json"
+                accept=".json,.csv"
                 custom-upload
                 :file-limit="1"
                 :preview-width="0"
@@ -33,7 +33,7 @@ const { isCreating } = storeToRefs(store)
                   >
                     <i class="pi pi-cloud-upload border-1 rounded-full p-6 !text-4xl text-info" />
                     <p class="mt-6 mb-0 text-gray-600">Drag and drop files to here to upload.</p>
-                    <p class="text-xs text-gray-500 mt-2">JSON files only</p>
+                    <p class="text-xs text-gray-500 mt-2">JSON or CSV files</p>
                   </div>
                 </template>
               </FileUpload>

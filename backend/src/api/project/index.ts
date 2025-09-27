@@ -99,7 +99,7 @@ export const projectRoutes = new Elysia({ prefix: '/api/project' })
 
   .post(
     '/import',
-    async ({ db, body: { name, file }, status }) => {
+    async ({ db, body: { name, file, hasHeaders = true }, status }) => {
       // Generate project name if not provided
       const projectName = name || generateProjectName(file.name)
 
@@ -127,7 +127,11 @@ export const projectRoutes = new Elysia({ prefix: '/api/project' })
       // Save file to temporary location
       const timestamp = Date.now()
       const randomSuffix = Math.random().toString(36).substring(2, 8)
-      const tempFileName = `temp_${timestamp}_${randomSuffix}.json`
+
+      // Determine file extension based on content type or file name
+      const isCSV = file.name.toLowerCase().endsWith('.csv') || file.type === 'text/csv'
+      const fileExtension = isCSV ? '.csv' : '.json'
+      const tempFileName = `temp_${timestamp}_${randomSuffix}${fileExtension}`
       const tempFilePath = `./temp/${tempFileName}`
 
       const fileBuffer = await file.arrayBuffer()
@@ -135,26 +139,28 @@ export const projectRoutes = new Elysia({ prefix: '/api/project' })
 
       await Bun.write(tempFilePath, uint8Array)
 
-      // Check if JSON is parsable
-      try {
-        await Bun.file(tempFilePath).json()
-      } catch (parseError) {
-        await cleanupProject(db, project.id, tempFilePath)
+      // For JSON files, check if JSON is parsable
+      if (!isCSV) {
+        try {
+          await Bun.file(tempFilePath).json()
+        } catch (parseError) {
+          await cleanupProject(db, project.id, tempFilePath)
 
-        const errorMessage =
-          parseError instanceof Error ? parseError.message : 'Failed to parse JSON'
-        // Extract the specific error part from the message (e.g., "Unexpected identifier 'json'")
-        const match = errorMessage.match(/Unexpected identifier "([^"]+)"/)
-        const errorDetail = match
-          ? `JSON Parse error: Unexpected identifier "${match[1]}"`
-          : 'Failed to parse JSON'
+          const errorMessage =
+            parseError instanceof Error ? parseError.message : 'Failed to parse JSON'
+          // Extract the specific error part from the message (e.g., "Unexpected identifier 'json'")
+          const match = errorMessage.match(/Unexpected identifier "([^"]+)"/)
+          const errorDetail = match
+            ? `JSON Parse error: Unexpected identifier "${match[1]}"`
+            : 'Failed to parse JSON'
 
-        return status(
-          400,
-          ApiErrorHandler.invalidJsonErrorWithData('Invalid JSON format in uploaded file', [
-            errorDetail,
-          ]),
-        )
+          return status(
+            400,
+            ApiErrorHandler.invalidJsonErrorWithData('Invalid JSON format in uploaded file', [
+              errorDetail,
+            ]),
+          )
+        }
       }
 
       // Check if table already exists
@@ -173,14 +179,24 @@ export const projectRoutes = new Elysia({ prefix: '/api/project' })
         )
       }
 
-      // First, import the JSON data into the table
-      await db().run(
-        `
-        CREATE TABLE "project_${project.id}" AS
-        SELECT * FROM read_json_auto(?)
-        `,
-        [tempFilePath],
-      )
+      // Import the data into the table based on file type
+      if (isCSV) {
+        await db().run(
+          `
+          CREATE TABLE "project_${project.id}" AS
+          SELECT * FROM read_csv(?, header = ?)
+          `,
+          [tempFilePath, hasHeaders],
+        )
+      } else {
+        await db().run(
+          `
+          CREATE TABLE "project_${project.id}" AS
+          SELECT * FROM read_json_auto(?)
+          `,
+          [tempFilePath],
+        )
+      }
 
       // Check if 'id' column already exists and generate unique primary key column name
       const tableInfo = await db().runAndReadAll(`PRAGMA table_info("project_${project.id}")`)
@@ -239,6 +255,9 @@ export const projectRoutes = new Elysia({ prefix: '/api/project' })
             error: 'Project name must be between 1 and 255 characters long if provided',
           }),
         ),
+        hasHeaders: t.Optional(t.BooleanString({
+          default: true,
+        })),
       }),
       response: {
         201: t.Object({
@@ -400,21 +419,32 @@ export const projectRoutes = new Elysia({ prefix: '/api/project' })
 
       // Try to create the table directly
       try {
-        await db().run(`CREATE TABLE "project_${projectId}" AS SELECT * FROM read_json_auto(?)`, [
-          filePath,
-        ])
+        // Determine if the file is CSV based on extension
+        const isCSV = filePath.toLowerCase().endsWith('.csv')
+
+        if (isCSV) {
+          await db().run(`CREATE TABLE "project_${projectId}" AS SELECT * FROM read_csv_auto(?)`, [
+            filePath,
+          ])
+        } else {
+          await db().run(`CREATE TABLE "project_${projectId}" AS SELECT * FROM read_json_auto(?)`, [
+            filePath,
+          ])
+        }
 
         // @ts-expect-error ToDo: Fix
         return status(201, new Response(null))
       } catch (error) {
-        // Check if the error is related to JSON parsing
+        // Check if the error is related to parsing
         const errorMessage = String(error)
         if (errorMessage.toLowerCase().includes('parse')) {
+          const fileType = filePath.toLowerCase().endsWith('.csv') ? 'CSV' : 'JSON'
           return status(
             400,
-            ApiErrorHandler.invalidJsonErrorWithData('Invalid JSON format in uploaded file', [
-              (error as Error).message,
-            ]),
+            ApiErrorHandler.invalidJsonErrorWithData(
+              `Invalid ${fileType} format in uploaded file`,
+              [(error as Error).message],
+            ),
           )
         }
 
@@ -449,7 +479,11 @@ export const projectRoutes = new Elysia({ prefix: '/api/project' })
         // Generate a unique temporary file name
         const timestamp = Date.now()
         const randomSuffix = Math.random().toString(36).substring(2, 8)
-        const tempFileName = `temp_${timestamp}_${randomSuffix}.json`
+
+        // Determine file extension based on content type or file name
+        const isCSV = file.name.toLowerCase().endsWith('.csv') || file.type === 'text/csv'
+        const fileExtension = isCSV ? '.csv' : '.json'
+        const tempFileName = `temp_${timestamp}_${randomSuffix}${fileExtension}`
         const tempFilePath = `./temp/${tempFileName}`
 
         // Convert file to buffer and save to temporary location
