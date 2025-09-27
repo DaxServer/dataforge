@@ -38,7 +38,7 @@ export const ProjectParams = t.Object({
   projectId: UUIDPattern,
 })
 
-export const ResponseSchema = t.Object({
+export const GetProjectByIdResponse = t.Object({
   data: t.Array(t.Any()),
   meta: t.Object({
     name: t.String(),
@@ -48,3 +48,4 @@ export const ResponseSchema = t.Object({
     offset: t.Number(),
   }),
 })
+export type GetProjectByIdResponse = typeof GetProjectByIdResponse.static

@@ -3,7 +3,7 @@ import {
   PaginationQuery,
   ProjectParams,
   ProjectResponseSchema,
-  ResponseSchema,
+  GetProjectByIdResponse,
   type Project,
 } from '@backend/api/project/schemas'
 import { databasePlugin } from '@backend/plugins/database'
@@ -320,7 +320,7 @@ export const projectRoutes = new Elysia({ prefix: '/api/project' })
     {
       query: PaginationQuery,
       response: {
-        200: ResponseSchema,
+        200: GetProjectByIdResponse,
         400: ApiErrors,
         404: ApiErrors,
         422: ApiErrors,

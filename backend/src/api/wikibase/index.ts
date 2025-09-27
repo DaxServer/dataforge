@@ -9,6 +9,8 @@ import { errorHandlerPlugin } from '@backend/plugins/error-handler'
 import { wikibasePlugin } from '@backend/plugins/wikibase'
 import { constraintValidationService } from '@backend/services/constraint-validation.service'
 import { ApiErrorHandler } from '@backend/types/error-handler'
+import { ApiErrors } from '@backend/types/error-schemas'
+import { PropertyId, WikibaseDataType, ItemId } from '@backend/types/wikibase-schema'
 import { cors } from '@elysiajs/cors'
 import { Elysia, t } from 'elysia'
 

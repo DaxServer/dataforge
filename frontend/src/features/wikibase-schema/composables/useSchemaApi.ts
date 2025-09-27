@@ -56,7 +56,6 @@ export const useSchemaApi = () => {
   const createSchema = async (projectId: UUID, schemaData: SchemaRequest) => {
     return withLoadingState(async () => {
       const { data, error: apiError } = await api.project({ projectId }).schemas.post({
-        projectId,
         name: schemaData.name,
         wikibase: schemaData.wikibase,
         schema: schemaData.schema,
