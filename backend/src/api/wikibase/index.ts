@@ -28,36 +28,6 @@ export const wikibaseEntitiesApi = new Elysia({ prefix: '/api/wikibase' })
   })
 
   .post(
-    '/:instanceId/csrf-token',
-    async ({ params: { instanceId }, body: { endpoint, credentials }, wikibase }) => {
-      const {
-        query: {
-          tokens: { csrftoken },
-        },
-      } = await wikibase.getCsrfToken(instanceId, endpoint, credentials)
-      return {
-        token: csrftoken,
-      }
-    },
-    {
-      body: t.Object({
-        endpoint: t.String({
-          description: 'Wikibase endpoint URL',
-        }),
-        credentials: OAuthCredentials,
-      }),
-      response: t.Object({
-        token: t.String(),
-      }),
-      detail: {
-        summary: 'Get CSRF token',
-        description: 'Get a CSRF token for a Wikibase instance using OAuth credentials',
-        tags: ['Wikibase'],
-      },
-    },
-  )
-
-  .post(
     '/:instanceId/properties/fetch',
     async ({ params: { instanceId }, wikibase, db }) => {
       const { total, inserted } = await wikibase.fetchAllProperties(instanceId, db())
