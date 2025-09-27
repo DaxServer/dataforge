@@ -1,20 +1,20 @@
-import { ProjectImportFileAltSchema, ProjectImportSchema } from '@backend/api/project/import'
 import { cleanupProject, generateProjectName } from '@backend/api/project/project.import-file'
 import {
-  GetProjectByIdSchema,
-  ProjectCreateSchema,
-  ProjectDeleteSchema,
-  ProjectImportFileSchema,
+  PaginationQuery,
   ProjectParams,
-  ProjectsGetAllSchema,
+  ProjectResponseSchema,
+  ResponseSchema,
   type Project,
 } from '@backend/api/project/schemas'
 import { databasePlugin } from '@backend/plugins/database'
 import { errorHandlerPlugin } from '@backend/plugins/error-handler'
 import { ApiErrorHandler } from '@backend/types/error-handler'
+import { ApiErrors } from '@backend/types/error-schemas'
 import { enhanceSchemaWithTypes, type DuckDBTablePragma } from '@backend/utils/duckdb-types'
 import cors from '@elysiajs/cors'
-import { Elysia } from 'elysia'
+import { Elysia, t } from 'elysia'
+
+const tags = ['Project']
 
 export const projectRoutes = new Elysia({ prefix: '/api/project' })
   .use(errorHandlerPlugin)
@@ -32,7 +32,20 @@ export const projectRoutes = new Elysia({ prefix: '/api/project' })
         data: projects as Project[],
       }
     },
-    ProjectsGetAllSchema,
+    {
+      response: {
+        200: t.Object({
+          data: t.Array(ProjectResponseSchema),
+        }),
+        422: ApiErrors,
+        500: ApiErrors,
+      },
+      detail: {
+        summary: 'Get all projects',
+        description: 'Get all projects',
+        tags,
+      },
+    },
   )
 
   .post(
@@ -61,7 +74,27 @@ export const projectRoutes = new Elysia({ prefix: '/api/project' })
         data: projects[0] as Project,
       })
     },
-    ProjectCreateSchema,
+    {
+      body: t.Object({
+        name: t.String({
+          minLength: 1,
+          maxLength: 255,
+          error: 'Project name is required and must be at least 1 character long',
+        }),
+      }),
+      response: {
+        201: t.Object({
+          data: ProjectResponseSchema,
+        }),
+        422: ApiErrors,
+        500: ApiErrors,
+      },
+      detail: {
+        summary: 'Create a new project',
+        description: 'Create a new project',
+        tags,
+      },
+    },
   )
 
   .post(
@@ -191,7 +224,38 @@ export const projectRoutes = new Elysia({ prefix: '/api/project' })
         data: { id: project.id },
       })
     },
-    ProjectImportFileSchema,
+    {
+      body: t.Object({
+        file: t.File({
+          // Note: File type validation has known issues in Elysia 1.3.x
+          // See: https://github.com/elysiajs/elysia/issues/1073
+          // type: ['application/json'], // Temporarily disabled due to validation issues
+          minSize: 1, // Reject empty files
+        }),
+        name: t.Optional(
+          t.String({
+            minLength: 1,
+            maxLength: 255,
+            error: 'Project name must be between 1 and 255 characters long if provided',
+          }),
+        ),
+      }),
+      response: {
+        201: t.Object({
+          data: t.Object({
+            id: t.String(),
+          }),
+        }),
+        400: ApiErrors,
+        422: ApiErrors,
+        500: ApiErrors,
+      },
+      detail: {
+        summary: 'Import a file into a project',
+        description: 'Import a file into a project',
+        tags,
+      },
+    },
   )
 
   .guard({
@@ -253,7 +317,21 @@ export const projectRoutes = new Elysia({ prefix: '/api/project' })
         throw error
       }
     },
-    GetProjectByIdSchema,
+    {
+      query: PaginationQuery,
+      response: {
+        200: ResponseSchema,
+        400: ApiErrors,
+        404: ApiErrors,
+        422: ApiErrors,
+        500: ApiErrors,
+      },
+      detail: {
+        summary: 'Get a project by ID',
+        description: 'Get a project by ID',
+        tags,
+      },
+    },
   )
 
   .delete(
@@ -273,7 +351,19 @@ export const projectRoutes = new Elysia({ prefix: '/api/project' })
 
       return status(204, undefined)
     },
-    ProjectDeleteSchema,
+    {
+      response: {
+        204: t.Void(),
+        404: ApiErrors,
+        422: ApiErrors,
+        500: ApiErrors,
+      },
+      detail: {
+        summary: 'Delete a project',
+        description: 'Delete a project',
+        tags,
+      },
+    },
   )
 
   .post(
@@ -338,7 +428,18 @@ export const projectRoutes = new Elysia({ prefix: '/api/project' })
         )
       }
     },
-    ProjectImportSchema,
+    {
+      body: t.Object({
+        filePath: t.String(),
+      }),
+      response: {
+        201: t.Null(),
+        400: ApiErrors,
+        409: ApiErrors,
+        422: ApiErrors,
+        500: ApiErrors,
+      },
+    },
   )
 
   .post(
@@ -370,5 +471,23 @@ export const projectRoutes = new Elysia({ prefix: '/api/project' })
         )
       }
     },
-    ProjectImportFileAltSchema,
+    {
+      body: t.Object({
+        file: t.File({
+          // Note: File type validation has known issues in Elysia 1.3.x
+          // See: https://github.com/elysiajs/elysia/issues/1073
+          // type: ['application/json', 'text/csv'], // Temporarily disabled due to validation issues
+          minSize: 1, // Reject empty files
+        }),
+      }),
+      response: {
+        201: t.Object({
+          tempFilePath: t.String(),
+        }),
+        400: ApiErrors,
+        409: ApiErrors,
+        422: ApiErrors,
+        500: ApiErrors,
+      },
+    },
   )

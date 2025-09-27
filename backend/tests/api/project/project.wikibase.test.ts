@@ -1,6 +1,11 @@
-import { wikibaseRoutes } from '@backend/api/project/project.wikibase'
-import { closeDb, getDb, initializeDb } from '@backend/plugins/database'
-import type { ItemId, PropertyId } from '@backend/types/wikibase-schema'
+import {
+  wikibaseRoutes,
+  type Alias,
+  type Label,
+  type WikibaseCreateSchema,
+} from '@backend/api/project/project.wikibase'
+import { closeDb, databasePlugin, getDb, initializeDb } from '@backend/plugins/database'
+import type { ItemId } from '@backend/types/wikibase-schema'
 import { treaty } from '@elysiajs/eden'
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test'
 import { Elysia } from 'elysia'
@@ -11,58 +16,69 @@ const deterministicString = (prefix: string) => `${prefix}_${_strCounter++}`
 let _itemIdCounter = 1000
 const deterministicItemId = (): ItemId => `Q${_itemIdCounter++}` as ItemId
 
-let _propertyIdCounter = 200
-const deterministicPropertyId = (): PropertyId => `P${_propertyIdCounter++}` as PropertyId
+// let _propertyIdCounter = 200
+// const deterministicPropertyId = (): PropertyId => `P${_propertyIdCounter++}` as PropertyId
 
 // let _mediaInfoIdCounter = 5000
 // const deterministicMediaInfoId = (): MediaInfoId => `M${_mediaInfoIdCounter++}` as MediaInfoId
 
-// const deterministicLangs = ['en', 'fr', 'de', 'es', 'it']
-// const deterministicLang = (index: number) =>
-//   deterministicLangs[
-//     index >= 0 && index < deterministicLangs.length
-//       ? index
-//       : _strCounter % deterministicLangs.length
-//   ]!
+const deterministicLangs = ['en', 'fr', 'de', 'es', 'it']
+const deterministicLang = (index: number) =>
+  deterministicLangs[
+    index >= 0 && index < deterministicLangs.length
+      ? index
+      : _strCounter % deterministicLangs.length
+  ]!
 
-// const deterministicLabels = (count = 2): Labels => {
-//   let labels: Labels = {}
+const deterministicLabels = (count = 2): Label => {
+  let labels: Label = {}
 
-//   for (let i = 0; i < count; i++) {
-//     const lang = deterministicLang(i)
-//     labels = Object.assign({}, labels, {
-//       [lang]: deterministicString('Label'),
-//     })
-//   }
+  for (let i = 0; i < count; i++) {
+    const lang = deterministicLang(i)
+    labels = Object.assign({}, labels, {
+      [lang]: {
+        columnName: deterministicString('Label'),
+        dataType: 'monolingualtext',
+      },
+    } as Label)
+  }
 
-//   return labels
-// }
+  return labels
+}
 
-// const deterministicDescriptions = (count = 2): Descriptions => {
-//   let descriptions: Descriptions = {}
+const deterministicDescriptions = (count = 2): Label => {
+  let descriptions: Label = {}
 
-//   for (let i = 0; i < count; i++) {
-//     const lang = deterministicLang(i)
-//     descriptions = Object.assign({}, descriptions, {
-//       [lang]: deterministicString('Description'),
-//     })
-//   }
+  for (let i = 0; i < count; i++) {
+    const lang = deterministicLang(i)
+    descriptions = Object.assign({}, descriptions, {
+      [lang]: {
+        columnName: deterministicString('Description'),
+        dataType: 'monolingualtext',
+      },
+    })
+  }
 
-//   return descriptions
-// }
+  return descriptions
+}
 
-// const deterministicAliases = (count = 2): Aliases => {
-//   let aliases: Aliases = {}
+const deterministicAliases = (count = 2): Alias => {
+  let aliases: Alias = {}
 
-//   for (let i = 0; i < count; i++) {
-//     const lang = deterministicLang(i)
-//     aliases = Object.assign({}, aliases, {
-//       [lang]: [deterministicString('Alias1'), deterministicString('Alias2')],
-//     })
-//   }
+  for (let i = 0; i < count; i++) {
+    const lang = deterministicLang(i)
+    aliases = Object.assign({}, aliases, {
+      [lang]: [
+        {
+          columnName: deterministicString('Alias'),
+          dataType: 'monolingualtext',
+        },
+      ],
+    })
+  }
 
-//   return aliases
-// }
+  return aliases
+}
 
 // const deterministicClaims = (): Claims => {
 //   const property = deterministicPropertyId()
@@ -139,25 +155,10 @@ const deterministicPropertyId = (): PropertyId => `P${_propertyIdCounter++}` as 
 //   return claims
 // }
 
-// const deterministicSitelinks = (count = 1): Sitelinks => {
-//   const sites: Site[] = ['enwiki', 'frwiki', 'dewiki']
-//   const sitelinks: Sitelinks = {}
-
-//   for (let i = 0; i < count; i++) {
-//     const site = sites[i % sites.length] || 'enwiki'
-//     sitelinks[site] = {
-//       site: site,
-//       title: deterministicString('Title'),
-//     } as Sitelink
-//   }
-
-//   return sitelinks
-// }
-
 const TEST_PROJECT_ID = Bun.randomUUIDv7()
 
 const createTestApi = () => {
-  return treaty(new Elysia().use(wikibaseRoutes)).api
+  return treaty(new Elysia().use(databasePlugin).use(wikibaseRoutes)).api
 }
 
 const insertTestProject = async () => {
@@ -170,80 +171,20 @@ const insertTestProject = async () => {
   ])
 }
 
-// Generate frontend format schema (ItemSchemaMapping)
-const generateFrontendSchema = () => {
-  return {
-    id: deterministicItemId(),
-    terms: {
-      labels: {
-        en: {
-          columnName: deterministicString('label_column'),
-          dataType: 'string',
-          transformation: {
-            type: 'constant' as const,
-            value: 'test value',
-          },
-        },
-      },
-      descriptions: {
-        en: {
-          columnName: deterministicString('desc_column'),
-          dataType: 'string',
-          transformation: {
-            type: 'constant' as const,
-            value: 'test description',
-          },
-        },
-      },
-      aliases: {
-        en: [
-          {
-            columnName: deterministicString('alias_column'),
-            dataType: 'string',
-            transformation: {
-              type: 'constant' as const,
-              value: 'test alias',
-            },
-          },
-        ],
-      },
-    },
-    statements: [
-      {
-        id: Bun.randomUUIDv7(),
-        property: {
-          id: deterministicPropertyId(),
-          label: deterministicString('Property Label'),
-          dataType: 'string',
-        },
-        value: {
-          type: 'column' as const,
-          source: {
-            columnName: deterministicString('value_column'),
-            dataType: 'string',
-            transformation: {
-              type: 'constant' as const,
-              value: 'test statement value',
-            },
-          },
-          dataType: 'string' as const,
-        },
-        rank: 'normal' as const,
-        qualifiers: [],
-        references: [],
-      },
-    ],
-  }
-}
-
-const generateRandomWikibaseSchema = (overrides = {}) => {
+const generateWikibaseSchema = (): Required<WikibaseCreateSchema> => {
   return {
     schemaId: Bun.randomUUIDv7(),
-    projectId: TEST_PROJECT_ID,
     name: deterministicString('Test Wikibase Schema'),
     wikibase: 'wikidata',
-    schema: generateFrontendSchema(),
-    ...overrides,
+    schema: {
+      id: deterministicItemId(),
+      terms: {
+        labels: deterministicLabels(),
+        descriptions: deterministicDescriptions(),
+        aliases: deterministicAliases(),
+      },
+      statements: [],
+    },
   }
 }
 
@@ -258,7 +199,7 @@ const generateRandomWikibaseSchema = (overrides = {}) => {
 //   }
 // }
 
-const expectNotFoundError = (status: number, data: any, error: any, message: string) => {
+const expectNotFoundError = (status: number, data: unknown, error: unknown, message: string) => {
   expect(status).toBe(404)
   expect(data).toBeNull()
   expect(error).not.toBeNull()
@@ -275,15 +216,15 @@ const expectNotFoundError = (status: number, data: any, error: any, message: str
 const expectSuccess = (
   expectedStatus: number,
   status: number,
-  data: any,
-  error: any,
-  schema: any,
+  data: unknown,
+  error: unknown,
+  schema: WikibaseCreateSchema,
 ) => {
   expect(status).toBe(expectedStatus)
   expect(data).toEqual({
     data: expect.objectContaining({
       id: schema.schemaId,
-      project_id: schema.projectId,
+      project_id: TEST_PROJECT_ID,
       name: schema.name,
       wikibase: schema.wikibase,
       schema: schema.schema,
@@ -307,7 +248,7 @@ describe('Wikibase API', () => {
     await closeDb()
   })
 
-  describe('GET /api/project/:project_id/schemas', () => {
+  describe('GET schemas', () => {
     test('should return empty array when no schemas exist', async () => {
       const { data, status, error } = await api
         .project({ projectId: TEST_PROJECT_ID })
@@ -319,7 +260,7 @@ describe('Wikibase API', () => {
     })
 
     test('should return schemas for a project', async () => {
-      const schema = generateRandomWikibaseSchema()
+      const schema = generateWikibaseSchema()
       await api.project({ projectId: TEST_PROJECT_ID }).schemas.post(schema)
 
       const { data, status, error } = await api
@@ -331,7 +272,7 @@ describe('Wikibase API', () => {
         data: [
           {
             id: schema.schemaId,
-            project_id: schema.projectId,
+            project_id: TEST_PROJECT_ID,
             name: schema.name,
             wikibase: schema.wikibase,
             schema: schema.schema,
@@ -351,9 +292,9 @@ describe('Wikibase API', () => {
     })
   })
 
-  describe('POST /api/project/:project_id/schemas', () => {
+  describe('POST schemas', () => {
     test('should create a new Wikibase schema', async () => {
-      const schema = generateRandomWikibaseSchema()
+      const schema = generateWikibaseSchema()
 
       const { data, status, error } = await api
         .project({ projectId: TEST_PROJECT_ID })
@@ -364,7 +305,7 @@ describe('Wikibase API', () => {
 
     test('should return 404 when project does not exist', async () => {
       const randomProjectId = Bun.randomUUIDv7()
-      const schema = generateRandomWikibaseSchema()
+      const schema = generateWikibaseSchema()
 
       const { data, status, error } = await api
         .project({ projectId: randomProjectId })
@@ -379,9 +320,9 @@ describe('Wikibase API', () => {
     })
   })
 
-  describe('GET /api/project/:project_id/schemas/:id', () => {
+  describe('GET schema by id', () => {
     test('should return schema with full details', async () => {
-      const schema = generateRandomWikibaseSchema()
+      const schema = generateWikibaseSchema()
       await api.project({ projectId: TEST_PROJECT_ID }).schemas.post(schema)
       const { data, status, error } = await api
         .project({ projectId: TEST_PROJECT_ID })
@@ -412,9 +353,9 @@ describe('Wikibase API', () => {
     })
   })
 
-  describe('PUT /api/project/:project_id/schemas/:id', () => {
+  describe('PUT update schema by id', () => {
     test('should update schema name', async () => {
-      const schema = generateRandomWikibaseSchema()
+      const schema = generateWikibaseSchema()
       await api.project({ projectId: TEST_PROJECT_ID }).schemas.post(schema)
 
       const updateData = {
@@ -430,24 +371,40 @@ describe('Wikibase API', () => {
     })
 
     test('should update wikibase', async () => {
-      const schema = generateRandomWikibaseSchema()
-      await api.project({ projectId: TEST_PROJECT_ID }).schemas.post(schema)
+      const { name, wikibase, schema } = generateWikibaseSchema()
+      const {
+        data: {
+          // @ts-expect-error Elysia Eden thinks 201 is error
+          data: { id },
+        },
+      } = await api.project({ projectId: TEST_PROJECT_ID }).schemas.post({
+        // schemaId,
+        name,
+        wikibase,
+        schema,
+      })
+
       const updateData = {
         wikibase: 'commons',
-        schema: schema.schema,
+        schema: schema,
       }
 
       const { data, status, error } = await api
         .project({ projectId: TEST_PROJECT_ID })
-        .schemas({ schemaId: schema.schemaId })
+        .schemas({ schemaId: id })
         .put(updateData)
 
-      expectSuccess(200, status, data, error, { ...schema, wikibase: updateData.wikibase })
+      expectSuccess(200, status, data, error, {
+        schemaId: id,
+        name,
+        schema,
+        wikibase: updateData.wikibase,
+      })
     })
 
     test('should return 404 for non-existent project', async () => {
       const randomId = Bun.randomUUIDv7()
-      const schema = generateRandomWikibaseSchema()
+      const schema = generateWikibaseSchema()
       await api.project({ projectId: TEST_PROJECT_ID }).schemas.post(schema)
 
       const { data, status, error } = await api
@@ -459,7 +416,7 @@ describe('Wikibase API', () => {
     })
 
     test('should return 404 for non-existent schema', async () => {
-      const schema = generateRandomWikibaseSchema()
+      const schema = generateWikibaseSchema()
       await api.project({ projectId: TEST_PROJECT_ID }).schemas.post(schema)
 
       const updateData = { name: 'New Name', schema: schema.schema }
@@ -474,14 +431,23 @@ describe('Wikibase API', () => {
     })
   })
 
-  describe('DELETE /api/project/:project_id/schemas/:id', () => {
+  describe('DELETE delete schema by id', () => {
     test('should delete schema successfully', async () => {
-      const schema = generateRandomWikibaseSchema()
-      await api.project({ projectId: TEST_PROJECT_ID }).schemas.post(schema)
+      const { name, wikibase, schema } = generateWikibaseSchema()
+      const {
+        data: {
+          // @ts-expect-error Elysia Eden thinks 201 is error
+          data: { id },
+        },
+      } = await api.project({ projectId: TEST_PROJECT_ID }).schemas.post({
+        name,
+        wikibase,
+        schema,
+      })
 
       const { data, status, error } = await api
         .project({ projectId: TEST_PROJECT_ID })
-        .schemas({ schemaId: schema.schemaId })
+        .schemas({ schemaId: id })
         .delete()
 
       expect(status).toBe(204)
@@ -493,16 +459,13 @@ describe('Wikibase API', () => {
         data: getResponse,
         status: getStatus,
         error: getError,
-      } = await api
-        .project({ projectId: TEST_PROJECT_ID })
-        .schemas({ schemaId: schema.schemaId })
-        .get()
+      } = await api.project({ projectId: TEST_PROJECT_ID }).schemas({ schemaId: id }).get()
 
       expectNotFoundError(
         getStatus,
         getResponse,
         getError,
-        `Schema with identifier '${schema.schemaId}' not found`,
+        `Schema with identifier '${id}' not found`,
       )
     })
 

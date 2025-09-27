@@ -48,10 +48,16 @@ describe('createProject', () => {
       expect(error).toHaveProperty('status', 422)
       expect(error).toHaveProperty('value', [
         {
-          code: 'invalid_type',
-          expected: 'string',
-          message: 'Project name is required and must be at least 1 character long',
-          path: ['name'],
+          errors: [],
+          message: 'Expected string',
+          path: '/name',
+          schema: {
+            error: 'Project name is required and must be at least 1 character long',
+            minLength: 1,
+            maxLength: 255,
+            type: 'string',
+          },
+          type: 54,
         },
       ])
     })
@@ -66,12 +72,17 @@ describe('createProject', () => {
       expect(error).toHaveProperty('status', 422)
       expect(error).toHaveProperty('value', [
         {
-          code: 'too_small',
-          inclusive: true,
-          message: 'Too small: expected string to have >=1 characters',
-          minimum: 1,
-          origin: 'string',
-          path: ['name'],
+          errors: [],
+          message: 'Expected string length greater or equal to 1',
+          path: '/name',
+          schema: {
+            error: 'Project name is required and must be at least 1 character long',
+            minLength: 1,
+            maxLength: 255,
+            type: 'string',
+          },
+          type: 52,
+          value: '',
         },
       ])
     })

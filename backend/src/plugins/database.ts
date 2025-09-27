@@ -7,13 +7,7 @@ let instance: DuckDBInstance | null = null
 
 export const initializeDb = async (dbPath: string): Promise<DuckDBConnection> => {
   // Close existing connection if it exists
-  if (connection) {
-    connection.closeSync()
-    connection = null
-  }
-  if (instance) {
-    instance = null
-  }
+  closeDb()
 
   // Create a new database instance
   instance = await DuckDBInstance.create(dbPath)

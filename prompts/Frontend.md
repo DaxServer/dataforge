@@ -56,14 +56,14 @@ This document provides the core guidelines and rules for frontend development ta
 
 ## 7. Security
 
-- **Input Validation**: Server-side validation (Zod), sanitize output.
+- **Input Validation**: Server-side validation (Elysia schemas), sanitize output.
 - **Auth**: JWT for stateless auth, proper session management, least privilege.
 - **Headers**: Configure secure headers.
 
 ## 8. Environment Configuration
 
 - **.env Files**: `.env` for defaults, `.env.local` for local overrides (git-ignored). Never commit sensitive data.
-- **Type-Safe Config**: Zod for validation.
+- **Type-Safe Config**: Elysia schemas for validation.
 - **Environment-Specific**: Use env vars, maintain parity, feature flags.
 
 ---

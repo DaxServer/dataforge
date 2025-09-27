@@ -2,27 +2,26 @@ import { databasePlugin } from '@backend/plugins/database'
 import { errorHandlerPlugin } from '@backend/plugins/error-handler'
 import { ApiErrors } from '@backend/types/error-schemas'
 import type { DuckDBColumnNameAndType } from '@backend/utils/duckdb-types'
-import { Elysia } from 'elysia'
-import z from 'zod'
+import { Elysia, t } from 'elysia'
 
-const MetaProject = z.object({
-  id: z.string(),
-  name: z.string(),
-  schema_for: z.union([z.string(), z.null()]),
-  schema: z.any(),
-  created_at: z.string(),
-  updated_at: z.string(),
-  wikibase_schema: z.array(
-    z.object({
-      id: z.string(),
-      wikibase: z.string(),
-      name: z.string(),
-      created_at: z.string(),
-      updated_at: z.string(),
+const MetaProject = t.Object({
+  id: t.String(),
+  name: t.String(),
+  schema_for: t.Union([t.String(), t.Null()]),
+  schema: t.Any(),
+  created_at: t.String(),
+  updated_at: t.String(),
+  wikibase_schema: t.Array(
+    t.Object({
+      id: t.String(),
+      wikibase: t.String(),
+      name: t.String(),
+      created_at: t.String(),
+      updated_at: t.String(),
     }),
   ),
 })
-type MetaProject = z.infer<typeof MetaProject>
+type MetaProject = typeof MetaProject.static
 
 export const metaProjectsRoutes = new Elysia({ prefix: '/api' })
   .use(errorHandlerPlugin)
@@ -78,8 +77,8 @@ export const metaProjectsRoutes = new Elysia({ prefix: '/api' })
     },
     {
       response: {
-        200: z.object({
-          data: z.array(MetaProject),
+        200: t.Object({
+          data: t.Array(MetaProject),
         }),
         500: ApiErrors,
       },

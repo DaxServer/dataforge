@@ -31,13 +31,12 @@
       "@typescript-eslint/eslint-plugin": "^8.44.0",
       "@typescript-eslint/parser": "^8.44.0",
       "bun-types": "1.2.22",
-      "elysia": "1.4.7",
+      "elysia": "1.4.8",
       "eslint": "^9.36.0",
       "eslint-config-prettier": "^10.1.8",
       "eslint-plugin-no-relative-import-paths": "^1.6.1",
       "eslint-plugin-prettier": "^5.5.4",
       "prettier": "^3.5.3",
-      "zod": "^4.1.0",
       "typescript": "^5.9.0"
     }
   },
