@@ -17,9 +17,17 @@ export const useProjectStore = defineStore('project', () => {
   const isLoading = ref(false)
   const columns = ref<ProjectColumn[]>([])
 
+  // Current pagination state
+  const currentOffset = ref(0)
+  const currentLimit = ref(25)
+
   // Actions
   const fetchProject = async (projectId: string, offset = 0, limit = 25) => {
     isLoading.value = true
+
+    // Store current pagination state
+    currentOffset.value = offset
+    currentLimit.value = limit
 
     const { data: rows, error } = await api.project({ projectId }).get({ query: { offset, limit } })
 
@@ -34,6 +42,10 @@ export const useProjectStore = defineStore('project', () => {
     columns.value = generateColumns(rows.meta.schema)
 
     isLoading.value = false
+  }
+
+  const refreshCurrentPage = async (projectId: string) => {
+    await fetchProject(projectId, currentOffset.value, currentLimit.value)
   }
 
   const clearProject = () => {
@@ -78,9 +90,12 @@ export const useProjectStore = defineStore('project', () => {
     isLoading,
     columns,
     columnsForSchema,
+    currentOffset,
+    currentLimit,
 
     // Actions
     fetchProject,
+    refreshCurrentPage,
     clearProject,
   }
 })

@@ -5,14 +5,21 @@ const props = defineProps<{
   isPrimaryKey: boolean
 }>()
 
-const { showSuccess } = useErrorHandling()
+const emit = defineEmits(['replaceCompleted'])
+
+const { showSuccess, showWarning } = useErrorHandling()
 
 const menu = ref()
 const isOpen = ref(false)
 const showReplaceDialog = ref(false)
 
 const handleReplaceCompleted = (affectedRows: number) => {
-  showSuccess(`Replace completed: ${affectedRows} rows affected`)
+  if (affectedRows === 0) {
+    showWarning('Replace completed: No rows were affected')
+  } else {
+    showSuccess(`Replace completed: ${affectedRows} rows affected`)
+    emit('replaceCompleted')
+  }
 }
 
 const menuItems = ref<MenuItem[]>([

@@ -18,11 +18,21 @@ export class ReplaceOperationService {
   async performReplace(params: ReplaceOperationParams): Promise<number> {
     const { table, column, find, replace, caseSensitive, wholeWord } = params
 
+    // Get the original column type before any modifications
+    const originalColumnType = await this.getColumnType(table, column)
+
+    // Check if column is string-like, if not, convert it first
+    const wasConverted = await this.ensureColumnIsStringType(table, column)
+
     // Count rows that will be affected before the update
     const affectedRows = await this.countAffectedRows(table, column, find, caseSensitive, wholeWord)
 
     // Only proceed if there are rows to update
     if (affectedRows === 0) {
+      // Revert column type if it was converted and no rows were affected
+      if (wasConverted) {
+        await this.changeColumnType(table, column, originalColumnType)
+      }
       return 0
     }
 
@@ -153,5 +163,59 @@ export class ReplaceOperationService {
    */
   private escapeRegex(str: string): string {
     return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+  }
+
+  /**
+   * Gets the column type from the table schema
+   */
+  private async getColumnType(table: string, column: string): Promise<string> {
+    const result = await this.db.runAndReadAll(`PRAGMA table_info("${table}")`)
+    const columns = result.getRowObjectsJson() as Array<{
+      cid: number
+      name: string
+      type: string
+      pk: boolean
+      notnull: boolean
+      dflt_value: string | null
+    }>
+
+    const columnInfo = columns.find((col) => col.name === column)
+    if (!columnInfo) {
+      throw new Error(`Column '${column}' not found in table '${table}'`)
+    }
+
+    return columnInfo.type.toUpperCase()
+  }
+
+  /**
+   * Checks if a column type is string-like (VARCHAR, TEXT, BLOB)
+   */
+  private isStringLikeType(columnType: string): boolean {
+    const stringTypes = ['VARCHAR', 'TEXT', 'CHAR', 'BPCHAR']
+
+    return stringTypes.some((type) => columnType.includes(type))
+  }
+
+  /**
+   * Ensures the column is a string-like type, converting it if necessary
+   * Returns true if the column was converted, false otherwise
+   */
+  private async ensureColumnIsStringType(table: string, column: string): Promise<boolean> {
+    const columnType = await this.getColumnType(table, column)
+
+    if (!this.isStringLikeType(columnType)) {
+      // Convert the column to VARCHAR
+      await this.changeColumnType(table, column, 'VARCHAR')
+      return true
+    }
+
+    return false
+  }
+
+  /**
+   * Changes the column type to the specified type
+   */
+  private async changeColumnType(table: string, column: string, newType: string): Promise<void> {
+    await this.db.run(`ALTER TABLE "${table}" ALTER "${column}" TYPE ${newType}`)
   }
 }
