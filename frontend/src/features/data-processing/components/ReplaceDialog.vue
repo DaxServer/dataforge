@@ -41,16 +41,9 @@ const handleReplace = async () => {
       return
     }
 
-    if (!data?.affectedRows) {
-      showError([{ code: 'NOT_FOUND', message: 'Replace operation failed' }])
-      return
-    }
-
-    if (data?.affectedRows !== undefined && data?.affectedRows !== null) {
-      emit('replace-completed', data.affectedRows)
-    }
+    emit('replace-completed', data.affectedRows)
   } catch (error) {
-    console.error('Replace operation failed:', error)
+    showError([{ code: 'INTERNAL_SERVER_ERROR', message: error as string }])
   } finally {
     isLoading.value = false
     closeDialog()
@@ -88,7 +81,12 @@ const handleVisibleChange = (visible: boolean) => {
   >
     <div class="flex flex-col gap-4">
       <div class="flex flex-col gap-2">
-        <label for="find-text" class="font-semibold">Find</label>
+        <label
+          for="find-text"
+          class="font-semibold"
+        >
+          Find
+        </label>
         <InputText
           id="find-text"
           v-model="findText"
@@ -98,7 +96,12 @@ const handleVisibleChange = (visible: boolean) => {
       </div>
 
       <div class="flex flex-col gap-2">
-        <label for="replace-text" class="font-semibold">Replace with</label>
+        <label
+          for="replace-text"
+          class="font-semibold"
+        >
+          Replace with
+        </label>
         <InputText
           id="replace-text"
           v-model="replaceText"
@@ -115,7 +118,12 @@ const handleVisibleChange = (visible: boolean) => {
             binary
             :disabled="isLoading"
           />
-          <label for="case-sensitive" class="cursor-pointer">Case sensitive</label>
+          <label
+            for="case-sensitive"
+            class="cursor-pointer"
+          >
+            Case sensitive
+          </label>
         </div>
 
         <div class="flex items-center gap-2">
@@ -125,7 +133,12 @@ const handleVisibleChange = (visible: boolean) => {
             binary
             :disabled="isLoading"
           />
-          <label for="whole-word" class="cursor-pointer">Whole word only</label>
+          <label
+            for="whole-word"
+            class="cursor-pointer"
+          >
+            Whole word only
+          </label>
         </div>
       </div>
     </div>

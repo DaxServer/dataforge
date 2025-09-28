@@ -3,7 +3,7 @@ const projectId = useRouteParams('id') as Ref<string>
 
 const projectStore = useProjectStore()
 const { meta, isLoading, data, columns } = storeToRefs(projectStore)
-const { fetchProject, clearProject } = projectStore
+const { fetchProject, refreshCurrentPage, clearProject } = projectStore
 const { processHtml } = useHtml()
 
 const totalRecords = computed(() => meta.value.total)
@@ -63,6 +63,7 @@ onUnmounted(() => clearProject())
             :column-field="col.field"
             :column-header="col.header"
             :is-primary-key="col.pk"
+            @replace-completed="() => refreshCurrentPage(projectId)"
           />
           <span>{{ col.header }}</span>
         </div>
