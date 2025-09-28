@@ -54,74 +54,69 @@ describe('ReplaceOperationService', () => {
   })
 
   describe('performReplace', () => {
-    test('should perform basic replace operation', async () => {
-      const result = await service.performReplace({
-        table,
-        column: 'city',
-        find: 'New York',
-        replace: 'NYC',
-        caseSensitive: false,
-        wholeWord: false,
-      })
-
-      expect(result.message).toBe("Successfully replaced 'New York' with 'NYC' in column 'city'")
-      expect(result.affectedRows).toBe(3)
+    test('should perform basic replace operation', () => {
+      expect(
+        service.performReplace({
+          table,
+          column: 'city',
+          find: 'New York',
+          replace: 'NYC',
+          caseSensitive: false,
+          wholeWord: false,
+        }),
+      ).resolves.toBe(3)
     })
 
-    test('should perform case-sensitive replace operation', async () => {
-      const result = await service.performReplace({
-        table,
-        column: 'name',
-        find: 'John',
-        replace: 'Jonathan',
-        caseSensitive: true,
-        wholeWord: false,
-      })
-
-      expect(result.message).toBe("Successfully replaced 'John' with 'Jonathan' in column 'name'")
-      expect(result.affectedRows).toBe(2) // John Doe and John Johnson
+    test('should perform case-sensitive replace operation', () => {
+      expect(
+        service.performReplace({
+          table,
+          column: 'name',
+          find: 'John',
+          replace: 'Jonathan',
+          caseSensitive: true,
+          wholeWord: false,
+        }),
+      ).resolves.toBe(2) // John Doe and John Johnson
     })
 
-    test('should perform case-insensitive replace operation', async () => {
-      const result = await service.performReplace({
-        table,
-        column: 'email',
-        find: 'JOHN',
-        replace: 'JONATHAN',
-        caseSensitive: false,
-        wholeWord: false,
-      })
-
-      expect(result.message).toBe("Successfully replaced 'JOHN' with 'JONATHAN' in column 'email'")
-      expect(result.affectedRows).toBe(1) // john@example.com
+    test('should perform case-insensitive replace operation', () => {
+      expect(
+        service.performReplace({
+          table,
+          column: 'email',
+          find: 'JOHN',
+          replace: 'JONATHAN',
+          caseSensitive: false,
+          wholeWord: false,
+        }),
+      ).resolves.toBe(1) // john@example.com
     })
 
-    test('should perform whole word replace operation', async () => {
-      const result = await service.performReplace({
-        table,
-        column: 'name',
-        find: 'John',
-        replace: 'Jonathan',
-        caseSensitive: false,
-        wholeWord: true,
-      })
-
-      expect(result.message).toBe("Successfully replaced 'John' with 'Jonathan' in column 'name'")
-      expect(result.affectedRows).toBe(1) // Only "John Doe" should match (whole word "John")
+    test('should perform whole word replace operation', () => {
+      expect(
+        service.performReplace({
+          table,
+          column: 'name',
+          find: 'John',
+          replace: 'Jonathan',
+          caseSensitive: false,
+          wholeWord: true,
+        }),
+      ).resolves.toBe(1) // Only "John Doe" should match (whole word "John")
     })
 
-    test('should handle replace with empty string', async () => {
-      const result = await service.performReplace({
-        table,
-        column: 'city',
-        find: 'New York',
-        replace: '',
-        caseSensitive: false,
-        wholeWord: false,
-      })
-
-      expect(result.message).toBe("Successfully replaced 'New York' with '' in column 'city'")
-      expect(result.affectedRows).toBe(3)
+    test('should handle replace with empty string', () => {
+      expect(
+        service.performReplace({
+          table,
+          column: 'city',
+          find: 'New York',
+          replace: '',
+          caseSensitive: false,
+          wholeWord: false,
+        }),
+      ).resolves.toBe(3)
     })
 
     test('should handle special characters in find and replace', async () => {
@@ -131,17 +126,16 @@ describe('ReplaceOperationService', () => {
         `INSERT INTO "${table}" (name, email, city) VALUES ('Test@User', 'test@user.com', 'City')`,
       )
 
-      const result = await service.performReplace({
-        table,
-        column: 'email',
-        find: '@',
-        replace: '[AT]',
-        caseSensitive: false,
-        wholeWord: false,
-      })
-
-      expect(result.message).toBe("Successfully replaced '@' with '[AT]' in column 'email'")
-      expect(result.affectedRows).toBe(6) // All 6 emails contain @
+      expect(
+        service.performReplace({
+          table,
+          column: 'email',
+          find: '@',
+          replace: '[AT]',
+          caseSensitive: false,
+          wholeWord: false,
+        }),
+      ).resolves.toBe(6) // All 6 emails contain @
     })
 
     test('should handle single quotes in find and replace', async () => {
@@ -151,24 +145,21 @@ describe('ReplaceOperationService', () => {
         `INSERT INTO "${table}" (name, email, city) VALUES ('John''s Cafe', 'johnscafe@example.com', 'Boston')`,
       )
 
-      const result = await service.performReplace({
-        table,
-        column: 'name',
-        find: "John's",
-        replace: "Jonathan's",
-        caseSensitive: false,
-        wholeWord: false,
-      })
-
-      expect(result.message).toBe(
-        "Successfully replaced 'John\'s' with 'Jonathan\'s' in column 'name'",
-      )
-      expect(result.affectedRows).toBe(1)
+      expect(
+        service.performReplace({
+          table,
+          column: 'name',
+          find: "John's",
+          replace: "Jonathan's",
+          caseSensitive: false,
+          wholeWord: false,
+        }),
+      ).resolves.toBe(1)
     })
   })
 
   describe('edge cases and error handling', () => {
-    test('should throw error for non-existent column', async () => {
+    test('should throw error for non-existent column', () => {
       expect(
         service.performReplace({
           table,
@@ -181,7 +172,7 @@ describe('ReplaceOperationService', () => {
       ).rejects.toThrow()
     })
 
-    test('should handle non-existent project table', async () => {
+    test('should handle non-existent project table', () => {
       expect(
         service.performReplace({
           table: 'nonexistent_table',
@@ -194,20 +185,17 @@ describe('ReplaceOperationService', () => {
       ).rejects.toThrow()
     })
 
-    test('should handle no matching rows', async () => {
-      const result = await service.performReplace({
-        table,
-        column: 'city',
-        find: 'NonExistentCity',
-        replace: 'NewCity',
-        caseSensitive: false,
-        wholeWord: false,
-      })
-
-      expect(result.message).toBe(
-        "Successfully replaced 'NonExistentCity' with 'NewCity' in column 'city'",
-      )
-      expect(result.affectedRows).toBe(0)
+    test('should handle no matching rows', () => {
+      expect(
+        service.performReplace({
+          table,
+          column: 'city',
+          find: 'NonExistentCity',
+          replace: 'NewCity',
+          caseSensitive: false,
+          wholeWord: false,
+        }),
+      ).resolves.toBe(0)
     })
   })
 })

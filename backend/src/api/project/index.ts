@@ -4,7 +4,6 @@ import {
   PaginationQuery,
   ProjectParams,
   ProjectResponseSchema,
-  ReplaceOperationResponseSchema,
   ReplaceOperationSchema,
   type Project,
 } from '@backend/api/project/schemas'
@@ -559,7 +558,7 @@ export const projectRoutes = new Elysia({ prefix: '/api/project' })
       const replaceService = new ReplaceOperationService(db())
 
       try {
-        const result = await replaceService.performReplace({
+        const affectedRows = await replaceService.performReplace({
           table,
           column,
           find,
@@ -568,7 +567,9 @@ export const projectRoutes = new Elysia({ prefix: '/api/project' })
           wholeWord,
         })
 
-        return result
+        return {
+          affectedRows,
+        }
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred'
         return status(
@@ -582,7 +583,9 @@ export const projectRoutes = new Elysia({ prefix: '/api/project' })
     {
       body: ReplaceOperationSchema,
       response: {
-        200: ReplaceOperationResponseSchema,
+        200: t.Object({
+          affectedRows: t.Number(),
+        }),
         400: ApiErrors,
         404: ApiErrors,
         422: ApiErrors,

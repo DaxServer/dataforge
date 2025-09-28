@@ -70,10 +70,3 @@ export const ReplaceOperationSchema = t.Object({
     default: false,
   }),
 })
-export type ReplaceOperationSchema = typeof ReplaceOperationSchema.static
-
-export const ReplaceOperationResponseSchema = t.Object({
-  message: t.String(),
-  affectedRows: t.Number(),
-})
-export type ReplaceOperationResponseSchema = typeof ReplaceOperationResponseSchema.static

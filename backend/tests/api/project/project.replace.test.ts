@@ -81,7 +81,6 @@ describe('Project API - find and replace', () => {
     expect(status).toBe(200)
     expect(error).toBeNull()
     expect(data).toEqual({
-      message: "Successfully replaced 'New York' with 'San Francisco' in column 'city'",
       affectedRows: 3,
     })
 
@@ -112,7 +111,6 @@ describe('Project API - find and replace', () => {
         replace: 'company.com',
         caseSensitive: true,
         wholeWord: false,
-        expectedMessage: "Successfully replaced 'example.com' with 'company.com' in column 'email'",
         expectedAffectedRows: 4,
       },
       {
@@ -122,20 +120,11 @@ describe('Project API - find and replace', () => {
         replace: 'company.com',
         caseSensitive: false,
         wholeWord: false,
-        expectedMessage: "Successfully replaced 'EXAMPLE.COM' with 'company.com' in column 'email'",
         expectedAffectedRows: 4,
       },
     ])(
       '$description',
-      async ({
-        column,
-        find,
-        replace,
-        caseSensitive,
-        wholeWord,
-        expectedMessage,
-        expectedAffectedRows,
-      }) => {
+      async ({ column, find, replace, caseSensitive, wholeWord, expectedAffectedRows }) => {
         const { data, status, error } = await api.project({ projectId }).replace.post({
           column,
           find,
@@ -147,7 +136,6 @@ describe('Project API - find and replace', () => {
         expect(status).toBe(200)
         expect(error).toBeNull()
         expect(data).toEqual({
-          message: expectedMessage,
           affectedRows: expectedAffectedRows,
         })
       },
@@ -163,7 +151,6 @@ describe('Project API - find and replace', () => {
         replace: 'Jonathan',
         caseSensitive: false,
         wholeWord: true,
-        expectedMessage: "Successfully replaced 'John' with 'Jonathan' in column 'name'",
         expectedAffectedRows: 1,
       },
       {
@@ -173,20 +160,11 @@ describe('Project API - find and replace', () => {
         replace: 'jonathan',
         caseSensitive: true,
         wholeWord: true,
-        expectedMessage: "Successfully replaced 'john' with 'jonathan' in column 'name'",
         expectedAffectedRows: 0,
       },
     ])(
       '$description',
-      async ({
-        column,
-        find,
-        replace,
-        caseSensitive,
-        wholeWord,
-        expectedMessage,
-        expectedAffectedRows,
-      }) => {
+      async ({ column, find, replace, caseSensitive, wholeWord, expectedAffectedRows }) => {
         const { data, status, error } = await api.project({ projectId }).replace.post({
           column,
           find,
@@ -198,7 +176,6 @@ describe('Project API - find and replace', () => {
         expect(status).toBe(200)
         expect(error).toBeNull()
         expect(data).toEqual({
-          message: expectedMessage,
           affectedRows: expectedAffectedRows,
         })
       },
@@ -212,7 +189,6 @@ describe('Project API - find and replace', () => {
         column: 'city',
         find: 'New York',
         replace: '',
-        expectedMessage: "Successfully replaced 'New York' with '' in column 'city'",
         expectedAffectedRows: 3,
       },
       {
@@ -220,10 +196,9 @@ describe('Project API - find and replace', () => {
         column: 'name',
         find: 'John',
         replace: '',
-        expectedMessage: "Successfully replaced 'John' with '' in column 'name'",
         expectedAffectedRows: 2,
       },
-    ])('$description', async ({ column, find, replace, expectedMessage, expectedAffectedRows }) => {
+    ])('$description', async ({ column, find, replace, expectedAffectedRows }) => {
       const { data, status, error } = await api.project({ projectId }).replace.post({
         column,
         find,
@@ -235,7 +210,6 @@ describe('Project API - find and replace', () => {
       expect(status).toBe(200)
       expect(error).toBeNull()
       expect(data).toEqual({
-        message: expectedMessage,
         affectedRows: expectedAffectedRows,
       })
     })
@@ -282,7 +256,6 @@ describe('Project API - find and replace', () => {
         column: 'email',
         find: '@',
         replace: '[AT]',
-        expectedMessage: "Successfully replaced '@' with '[AT]' in column 'email'",
         expectedAffectedRows: 5,
       },
       {
@@ -290,7 +263,6 @@ describe('Project API - find and replace', () => {
         column: 'name',
         find: "John's",
         replace: "Jonathan's",
-        expectedMessage: "Successfully replaced 'John\\'s' with 'Jonathan\\'s' in column 'name'",
         expectedAffectedRows: 0, // No data with John's in test data
       },
     ])('$description', async ({ column, find, replace }) => {
