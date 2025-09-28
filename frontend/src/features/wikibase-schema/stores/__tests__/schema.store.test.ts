@@ -75,7 +75,7 @@ describe('useSchemaStore', () => {
       expect(store.schemaId).toBeNull()
       expect(store.projectId).toBeNull()
       expect(store.schemaName).toBe('')
-      expect(store.wikibase).toBe('')
+      expect(store.wikibase).toBe('wikidata')
       expect(store.itemId).toBeNull()
       expect(store.labels).toEqual({})
       expect(store.descriptions).toEqual({})

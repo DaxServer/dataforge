@@ -1,4 +1,3 @@
-import type { WikibaseDataType } from '@backend/types/wikibase-schema'
 import { useColumnDataTypeIndicators } from '@frontend/features/data-processing/composables/useColumnDataTypeIndicators'
 import type { ColumnInfo } from '@frontend/shared/types/wikibase-schema'
 import { readonly, ref } from 'vue'

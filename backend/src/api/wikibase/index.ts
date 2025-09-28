@@ -1,5 +1,6 @@
 import {
   InstanceId,
+  OAuthCredentials,
   PropertySearchResultSchema,
   QuerySchema,
   Term,
@@ -10,7 +11,7 @@ import { wikibasePlugin } from '@backend/plugins/wikibase'
 import { constraintValidationService } from '@backend/services/constraint-validation.service'
 import { ApiErrorHandler } from '@backend/types/error-handler'
 import { ApiErrors } from '@backend/types/error-schemas'
-import { PropertyId, WikibaseDataType, ItemId } from '@backend/types/wikibase-schema'
+import { ItemId, PropertyId, WikibaseDataType } from '@backend/types/wikibase-schema'
 import { cors } from '@elysiajs/cors'
 import { Elysia, t } from 'elysia'
 
@@ -26,6 +27,33 @@ export const wikibaseEntitiesApi = new Elysia({ prefix: '/api/wikibase' })
       instanceId: InstanceId,
     }),
   })
+
+  .post(
+    '/:instanceId/csrf-token',
+    async ({ params: { instanceId }, body: { credentials }, wikibase }) => {
+      const {
+        query: {
+          tokens: { csrftoken },
+        },
+      } = await wikibase.getCsrfToken(instanceId, credentials)
+      return {
+        token: csrftoken,
+      }
+    },
+    {
+      body: t.Object({
+        credentials: OAuthCredentials,
+      }),
+      response: t.Object({
+        token: t.String(),
+      }),
+      detail: {
+        summary: 'Get CSRF token',
+        description: 'Get a CSRF token for a Wikibase instance using OAuth credentials',
+        tags: ['Wikibase'],
+      },
+    },
+  )
 
   .post(
     '/:instanceId/properties/fetch',

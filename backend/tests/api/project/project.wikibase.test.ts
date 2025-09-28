@@ -4,6 +4,7 @@ import {
   type Label,
   type WikibaseCreateSchema,
 } from '@backend/api/project/project.wikibase'
+import type { InstanceId } from '@backend/api/wikibase/schemas'
 import { closeDb, databasePlugin, getDb, initializeDb } from '@backend/plugins/database'
 import type { ItemId } from '@backend/types/wikibase-schema'
 import { treaty } from '@elysiajs/eden'
@@ -385,7 +386,7 @@ describe('Wikibase API', () => {
       })
 
       const updateData = {
-        wikibase: 'commons',
+        wikibase: 'commons' as InstanceId,
         schema: schema,
       }
 

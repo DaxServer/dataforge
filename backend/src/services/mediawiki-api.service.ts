@@ -1,7 +1,7 @@
 import type { ApiResponse, LoginResponse, MediaWikiConfig } from '@backend/types/mediawiki-api'
 
 export class MediaWikiApiService {
-  private config: MediaWikiConfig
+  public config: MediaWikiConfig
   private tokens = new Map<string, string>()
 
   constructor(config: MediaWikiConfig) {
@@ -58,8 +58,7 @@ export class MediaWikiApiService {
     const options: RequestInit = {
       method,
       headers: {
-        'User-Agent':
-          this.config.userAgent || 'DataForge/1.0 (https://github.com/DaxServer/dataforge)',
+        'User-Agent': this.config.userAgent,
       },
     }
 

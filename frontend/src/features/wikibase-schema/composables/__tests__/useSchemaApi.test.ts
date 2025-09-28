@@ -57,7 +57,7 @@ const mockSchema: WikibaseSchemaResponse = {
   id: TEST_SCHEMA_ID,
   project_id: TEST_PROJECT_ID,
   name: 'Test Schema',
-  wikibase: '',
+  wikibase: 'wikidata',
   schema: {
     terms: {
       labels: {
@@ -202,13 +202,13 @@ describe('useSchemaApi', () => {
 
       await createSchema(TEST_PROJECT_ID, {
         name: 'New Schema',
-        wikibase: 'https://www.wikidata.org',
+        wikibase: 'wikidata',
       })
 
       expect(mockApi.project).toHaveBeenCalledWith({ projectId: TEST_PROJECT_ID })
       expect(mockSchemaPost).toHaveBeenCalledWith({
         name: 'New Schema',
-        wikibase: 'https://www.wikidata.org',
+        wikibase: 'wikidata',
       })
       expect(store.schemaId).toBe(mockCreatedSchema.id as UUID)
       expect(store.projectId).toBe(mockCreatedSchema.project_id as UUID)
@@ -229,6 +229,7 @@ describe('useSchemaApi', () => {
 
       await createSchema(TEST_PROJECT_ID, {
         name: '',
+        // @ts-expect-error testing invalid assignment
         wikibase: 'invalid-url',
       })
 
@@ -312,7 +313,7 @@ describe('useSchemaApi', () => {
           id: TEST_SCHEMA_ID,
           project_id: TEST_PROJECT_ID,
           name: 'Test Schema',
-          wikibase: '',
+          wikibase: 'wikidata',
           created_at: '2024-01-01T00:00:00Z',
           updated_at: '2024-01-01T00:00:00Z',
           schema: {
@@ -333,7 +334,7 @@ describe('useSchemaApi', () => {
           id: TEST_SCHEMA_789_ID,
           project_id: TEST_PROJECT_ID,
           name: 'New Schema',
-          wikibase: '',
+          wikibase: 'wikidata',
           created_at: '2024-01-01T00:00:00Z',
           updated_at: '2024-01-01T00:00:00Z',
           schema: {
@@ -368,7 +369,7 @@ describe('useSchemaApi', () => {
           id: TEST_SCHEMA_ID,
           projectId: TEST_PROJECT_ID,
           name: 'Test Schema',
-          wikibase: '',
+          wikibase: 'wikidata',
           schema: mockSchema.schema,
           createdAt: '2024-01-01T00:00:00Z',
           updatedAt: '2024-01-01T00:00:00Z',
@@ -377,7 +378,7 @@ describe('useSchemaApi', () => {
           id: TEST_SCHEMA_789_ID,
           projectId: TEST_PROJECT_ID,
           name: 'New Schema',
-          wikibase: '',
+          wikibase: 'wikidata',
           schema: mockCreatedSchema.schema,
           createdAt: '2024-01-01T00:00:00Z',
           updatedAt: '2024-01-01T00:00:00Z',
@@ -417,7 +418,7 @@ describe('useSchemaApi', () => {
         id: TEST_SCHEMA_ID,
         project_id: TEST_PROJECT_ID,
         name: 'Test Schema',
-        wikibase: 'https://www.wikidata.org',
+        wikibase: 'wikidata',
         created_at: '2024-01-01T00:00:00Z',
         updated_at: '2024-01-02T00:00:00Z',
         schema: {
@@ -443,7 +444,7 @@ describe('useSchemaApi', () => {
         id: TEST_SCHEMA_ID,
         projectId: TEST_PROJECT_ID,
         name: 'Test Schema',
-        wikibase: 'https://www.wikidata.org',
+        wikibase: 'wikidata',
         schema: backendSchema.schema,
         createdAt: '2024-01-01T00:00:00Z',
         updatedAt: '2024-01-02T00:00:00Z',
@@ -539,6 +540,7 @@ describe('useSchemaApi', () => {
 
       await createSchema(TEST_PROJECT_ID, {
         name: '',
+        // @ts-expect-error testing invalid assignment
         wikibase: 'invalid',
       })
 
@@ -557,7 +559,7 @@ describe('useSchemaApi', () => {
       store.projectId = TEST_PROJECT_ID
       store.schemaId = null
       store.schemaName = 'New Schema'
-      store.wikibase = 'https://www.wikidata.org'
+      store.wikibase = 'wikidata'
       store.labels = { en: { columnName: 'title', dataType: 'VARCHAR' } }
       store.descriptions = {}
       store.aliases = {}
@@ -574,7 +576,7 @@ describe('useSchemaApi', () => {
 
       expect(mockSchemaPost).toHaveBeenCalledWith({
         name: 'New Schema',
-        wikibase: 'https://www.wikidata.org',
+        wikibase: 'wikidata',
         schema: {
           terms: {
             labels: { en: { columnName: 'title', dataType: 'VARCHAR' } },
@@ -596,7 +598,7 @@ describe('useSchemaApi', () => {
       store.projectId = TEST_PROJECT_ID
       store.schemaId = TEST_SCHEMA_ID
       store.schemaName = 'Updated Schema'
-      store.wikibase = 'https://www.wikidata.org'
+      store.wikibase = 'wikidata'
       store.labels = { en: { columnName: 'title', dataType: 'VARCHAR' } }
       store.descriptions = {}
       store.aliases = {}
@@ -613,7 +615,7 @@ describe('useSchemaApi', () => {
 
       expect(mockSchemaIdPut).toHaveBeenCalledWith({
         name: 'Updated Schema',
-        wikibase: 'https://www.wikidata.org',
+        wikibase: 'wikidata',
         schema: {
           terms: {
             labels: { en: { columnName: 'title', dataType: 'VARCHAR' } },
@@ -651,7 +653,7 @@ describe('useSchemaApi', () => {
       store.projectId = TEST_PROJECT_ID
       store.schemaId = null
       store.schemaName = 'New Schema'
-      store.wikibase = 'https://www.wikidata.org'
+      store.wikibase = 'wikidata'
       store.labels = { en: { columnName: 'title', dataType: 'VARCHAR' } } // Add content
       store.descriptions = {}
       store.aliases = {}
@@ -678,7 +680,7 @@ describe('useSchemaApi', () => {
       store.projectId = TEST_PROJECT_ID
       store.schemaId = TEST_SCHEMA_ID
       store.schemaName = 'Updated Schema'
-      store.wikibase = 'https://www.wikidata.org'
+      store.wikibase = 'wikidata'
       store.labels = { en: { columnName: 'title', dataType: 'VARCHAR' } } // Add content
       store.descriptions = {}
       store.aliases = {}
@@ -705,7 +707,7 @@ describe('useSchemaApi', () => {
       store.projectId = TEST_PROJECT_ID
       store.schemaId = null
       store.schemaName = 'New Schema'
-      store.wikibase = 'https://www.wikidata.org'
+      store.wikibase = 'wikidata'
       store.labels = { en: { columnName: 'title', dataType: 'VARCHAR' } } // Add content
       store.descriptions = {}
       store.aliases = {}
@@ -756,7 +758,7 @@ describe('useSchemaApi', () => {
       store.projectId = TEST_PROJECT_ID
       store.schemaId = null
       store.schemaName = 'New Schema'
-      store.wikibase = 'https://www.wikidata.org'
+      store.wikibase = 'wikidata'
       store.labels = { en: { columnName: 'title', dataType: 'VARCHAR' } } // Add content
       store.descriptions = {}
       store.aliases = {}

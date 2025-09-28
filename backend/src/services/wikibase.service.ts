@@ -1,4 +1,4 @@
-import type { PropertySearchResult } from '@backend/api/wikibase/schemas'
+import type { InstanceId, PropertySearchResult } from '@backend/api/wikibase/schemas'
 import { WikibaseClient } from '@backend/services/wikibase-clients'
 import type {
   WikibaseGetEntitiesResponse,
@@ -32,7 +32,7 @@ interface AllPagesResponse {
 
 export class WikibaseService extends WikibaseClient {
   async fetchAllProperties(
-    instanceId: string,
+    instanceId: InstanceId,
     db: DuckDBConnection,
   ): Promise<{ total: number; inserted: number }> {
     let total = 0
@@ -95,7 +95,7 @@ export class WikibaseService extends WikibaseClient {
    * Search for properties in the specified Wikibase instance
    */
   async searchProperties(
-    instanceId: string,
+    instanceId: InstanceId,
     query: string,
     options: SearchOptions,
   ): Promise<SearchResponse<PropertySearchResult>> {
@@ -140,7 +140,10 @@ export class WikibaseService extends WikibaseClient {
   /**
    * Get property details by ID
    */
-  async getProperty(instanceId: string, propertyId: PropertyId): Promise<PropertyDetails | null> {
+  async getProperty(
+    instanceId: InstanceId,
+    propertyId: PropertyId,
+  ): Promise<PropertyDetails | null> {
     const client = this.getClient(instanceId)
 
     const params = {
@@ -190,7 +193,7 @@ export class WikibaseService extends WikibaseClient {
    * Search for items in the specified Wikibase instance
    */
   async searchItems(
-    instanceId: string,
+    instanceId: InstanceId,
     query: string,
     options: SearchOptions,
   ): Promise<SearchResponse<ItemSearchResult>> {
@@ -243,7 +246,7 @@ export class WikibaseService extends WikibaseClient {
   /**
    * Get item details by ID
    */
-  async getItem(instanceId: string, itemId: ItemId): Promise<ItemDetails | null> {
+  async getItem(instanceId: InstanceId, itemId: ItemId): Promise<ItemDetails | null> {
     const client = this.getClient(instanceId)
 
     const params = {

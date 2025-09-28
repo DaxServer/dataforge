@@ -1,3 +1,4 @@
+import type { InstanceId } from '@backend/api/wikibase/schemas'
 import { wikibaseService } from '@backend/services/wikibase.service'
 import type {
   ConstraintViolation,
@@ -15,7 +16,7 @@ export class ConstraintValidationService {
    * Get constraints for a property using MediaWiki API
    */
   async getPropertyConstraints(
-    instanceId: string,
+    instanceId: InstanceId,
     propertyId: PropertyId,
   ): Promise<PropertyConstraint[]> {
     const cacheKey = `${instanceId}:${propertyId}`
@@ -394,7 +395,7 @@ export class ConstraintValidationService {
    * Validate a property value against its constraints
    */
   async validateProperty(
-    instanceId: string,
+    instanceId: InstanceId,
     propertyId: PropertyId,
     values: any[],
   ): Promise<ValidationResult> {
@@ -484,7 +485,7 @@ export class ConstraintValidationService {
    * Validate an entire schema against property constraints
    */
   async validateSchema(
-    instanceId: string,
+    instanceId: InstanceId,
     schema: Record<string, unknown[]>,
   ): Promise<ValidationResult> {
     const allViolations: ConstraintViolation[] = []
