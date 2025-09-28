@@ -191,7 +191,7 @@ export class ReplaceOperationService {
    * Checks if a column type is string-like (VARCHAR, TEXT, BLOB)
    */
   private isStringLikeType(columnType: string): boolean {
-    const stringTypes = ['VARCHAR', 'TEXT', 'BLOB', 'CHAR', 'BPCHAR']
+    const stringTypes = ['VARCHAR', 'TEXT', 'CHAR', 'BPCHAR']
 
     return stringTypes.some((type) => columnType.includes(type))
   }
