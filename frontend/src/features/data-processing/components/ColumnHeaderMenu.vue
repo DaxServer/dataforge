@@ -5,20 +5,21 @@ const props = defineProps<{
   isPrimaryKey: boolean
 }>()
 
-const emit = defineEmits<{
-  replaceCompleted: [projectId: string]
-}>()
+const emit = defineEmits(['replaceCompleted'])
 
-const { showSuccess } = useErrorHandling()
+const { showSuccess, showWarning } = useErrorHandling()
 
 const menu = ref()
 const isOpen = ref(false)
 const showReplaceDialog = ref(false)
-const projectId = useRouteParams('id') as Ref<string>
 
 const handleReplaceCompleted = (affectedRows: number) => {
-  showSuccess(`Replace completed: ${affectedRows} rows affected`)
-  emit('replaceCompleted', projectId.value)
+  if (affectedRows === 0) {
+    showWarning('Replace completed: No rows were affected')
+  } else {
+    showSuccess(`Replace completed: ${affectedRows} rows affected`)
+    emit('replaceCompleted')
+  }
 }
 
 const menuItems = ref<MenuItem[]>([

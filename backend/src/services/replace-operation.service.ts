@@ -18,14 +18,21 @@ export class ReplaceOperationService {
   async performReplace(params: ReplaceOperationParams): Promise<number> {
     const { table, column, find, replace, caseSensitive, wholeWord } = params
 
+    // Get the original column type before any modifications
+    const originalColumnType = await this.getColumnType(table, column)
+
     // Check if column is string-like, if not, convert it first
-    await this.ensureColumnIsStringType(table, column)
+    const wasConverted = await this.ensureColumnIsStringType(table, column)
 
     // Count rows that will be affected before the update
     const affectedRows = await this.countAffectedRows(table, column, find, caseSensitive, wholeWord)
 
     // Only proceed if there are rows to update
     if (affectedRows === 0) {
+      // Revert column type if it was converted and no rows were affected
+      if (wasConverted) {
+        await this.changeColumnType(table, column, originalColumnType)
+      }
       return 0
     }
 
@@ -185,18 +192,30 @@ export class ReplaceOperationService {
    */
   private isStringLikeType(columnType: string): boolean {
     const stringTypes = ['VARCHAR', 'TEXT', 'BLOB', 'CHAR', 'BPCHAR']
+
     return stringTypes.some((type) => columnType.includes(type))
   }
 
   /**
    * Ensures the column is a string-like type, converting it if necessary
+   * Returns true if the column was converted, false otherwise
    */
-  private async ensureColumnIsStringType(table: string, column: string): Promise<void> {
+  private async ensureColumnIsStringType(table: string, column: string): Promise<boolean> {
     const columnType = await this.getColumnType(table, column)
 
     if (!this.isStringLikeType(columnType)) {
       // Convert the column to VARCHAR
-      await this.db.run(`ALTER TABLE "${table}" ALTER "${column}" TYPE VARCHAR`)
+      await this.changeColumnType(table, column, 'VARCHAR')
+      return true
     }
+
+    return false
+  }
+
+  /**
+   * Changes the column type to the specified type
+   */
+  private async changeColumnType(table: string, column: string, newType: string): Promise<void> {
+    await this.db.run(`ALTER TABLE "${table}" ALTER "${column}" TYPE ${newType}`)
   }
 }

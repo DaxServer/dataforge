@@ -135,7 +135,11 @@ describe('non-string column datatype conversion', () => {
       find: '"active"',
       replace: '"pending"',
       expectedAffectedRows: 2,
-      expectedResults: ['{"status": "pending", "priority": "high"}', '{"status": "inactive", "priority": "low"}', '{"status": "pending", "priority": "medium"}'],
+      expectedResults: [
+        '{"status": "pending", "priority": "high"}',
+        '{"status": "inactive", "priority": "low"}',
+        '{"status": "pending", "priority": "medium"}',
+      ],
     },
     {
       name: 'JSON',
@@ -156,7 +160,78 @@ describe('non-string column datatype conversion', () => {
       find: 'active',
       replace: 'pending',
       expectedAffectedRows: 3,
-      expectedResults: ['{"status": "pending", "priority": "high"}', '{"status": "inpending", "priority": "low"}', '{"status": "pending", "priority": "medium"}'],
+      expectedResults: [
+        '{"status": "pending", "priority": "high"}',
+        '{"status": "inpending", "priority": "low"}',
+        '{"status": "pending", "priority": "medium"}',
+      ],
+    },
+    // Test cases for zero affected rows - column type should be reverted
+    {
+      name: 'INTEGER with zero affected rows',
+      tableSql: `
+        CREATE TABLE test (
+          id INTEGER,
+          age INTEGER,
+          name VARCHAR
+        )
+      `,
+      insertSql: [
+        `INSERT INTO test (id, age, name) VALUES (1, 25, 'John')`,
+        `INSERT INTO test (id, age, name) VALUES (2, 30, 'Jane')`,
+        `INSERT INTO test (id, age, name) VALUES (3, 35, 'Bob')`,
+      ],
+      columnName: 'age',
+      initialType: 'INTEGER',
+      find: '99', // This value doesn't exist in the data
+      replace: '100',
+      expectedAffectedRows: 0,
+      expectedResults: [25, 30, 35], // Data should remain unchanged
+      expectTypeReverted: true, // Special flag to indicate type should be reverted
+    },
+    {
+      name: 'DOUBLE with zero affected rows',
+      tableSql: `
+        CREATE TABLE test (
+          id INTEGER,
+          price DOUBLE,
+          product VARCHAR
+        )
+      `,
+      insertSql: [
+        `INSERT INTO test (id, price, product) VALUES (1, 19.99, 'Apple')`,
+        `INSERT INTO test (id, price, product) VALUES (2, 25.50, 'Banana')`,
+        `INSERT INTO test (id, price, product) VALUES (3, 35.00, 'Cherry')`,
+      ],
+      columnName: 'price',
+      initialType: 'DOUBLE',
+      find: '99.99', // This value doesn't exist in the data
+      replace: '100.00',
+      expectedAffectedRows: 0,
+      expectedResults: [19.99, 25.5, 35.0], // Data should remain unchanged
+      expectTypeReverted: true, // Special flag to indicate type should be reverted
+    },
+    {
+      name: 'BOOLEAN with zero affected rows',
+      tableSql: `
+        CREATE TABLE test (
+          id INTEGER,
+          is_active BOOLEAN,
+          username VARCHAR
+        )
+      `,
+      insertSql: [
+        `INSERT INTO test (id, is_active, username) VALUES (1, true, 'user1')`,
+        `INSERT INTO test (id, is_active, username) VALUES (2, false, 'user2')`,
+        `INSERT INTO test (id, is_active, username) VALUES (3, true, 'user3')`,
+      ],
+      columnName: 'is_active',
+      initialType: 'BOOLEAN',
+      find: 'maybe', // This value doesn't exist in boolean data
+      replace: 'possibly',
+      expectedAffectedRows: 0,
+      expectedResults: [true, false, true], // Data should remain unchanged
+      expectTypeReverted: true, // Special flag to indicate type should be reverted
     },
   ]
 
@@ -171,6 +246,7 @@ describe('non-string column datatype conversion', () => {
       replace,
       expectedAffectedRows,
       expectedResults,
+      expectTypeReverted,
     }) => {
       const db = getDb()
       const service = new ReplaceOperationService(db)
@@ -183,7 +259,9 @@ describe('non-string column datatype conversion', () => {
       }
 
       // Verify initial column type
-      const initialTypeResult = (await db.runAndReadAll(`PRAGMA table_info("test")`)).getRowObjectsJson() as Array<{
+      const initialTypeResult = (
+        await db.runAndReadAll(`PRAGMA table_info("test")`)
+      ).getRowObjectsJson() as Array<{
         name: string
         type: string
       }>
@@ -203,16 +281,24 @@ describe('non-string column datatype conversion', () => {
 
       expect(affectedRows).toBe(expectedAffectedRows)
 
-      // Verify column type
-      const finalType = (await db.runAndReadAll(`PRAGMA table_info("test")`)).getRowObjectsJson() as Array<{
+      // Verify column type after operation
+      const finalType = (
+        await db.runAndReadAll(`PRAGMA table_info("test")`)
+      ).getRowObjectsJson() as Array<{
         name: string
         type: string
       }>
       const columnAfter = finalType.find((col) => col.name === columnName)
       expect(columnAfter).toBeDefined()
-      expect(columnAfter!.type).toBe('VARCHAR')
 
-      // Verify data was replaced correctly
+      // For zero affected rows with non-string types, expect type to be reverted
+      if (expectTypeReverted) {
+        expect(columnAfter!.type).toBe(initialType)
+      } else {
+        expect(columnAfter!.type).toBe('VARCHAR')
+      }
+
+      // Verify data was replaced correctly (or unchanged for zero affected rows)
       const result = await db.runAndReadAll(`SELECT ${columnName} FROM "test" ORDER BY id`)
       const values = result.getRowObjectsJson().map((row) => row[columnName])
       expect(values).toEqual(expectedResults)

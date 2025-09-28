@@ -30,9 +30,19 @@ export const useErrorHandling = () => {
     })
   }
 
+  const showWarning = (text: string): void => {
+    toast.add({
+      severity: 'warn',
+      summary: 'Warning',
+      detail: text,
+      life: 3000,
+    })
+  }
+
   return {
     showError,
     showSuccess,
     showInfo,
+    showWarning,
   }
 }

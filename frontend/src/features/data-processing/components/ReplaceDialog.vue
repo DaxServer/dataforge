@@ -43,7 +43,8 @@ const handleReplace = async () => {
 
     emit('replace-completed', data.affectedRows)
   } catch (error) {
-    showError([{ code: 'INTERNAL_SERVER_ERROR', message: error as string }])
+    const message = error instanceof Error ? error.message : String(error)
+    showError([{ code: 'INTERNAL_SERVER_ERROR', message }])
   } finally {
     isLoading.value = false
     closeDialog()
