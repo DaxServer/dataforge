@@ -58,6 +58,12 @@ onUnmounted(() => clearProject())
             v-if="col.pk"
             class="pi pi-key text-blue-600"
           />
+          <ColumnHeaderMenu
+            v-if="!col.pk"
+            :column-field="col.field"
+            :column-header="col.header"
+            :is-primary-key="col.pk"
+          />
           <span>{{ col.header }}</span>
         </div>
       </template>
