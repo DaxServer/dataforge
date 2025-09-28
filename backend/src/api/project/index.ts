@@ -1,9 +1,9 @@
 import { cleanupProject, generateProjectName } from '@backend/api/project/project.import-file'
 import {
+  GetProjectByIdResponse,
   PaginationQuery,
   ProjectParams,
   ProjectResponseSchema,
-  GetProjectByIdResponse,
   type Project,
 } from '@backend/api/project/schemas'
 import { databasePlugin } from '@backend/plugins/database'
@@ -255,9 +255,11 @@ export const projectRoutes = new Elysia({ prefix: '/api/project' })
             error: 'Project name must be between 1 and 255 characters long if provided',
           }),
         ),
-        hasHeaders: t.Optional(t.BooleanString({
-          default: true,
-        })),
+        hasHeaders: t.Optional(
+          t.BooleanString({
+            default: true,
+          }),
+        ),
       }),
       response: {
         201: t.Object({
