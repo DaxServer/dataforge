@@ -49,3 +49,24 @@ export const GetProjectByIdResponse = t.Object({
   }),
 })
 export type GetProjectByIdResponse = typeof GetProjectByIdResponse.static
+
+// Replace operation schema
+export const ReplaceOperationSchema = t.Object({
+  column: t.String({
+    minLength: 1,
+    error: 'Column name is required and must be at least 1 character long',
+  }),
+  find: t.String({
+    minLength: 1,
+    error: 'Find value is required and must be at least 1 character long',
+  }),
+  replace: t.String({
+    default: '',
+  }),
+  caseSensitive: t.BooleanString({
+    default: false,
+  }),
+  wholeWord: t.BooleanString({
+    default: false,
+  }),
+})

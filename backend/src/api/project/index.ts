@@ -4,10 +4,12 @@ import {
   PaginationQuery,
   ProjectParams,
   ProjectResponseSchema,
+  ReplaceOperationSchema,
   type Project,
 } from '@backend/api/project/schemas'
 import { databasePlugin } from '@backend/plugins/database'
 import { errorHandlerPlugin } from '@backend/plugins/error-handler'
+import { ReplaceOperationService } from '@backend/services/replace-operation.service'
 import { ApiErrorHandler } from '@backend/types/error-handler'
 import { ApiErrors } from '@backend/types/error-schemas'
 import { enhanceSchemaWithTypes, type DuckDBTablePragma } from '@backend/utils/duckdb-types'
@@ -524,6 +526,75 @@ export const projectRoutes = new Elysia({ prefix: '/api/project' })
         409: ApiErrors,
         422: ApiErrors,
         500: ApiErrors,
+      },
+    },
+  )
+
+  .post(
+    '/:projectId/replace',
+    async ({
+      db,
+      params: { projectId },
+      body: { column, find, replace, caseSensitive, wholeWord },
+      status,
+    }) => {
+      const table = `project_${projectId}`
+
+      // Check if column exists
+      const columnExistsReader = await db().runAndReadAll(
+        'SELECT 1 FROM information_schema.columns WHERE table_name = ? AND column_name = ?',
+        [table, column],
+      )
+
+      if (columnExistsReader.getRows().length === 0) {
+        return status(
+          400,
+          ApiErrorHandler.validationErrorWithData('Column not found', [
+            `Column '${column}' does not exist in table '${table}'`,
+          ]),
+        )
+      }
+
+      const replaceService = new ReplaceOperationService(db())
+
+      try {
+        const affectedRows = await replaceService.performReplace({
+          table,
+          column,
+          find,
+          replace,
+          caseSensitive,
+          wholeWord,
+        })
+
+        return {
+          affectedRows,
+        }
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred'
+        return status(
+          500,
+          ApiErrorHandler.internalServerErrorWithData('Failed to perform replace operation', [
+            errorMessage,
+          ]),
+        )
+      }
+    },
+    {
+      body: ReplaceOperationSchema,
+      response: {
+        200: t.Object({
+          affectedRows: t.Number(),
+        }),
+        400: ApiErrors,
+        404: ApiErrors,
+        422: ApiErrors,
+        500: ApiErrors,
+      },
+      detail: {
+        summary: 'Perform replace operation on a column',
+        description: 'Replace text in a specific column of a project table',
+        tags,
       },
     },
   )
