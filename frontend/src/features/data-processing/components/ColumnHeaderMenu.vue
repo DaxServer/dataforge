@@ -5,8 +5,15 @@ const props = defineProps<{
   isPrimaryKey: boolean
 }>()
 
+const { showSuccess } = useErrorHandling()
+
 const menu = ref()
 const isOpen = ref(false)
+const showReplaceDialog = ref(false)
+
+const handleReplaceCompleted = (affectedRows: number) => {
+  showSuccess(`Replace completed: ${affectedRows} rows affected`)
+}
 
 const menuItems = ref<MenuItem[]>([
   {
@@ -77,7 +84,9 @@ const menuItems = ref<MenuItem[]>([
       {
         label: 'Replace',
         icon: 'pi pi-code',
-        command: () => console.log(`Replace in ${props.columnHeader}`),
+        command: () => {
+          showReplaceDialog.value = true
+        },
       },
     ],
   },
@@ -103,6 +112,13 @@ const menuItems = ref<MenuItem[]>([
       popup
       @show="() => (isOpen = true)"
       @hide="() => (isOpen = false)"
+    />
+    <ReplaceDialog
+      :visible="showReplaceDialog"
+      :column-field="columnField"
+      :column-header="columnHeader"
+      @update:visible="showReplaceDialog = $event"
+      @replace-completed="handleReplaceCompleted"
     />
   </div>
 </template>
