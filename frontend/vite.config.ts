@@ -35,8 +35,18 @@ export default defineConfig({
           type: true,
         },
         {
+          from: 'primevue/menuitem',
+          imports: ['MenuItem'],
+          type: true,
+        },
+        {
           from: 'primevue/paginator',
           imports: ['PageState'],
+          type: true,
+        },
+        {
+          from: 'primevue/tieredmenu',
+          imports: ['TieredMenu'],
           type: true,
         },
         {

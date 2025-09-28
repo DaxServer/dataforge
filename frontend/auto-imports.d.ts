@@ -9,6 +9,7 @@ declare global {
   const ApiKey: typeof import('./src/core/plugins/api')['ApiKey']
   const ApiPlugin: typeof import('./src/core/plugins/api')['ApiPlugin']
   const EffectScope: typeof import('vue')['EffectScope']
+  const MenuItem: typeof import('primevue/menuitem')['MenuItem']
   const ValidationMessages: typeof import('./src/shared/types/wikibase-schema')['ValidationMessages']
   const acceptHMRUpdate: typeof import('pinia')['acceptHMRUpdate']
   const api: typeof import('./src/core/plugins/api')['api']
@@ -359,8 +360,14 @@ declare global {
   export type { FileUploadUploaderEvent } from 'primevue/fileupload'
   import('primevue/fileupload')
   // @ts-ignore
+  export type { MenuItem } from 'primevue/menuitem'
+  import('primevue/menuitem')
+  // @ts-ignore
   export type { PageState } from 'primevue/paginator'
   import('primevue/paginator')
+  // @ts-ignore
+  export type { TieredMenu } from 'primevue/tieredmenu'
+  import('primevue/tieredmenu')
   // @ts-ignore
   export type { UUID } from 'crypto'
   import('crypto')
