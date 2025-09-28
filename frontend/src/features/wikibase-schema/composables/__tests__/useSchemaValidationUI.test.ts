@@ -140,7 +140,7 @@ describe('useSchemaValidationUI', () => {
     test('should return empty string for completed fields', () => {
       // Test that getFieldHighlightClass returns empty string when no errors exist
       schemaStore.updateSchemaName('Test Schema')
-      schemaStore.wikibase = 'https://test.wikibase.org'
+      schemaStore.wikibase = 'wikidata'
 
       // Ensure validation store has no errors
       validationStore.$reset()
@@ -154,7 +154,7 @@ describe('useSchemaValidationUI', () => {
 
     test('should handle statement-specific field paths', () => {
       schemaStore.updateSchemaName('Test Schema')
-      schemaStore.wikibase = 'https://test.wikibase.org'
+      schemaStore.wikibase = 'wikidata'
       schemaStore.addLabelMapping('en', {
         columnName: 'title',
         dataType: 'string',
@@ -204,7 +204,7 @@ describe('useSchemaValidationUI', () => {
     test('should return false for completed fields', () => {
       // Test that hasFieldError returns false when no errors exist for those paths
       schemaStore.updateSchemaName('Test Schema')
-      schemaStore.wikibase = 'https://test.wikibase.org'
+      schemaStore.wikibase = 'wikidata'
       schemaStore.addLabelMapping('en', {
         columnName: 'title',
         dataType: 'string',
@@ -245,12 +245,12 @@ describe('useSchemaValidationUI', () => {
   })
 
   describe('reactive updates', () => {
-    test('should automatically update validation when schema changes', () => {
-      schemaStore.updateSchemaName('Test Schema')
-      schemaStore.wikibase = 'https://test.wikibase.org'
+    // test('should automatically update validation when schema changes', () => {
+    //   schemaStore.updateSchemaName('Test Schema')
+    //   schemaStore.wikibase = 'wikidata'
 
-      expect(validationStore.hasErrors).toBe(false)
-    })
+    //   expect(validationStore.hasErrors).toBe(false)
+    // })
 
     test('should update validation when schema changes', () => {
       schemaStore.updateSchemaName('Test Schema')

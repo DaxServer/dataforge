@@ -45,10 +45,8 @@ export const PropertySearchResultSchema = t.Object({
 })
 export type PropertySearchResult = typeof PropertySearchResultSchema.static
 
-export const InstanceId = t.String({
-  description: 'Wikibase instance ID',
-  default: 'wikidata',
-})
+export const InstanceId = t.Union([t.Literal('wikidata'), t.Literal('commons')])
+export type InstanceId = typeof InstanceId.static
 
 export const QuerySchema = t.Object({
   q: t.String({

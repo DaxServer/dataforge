@@ -67,7 +67,7 @@ describe('useSchemaCompletenessValidation', () => {
   describe('validateSchemaCompleteness', () => {
     test('should validate schema with basic information', () => {
       schemaStore.updateSchemaName('Test Schema')
-      schemaStore.wikibase = 'https://test.wikibase.org'
+      schemaStore.wikibase = 'wikidata'
 
       const result = completenessValidation.validateSchemaCompleteness()
 
@@ -77,7 +77,7 @@ describe('useSchemaCompletenessValidation', () => {
 
     test('should validate complete schema with labels', () => {
       schemaStore.updateSchemaName('Test Schema')
-      schemaStore.wikibase = 'https://test.wikibase.org'
+      schemaStore.wikibase = 'wikidata'
       schemaStore.addLabelMapping('en', {
         columnName: 'title',
         dataType: 'string',
@@ -90,7 +90,7 @@ describe('useSchemaCompletenessValidation', () => {
 
     test('should validate statements with property and value mappings', () => {
       schemaStore.updateSchemaName('Test Schema')
-      schemaStore.wikibase = 'https://test.wikibase.org'
+      schemaStore.wikibase = 'wikidata'
       schemaStore.addLabelMapping('en', {
         columnName: 'title',
         dataType: 'string',
@@ -120,7 +120,7 @@ describe('useSchemaCompletenessValidation', () => {
 
     test('should identify incomplete statements without value mappings', () => {
       schemaStore.updateSchemaName('Test Schema')
-      schemaStore.wikibase = 'https://test.wikibase.org'
+      schemaStore.wikibase = 'wikidata'
       schemaStore.addLabelMapping('en', {
         columnName: 'title',
         dataType: 'string',
@@ -159,7 +159,7 @@ describe('useSchemaCompletenessValidation', () => {
   describe('getRequiredFieldHighlights', () => {
     test('should return empty array for complete schema', () => {
       schemaStore.updateSchemaName('Test Schema')
-      schemaStore.wikibase = 'https://test.wikibase.org'
+      schemaStore.wikibase = 'wikidata'
       schemaStore.addLabelMapping('en', {
         columnName: 'title',
         dataType: 'string',
@@ -199,7 +199,7 @@ describe('useSchemaCompletenessValidation', () => {
   describe('isSchemaComplete', () => {
     test('should return true for complete schema', () => {
       schemaStore.updateSchemaName('Test Schema')
-      schemaStore.wikibase = 'https://test.wikibase.org'
+      schemaStore.wikibase = 'wikidata'
       schemaStore.addLabelMapping('en', {
         columnName: 'title',
         dataType: 'string',
@@ -231,7 +231,7 @@ describe('useSchemaCompletenessValidation', () => {
   describe('getMissingRequiredFields', () => {
     test('should return empty array for complete schema', () => {
       schemaStore.updateSchemaName('Test Schema')
-      schemaStore.wikibase = 'https://test.wikibase.org'
+      schemaStore.wikibase = 'wikidata'
       schemaStore.addLabelMapping('en', {
         columnName: 'title',
         dataType: 'string',

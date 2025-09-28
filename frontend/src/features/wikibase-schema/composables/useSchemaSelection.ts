@@ -51,7 +51,7 @@ export const useSchemaSelection = () => {
     // Initialize empty schema in store
     schemaStore.projectId = projectId.value
     schemaStore.schemaName = 'Untitled Schema'
-    schemaStore.wikibase = 'https://www.wikidata.org'
+    schemaStore.wikibase = 'wikidata'
     schemaStore.schemaId = null
     schemaStore.itemId = null
 

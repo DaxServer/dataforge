@@ -8,6 +8,7 @@ import type {
   StatementSchemaMapping,
   ValueMapping,
 } from '@backend/api/project/project.wikibase'
+import type { InstanceId } from '@backend/api/wikibase/schemas'
 import type { StatementRank } from '@backend/types/wikibase-schema'
 import { ItemId } from '@backend/types/wikibase-schema'
 import { useSchemaBuilder } from '@frontend/features/wikibase-schema/composables/useSchemaBuilder'
@@ -22,7 +23,7 @@ export const useSchemaStore = defineStore('schema', () => {
   const schemaId = ref<UUID | null>(null)
   const projectId = ref<UUID | null>(null)
   const schemaName = ref<string>('')
-  const wikibase = ref<string>('')
+  const wikibase = ref<InstanceId>('wikidata')
   const itemId = ref<ItemId | null>(null)
   const labels = ref<Label>({})
   const descriptions = ref<Label>({})
@@ -495,7 +496,7 @@ export const useSchemaStore = defineStore('schema', () => {
     schemaId.value = null
     projectId.value = null
     schemaName.value = ''
-    wikibase.value = ''
+    wikibase.value = 'wikidata'
     itemId.value = null
     labels.value = {}
     descriptions.value = {}

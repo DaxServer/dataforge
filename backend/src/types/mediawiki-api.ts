@@ -11,7 +11,7 @@ import { t } from 'elysia'
 // Base API Configuration
 export interface MediaWikiConfig {
   endpoint: string
-  userAgent?: string
+  userAgent: string
   timeout?: number
   username?: string
   password?: string

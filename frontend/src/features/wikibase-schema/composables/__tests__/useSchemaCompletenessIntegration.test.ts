@@ -66,8 +66,8 @@ describe('Schema Completeness Validation Integration', () => {
     expect(schemaStore.schemaName).toBe('Test Schema')
 
     // Step 2: Add wikibase URL
-    schemaStore.wikibase = 'https://test.wikibase.org'
-    expect(schemaStore.wikibase).toBe('https://test.wikibase.org')
+    schemaStore.wikibase = 'wikidata'
+    expect(schemaStore.wikibase).toBe('wikidata')
 
     // Step 3: Add label mapping
     schemaStore.addLabelMapping('en', {
@@ -104,7 +104,7 @@ describe('Schema Completeness Validation Integration', () => {
   test('should handle incomplete statements correctly', () => {
     // Set up basic schema
     schemaStore.updateSchemaName('Test Schema')
-    schemaStore.wikibase = 'https://test.wikibase.org'
+    schemaStore.wikibase = 'wikidata'
     schemaStore.addLabelMapping('en', {
       columnName: 'title',
       dataType: 'string',
@@ -150,8 +150,8 @@ describe('Schema Completeness Validation Integration', () => {
     expect(wikibaseState).toHaveProperty('highlightClass')
 
     // Complete the field
-    schemaStore.wikibase = 'https://test.wikibase.org'
-    expect(schemaStore.wikibase).toBe('https://test.wikibase.org')
+    schemaStore.wikibase = 'wikidata'
+    expect(schemaStore.wikibase).toBe('wikidata')
 
     // Test that validation can be triggered
     expect(() => validationUI.triggerValidation()).not.toThrow()

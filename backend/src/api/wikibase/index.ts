@@ -11,7 +11,7 @@ import { wikibasePlugin } from '@backend/plugins/wikibase'
 import { constraintValidationService } from '@backend/services/constraint-validation.service'
 import { ApiErrorHandler } from '@backend/types/error-handler'
 import { ApiErrors } from '@backend/types/error-schemas'
-import { PropertyId, WikibaseDataType, ItemId } from '@backend/types/wikibase-schema'
+import { ItemId, PropertyId, WikibaseDataType } from '@backend/types/wikibase-schema'
 import { cors } from '@elysiajs/cors'
 import { Elysia, t } from 'elysia'
 
@@ -30,21 +30,18 @@ export const wikibaseEntitiesApi = new Elysia({ prefix: '/api/wikibase' })
 
   .post(
     '/:instanceId/csrf-token',
-    async ({ params: { instanceId }, body: { endpoint, credentials }, wikibase }) => {
+    async ({ params: { instanceId }, body: { credentials }, wikibase }) => {
       const {
         query: {
           tokens: { csrftoken },
         },
-      } = await wikibase.getCsrfToken(instanceId, endpoint, credentials)
+      } = await wikibase.getCsrfToken(instanceId, credentials)
       return {
         token: csrftoken,
       }
     },
     {
       body: t.Object({
-        endpoint: t.String({
-          description: 'Wikibase endpoint URL',
-        }),
         credentials: OAuthCredentials,
       }),
       response: t.Object({
