@@ -10,17 +10,16 @@ export abstract class ColumnOperationService {
 
   /**
    * Abstract method that must be implemented by subclasses to perform the specific operation
-   * This will be the entry point called from API endpoints
+   * This will be the entry point called from the API endpoints
    */
   public abstract performOperation(params: ColumnOperationParams): Promise<number>
 
   /**
    * Common pattern for column operations:
-   * 1. Get original column type
-   * 2. Ensure column is string type if needed
-   * 3. Count affected rows
-   * 4. Perform operation if rows affected
-   * 5. Revert column type if no rows affected and type was converted
+   * 1. Ensure column is string type if needed
+   * 2. Count affected rows before operation
+   * 3. Perform operation if rows affected
+   * 4. Rollback if no rows affected or operation failed
    */
   protected async executeColumnOperation(
     table: string,
@@ -28,29 +27,32 @@ export abstract class ColumnOperationService {
     operation: () => { query: string; params: DuckDBValue[] },
     countAffectedRows: () => Promise<number>,
   ): Promise<number> {
-    // Get the original column type before any modifications
-    const originalColumnType = await this.getColumnType(table, column)
+    await this.db.run('BEGIN TRANSACTION')
 
-    // Check if column is string-like, if not, convert it first
-    const wasConverted = await this.ensureColumnIsStringType(table, column)
+    try {
+      // Check if column is string-like, if not, convert it first
+      await this.ensureColumnIsStringType(table, column)
 
-    // Count rows that will be affected before the update
-    const affectedRows = await countAffectedRows()
+      // Count rows that will be affected before the update
+      const affectedRows = await countAffectedRows()
 
-    // Only proceed if there are rows to update
-    if (affectedRows === 0) {
-      // Revert column type if it was converted and no rows were affected
-      if (wasConverted) {
-        await this.changeColumnType(table, column, originalColumnType)
+      // Only proceed if there are rows to update
+      if (affectedRows === 0) {
+        await this.db.run('ROLLBACK')
+
+        return affectedRows
       }
-      return 0
+
+      // Build and execute the parameterized UPDATE query
+      const { query, params } = operation()
+      await this.db.run(query, params)
+      await this.db.run('COMMIT')
+
+      return affectedRows
+    } catch (error) {
+      await this.db.run('ROLLBACK')
+      throw error
     }
-
-    // Build and execute the parameterized UPDATE query
-    const { query, params } = operation()
-    await this.db.run(query, params)
-
-    return affectedRows
   }
 
   /**
@@ -84,18 +86,14 @@ export abstract class ColumnOperationService {
 
   /**
    * Ensures the column is a string-like type, converting it if necessary
-   * Returns true if the column was converted, false otherwise
    */
-  private async ensureColumnIsStringType(table: string, column: string): Promise<boolean> {
+  private async ensureColumnIsStringType(table: string, column: string): Promise<void> {
     const columnType = await this.getColumnType(table, column)
 
     if (!this.isStringLikeType(columnType)) {
       // Convert the column to VARCHAR
       await this.changeColumnType(table, column, 'VARCHAR')
-      return true
     }
-
-    return false
   }
 
   /**
