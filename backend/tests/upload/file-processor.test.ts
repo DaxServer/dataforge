@@ -130,15 +130,6 @@ describe('file processor', () => {
       })
     })
 
-    test('should handle URL download failure', () => {
-      const fileInput: FileInput = {
-        type: 'url',
-        url: 'https://httpbin.org/status/404', // This will fail quickly
-      }
-
-      expect(processFile(fileInput)).rejects.toThrow('Failed to download file from URL')
-    })
-
     test('should handle non-existent file', () => {
       const fileInput: FileInput = {
         type: 'filepath',

@@ -1,17 +1,19 @@
 import { cleanupProject, generateProjectName } from '@backend/api/project/project.import-file'
 import {
+  AffectedRowsSchema,
+  ColumnNameSchema,
   GetProjectByIdResponse,
   PaginationQuery,
   ProjectParams,
   ProjectResponseSchema,
   ReplaceOperationSchema,
-  TrimWhitespaceSchema,
   type Project,
 } from '@backend/api/project/schemas'
 import { databasePlugin } from '@backend/plugins/database'
 import { errorHandlerPlugin } from '@backend/plugins/error-handler'
 import { ReplaceOperationService } from '@backend/services/replace-operation.service'
 import { TrimWhitespaceService } from '@backend/services/trim-whitespace.service'
+import { UppercaseConversionService } from '@backend/services/uppercase-conversion.service'
 import { ApiErrorHandler } from '@backend/types/error-handler'
 import { ApiErrors } from '@backend/types/error-schemas'
 import { enhanceSchemaWithTypes, type DuckDBTablePragma } from '@backend/utils/duckdb-types'
@@ -585,9 +587,7 @@ export const projectRoutes = new Elysia({ prefix: '/api/project' })
     {
       body: ReplaceOperationSchema,
       response: {
-        200: t.Object({
-          affectedRows: t.Integer(),
-        }),
+        200: AffectedRowsSchema,
         400: ApiErrors,
         404: ApiErrors,
         422: ApiErrors,
@@ -644,11 +644,9 @@ export const projectRoutes = new Elysia({ prefix: '/api/project' })
       }
     },
     {
-      body: TrimWhitespaceSchema,
+      body: ColumnNameSchema,
       response: {
-        200: t.Object({
-          affectedRows: t.Integer(),
-        }),
+        200: AffectedRowsSchema,
         400: ApiErrors,
         404: ApiErrors,
         422: ApiErrors,
@@ -658,6 +656,66 @@ export const projectRoutes = new Elysia({ prefix: '/api/project' })
         summary: 'Trim leading and trailing whitespace from a column',
         description:
           'Remove leading and trailing whitespace characters from all values in a specific column',
+        tags,
+      },
+    },
+  )
+
+  .post(
+    '/:projectId/uppercase',
+    async ({ db, params: { projectId }, body: { column }, status }) => {
+      const table = `project_${projectId}`
+
+      // Check if column exists
+      const columnExistsReader = await db().runAndReadAll(
+        'SELECT 1 FROM information_schema.columns WHERE table_name = ? AND column_name = ?',
+        [table, column],
+      )
+
+      if (columnExistsReader.getRows().length === 0) {
+        return status(
+          400,
+          ApiErrorHandler.validationErrorWithData('Column not found', [
+            `Column '${column}' does not exist in table '${table}'`,
+          ]),
+        )
+      }
+
+      const uppercaseConversionService = new UppercaseConversionService(db())
+
+      try {
+        const affectedRows = await uppercaseConversionService.performOperation({
+          table,
+          column,
+        })
+
+        return {
+          affectedRows,
+        }
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred'
+        return status(
+          500,
+          ApiErrorHandler.internalServerErrorWithData(
+            'Failed to perform uppercase conversion operation',
+            [errorMessage],
+          ),
+        )
+      }
+    },
+    {
+      body: ColumnNameSchema,
+      response: {
+        200: AffectedRowsSchema,
+        400: ApiErrors,
+        404: ApiErrors,
+        422: ApiErrors,
+        500: ApiErrors,
+      },
+      detail: {
+        summary: 'Convert text to uppercase in a column',
+        description:
+          'Convert all text values in a specific column to uppercase',
         tags,
       },
     },

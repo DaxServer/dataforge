@@ -44,6 +44,26 @@ const handleTrimWhitespace = async () => {
   }
 }
 
+const handleUpperCase = async () => {
+  const { data, error } = await api.project({ projectId: projectId.value }).uppercase.post({
+    column: props.columnField,
+  })
+
+  if (error?.value) {
+    showError(error.value as ExtendedError[])
+    return
+  }
+
+  const affectedRows = data?.affectedRows || 0
+
+  if (affectedRows === 0) {
+    showWarning('To uppercase completed: No rows were affected')
+  } else {
+    showSuccess(`To uppercase completed: ${affectedRows} rows affected`)
+    emit('replaceCompleted')
+  }
+}
+
 const menuItems = ref<MenuItem[]>([
   {
     label: 'Sort',
@@ -98,7 +118,7 @@ const menuItems = ref<MenuItem[]>([
           },
           {
             label: 'To uppercase',
-            command: () => console.log(`Transform ${props.columnHeader} to Uppercase`),
+            command: handleUpperCase,
           },
           {
             label: 'To lowercase',
