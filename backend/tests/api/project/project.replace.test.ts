@@ -69,7 +69,7 @@ describe('Project API - find and replace', () => {
     await closeDb()
   })
 
-  test('should perform basic replace operation', async () => {
+  test('should perform basic find and replace operation', async () => {
     const { data, status, error } = await api.project({ projectId }).replace.post({
       column: 'city',
       find: 'New York',
@@ -265,7 +265,7 @@ describe('Project API - find and replace', () => {
         replace: "Jonathan's",
         expectedAffectedRows: 0, // No data with John's in test data
       },
-    ])('$description', async ({ column, find, replace }) => {
+    ])('$description', async ({ column, find, replace, expectedAffectedRows }) => {
       const { data, status, error } = await api.project({ projectId }).replace.post({
         column,
         find,
@@ -276,7 +276,9 @@ describe('Project API - find and replace', () => {
 
       expect(status).toBe(200)
       expect(error).toBeNull()
-      expect(data!.affectedRows).toBeGreaterThanOrEqual(0)
+      expect(data).toEqual({
+        affectedRows: expectedAffectedRows,
+      })
     })
   })
 })

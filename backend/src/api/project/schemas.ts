@@ -50,12 +50,21 @@ export const GetProjectByIdResponse = t.Object({
 })
 export type GetProjectByIdResponse = typeof GetProjectByIdResponse.static
 
-// Replace operation schema
-export const ReplaceOperationSchema = t.Object({
+// Column operation schema
+export const ColumnNameSchema = t.Object({
   column: t.String({
     minLength: 1,
     error: 'Column name is required and must be at least 1 character long',
   }),
+})
+
+export const AffectedRowsSchema = t.Object({
+  affectedRows: t.Integer(),
+})
+
+// Replace operation schema
+export const ReplaceOperationSchema = t.Object({
+  column: ColumnNameSchema.properties.column,
   find: t.String({
     minLength: 1,
     error: 'Find value is required and must be at least 1 character long',
@@ -68,13 +77,5 @@ export const ReplaceOperationSchema = t.Object({
   }),
   wholeWord: t.BooleanString({
     default: false,
-  }),
-})
-
-// Trim whitespace operation schema
-export const TrimWhitespaceSchema = t.Object({
-  column: t.String({
-    minLength: 1,
-    error: 'Column name is required and must be at least 1 character long',
   }),
 })

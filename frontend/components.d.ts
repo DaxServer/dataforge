@@ -26,7 +26,6 @@ declare module 'vue' {
     DefaultLayout: typeof import('./src/core/layouts/DefaultLayout.vue')['default']
     Dialog: typeof import('primevue/dialog')['default']
     DropZone: typeof import('./src/features/wikibase-schema/components/DropZone.vue')['default']
-    FileUpload: typeof import('primevue/fileupload')['default']
     Header: typeof import('./src/shared/components/Header.vue')['default']
     InputText: typeof import('primevue/inputtext')['default']
     MainContent: typeof import('./src/shared/components/MainContent.vue')['default']
