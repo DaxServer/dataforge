@@ -70,3 +70,11 @@ export const ReplaceOperationSchema = t.Object({
     default: false,
   }),
 })
+
+// Trim whitespace operation schema
+export const TrimWhitespaceSchema = t.Object({
+  column: t.String({
+    minLength: 1,
+    error: 'Column name is required and must be at least 1 character long',
+  }),
+})

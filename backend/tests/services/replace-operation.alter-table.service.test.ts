@@ -270,7 +270,7 @@ describe('non-string column datatype conversion', () => {
       expect(column!.type).toBe(initialType)
 
       // Perform replace operation
-      const affectedRows = await service.performReplace({
+      const affectedRows = await service.performOperation({
         table: 'test',
         column: columnName,
         find,

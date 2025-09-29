@@ -7,17 +7,39 @@ const props = defineProps<{
 
 const emit = defineEmits(['replaceCompleted'])
 
-const { showSuccess, showWarning } = useErrorHandling()
+const { showSuccess, showWarning, showError } = useErrorHandling()
+const api = useApi()
 
 const menu = ref()
 const isOpen = ref(false)
 const showReplaceDialog = ref(false)
+const projectId = useRouteParams('id') as Ref<UUID>
 
 const handleReplaceCompleted = (affectedRows: number) => {
   if (affectedRows === 0) {
     showWarning('Replace completed: No rows were affected')
   } else {
     showSuccess(`Replace completed: ${affectedRows} rows affected`)
+    emit('replaceCompleted')
+  }
+}
+
+const handleTrimWhitespace = async () => {
+  const { data, error } = await api.project({ projectId: projectId.value }).trim_whitespace.post({
+    column: props.columnField,
+  })
+
+  if (error?.value) {
+    showError(error.value as ExtendedError[])
+    return
+  }
+
+  const affectedRows = data?.affectedRows || 0
+
+  if (affectedRows === 0) {
+    showWarning('Trim whitespace completed: No rows were affected')
+  } else {
+    showSuccess(`Trim whitespace completed: ${affectedRows} rows affected`)
     emit('replaceCompleted')
   }
 }
@@ -65,7 +87,7 @@ const menuItems = ref<MenuItem[]>([
         items: [
           {
             label: 'Trim leading and trailing whitespace',
-            command: () => console.log(`Trim whitespace in ${props.columnHeader}`),
+            command: handleTrimWhitespace,
           },
           {
             label: 'Collapse consecutive whitespace',
