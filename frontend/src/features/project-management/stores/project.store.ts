@@ -5,6 +5,8 @@ export const useProjectStore = defineStore('project', () => {
   const { showError } = useErrorHandling()
   const { generateColumns } = useColumnGeneration()
 
+  const projectId = ref<UUID>()
+
   // State
   const data = ref<GetProjectByIdResponse['data']>([])
   const meta = ref<GetProjectByIdResponse['meta']>({
@@ -22,20 +24,25 @@ export const useProjectStore = defineStore('project', () => {
   const currentLimit = ref(25)
 
   // Actions
-  const fetchProject = async (projectId: string, offset = 0, limit = 25) => {
+  const fetchProject = async (_projectId: string, offset = 0, limit = 25) => {
     isLoading.value = true
 
     // Store current pagination state
     currentOffset.value = offset
     currentLimit.value = limit
 
-    const { data: rows, error } = await api.project({ projectId }).get({ query: { offset, limit } })
+    const { data: rows, error } = await api
+      .project({ projectId: _projectId })
+      .get({ query: { offset, limit } })
 
     if (error) {
       showError(error.value)
       isLoading.value = false
       return
     }
+
+    // Store projectId
+    projectId.value = _projectId as UUID
 
     data.value = rows.data
     meta.value = rows.meta
@@ -87,6 +94,7 @@ export const useProjectStore = defineStore('project', () => {
     // State
     data,
     meta,
+    projectId,
     isLoading,
     columns,
     columnsForSchema,

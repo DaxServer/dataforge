@@ -56,7 +56,7 @@ describe('ReplaceOperationService', () => {
   describe('performReplace', () => {
     test('should perform basic replace operation', () => {
       expect(
-        service.performReplace({
+        service.performOperation({
           table,
           column: 'city',
           find: 'New York',
@@ -69,7 +69,7 @@ describe('ReplaceOperationService', () => {
 
     test('should perform case-sensitive replace operation', () => {
       expect(
-        service.performReplace({
+        service.performOperation({
           table,
           column: 'name',
           find: 'John',
@@ -82,7 +82,7 @@ describe('ReplaceOperationService', () => {
 
     test('should perform case-insensitive replace operation', () => {
       expect(
-        service.performReplace({
+        service.performOperation({
           table,
           column: 'email',
           find: 'JOHN',
@@ -95,7 +95,7 @@ describe('ReplaceOperationService', () => {
 
     test('should perform whole word replace operation', () => {
       expect(
-        service.performReplace({
+        service.performOperation({
           table,
           column: 'name',
           find: 'John',
@@ -108,7 +108,7 @@ describe('ReplaceOperationService', () => {
 
     test('should handle replace with empty string', () => {
       expect(
-        service.performReplace({
+        service.performOperation({
           table,
           column: 'city',
           find: 'New York',
@@ -127,7 +127,7 @@ describe('ReplaceOperationService', () => {
       )
 
       expect(
-        service.performReplace({
+        service.performOperation({
           table,
           column: 'email',
           find: '@',
@@ -146,7 +146,7 @@ describe('ReplaceOperationService', () => {
       )
 
       expect(
-        service.performReplace({
+        service.performOperation({
           table,
           column: 'name',
           find: "John's",
@@ -161,7 +161,7 @@ describe('ReplaceOperationService', () => {
   describe('edge cases and error handling', () => {
     test('should throw error for non-existent column', () => {
       expect(
-        service.performReplace({
+        service.performOperation({
           table,
           column: 'nonexistent_column',
           find: 'test',
@@ -174,7 +174,7 @@ describe('ReplaceOperationService', () => {
 
     test('should handle non-existent project table', () => {
       expect(
-        service.performReplace({
+        service.performOperation({
           table: 'nonexistent_table',
           column: 'name',
           find: 'John',
@@ -187,7 +187,7 @@ describe('ReplaceOperationService', () => {
 
     test('should handle no matching rows', () => {
       expect(
-        service.performReplace({
+        service.performOperation({
           table,
           column: 'city',
           find: 'NonExistentCity',
