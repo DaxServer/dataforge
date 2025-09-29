@@ -64,6 +64,26 @@ const handleUpperCase = async () => {
   }
 }
 
+const handleLowerCase = async () => {
+  const { data, error } = await api.project({ projectId: projectId.value }).lowercase.post({
+    column: props.columnField,
+  })
+
+  if (error?.value) {
+    showError(error.value as ExtendedError[])
+    return
+  }
+
+  const affectedRows = data?.affectedRows || 0
+
+  if (affectedRows === 0) {
+    showWarning('To lowercase completed: No rows were affected')
+  } else {
+    showSuccess(`To lowercase completed: ${affectedRows} rows affected`)
+    emit('replaceCompleted')
+  }
+}
+
 const menuItems = ref<MenuItem[]>([
   {
     label: 'Sort',
@@ -122,7 +142,7 @@ const menuItems = ref<MenuItem[]>([
           },
           {
             label: 'To lowercase',
-            command: () => console.log(`Transform ${props.columnHeader} to Lowercase`),
+            command: handleLowerCase,
           },
           {
             label: 'To titlecase',
