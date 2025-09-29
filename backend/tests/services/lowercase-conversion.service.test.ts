@@ -1,16 +1,16 @@
 import { closeDb, getDb, initializeDb } from '@backend/plugins/database'
-import { UppercaseConversionService } from '@backend/services/uppercase-conversion.service'
+import { LowercaseConversionService } from '@backend/services/lowercase-conversion.service'
 import type { DuckDBConnection } from '@duckdb/node-api'
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test'
 
-describe('UppercaseConversionService', () => {
-  let service: UppercaseConversionService
+describe('LowercaseConversionService', () => {
+  let service: LowercaseConversionService
   let db: DuckDBConnection
 
   beforeEach(async () => {
     await initializeDb(':memory:')
     db = getDb()
-    service = new UppercaseConversionService(db)
+    service = new LowercaseConversionService(db)
   })
 
   afterEach(async () => {
@@ -18,7 +18,7 @@ describe('UppercaseConversionService', () => {
   })
 
   describe('performOperation', () => {
-    test('should convert mixed case text to uppercase', async () => {
+    test('should convert mixed case text to lowercase', async () => {
       // Create test table
       await db.run(`
         CREATE TABLE test (
@@ -38,23 +38,23 @@ describe('UppercaseConversionService', () => {
         (5, 'Charlie Green', 'charlie@EXAMPLE.com')
       `)
 
-      // Perform uppercase conversion on name column
+      // Perform lowercase conversion on name column
       expect(
         service.performOperation({
           table: 'test',
           column: 'name',
         }),
-      ).resolves.toBe(4) // John Doe, Jane Smith, bob johnson, Charlie Green should be affected
+      ).resolves.toBe(4) // John Doe, Jane Smith, ALICE BROWN, Charlie Green should be affected
 
       // Verify the data was actually changed
       const selectResult = await db.runAndReadAll(`SELECT name FROM test ORDER BY id`)
       const rows = selectResult.getRowObjectsJson()
 
-      expect(rows[0]!.name).toBe('JOHN DOE') // 'John Doe' -> 'JOHN DOE'
-      expect(rows[1]!.name).toBe('JANE SMITH') // 'Jane Smith' -> 'JANE SMITH'
-      expect(rows[2]!.name).toBe('BOB JOHNSON') // 'bob johnson' -> 'BOB JOHNSON'
-      expect(rows[3]!.name).toBe('ALICE BROWN') // 'ALICE BROWN' -> unchanged (already uppercase)
-      expect(rows[4]!.name).toBe('CHARLIE GREEN') // 'Charlie Green' -> 'CHARLIE GREEN'
+      expect(rows[0]!.name).toBe('john doe') // 'John Doe' -> 'john doe'
+      expect(rows[1]!.name).toBe('jane smith') // 'Jane Smith' -> 'jane smith'
+      expect(rows[2]!.name).toBe('bob johnson') // 'bob johnson' -> unchanged (already lowercase)
+      expect(rows[3]!.name).toBe('alice brown') // 'ALICE BROWN' -> 'alice brown'
+      expect(rows[4]!.name).toBe('charlie green') // 'Charlie Green' -> 'charlie green'
     })
 
     test('should handle empty strings', async () => {
@@ -70,27 +70,27 @@ describe('UppercaseConversionService', () => {
       await db.run(`
         INSERT INTO test (id, text_col) VALUES
         (1, ''),
-        (2, 'some text'),
+        (2, 'SOME TEXT'),
         (3, ''),
-        (4, 'ANOTHER TEXT')
+        (4, 'another text')
       `)
 
-      // Perform uppercase conversion
+      // Perform lowercase conversion
       expect(
         service.performOperation({
           table: 'test',
           column: 'text_col',
         }),
-      ).resolves.toBe(1) // Only 'some text' should be affected (ANOTHER TEXT is already uppercase)
+      ).resolves.toBe(1) // Only 'SOME TEXT' should be affected (another text is already lowercase)
 
       // Verify the data
       const selectResult = await db.runAndReadAll(`SELECT text_col FROM test ORDER BY id`)
       const rows = selectResult.getRowObjectsJson()
 
       expect(rows[0]!.text_col).toBe('') // Empty string remains empty
-      expect(rows[1]!.text_col).toBe('SOME TEXT') // 'some text' -> 'SOME TEXT'
+      expect(rows[1]!.text_col).toBe('some text') // 'SOME TEXT' -> 'some text'
       expect(rows[2]!.text_col).toBe('') // Empty string remains empty
-      expect(rows[3]!.text_col).toBe('ANOTHER TEXT') // 'ANOTHER TEXT' -> unchanged (already uppercase)
+      expect(rows[3]!.text_col).toBe('another text') // 'another text' -> unchanged (already lowercase)
     })
 
     test('should handle NULL values', async () => {
@@ -106,27 +106,27 @@ describe('UppercaseConversionService', () => {
       await db.run(`
         INSERT INTO test (id, text_col) VALUES
         (1, NULL),
-        (2, 'some text'),
+        (2, 'SOME TEXT'),
         (3, NULL),
-        (4, 'ANOTHER TEXT')
+        (4, 'another text')
       `)
 
-      // Perform uppercase conversion
+      // Perform lowercase conversion
       const affectedRows = await service.performOperation({
         table: 'test',
         column: 'text_col',
       })
 
-      expect(affectedRows).toBe(1) // Only 'some text' should be affected (ANOTHER TEXT is already uppercase)
+      expect(affectedRows).toBe(1) // Only 'SOME TEXT' should be affected (another text is already lowercase)
 
       // Verify the data
       const selectResult = await db.runAndReadAll(`SELECT text_col FROM test ORDER BY id`)
       const rows = selectResult.getRowObjectsJson()
 
       expect(rows[0]!.text_col).toBeNull() // NULL remains NULL
-      expect(rows[1]!.text_col).toBe('SOME TEXT') // 'some text' -> 'SOME TEXT'
+      expect(rows[1]!.text_col).toBe('some text') // 'SOME TEXT' -> 'some text'
       expect(rows[2]!.text_col).toBeNull() // NULL remains NULL
-      expect(rows[3]!.text_col).toBe('ANOTHER TEXT') // 'ANOTHER TEXT' -> unchanged (already uppercase)
+      expect(rows[3]!.text_col).toBe('another text') // 'another text' -> unchanged (already lowercase)
     })
 
     test('should handle non-existent column', async () => {
@@ -158,23 +158,23 @@ describe('UppercaseConversionService', () => {
         )
       `)
 
-      // Insert test data that's already uppercase
+      // Insert test data that's already lowercase
       await db.run(`
         INSERT INTO test (id, text_col) VALUES
-        (1, 'UPPERCASE TEXT'),
-        (2, 'ALL CAPS'),
-        (3, 'ANOTHER UPPERCASE'),
+        (1, 'lowercase text'),
+        (2, 'all lowercase'),
+        (3, 'another lowercase'),
         (4, NULL),
         (5, '')
       `)
 
-      // Perform uppercase conversion
+      // Perform lowercase conversion
       expect(
         service.performOperation({
           table: 'test',
           column: 'text_col',
         }),
-      ).resolves.toBe(0) // No rows should be affected as all text is already uppercase
+      ).resolves.toBe(0) // No rows should be affected as all text is already lowercase
     })
 
     test('should handle special characters and numbers', async () => {
@@ -190,15 +190,15 @@ describe('UppercaseConversionService', () => {
       await db.run(`
         INSERT INTO test (id, text_col) VALUES
         (1, 'Hello World!'),
-        (2, 'test@email.com'),
-        (3, 'user123name'),
+        (2, 'TEST@EMAIL.COM'),
+        (3, 'USER123NAME'),
         (4, 'CamelCaseText'),
-        (5, 'snake_case_text'),
-        (6, 'kebab-case-text'),
-        (7, 'mixed123Case456Text')
+        (5, 'SNAKE_CASE_TEXT'),
+        (6, 'KEBAB-CASE-TEXT'),
+        (7, 'MIXED123Case456Text')
       `)
 
-      // Perform uppercase conversion
+      // Perform lowercase conversion
       expect(
         service.performOperation({
           table: 'test',
@@ -210,13 +210,13 @@ describe('UppercaseConversionService', () => {
       const selectResult = await db.runAndReadAll(`SELECT text_col FROM test ORDER BY id`)
       const rows = selectResult.getRowObjectsJson()
 
-      expect(rows[0]!.text_col).toBe('HELLO WORLD!') // 'Hello World!' -> 'HELLO WORLD!'
-      expect(rows[1]!.text_col).toBe('TEST@EMAIL.COM') // 'test@email.com' -> 'TEST@EMAIL.COM'
-      expect(rows[2]!.text_col).toBe('USER123NAME') // 'user123name' -> 'USER123NAME'
-      expect(rows[3]!.text_col).toBe('CAMELCASETEXT') // 'CamelCaseText' -> 'CAMELCASETEXT'
-      expect(rows[4]!.text_col).toBe('SNAKE_CASE_TEXT') // 'snake_case_text' -> 'SNAKE_CASE_TEXT'
-      expect(rows[5]!.text_col).toBe('KEBAB-CASE-TEXT') // 'kebab-case-text' -> 'KEBAB-CASE-TEXT'
-      expect(rows[6]!.text_col).toBe('MIXED123CASE456TEXT') // 'mixed123Case456Text' -> 'MIXED123CASE456TEXT'
+      expect(rows[0]!.text_col).toBe('hello world!') // 'Hello World!' -> 'hello world!'
+      expect(rows[1]!.text_col).toBe('test@email.com') // 'TEST@EMAIL.COM' -> 'test@email.com'
+      expect(rows[2]!.text_col).toBe('user123name') // 'USER123NAME' -> 'user123name'
+      expect(rows[3]!.text_col).toBe('camelcasetext') // 'CamelCaseText' -> 'camelcasetext'
+      expect(rows[4]!.text_col).toBe('snake_case_text') // 'SNAKE_CASE_TEXT' -> 'snake_case_text'
+      expect(rows[5]!.text_col).toBe('kebab-case-text') // 'KEBAB-CASE-TEXT' -> 'kebab-case-text'
+      expect(rows[6]!.text_col).toBe('mixed123case456text') // 'MIXED123Case456Text' -> 'mixed123case456text'
     })
 
     test('should handle unicode characters', async () => {
@@ -231,14 +231,14 @@ describe('UppercaseConversionService', () => {
       // Insert test data with unicode characters
       await db.run(`
         INSERT INTO test (id, text_col) VALUES
-        (1, 'café'),
-        (2, 'naïve'),
-        (3, 'résumé'),
-        (4, 'über'),
-        (5, 'señor')
+        (1, 'CAFÉ'),
+        (2, 'NAÏVE'),
+        (3, 'RÉSUMÉ'),
+        (4, 'ÜBER'),
+        (5, 'SEÑOR')
       `)
 
-      // Perform uppercase conversion
+      // Perform lowercase conversion
       expect(
         service.performOperation({
           table: 'test',
@@ -250,11 +250,11 @@ describe('UppercaseConversionService', () => {
       const selectResult = await db.runAndReadAll(`SELECT text_col FROM test ORDER BY id`)
       const rows = selectResult.getRowObjectsJson()
 
-      expect(rows[0]!.text_col).toBe('CAFÉ') // 'café' -> 'CAFÉ'
-      expect(rows[1]!.text_col).toBe('NAÏVE') // 'naïve' -> 'NAÏVE'
-      expect(rows[2]!.text_col).toBe('RÉSUMÉ') // 'résumé' -> 'RÉSUMÉ'
-      expect(rows[3]!.text_col).toBe('ÜBER') // 'über' -> 'ÜBER'
-      expect(rows[4]!.text_col).toBe('SEÑOR') // 'señor' -> 'SEÑOR'
+      expect(rows[0]!.text_col).toBe('café') // 'CAFÉ' -> 'café'
+      expect(rows[1]!.text_col).toBe('naïve') // 'NAÏVE' -> 'naïve'
+      expect(rows[2]!.text_col).toBe('résumé') // 'RÉSUMÉ' -> 'résumé'
+      expect(rows[3]!.text_col).toBe('über') // 'ÜBER' -> 'über'
+      expect(rows[4]!.text_col).toBe('señor') // 'SEÑOR' -> 'señor'
     })
   })
 })

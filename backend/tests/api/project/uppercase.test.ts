@@ -111,11 +111,14 @@ describe('Project API - Uppercase Conversion', () => {
     expect(status).toBe(422)
     expect(data).toBeNull()
     expect(error).toHaveProperty('status', 422)
-    expect(error).toHaveProperty('value', expect.arrayContaining([
-      expect.objectContaining({
-        message: 'Expected string length greater or equal to 1',
-        path: '/column',
-      }),
-    ]))
+    expect(error).toHaveProperty(
+      'value',
+      expect.arrayContaining([
+        expect.objectContaining({
+          message: 'Expected string length greater or equal to 1',
+          path: '/column',
+        }),
+      ]),
+    )
   })
 })
