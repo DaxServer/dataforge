@@ -26,12 +26,12 @@
       "@eslint/eslintrc": "^3.3.1",
       "@eslint/js": "^9.28.0",
       "@tsconfig/bun": "^1.0.0",
-      "@types/bun": "1.2.22",
-      "@types/node": "^24.5.0",
-      "@typescript-eslint/eslint-plugin": "^8.44.0",
-      "@typescript-eslint/parser": "^8.44.0",
-      "bun-types": "1.2.22",
-      "elysia": "1.4.8",
+      "@types/bun": "1.2.23",
+      "@types/node": "^24.6.0",
+      "@typescript-eslint/eslint-plugin": "^8.45.0",
+      "@typescript-eslint/parser": "^8.45.0",
+      "bun-types": "1.2.23",
+      "elysia": "1.4.9",
       "eslint": "^9.36.0",
       "eslint-config-prettier": "^10.1.8",
       "eslint-plugin-no-relative-import-paths": "^1.6.1",
@@ -50,6 +50,6 @@
     "sharp"
   ],
   "engines": {
-    "bun": "^1.2.22"
+    "bun": "1.2.23"
   }
 }

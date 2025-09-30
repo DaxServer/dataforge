@@ -51,7 +51,7 @@
     "eslint-plugin-no-relative-import-paths": "catalog:",
     "eslint-plugin-prettier": "catalog:",
     "eslint-plugin-vue": "^10.5.0",
-    "happy-dom": "^18.0.1",
+    "happy-dom": "^19.0.2",
     "prettier": "catalog:",
     "tailwindcss": "^4.1.13",
     "typescript": "catalog:",
@@ -60,6 +60,6 @@
     "vite": "^7.1.7",
     "vite-plugin-vue-devtools": "^8.0.2",
     "vite-tsconfig-paths": "^5.1.4",
-    "vue-tsc": "^3.0.8"
+    "vue-tsc": "^3.1.0"
   }
 }
