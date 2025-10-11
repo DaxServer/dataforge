@@ -51,7 +51,7 @@
     "eslint-plugin-no-relative-import-paths": "catalog:",
     "eslint-plugin-prettier": "catalog:",
     "eslint-plugin-vue": "^10.5.0",
-    "happy-dom": "^19.0.2",
+    "happy-dom": "^20.0.0",
     "prettier": "catalog:",
     "tailwindcss": "^4.1.13",
     "typescript": "catalog:",
