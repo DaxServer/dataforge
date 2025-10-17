@@ -15,10 +15,10 @@
   },
   "dependencies": {
     "@bogeychan/elysia-logger": "^0.1.10",
-    "@duckdb/node-api": "1.4.0-r.1",
-    "@elysiajs/cors": "catalog:",
+    "@duckdb/node-api": "1.4.1-r.2",
+    "@elysiajs/cors": "1.4.0",
     "@elysiajs/eden": "catalog:",
-    "@elysiajs/openapi": "catalog:",
+    "@elysiajs/openapi": "1.4.11",
     "elysia": "catalog:",
     "file-type": "^21.0.0",
     "oauth": "^0.10.2",
@@ -37,6 +37,7 @@
     "eslint-plugin-no-relative-import-paths": "catalog:",
     "eslint-plugin-prettier": "catalog:",
     "prettier": "catalog:",
-    "typescript": "catalog:"
+    "typescript": "catalog:",
+    "typescript-eslint": "catalog:"
   }
 }

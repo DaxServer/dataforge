@@ -29,7 +29,7 @@ const handleTrimWhitespace = async () => {
     column: props.columnField,
   })
 
-  if (error?.value) {
+  if (error) {
     showError(error.value as ExtendedError[])
     return
   }
@@ -49,7 +49,7 @@ const handleUpperCase = async () => {
     column: props.columnField,
   })
 
-  if (error?.value) {
+  if (error) {
     showError(error.value as ExtendedError[])
     return
   }
@@ -69,7 +69,7 @@ const handleLowerCase = async () => {
     column: props.columnField,
   })
 
-  if (error?.value) {
+  if (error) {
     showError(error.value as ExtendedError[])
     return
   }

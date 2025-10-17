@@ -10,16 +10,14 @@ export const errorHandlerPlugin = new Elysia({
   name: 'error-handler',
   seed: 'scoped-error-handler',
 })
-  .onError(({ code, error, set }) => {
+  .onError(({ code, error, status }) => {
     // Handle validation errors
     if (code === 'VALIDATION') {
-      set.status = 422
-      return [error.valueError]
+      return status(422, [error.valueError])
     }
 
     // Handle other errors
-    set.status = 500
     const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred'
-    return ApiErrorHandler.internalServerErrorWithData(errorMessage)
+    return status(500, ApiErrorHandler.internalServerErrorWithData(errorMessage))
   })
   .as('scoped')

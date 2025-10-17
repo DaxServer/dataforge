@@ -42,12 +42,12 @@ export const useProjectCreationComposable = () => {
       return
     }
 
-    if ((data as any)?.data?.id) {
+    if (data?.data?.id) {
       setTimeout(() => {
         router
           .push({
             name: 'ProjectView',
-            params: { id: (data as any).data.id, tab: 'data' },
+            params: { id: data.data.id, tab: 'data' },
           })
           .catch(() => {
             showError([

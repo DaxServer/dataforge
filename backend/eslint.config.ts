@@ -6,7 +6,7 @@ export default defineConfig(
   {
     ignores: ['node_modules/**', 'dist/**', '*.d.ts', 'dataforge.db'],
   },
-  ...tseslint.configs.recommended,
+  tseslint.configs.recommended,
   prettierConfig,
   {
     files: ['**/*.ts'],

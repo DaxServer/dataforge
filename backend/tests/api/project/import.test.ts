@@ -82,7 +82,7 @@ describe('POST /project/:projectId/import', () => {
         code: 'INTERNAL_SERVER_ERROR',
         message: 'An error occurred while importing the project',
         details: [
-          'Invalid Input Error: Malformed JSON in file "./temp-invalid-json-file.json", at byte 1 in record/value 2: invalid literal. ',
+          expect.stringContaining('Invalid Input Error: Malformed JSON in file "./temp-invalid-json-file.json", at byte 1 in record/value 2: invalid literal.'),
         ],
       },
     ])

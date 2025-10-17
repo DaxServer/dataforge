@@ -84,12 +84,13 @@ const handleDeleteClick = (event: Event, schema: WikibaseSchemaMapping) => {
       label: 'Delete Schema',
       severity: 'danger',
     },
-    accept: async () => {
-      await deleteSchema(projectId.value as UUID, schema.id)
-      showSuccess(`Schema "${schema.name}" deleted successfully`)
+    accept: () => {
+      void deleteSchema(projectId.value as UUID, schema.id).then(async () => {
+        showSuccess(`Schema "${schema.name}" deleted successfully`)
 
-      // Refresh the schema list
-      await loadSchemas()
+        // Refresh the schema list
+        await loadSchemas()
+      })
     },
   })
 }
