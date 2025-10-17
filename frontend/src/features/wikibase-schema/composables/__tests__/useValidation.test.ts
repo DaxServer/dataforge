@@ -1,10 +1,10 @@
+import { beforeEach, describe, expect, it } from 'bun:test'
 import type { WikibaseDataType } from '@backend/types/wikibase-schema'
 import { useDragDropStore } from '@frontend/features/data-processing/stores/drag-drop.store'
 import { useValidation } from '@frontend/features/wikibase-schema/composables/useValidation'
 import { useValidationStore } from '@frontend/features/wikibase-schema/stores/validation.store'
 import type { DropTarget } from '@frontend/shared/types/drag-drop'
 import type { ColumnInfo } from '@frontend/shared/types/wikibase-schema'
-import { beforeEach, describe, expect, it } from 'bun:test'
 import { createPinia, setActivePinia } from 'pinia'
 
 describe('useValidation', () => {

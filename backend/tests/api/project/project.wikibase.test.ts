@@ -1,14 +1,14 @@
+import { afterEach, beforeEach, describe, expect, test } from 'bun:test'
 import {
-  wikibaseRoutes,
   type Alias,
   type Label,
   type WikibaseCreateSchema,
+  wikibaseRoutes,
 } from '@backend/api/project/project.wikibase'
 import type { InstanceId } from '@backend/api/wikibase/schemas'
 import { closeDb, databasePlugin, getDb, initializeDb } from '@backend/plugins/database'
 import type { ItemId } from '@backend/types/wikibase-schema'
 import { treaty } from '@elysiajs/eden'
-import { afterEach, beforeEach, describe, expect, test } from 'bun:test'
 import { Elysia } from 'elysia'
 
 let _strCounter = 0

@@ -1,7 +1,7 @@
+import { beforeEach, describe, expect, it, mock } from 'bun:test'
 import { useSchemaSelection } from '@frontend/features/wikibase-schema/composables/useSchemaSelection'
 import { useSchemaStore } from '@frontend/features/wikibase-schema/stores/schema.store'
 import { createTestingPinia } from '@pinia/testing'
-import { beforeEach, describe, expect, it, mock } from 'bun:test'
 import type { UUID } from 'crypto'
 import { setActivePinia } from 'pinia'
 import { ref } from 'vue'

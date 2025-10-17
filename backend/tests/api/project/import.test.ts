@@ -1,7 +1,7 @@
+import { afterEach, beforeEach, describe, expect, test } from 'bun:test'
 import { projectRoutes } from '@backend/api/project'
 import { closeDb, getDb, initializeDb } from '@backend/plugins/database'
 import { treaty } from '@elysiajs/eden'
-import { afterEach, beforeEach, describe, expect, test } from 'bun:test'
 import { Elysia } from 'elysia'
 
 const createTestApi = () => {
@@ -82,7 +82,9 @@ describe('POST /project/:projectId/import', () => {
         code: 'INTERNAL_SERVER_ERROR',
         message: 'An error occurred while importing the project',
         details: [
-          expect.stringContaining('Invalid Input Error: Malformed JSON in file "./temp-invalid-json-file.json", at byte 1 in record/value 2: invalid literal.'),
+          expect.stringContaining(
+            'Invalid Input Error: Malformed JSON in file "./temp-invalid-json-file.json", at byte 1 in record/value 2: invalid literal.',
+          ),
         ],
       },
     ])

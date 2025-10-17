@@ -1,20 +1,16 @@
+import { describe, expect, test } from 'bun:test'
 import type { PropertyReference, ValueMapping } from '@backend/api/project/project.wikibase'
 import type { WikibaseDataType } from '@backend/types/wikibase-schema'
 import { useStatementDataTypeValidation } from '@frontend/features/wikibase-schema/composables/useStatementDataTypeValidation'
-import { beforeEach, describe, expect, test } from 'bun:test'
 
 describe('useStatementDataTypeValidation', () => {
-  let testProperties: PropertyReference[]
-
-  beforeEach(() => {
-    testProperties = [
-      { id: 'P31', label: 'instance of', dataType: 'wikibase-item' },
-      { id: 'P1476', label: 'title', dataType: 'string' },
-      { id: 'P569', label: 'date of birth', dataType: 'time' },
-      { id: 'P1082', label: 'population', dataType: 'quantity' },
-      { id: 'P856', label: 'official website', dataType: 'url' },
-    ]
-  })
+  const testProperties: PropertyReference[] = [
+    { id: 'P31', label: 'instance of', dataType: 'wikibase-item' },
+    { id: 'P1476', label: 'title', dataType: 'string' },
+    { id: 'P569', label: 'date of birth', dataType: 'time' },
+    { id: 'P1082', label: 'population', dataType: 'quantity' },
+    { id: 'P856', label: 'official website', dataType: 'url' },
+  ]
 
   describe('validateStatementDataType', () => {
     test('should validate compatible VARCHAR column with string property', () => {

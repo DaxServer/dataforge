@@ -26,7 +26,7 @@ const formatDate = (dateString: string) => {
 
   try {
     const date = new Date(dateString)
-    if (isNaN(date.getTime())) return 'Invalid Date'
+    if (Number.isNaN(date.getTime())) return 'Invalid Date'
 
     return date.toLocaleDateString('en-US', {
       year: 'numeric',
@@ -44,7 +44,7 @@ const formatDateTime = (dateString: string) => {
 
   try {
     const date = new Date(dateString)
-    if (isNaN(date.getTime())) return 'Invalid Date'
+    if (Number.isNaN(date.getTime())) return 'Invalid Date'
 
     return date.toLocaleDateString('en-US', {
       year: 'numeric',

@@ -6,10 +6,10 @@
   "private": true,
   "scripts": {
     "dev": "concurrently -k -n backend,frontend -c blue,green \"bun --cwd backend dev\" \"bun --cwd frontend dev\"",
-    "format": "prettier --cache --log-level warn --ignore-unknown --write .",
-    "lint": "bun -F '*' lint",
-    "lint:backend": "bun -F backend lint",
-    "lint:frontend": "bun -F frontend lint",
+    "format": "bunx biome format --write .",
+    "lint": "bunx biome lint",
+    "check": "bunx biome check",
+    "check:fix": "bunx biome check --write .",
     "mcpi": "bunx @modelcontextprotocol/inspector",
     "tsc": "bun -F '*' typecheck",
     "typecheck": "bun -F '*' typecheck"
@@ -21,28 +21,18 @@
     ],
     "catalog": {
       "@elysiajs/eden": "1.4.4",
-      "@eslint/eslintrc": "^3.3.1",
-      "@eslint/js": "^9.28.0",
-      "@tsconfig/bun": "^1.0.9",
+      "@tsconfig/bun": "1.0.9",
       "@types/bun": "1.3.0",
       "@types/node": "^24.8.0",
-      "@typescript-eslint/eslint-plugin": "^8.46.1",
-      "@typescript-eslint/parser": "^8.46.1",
       "bun-types": "1.3.0",
       "elysia": "1.4.12",
-      "eslint": "^9.37.0",
-      "eslint-config-prettier": "^10.1.8",
-      "eslint-plugin-no-relative-import-paths": "^1.6.1",
-      "eslint-plugin-prettier": "^5.5.4",
-      "prettier": "^3.5.3",
-      "typescript": "^5.9.3",
-      "typescript-eslint": "^8.0.0"
+      "typescript": "^5.9.3"
     }
   },
   "devDependencies": {
+    "@biomejs/biome": "2.2.6",
     "@tsconfig/bun": "1.0.9",
-    "concurrently": "^9.2.1",
-    "prettier-plugin-organize-imports": "^4.3.0"
+    "concurrently": "^9.2.1"
   },
   "trustedDependencies": [
     "@tailwindcss/oxide",

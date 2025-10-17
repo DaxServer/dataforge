@@ -1,6 +1,6 @@
 // API imports
-import { type App as ElysiaApp } from '@backend/index'
-import { treaty } from '@elysiajs/eden'
+import type { App as ElysiaApp } from '@backend/index'
+import type { treaty } from '@elysiajs/eden'
 
 // Project file types
 export type ProjectFile = File & { status: 'pending' | 'uploaded' }

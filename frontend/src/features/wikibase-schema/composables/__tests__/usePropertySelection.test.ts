@@ -1,6 +1,6 @@
+import { beforeEach, describe, expect, test } from 'bun:test'
 import type { PropertyReference } from '@backend/api/project/project.wikibase'
 import { usePropertySelection } from '@frontend/features/wikibase-schema/composables/usePropertySelection'
-import { beforeEach, describe, expect, test } from 'bun:test'
 
 describe('usePropertySelection', () => {
   let composable: ReturnType<typeof usePropertySelection>

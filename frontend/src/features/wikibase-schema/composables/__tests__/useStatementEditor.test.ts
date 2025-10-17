@@ -1,62 +1,56 @@
+import { describe, expect, test } from 'bun:test'
 import type { PropertyReference, ValueMapping } from '@backend/api/project/project.wikibase'
 import type { StatementRank, WikibaseDataType } from '@backend/types/wikibase-schema'
 import { useStatementEditor } from '@frontend/features/wikibase-schema/composables/useStatementEditor'
 import type { ColumnInfo } from '@frontend/shared/types/wikibase-schema'
-import { beforeEach, describe, expect, test } from 'bun:test'
 
 describe('useStatementEditor', () => {
-  let testColumns: ColumnInfo[]
-  let testProperty: PropertyReference
-  let initialStatement: {
+  const testColumns: ColumnInfo[] = [
+    {
+      name: 'name',
+      dataType: 'VARCHAR',
+      sampleValues: ['John Doe', 'Jane Smith'],
+      nullable: false,
+      uniqueCount: 100,
+    },
+    {
+      name: 'birth_date',
+      dataType: 'DATE',
+      sampleValues: ['1990-01-01', '1985-05-15'],
+      nullable: true,
+      uniqueCount: 95,
+    },
+    {
+      name: 'population',
+      dataType: 'INTEGER',
+      sampleValues: ['1000000', '500000'],
+      nullable: false,
+      uniqueCount: 50,
+    },
+  ]
+
+  const testProperty: PropertyReference = {
+    id: 'P31',
+    label: 'instance of',
+    dataType: 'wikibase-item',
+  }
+
+  const initialStatement: {
     property: PropertyReference | null
     value: ValueMapping
     rank: StatementRank
-  }
-
-  beforeEach(() => {
-    testColumns = [
-      {
-        name: 'name',
+  } = {
+    property: testProperty,
+    value: {
+      type: 'column',
+      source: {
+        columnName: 'name',
         dataType: 'VARCHAR',
-        sampleValues: ['John Doe', 'Jane Smith'],
-        nullable: false,
-        uniqueCount: 100,
       },
-      {
-        name: 'birth_date',
-        dataType: 'DATE',
-        sampleValues: ['1990-01-01', '1985-05-15'],
-        nullable: true,
-        uniqueCount: 95,
-      },
-      {
-        name: 'population',
-        dataType: 'INTEGER',
-        sampleValues: ['1000000', '500000'],
-        nullable: false,
-        uniqueCount: 50,
-      },
-    ]
-
-    testProperty = {
-      id: 'P31',
-      label: 'instance of',
-      dataType: 'wikibase-item',
-    }
-
-    initialStatement = {
-      property: testProperty,
-      value: {
-        type: 'column',
-        source: {
-          columnName: 'name',
-          dataType: 'VARCHAR',
-        },
-        dataType: 'string',
-      },
-      rank: 'normal',
-    }
-  })
+      dataType: 'string',
+    },
+    rank: 'normal',
+  }
 
   describe('Initialization', () => {
     test('should initialize with default statement', () => {
@@ -217,7 +211,7 @@ describe('useStatementEditor', () => {
     test('should handle column drop', () => {
       const { localStatement, handleColumnDrop } = useStatementEditor()
 
-      const dateColumn = testColumns[1]!
+      const dateColumn = testColumns[1] as ColumnInfo
       handleColumnDrop(dateColumn)
 
       expect(localStatement.value.value.type).toBe('column')

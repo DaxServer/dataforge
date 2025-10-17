@@ -1,16 +1,16 @@
+import { describe, expect, test } from 'bun:test'
 import {
-  WikibaseErrorCode,
   createWikibaseError,
   isAuthenticationError,
   isRetryableError,
   isValidationError,
+  WikibaseErrorCode,
 } from '@backend/types/wikibase-errors'
 import {
-  WikibaseErrorHandler,
   handleWikibaseError,
+  WikibaseErrorHandler,
   withRetry,
 } from '@backend/utils/wikibase-error-handler'
-import { describe, expect, test } from 'bun:test'
 
 describe('Wikibase Error Types', () => {
   test('should create WikibaseError with correct properties', () => {

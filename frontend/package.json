@@ -6,9 +6,6 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview",
-    "lint": "eslint",
     "typecheck": "vue-tsc"
   },
   "dependencies": {
@@ -38,29 +35,18 @@
     "@types/escape-html": "^1.0.4",
     "@types/linkify-it": "^5.0.0",
     "@types/node": "catalog:",
-    "@typescript-eslint/eslint-plugin": "catalog:",
     "@vitejs/plugin-vue": "^6.0.1",
-    "@vue/eslint-config-prettier": "^10.2.0",
-    "@vue/eslint-config-typescript": "^14.6.0",
     "@vue/tsconfig": "^0.8.1",
     "autoprefixer": "^10.4.21",
     "bun-types": "catalog:",
     "elysia": "catalog:",
-    "eslint": "catalog:",
-    "eslint-config-prettier": "catalog:",
-    "eslint-plugin-no-relative-import-paths": "catalog:",
-    "eslint-plugin-prettier": "catalog:",
-    "eslint-plugin-vue": "^10.5.1",
-    "prettier": "catalog:",
     "tailwindcss": "^4.1.14",
     "typescript": "catalog:",
-    "typescript-eslint": "catalog:",
     "unplugin-auto-import": "^20.2.0",
     "unplugin-vue-components": "^29.1.0",
     "vite": "^7.1.10",
     "vite-plugin-vue-devtools": "^8.0.2",
     "vite-tsconfig-paths": "^5.1.4",
-    "vue-eslint-parser": "^10.2.0",
     "vue-tsc": "^3.1.1"
   }
 }

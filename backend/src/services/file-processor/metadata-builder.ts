@@ -1,8 +1,8 @@
+import { extname } from 'node:path'
 import { calculateFileHash } from '@backend/services/file-processor/hash-calculator'
 import { extractImageMetadata } from '@backend/services/file-processor/image-extractor'
 import { detectMimeType } from '@backend/services/file-processor/mime-detector'
 import type { FileInput, FileMetadata } from '@backend/services/file-processor/types'
-import { extname } from 'node:path'
 
 export const buildFileMetadata = async (
   buffer: ArrayBuffer,

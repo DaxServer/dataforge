@@ -9,8 +9,7 @@ import type {
   ValueMapping,
 } from '@backend/api/project/project.wikibase'
 import type { InstanceId } from '@backend/api/wikibase/schemas'
-import type { StatementRank } from '@backend/types/wikibase-schema'
-import { ItemId } from '@backend/types/wikibase-schema'
+import type { ItemId, StatementRank } from '@backend/types/wikibase-schema'
 import { useSchemaBuilder } from '@frontend/features/wikibase-schema/composables/useSchemaBuilder'
 import type { StatementSchema } from '@frontend/shared/types/wikibase-schema'
 import type { UUID } from 'crypto'

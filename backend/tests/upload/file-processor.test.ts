@@ -1,10 +1,10 @@
-import { processMultipleFiles } from '@backend/services/file-processor/multiple-files-processor'
-import { processFile } from '@backend/services/file-processor/processor'
-import type { FileInput, FileValidationOptions } from '@backend/services/file-processor/types'
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test'
 import { mkdir, rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
+import { processMultipleFiles } from '@backend/services/file-processor/multiple-files-processor'
+import { processFile } from '@backend/services/file-processor/processor'
+import type { FileInput, FileValidationOptions } from '@backend/services/file-processor/types'
 import sharp from 'sharp'
 
 describe('file processor', () => {

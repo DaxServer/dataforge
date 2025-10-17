@@ -1,7 +1,7 @@
+import { beforeEach, describe, expect, it } from 'bun:test'
 import type { PropertyId, StatementRank } from '@backend/types/wikibase-schema'
 import { useStatementConfig } from '@frontend/features/wikibase-schema/composables/useStatementConfig'
 import { useSchemaStore } from '@frontend/features/wikibase-schema/stores/schema.store'
-import { beforeEach, describe, expect, it } from 'bun:test'
 import { createPinia, setActivePinia } from 'pinia'
 
 describe('useStatementConfig', () => {

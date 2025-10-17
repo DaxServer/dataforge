@@ -1,6 +1,6 @@
+import { beforeEach, describe, expect, it } from 'bun:test'
 import { useValidationStore } from '@frontend/features/wikibase-schema/stores/validation.store'
 import type { ValidationError } from '@frontend/shared/types/wikibase-schema'
-import { beforeEach, describe, expect, it } from 'bun:test'
 import { createPinia, setActivePinia } from 'pinia'
 
 describe('useValidationStore', () => {

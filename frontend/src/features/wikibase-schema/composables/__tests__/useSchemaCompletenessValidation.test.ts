@@ -1,3 +1,4 @@
+import { beforeEach, describe, expect, mock, test } from 'bun:test'
 import type {
   PropertyReference,
   StatementSchemaMapping,
@@ -6,7 +7,6 @@ import type {
 import { useSchemaCompletenessValidation } from '@frontend/features/wikibase-schema/composables/useSchemaCompletenessValidation'
 import { useSchemaStore } from '@frontend/features/wikibase-schema/stores/schema.store'
 import { useValidationStore } from '@frontend/features/wikibase-schema/stores/validation.store'
-import { beforeEach, describe, expect, mock, test } from 'bun:test'
 import type { UUID } from 'crypto'
 import { createPinia, setActivePinia } from 'pinia'
 

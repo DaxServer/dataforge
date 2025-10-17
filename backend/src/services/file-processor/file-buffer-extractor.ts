@@ -1,6 +1,6 @@
+import { basename } from 'node:path'
 import { readFromFilepath, readFromUrl } from '@backend/services/file-processor/file-reader'
 import type { FileInput } from '@backend/services/file-processor/types'
-import { basename } from 'node:path'
 
 export const extractFileBuffer = async (
   uploadFile: FileInput,

@@ -1,7 +1,6 @@
 <script setup lang="ts">
 const route = useRoute()
 
-// Sidebar navigation items for DataForge
 const navItems = [
   {
     name: 'Open',

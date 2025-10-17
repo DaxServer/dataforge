@@ -1,5 +1,5 @@
-import { ApiErrorHandler } from '@backend/types/error-handler'
 import { describe, expect, it } from 'bun:test'
+import { ApiErrorHandler } from '@backend/types/error-handler'
 
 describe('ApiErrorHandler', () => {
   describe('validationError', () => {

@@ -1,7 +1,7 @@
+import { describe, expect, test } from 'bun:test'
 import { useValidationCore } from '@frontend/features/wikibase-schema/composables/useValidationCore'
 import type { DropTarget } from '@frontend/shared/types/drag-drop'
 import type { ColumnInfo } from '@frontend/shared/types/wikibase-schema'
-import { describe, expect, test } from 'bun:test'
 
 describe('useValidationCore', () => {
   const { validateColumnForTarget, validateForStyling, validateForDrop, isAliasDuplicate } =

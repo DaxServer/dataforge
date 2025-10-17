@@ -1,6 +1,6 @@
+import { afterEach, beforeEach, describe, expect, test } from 'bun:test'
 import { closeDb, getDb, initializeDb } from '@backend/plugins/database'
 import { ReplaceOperationService } from '@backend/services/replace-operation.service'
-import { afterEach, beforeEach, describe, expect, test } from 'bun:test'
 
 interface TestData {
   name: string

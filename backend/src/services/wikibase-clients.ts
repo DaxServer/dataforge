@@ -1,4 +1,4 @@
-import { type CSRFTokenResponse, InstanceId, OAuthCredentials } from '@backend/api/wikibase/schemas'
+import type { CSRFTokenResponse, InstanceId, OAuthCredentials } from '@backend/api/wikibase/schemas'
 import { MediaWikiApiService } from '@backend/services/mediawiki-api.service'
 import OAuth from 'oauth'
 
