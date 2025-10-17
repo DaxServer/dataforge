@@ -2,6 +2,7 @@ import type { PropertyReference, ValueMapping } from '@backend/api/project/proje
 import type { WikibaseDataType } from '@backend/types/wikibase-schema'
 import { useDataTypeCompatibility } from '@frontend/features/data-processing/composables/useDataTypeCompatibility'
 import type { ColumnInfo } from '@frontend/shared/types/wikibase-schema'
+import { LucideCode, LucideDatabase, LucideLock } from 'lucide-vue-next'
 import { computed, ref } from 'vue'
 
 /**
@@ -22,9 +23,9 @@ export const useValueMapping = () => {
 
   // Available value types
   const valueTypes = [
-    { label: 'Column', value: 'column', icon: 'pi pi-database' },
-    { label: 'Constant', value: 'constant', icon: 'pi pi-lock' },
-    { label: 'Expression', value: 'expression', icon: 'pi pi-code' },
+    { label: 'Column', value: 'column', icon: LucideDatabase },
+    { label: 'Constant', value: 'constant', icon: LucideLock },
+    { label: 'Expression', value: 'expression', icon: LucideCode },
   ]
 
   // Available Wikibase data types

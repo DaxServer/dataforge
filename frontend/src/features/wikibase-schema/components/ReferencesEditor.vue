@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { LucidePlus, LucideTrash, LucideX } from 'lucide-vue-next'
+
 interface ReferencesEditorProps {
   statementId: UUID
   references?: ReferenceSchemaMapping[]
@@ -57,12 +59,13 @@ const removeSnakFromReference = (referenceId: string, snakId: string) => {
         </span>
       </div>
       <Button
-        label="Add Reference"
-        icon="pi pi-plus"
-        severity="secondary"
-        size="small"
+        variant="secondary"
+        size="sm"
         @click="addReference"
-      />
+      >
+        <LucidePlus />
+        Add Reference
+      </Button>
     </div>
 
     <div
@@ -77,12 +80,12 @@ const removeSnakFromReference = (referenceId: string, snakId: string) => {
         <div class="flex items-center justify-between mb-3">
           <h5 class="font-medium text-surface-900">Reference {{ refIndex + 1 }}</h5>
           <Button
-            icon="pi pi-trash"
-            severity="danger"
-            size="small"
-            text
+            variant="destructive"
+            size="sm"
             @click="removeReference(reference.id)"
-          />
+          >
+            <LucideTrash />
+          </Button>
         </div>
 
         <!-- Reference Snaks -->
@@ -93,13 +96,13 @@ const removeSnakFromReference = (referenceId: string, snakId: string) => {
               Snaks ({{ reference.snaks.length }})
             </span>
             <Button
-              label="Add Snak"
-              icon="pi pi-plus"
-              severity="secondary"
-              size="small"
-              text
+              variant="secondary"
+              size="sm"
               @click="addSnakToReference(reference.id)"
-            />
+            >
+              <LucidePlus />
+              Add Snak
+            </Button>
           </div>
 
           <!-- Individual Snaks -->
@@ -111,12 +114,12 @@ const removeSnakFromReference = (referenceId: string, snakId: string) => {
             <div class="flex items-center justify-between mb-2">
               <span class="text-sm font-medium text-surface-700">Snak {{ snakIndex + 1 }}</span>
               <Button
-                icon="pi pi-times"
-                severity="danger"
-                size="small"
-                text
+                variant="destructive"
+                size="sm"
                 @click="removeSnakFromReference(reference.id, snak.id)"
-              />
+              >
+                <LucideX />
+              </Button>
             </div>
             <PropertyValueMappingEditor
               :property-value-map="snak"

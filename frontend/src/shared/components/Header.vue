@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { LucideMoveLeft } from 'lucide-vue-next'
+
 const projectId = useRouteParams('id')
 const { meta } = storeToRefs(useProjectStore())
 
@@ -22,12 +24,10 @@ const totalRecords = computed(() => meta.value?.total || 0)
       </div>
       <div class="flex gap-2">
         <router-link :to="{ name: 'open' }">
-          <Button
-            label="Back to Projects"
-            icon="pi pi-arrow-left"
-            severity="secondary"
-            outlined
-          />
+          <Button variant="outline">
+            <LucideMoveLeft />
+            Back to Projects
+          </Button>
         </router-link>
       </div>
     </div>

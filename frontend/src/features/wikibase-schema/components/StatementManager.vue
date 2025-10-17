@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { LucidePlus } from 'lucide-vue-next'
+
 // Store
 const schemaStore = useSchemaStore()
 
@@ -30,12 +32,12 @@ const handleAddStatement = () => {
       </div>
 
       <Button
-        icon="pi pi-plus"
-        label="Add Statement"
-        size="small"
-        severity="primary"
+        size="sm"
         @click="handleAddStatement"
-      />
+      >
+        <LucidePlus />
+        Add Statement
+      </Button>
     </div>
 
     <!-- Add New Statement Editor -->

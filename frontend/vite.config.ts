@@ -87,7 +87,7 @@ export default defineConfig({
       dirs: ['src/**'],
       vueTemplate: true,
       resolvers: [PrimeVueResolver()],
-      eslintrc: {
+      biomelintrc: {
         enabled: true,
       },
     }),

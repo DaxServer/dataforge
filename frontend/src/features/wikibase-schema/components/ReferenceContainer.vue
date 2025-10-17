@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { LucidePlus, LucideTrash } from 'lucide-vue-next'
+
 // Props
 interface Props {
   reference: ReferenceSchemaMapping
@@ -37,21 +39,21 @@ defineEmits<Emits>()
       <div class="flex items-center gap-1">
         <Button
           v-tooltip="'Add property to this reference'"
-          icon="pi pi-plus"
-          size="small"
-          severity="secondary"
-          text
+          size="sm"
+          variant="secondary"
           @click="$emit('addSnak')"
-        />
+        >
+          <LucidePlus />
+        </Button>
         <Button
           v-tooltip="'Remove entire reference'"
-          icon="pi pi-trash"
-          size="small"
-          severity="danger"
-          text
+          size="sm"
+          variant="destructive"
           data-testid="remove-reference-button"
           @click="$emit('remove')"
-        />
+        >
+          <LucideTrash />
+        </Button>
       </div>
     </div>
 

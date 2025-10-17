@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { LucideTimer } from 'lucide-vue-next'
+
 // Props
 const props = defineProps<{
   icon: string
@@ -145,13 +147,13 @@ const handleDrop = (event: DragEvent): void => {
       </div>
       <Button
         v-tooltip="'Clear column selection'"
-        icon="pi pi-times"
-        size="small"
-        severity="secondary"
-        text
+        size="sm"
+        variant="secondary"
         :disabled="disabled"
         @click="emit('clear-selection')"
-      />
+      >
+        <LucideTimer />
+      </Button>
     </div>
 
     <!-- Default drop zone content when no column is selected -->

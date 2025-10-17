@@ -14,8 +14,8 @@
     "types": ["vite/client", "bun", "node"],
     "baseUrl": ".",
     "paths": {
-      "@backend/*": ["../backend/src/*"],
-      "@frontend/*": ["../frontend/src/*"]
+      "@frontend/*": ["./src/*"],
+      "@backend/*": ["../backend/src/*"]
     }
   }
 }

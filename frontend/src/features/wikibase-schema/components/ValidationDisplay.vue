@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { LucideTrash, LucideX } from 'lucide-vue-next'
+
 interface Props {
   /** Display mode */
   mode?: 'full' | 'status' | 'suggestions'
@@ -241,14 +243,13 @@ const clearAll = () => {
             </div>
             <Button
               v-if="showDismiss"
-              icon="pi pi-times"
-              text
-              rounded
-              size="small"
-              severity="secondary"
+              size="sm"
+              variant="secondary"
               class="flex-shrink-0"
               @click="dismissError(error)"
-            />
+            >
+              <LucideX />
+            </Button>
           </div>
         </div>
 
@@ -274,14 +275,13 @@ const clearAll = () => {
             </div>
             <Button
               v-if="showDismiss"
-              icon="pi pi-times"
-              text
-              rounded
-              size="small"
-              severity="secondary"
+              size="sm"
+              variant="secondary"
               class="flex-shrink-0"
               @click="dismissWarning(warning)"
-            />
+            >
+              <LucideX />
+            </Button>
           </div>
         </div>
       </div>
@@ -292,13 +292,13 @@ const clearAll = () => {
         class="mt-4 text-center"
       >
         <Button
-          label="Clear All"
-          icon="pi pi-trash"
-          text
-          size="small"
-          severity="secondary"
+          size="sm"
+          variant="secondary"
           @click="clearAll"
-        />
+        >
+          <LucideTrash />
+          Clear All
+        </Button>
       </div>
     </div>
 
@@ -339,14 +339,14 @@ const clearAll = () => {
         <!-- Clear all button -->
         <Button
           v-if="showClearAll && validationStore.hasAnyIssues && !isDragInProgress"
-          label="Clear All"
-          icon="pi pi-trash"
-          text
-          size="small"
-          severity="secondary"
+          size="sm"
+          variant="secondary"
           class="ml-auto"
           @click="clearAll"
-        />
+        >
+          <LucideTrash />
+          Clear All
+        </Button>
       </div>
     </div>
 

@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { LucideChevronDown } from 'lucide-vue-next'
+
 const props = defineProps<{
   columnField: string
   columnHeader: string
@@ -166,14 +168,16 @@ const menuItems = ref<MenuItem[]>([
   <div class="flex items-center">
     <Button
       v-if="!isPrimaryKey"
-      type="button"
-      icon="pi pi-chevron-down"
-      class="p-button-rounded p-button-text p-button-sm"
+      size="icon"
+      variant="outline"
+      class="rounded-full"
       :aria-controls="`column-menu-${columnField}`"
       aria-haspopup="true"
       :aria-expanded="isOpen"
       @click="(event) => menu.toggle(event)"
-    />
+    >
+      <LucideChevronDown  />
+    </Button>
     <TieredMenu
       :id="`column-menu-${columnField}`"
       ref="menu"

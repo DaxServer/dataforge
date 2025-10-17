@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { LucideReplace, LucideX } from 'lucide-vue-next'
+
 const props = defineProps<{
   visible: boolean
   columnField: string
@@ -146,20 +148,21 @@ const handleVisibleChange = (visible: boolean) => {
 
     <template #footer>
       <Button
-        label="Cancel"
-        icon="pi pi-times"
-        text
-        severity="secondary"
+        variant="outline"
         :disabled="isLoading"
         @click="closeDialog"
-      />
+      >
+        <LucideX />
+        Cancel
+      </Button>
       <Button
-        label="Replace"
-        icon="pi pi-check"
         :loading="isLoading"
         :disabled="!findText"
         @click="handleReplace"
-      />
+      >
+        <LucideReplace />
+        Replace
+      </Button>
     </template>
   </Dialog>
 </template>

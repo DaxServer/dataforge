@@ -1,4 +1,6 @@
 <script setup lang="ts" generic="T">
+import { LucidePlus } from 'lucide-vue-next'
+
 // Props
 interface Props<T> {
   items: T[]
@@ -44,14 +46,14 @@ defineEmits<Emits>()
         </span>
       </div>
       <Button
-        :label="addButtonLabel"
-        icon="pi pi-plus"
-        size="small"
-        severity="secondary"
-        outlined
+        size="sm"
+        variant="outline"
         :data-testid="addButtonTestId"
         @click="$emit('add')"
-      />
+      >
+        <LucidePlus />
+        {{ addButtonLabel }}
+      </Button>
     </div>
 
     <!-- Items List -->

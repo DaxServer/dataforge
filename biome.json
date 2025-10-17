@@ -70,6 +70,7 @@
             "useNamingConvention": "off"
           },
           "correctness": {
+            "noUnusedImports": "off",
             "noUnusedVariables": "off"
           }
         }

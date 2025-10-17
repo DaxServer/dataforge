@@ -10,7 +10,7 @@ declare module 'vue' {
   export interface GlobalComponents {
     AutoComplete: typeof import('primevue/autocomplete')['default']
     BasePropertyValueEditor: typeof import('./src/features/wikibase-schema/components/BasePropertyValueEditor.vue')['default']
-    Button: typeof import('primevue/button')['default']
+    Button: typeof import('./src/components/ui/button/Button.vue')['default']
     Card: typeof import('primevue/card')['default']
     Checkbox: typeof import('primevue/checkbox')['default']
     Chip: typeof import('primevue/chip')['default']
