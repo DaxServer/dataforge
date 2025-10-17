@@ -402,7 +402,7 @@ describe('useSchemaApi', () => {
 
     it('should return empty array when no data is returned', async () => {
       mockSchemasGet.mockResolvedValueOnce({
-        data: null,
+        data: [],
         error: null,
       })
 

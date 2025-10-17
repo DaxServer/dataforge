@@ -18,9 +18,10 @@ export const useProjectListComposable = () => {
         label: 'Delete',
         severity: 'danger',
       },
-      accept: async () => {
-        await store.deleteProject(project.id)
-        showSuccess(`Project "${project.name}" has been deleted`)
+      accept: () => {
+        void store.deleteProject(project.id).then(() => {
+          showSuccess(`Project "${project.name}" has been deleted`)
+        })
       },
     })
   }

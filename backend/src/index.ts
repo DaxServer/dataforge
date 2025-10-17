@@ -21,6 +21,7 @@ export const elysiaApp = new Elysia({
     openapi({
       path: '/docs',
       scalar: {
+        showToolbar: 'never',
         servers: [
           {
             url: 'http://localhost:3000',

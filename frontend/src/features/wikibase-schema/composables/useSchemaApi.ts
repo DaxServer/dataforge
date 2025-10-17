@@ -67,10 +67,8 @@ export const useSchemaApi = () => {
         return
       }
 
-      // @ts-expect-error Elysia Eden thinks non-200 2xx responses are errors
       schemaStore.loadSchema(data.data, false)
 
-      // @ts-expect-error Elysia Eden thinks non-200 2xx responses are errors
       return data.data
     })
   }

@@ -1,11 +1,8 @@
-import js from '@eslint/js'
 import prettierConfig from 'eslint-config-prettier'
 import pluginVue from 'eslint-plugin-vue'
 import { defineConfig } from 'eslint/config'
-import globals from 'globals'
 import tseslint from 'typescript-eslint'
 import vueParser from 'vue-eslint-parser'
-import autoImportGlobals from './.eslintrc-auto-import.json'
 
 export default defineConfig(
   {
@@ -19,7 +16,6 @@ export default defineConfig(
       'src/**/*.test.ts',
     ],
   },
-  js.configs.recommended,
   ...pluginVue.configs['flat/recommended'],
   ...tseslint.configs.recommendedTypeChecked,
   prettierConfig,
@@ -28,16 +24,10 @@ export default defineConfig(
     languageOptions: {
       parser: vueParser,
       parserOptions: {
-        ecmaVersion: 'latest',
         parser: tseslint.parser,
-        sourceType: 'module',
         projectService: true,
         tsconfigRootDir: import.meta.dirname,
         extraFileExtensions: ['.vue'],
-      },
-      globals: {
-        ...globals.browser,
-        ...autoImportGlobals.globals,
       },
     },
     plugins: {
