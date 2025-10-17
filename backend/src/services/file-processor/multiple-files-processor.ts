@@ -1,10 +1,10 @@
+import { basename } from 'node:path'
 import { processFile } from '@backend/services/file-processor/processor'
 import type {
   FileInput,
   FileValidationOptions,
   ProcessedFile,
 } from '@backend/services/file-processor/types'
-import { basename } from 'node:path'
 
 export const processMultipleFiles = async (
   uploadFiles: FileInput[],

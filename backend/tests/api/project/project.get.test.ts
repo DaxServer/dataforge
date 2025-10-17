@@ -1,8 +1,8 @@
+import { afterEach, beforeEach, describe, expect, it } from 'bun:test'
 import { projectRoutes } from '@backend/api/project'
 import { UUID_REGEX } from '@backend/api/project/schemas'
 import { closeDb, initializeDb } from '@backend/plugins/database'
 import { treaty } from '@elysiajs/eden'
-import { afterEach, beforeEach, describe, expect, it } from 'bun:test'
 import { Elysia } from 'elysia'
 
 const TEST_DATA = [

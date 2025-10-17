@@ -1,6 +1,3 @@
-import { projectRoutes } from '@backend/api/project'
-import { closeDb, getDb, initializeDb } from '@backend/plugins/database'
-import { treaty } from '@elysiajs/eden'
 import {
   afterAll,
   afterEach,
@@ -11,6 +8,9 @@ import {
   setSystemTime,
   test,
 } from 'bun:test'
+import { projectRoutes } from '@backend/api/project'
+import { closeDb, getDb, initializeDb } from '@backend/plugins/database'
+import { treaty } from '@elysiajs/eden'
 import { Elysia } from 'elysia'
 
 const createTestApi = () => {

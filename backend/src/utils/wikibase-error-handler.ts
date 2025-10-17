@@ -217,7 +217,7 @@ export class WikibaseErrorHandler {
 
         // Calculate delay for next attempt
         const delay = Math.min(
-          this.retryConfig.baseDelay * Math.pow(this.retryConfig.backoffMultiplier, attempt - 1),
+          this.retryConfig.baseDelay * this.retryConfig.backoffMultiplier ** (attempt - 1),
           this.retryConfig.maxDelay,
         )
 

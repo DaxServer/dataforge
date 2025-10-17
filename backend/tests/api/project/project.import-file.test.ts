@@ -1,10 +1,10 @@
+import { afterEach, beforeEach, describe, expect, test } from 'bun:test'
+import { readdir } from 'node:fs/promises'
 import { projectRoutes } from '@backend/api/project'
 import { UUID_REGEX_PATTERN } from '@backend/api/project/schemas'
 import { closeDb, getDb, initializeDb } from '@backend/plugins/database'
 import { treaty } from '@elysiajs/eden'
-import { afterEach, beforeEach, describe, expect, test } from 'bun:test'
 import { Elysia } from 'elysia'
-import { readdir } from 'node:fs/promises'
 
 const TEST_DATA = [
   { name: 'John', age: 30, city: 'New York' },

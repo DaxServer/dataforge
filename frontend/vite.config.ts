@@ -10,7 +10,7 @@ import PackageJson from './package.json' with { type: 'json' }
 
 process.env.VITE_APP_VERSION = PackageJson.version
 if (process.env.NODE_ENV === 'production') {
-  process.env.VITE_APP_BUILD_EPOCH = new Date().getTime().toString()
+  process.env.VITE_APP_BUILD_EPOCH = Date.now().toString()
 }
 
 export default defineConfig({

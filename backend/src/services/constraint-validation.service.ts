@@ -325,7 +325,7 @@ export class ConstraintValidationService {
     }
 
     const numericValue = typeof value === 'number' ? value : parseFloat(value)
-    if (isNaN(numericValue)) {
+    if (Number.isNaN(numericValue)) {
       return {
         constraintType: 'range_constraint',
         message: `Value "${value}" is not a valid number for range constraint`,
@@ -437,10 +437,11 @@ export class ConstraintValidationService {
             }
             break
 
-          case 'single value constraint':
+          case 'single value constraint': {
             const violation = this.validateSingleValueConstraint(values, constraint, propertyId)
             if (violation) violations.push(violation)
             break
+          }
 
           default:
             // For unsupported constraint types, add a warning

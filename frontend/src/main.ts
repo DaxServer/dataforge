@@ -2,14 +2,14 @@ import Aura from '@primeuix/themes/aura'
 import { createHead } from '@unhead/vue/client'
 import { createPinia } from 'pinia'
 import 'primeicons/primeicons.css'
-import PrimeVue from 'primevue/config'
-import ConfirmationService from 'primevue/confirmationservice'
-import ToastService from 'primevue/toastservice'
-import { createApp, markRaw, type Component } from 'vue'
 
 // Import your router and app
 import App from '@frontend/App.vue'
 import router from '@frontend/core/router/router'
+import PrimeVue from 'primevue/config'
+import ConfirmationService from 'primevue/confirmationservice'
+import ToastService from 'primevue/toastservice'
+import { type Component, createApp, markRaw } from 'vue'
 
 // Import global styles
 import '@frontend/assets/base.css'

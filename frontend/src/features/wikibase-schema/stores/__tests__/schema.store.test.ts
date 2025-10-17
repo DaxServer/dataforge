@@ -1,3 +1,4 @@
+import { beforeEach, describe, expect, expectTypeOf, it, mock } from 'bun:test'
 import type {
   ColumnMapping,
   PropertyReference,
@@ -5,7 +6,6 @@ import type {
 } from '@backend/api/project/project.wikibase'
 import { useSchemaStore } from '@frontend/features/wikibase-schema/stores/schema.store'
 import { createTestingPinia } from '@pinia/testing'
-import { beforeEach, describe, expect, expectTypeOf, it, mock } from 'bun:test'
 import type { UUID } from 'crypto'
 import { setActivePinia } from 'pinia'
 

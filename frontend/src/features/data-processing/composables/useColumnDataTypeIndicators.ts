@@ -140,7 +140,7 @@ export const useColumnDataTypeIndicators = () => {
 
     // Truncate individual values if they're too long
     const truncateValue = (value: string, maxLength: number = 30): string => {
-      return value.length > maxLength ? value.substring(0, maxLength) + '...' : value
+      return value.length > maxLength ? `${value.substring(0, maxLength)}...` : value
     }
 
     const displayValues = sampleValues.slice(0, maxDisplay).map((val) => truncateValue(val))

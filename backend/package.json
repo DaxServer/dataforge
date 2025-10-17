@@ -29,15 +29,7 @@
     "@types/bun": "catalog:",
     "@types/node": "catalog:",
     "@types/oauth": "^0.9.6",
-    "@typescript-eslint/eslint-plugin": "catalog:",
-    "@typescript-eslint/parser": "catalog:",
     "bun-types": "catalog:",
-    "eslint": "catalog:",
-    "eslint-config-prettier": "catalog:",
-    "eslint-plugin-no-relative-import-paths": "catalog:",
-    "eslint-plugin-prettier": "catalog:",
-    "prettier": "catalog:",
-    "typescript": "catalog:",
-    "typescript-eslint": "catalog:"
+    "typescript": "catalog:"
   }
 }

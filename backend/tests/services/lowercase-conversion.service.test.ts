@@ -1,7 +1,7 @@
+import { afterEach, beforeEach, describe, expect, test } from 'bun:test'
 import { closeDb, getDb, initializeDb } from '@backend/plugins/database'
 import { LowercaseConversionService } from '@backend/services/lowercase-conversion.service'
 import type { DuckDBConnection } from '@duckdb/node-api'
-import { afterEach, beforeEach, describe, expect, test } from 'bun:test'
 
 describe('LowercaseConversionService', () => {
   let service: LowercaseConversionService

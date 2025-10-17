@@ -1,7 +1,7 @@
+import { afterEach, beforeEach, describe, expect, test } from 'bun:test'
 import { metaProjectsRoutes } from '@backend/api/_meta_projects'
 import { closeDb, databasePlugin, getDb, initializeDb } from '@backend/plugins/database'
 import { treaty } from '@elysiajs/eden'
-import { afterEach, beforeEach, describe, expect, test } from 'bun:test'
 import { Elysia } from 'elysia'
 
 const TEST_PROJECT_ID = Bun.randomUUIDv7()

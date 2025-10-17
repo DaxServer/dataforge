@@ -1,7 +1,7 @@
+import { afterEach, beforeEach, describe, expect, expectTypeOf, it, mock } from 'bun:test'
 import { useSchemaApi } from '@frontend/features/wikibase-schema/composables/useSchemaApi'
 import { useSchemaStore } from '@frontend/features/wikibase-schema/stores/schema.store'
 import { createTestingPinia } from '@pinia/testing'
-import { afterEach, beforeEach, describe, expect, expectTypeOf, it, mock } from 'bun:test'
 import type { UUID } from 'crypto'
 import { setActivePinia } from 'pinia'
 

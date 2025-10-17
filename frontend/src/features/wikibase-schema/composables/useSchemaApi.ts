@@ -1,6 +1,6 @@
 import type { ItemSchema } from '@backend/api/project/project.wikibase'
 import type { InstanceId } from '@backend/api/wikibase/schemas'
-import { ApiErrors } from '@backend/types/error-schemas'
+import type { ApiErrors } from '@backend/types/error-schemas'
 import { computed, readonly, ref } from 'vue'
 
 export type SchemaRequest = {

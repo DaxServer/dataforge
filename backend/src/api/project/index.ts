@@ -4,10 +4,10 @@ import {
   ColumnNameSchema,
   GetProjectByIdResponse,
   PaginationQuery,
+  type Project,
   ProjectParams,
   ProjectResponseSchema,
   ReplaceOperationSchema,
-  type Project,
 } from '@backend/api/project/schemas'
 import { databasePlugin } from '@backend/plugins/database'
 import { errorHandlerPlugin } from '@backend/plugins/error-handler'
@@ -17,7 +17,8 @@ import { TrimWhitespaceService } from '@backend/services/trim-whitespace.service
 import { UppercaseConversionService } from '@backend/services/uppercase-conversion.service'
 import { ApiErrorHandler } from '@backend/types/error-handler'
 import { ApiErrors } from '@backend/types/error-schemas'
-import { enhanceSchemaWithTypes, type DuckDBTablePragma } from '@backend/utils/duckdb-types'
+import { type DuckDBTablePragma, enhanceSchemaWithTypes } from '@backend/utils/duckdb-types'
+import type { DuckDBResultReader } from '@duckdb/node-api'
 import cors from '@elysiajs/cors'
 import { Elysia, t } from 'elysia'
 
@@ -407,7 +408,7 @@ export const projectRoutes = new Elysia({ prefix: '/api/project' })
       // DuckDB's read_json_auto will handle the parsing
 
       // Check if a table with the same project ID already exists
-      let tableExistsReader
+      let tableExistsReader: DuckDBResultReader
       try {
         tableExistsReader = await db().runAndReadAll(
           `SELECT 1 FROM duckdb_tables() WHERE table_name = 'project_${projectId}'`,

@@ -61,7 +61,7 @@ const dragDropStore = useDragDropStore()
 
 // Filter errors based on path filter
 const errors = computed(() => {
-  let filtered = props.pathFilter
+  const filtered = props.pathFilter
     ? validationStore.errors.filter((error) => error.path.startsWith(props.pathFilter!))
     : validationStore.errors
 
@@ -69,7 +69,7 @@ const errors = computed(() => {
 })
 
 const warnings = computed(() => {
-  let filtered = props.pathFilter
+  const filtered = props.pathFilter
     ? validationStore.warnings.filter((warning) => warning.path.startsWith(props.pathFilter!))
     : validationStore.warnings
 

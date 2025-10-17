@@ -1,8 +1,8 @@
+import { beforeEach, describe, expect, mock, test } from 'bun:test'
 import type { PropertyReference, ValueMapping } from '@backend/api/project/project.wikibase'
 import { useSchemaValidationUI } from '@frontend/features/wikibase-schema/composables/useSchemaValidationUI'
 import { useSchemaStore } from '@frontend/features/wikibase-schema/stores/schema.store'
 import { useValidationStore } from '@frontend/features/wikibase-schema/stores/validation.store'
-import { beforeEach, describe, expect, mock, test } from 'bun:test'
 import { createPinia, setActivePinia } from 'pinia'
 
 describe('useSchemaValidationUI', () => {

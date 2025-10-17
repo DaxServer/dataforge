@@ -11,7 +11,7 @@ export class ApiErrorHandler {
     message: string = 'Validation failed',
     details: unknown[] = [],
   ): ApiErrors {
-    return this.createErrorWithData('VALIDATION', message, details)
+    return ApiErrorHandler.createErrorWithData('VALIDATION', message, details)
   }
 
   /**
@@ -21,7 +21,7 @@ export class ApiErrorHandler {
     message: string = 'Validation failed',
     details: unknown[] = [],
   ): ApiErrors {
-    return this.createErrorWithData('VALIDATION', message, details)
+    return ApiErrorHandler.createErrorWithData('VALIDATION', message, details)
   }
 
   /**
@@ -31,7 +31,7 @@ export class ApiErrorHandler {
     const message = identifier
       ? `${resource} with identifier '${identifier}' not found`
       : `${resource} not found`
-    return this.createErrorWithData('NOT_FOUND', message)
+    return ApiErrorHandler.createErrorWithData('NOT_FOUND', message)
   }
 
   /**
@@ -41,14 +41,14 @@ export class ApiErrorHandler {
     const message = identifier
       ? `${resource} with identifier '${identifier}' not found`
       : `${resource} not found`
-    return this.createErrorWithData('NOT_FOUND', message, [])
+    return ApiErrorHandler.createErrorWithData('NOT_FOUND', message, [])
   }
 
   /**
    * Create a missing file path error response with data array
    */
   static missingFilePathError(message: string = 'File path is required'): ApiErrors {
-    return this.createErrorWithData('MISSING_FILE_PATH', message, [])
+    return ApiErrorHandler.createErrorWithData('MISSING_FILE_PATH', message, [])
   }
 
   /**
@@ -57,14 +57,14 @@ export class ApiErrorHandler {
   static fileNotFoundError(filePath?: string): ApiErrors {
     const message = 'File not found'
     const details = filePath ? [filePath] : []
-    return this.createErrorWithData('FILE_NOT_FOUND', message, details)
+    return ApiErrorHandler.createErrorWithData('FILE_NOT_FOUND', message, details)
   }
 
   /**
    * Create a table already exists error response with data array
    */
   static tableExistsErrorWithData(tableName: string): ApiErrors {
-    return this.createErrorWithData(
+    return ApiErrorHandler.createErrorWithData(
       'TABLE_ALREADY_EXISTS',
       `Table with name '${tableName}' already exists`,
     )
@@ -77,7 +77,7 @@ export class ApiErrorHandler {
     message: string = 'An error occurred while processing the request',
     details: unknown[] = [],
   ): ApiErrors {
-    return this.createErrorWithData('INTERNAL_SERVER_ERROR', message, details)
+    return ApiErrorHandler.createErrorWithData('INTERNAL_SERVER_ERROR', message, details)
   }
 
   /**
@@ -87,7 +87,7 @@ export class ApiErrorHandler {
     message: string = 'Database error occurred',
     details: unknown[] = [],
   ): ApiErrors {
-    return this.createErrorWithData('DATABASE_ERROR', message, details)
+    return ApiErrorHandler.createErrorWithData('DATABASE_ERROR', message, details)
   }
 
   /**
@@ -97,7 +97,7 @@ export class ApiErrorHandler {
     message: string = 'Database error occurred',
     details: unknown[] = [],
   ): ApiErrors {
-    return this.createErrorWithData('DATABASE_ERROR', message, details)
+    return ApiErrorHandler.createErrorWithData('DATABASE_ERROR', message, details)
   }
 
   /**
@@ -108,7 +108,7 @@ export class ApiErrorHandler {
     message: string,
     details: unknown[] = [],
   ): ApiErrors {
-    return this.createErrorWithData(type, message, details)
+    return ApiErrorHandler.createErrorWithData(type, message, details)
   }
 
   /**
@@ -118,7 +118,7 @@ export class ApiErrorHandler {
     message: string = 'Failed to create project',
     details: unknown[] = [],
   ): ApiErrors {
-    return this.createErrorWithData('PROJECT_CREATION_FAILED', message, details)
+    return ApiErrorHandler.createErrorWithData('PROJECT_CREATION_FAILED', message, details)
   }
 
   /**
@@ -128,7 +128,7 @@ export class ApiErrorHandler {
     message: string = 'Failed to create project',
     details: unknown[] = [],
   ): ApiErrors {
-    return this.createErrorWithData('PROJECT_CREATION_FAILED', message, details)
+    return ApiErrorHandler.createErrorWithData('PROJECT_CREATION_FAILED', message, details)
   }
 
   /**
@@ -138,7 +138,7 @@ export class ApiErrorHandler {
     message: string = 'Failed to import data',
     details: unknown[] = [],
   ): ApiErrors {
-    return this.createErrorWithData('DATA_IMPORT_FAILED', message, details)
+    return ApiErrorHandler.createErrorWithData('DATA_IMPORT_FAILED', message, details)
   }
 
   /**
@@ -148,7 +148,7 @@ export class ApiErrorHandler {
     message: string = 'Failed to import data',
     details: unknown[] = [],
   ): ApiErrors {
-    return this.createErrorWithData('DATA_IMPORT_FAILED', message, details)
+    return ApiErrorHandler.createErrorWithData('DATA_IMPORT_FAILED', message, details)
   }
 
   /**
@@ -158,7 +158,7 @@ export class ApiErrorHandler {
     message: string = 'Invalid JSON format',
     details: unknown[] = [],
   ): ApiErrors {
-    return this.createErrorWithData('INVALID_JSON', message, details)
+    return ApiErrorHandler.createErrorWithData('INVALID_JSON', message, details)
   }
 
   /**
@@ -168,7 +168,7 @@ export class ApiErrorHandler {
     message: string = 'Invalid JSON format',
     details: unknown[] = [],
   ): ApiErrors {
-    return this.createErrorWithData('INVALID_JSON', message, details)
+    return ApiErrorHandler.createErrorWithData('INVALID_JSON', message, details)
   }
 
   /**
@@ -178,14 +178,14 @@ export class ApiErrorHandler {
     message: string = 'Internal server error',
     details: unknown[] = [],
   ): ApiErrors {
-    return this.createErrorWithData('INTERNAL_SERVER_ERROR', message, details)
+    return ApiErrorHandler.createErrorWithData('INTERNAL_SERVER_ERROR', message, details)
   }
 
   /**
    * Create a table already exists error response
    */
   static tableExistsError(tableName: string): ApiErrors {
-    return this.createErrorWithData(
+    return ApiErrorHandler.createErrorWithData(
       'TABLE_ALREADY_EXISTS',
       `Table with name '${tableName}' already exists`,
     )

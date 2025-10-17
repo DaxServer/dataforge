@@ -1,6 +1,6 @@
+import { beforeEach, describe, expect, test } from 'bun:test'
 import { getDb, initializeDb } from '@backend/plugins/database'
 import { TrimWhitespaceService } from '@backend/services/trim-whitespace.service'
-import { beforeEach, describe, expect, test } from 'bun:test'
 
 describe('TrimWhitespaceService', () => {
   let service: TrimWhitespaceService

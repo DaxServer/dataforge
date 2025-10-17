@@ -1,10 +1,10 @@
+import { describe, expect, test } from 'bun:test'
 import type {
   PropertyValueMap,
   ReferenceSchemaMapping,
 } from '@backend/api/project/project.wikibase'
 import { useReferenceValueMapping } from '@frontend/features/wikibase-schema/composables/useReferenceValueMapping'
 import type { ColumnInfo } from '@frontend/shared/types/wikibase-schema'
-import { describe, expect, test } from 'bun:test'
 import type { UUID } from 'crypto'
 
 const TEST_REFERENCE_ID: UUID = Bun.randomUUIDv7() as UUID

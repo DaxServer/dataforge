@@ -47,8 +47,7 @@ const router = createRouter({
   history: createWebHashHistory(),
   routes,
   // Enable smooth scrolling to anchor links
-  // @ts-expect-error
-  scrollBehavior: (to, from, savedPosition) => {
+  scrollBehavior: (to, _from, savedPosition) => {
     if (savedPosition) {
       return savedPosition
     } else if (to.hash) {

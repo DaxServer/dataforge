@@ -1,0 +1,12 @@
+.git*
+.vercel/
+.trae/
+dist/
+node_modules/
+temp/
+
+bun.lock
+
+*.db
+*.wal
+**/*.d.ts

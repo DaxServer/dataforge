@@ -1,9 +1,9 @@
+import { afterEach, beforeEach, describe, expect, test } from 'bun:test'
+import { tmpdir } from 'node:os'
 import { projectRoutes } from '@backend/api/project'
 import { closeDb, initializeDb } from '@backend/plugins/database'
 import { treaty } from '@elysiajs/eden'
-import { afterEach, beforeEach, describe, expect, test } from 'bun:test'
 import { Elysia } from 'elysia'
-import { tmpdir } from 'node:os'
 
 interface TestData {
   name: string

@@ -1,9 +1,9 @@
+import { afterEach, beforeEach, describe, expect, test } from 'bun:test'
+import { readdir } from 'node:fs/promises'
 import { projectRoutes } from '@backend/api/project'
 import { closeDb, getDb, initializeDb } from '@backend/plugins/database'
 import { treaty } from '@elysiajs/eden'
-import { afterEach, beforeEach, describe, expect, test } from 'bun:test'
 import { Elysia } from 'elysia'
-import { readdir } from 'node:fs/promises'
 
 const createTestApi = () => {
   return treaty(new Elysia().use(projectRoutes)).api

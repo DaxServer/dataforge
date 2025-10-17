@@ -1,6 +1,6 @@
+import { beforeEach, describe, expect, mock, test } from 'bun:test'
 import { ConstraintValidationService } from '@backend/services/constraint-validation.service'
 import type { PropertyConstraint } from '@backend/types/wikibase-api'
-import { beforeEach, describe, expect, mock, test } from 'bun:test'
 
 const mockConstraints: PropertyConstraint[] = [
   {

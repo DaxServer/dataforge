@@ -93,7 +93,7 @@ export class CommonsUploadService {
         lastError = error as Error
 
         if (attempt < retries) {
-          await this.sleep(this.retryDelay * Math.pow(2, attempt))
+          await this.sleep(this.retryDelay * 2 ** attempt)
         }
       }
     }
