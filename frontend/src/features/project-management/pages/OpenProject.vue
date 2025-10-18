@@ -1,4 +1,12 @@
 <script setup lang="ts">
+import {
+  LucideFolderOpen,
+  LucideLoader2,
+  LucidePlus,
+  LucideRefreshCcw,
+  LucideTrash,
+} from 'lucide-vue-next'
+
 const projectsListStore = useProjectListStore()
 const { deleteProject, formatDate } = useProjectListComposable()
 const { hasProjects, projectCount, isLoading, projects } = storeToRefs(projectsListStore)
@@ -29,18 +37,19 @@ onMounted(async () => {
         </div>
         <div class="flex items-center space-x-3">
           <Button
-            icon="pi pi-refresh"
-            label="Refresh"
-            severity="secondary"
-            outlined
-            :loading="isLoading"
+            variant="outline"
+            :disabled="isLoading"
             @click="fetchProjects"
-          />
+          >
+            <LucideLoader2 v-if="isLoading" class="animate-spin" />
+            <LucideRefreshCcw v-else />
+            Refresh<template v-if="isLoading">ing</template>
+          </Button>
           <router-link :to="{ name: 'create' }">
-            <Button
-              icon="pi pi-plus"
-              label="Create New"
-            />
+            <Button>
+              <LucidePlus />
+              Create New
+            </Button>
           </router-link>
         </div>
       </div>
@@ -57,19 +66,17 @@ onMounted(async () => {
     <!-- Empty State -->
     <div
       v-else-if="!hasProjects && !isLoading"
-      class="text-center py-12"
+      class="flex flex-col items-center justify-center py-12"
     >
-      <div class="mx-auto h-12 w-12 text-gray-400">
-        <i class="pi pi-folder-open text-4xl" />
-      </div>
+      <LucideFolderOpen :size="32" class="text-gray-400" />
       <h3 class="mt-2 text-sm font-medium text-gray-900">No projects found</h3>
       <p class="mt-1 text-sm text-gray-500">Get started by creating your first project.</p>
       <div class="mt-6">
         <router-link :to="{ name: 'create' }">
-          <Button
-            icon="pi pi-plus"
-            label="Create New Project"
-          />
+          <Button>
+            <LucidePlus />
+            Create New Project
+          </Button>
         </router-link>
       </div>
     </div>
@@ -135,13 +142,13 @@ onMounted(async () => {
           <template #body="{ data }">
             <div class="flex items-center justify-center">
               <Button
-                icon="pi pi-trash"
-                severity="danger"
-                outlined
-                size="small"
+                variant="destructive"
+                size="sm"
                 class="p-button-sm delete-button"
                 @click="deleteProject(data)"
-              />
+              >
+                <LucideTrash />
+              </Button>
             </div>
           </template>
         </Column>

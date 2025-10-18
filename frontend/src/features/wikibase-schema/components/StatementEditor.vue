@@ -1,4 +1,13 @@
 <script setup lang="ts">
+import {
+  LucideCheck,
+  LucideChevronDown,
+  LucideChevronUp,
+  LucidePlus,
+  LucideTrash,
+  LucideX,
+} from 'lucide-vue-next'
+
 // Props
 interface Props {
   statement: StatementSchema
@@ -91,33 +100,33 @@ const handleCancelNewStatement = () => {
         <Button
           v-if="canMoveUp"
           v-tooltip="'Move up'"
-          icon="pi pi-chevron-up"
-          size="small"
-          severity="secondary"
-          text
+          size="sm"
+          variant="secondary"
           @click="$emit('move-up')"
-        />
+        >
+          <LucideChevronUp />
+        </Button>
 
         <!-- Move Down -->
         <Button
           v-if="canMoveDown"
           v-tooltip="'Move down'"
-          icon="pi pi-chevron-down"
-          size="small"
-          severity="secondary"
-          text
+          size="sm"
+          variant="secondary"
           @click="$emit('move-down')"
-        />
+        >
+          <LucideChevronDown />
+        </Button>
 
         <!-- Remove -->
         <Button
           v-tooltip="'Remove statement'"
-          icon="pi pi-trash"
-          size="small"
-          severity="danger"
-          text
+          size="sm"
+          variant="destructive"
           @click="schemaStore.removeStatement1(statement.id)"
-        />
+        >
+          <LucideTrash />
+        </Button>
       </div>
     </div>
 
@@ -157,12 +166,12 @@ const handleCancelNewStatement = () => {
         <!-- Add New Statement Button -->
         <div v-if="!isNewStatement">
           <Button
-            label="Add New Claim"
-            icon="pi pi-plus"
-            severity="secondary"
-            outlined
+            variant="outline"
             @click="$emit('add-statement')"
-          />
+          >
+            <LucidePlus />
+            Add New Claim
+          </Button>
         </div>
       </div>
     </div>
@@ -173,15 +182,19 @@ const handleCancelNewStatement = () => {
       class="flex justify-end gap-2 pt-4 border-t border-surface-200"
     >
       <Button
-        label="Cancel"
-        severity="secondary"
+        variant="secondary"
         @click="handleCancelNewStatement"
-      />
+      >
+        <LucideX />
+        Cancel
+      </Button>
       <Button
-        label="Save Statement"
         :disabled="!isValidStatement"
         @click="handleSaveNewStatement"
-      />
+      >
+        <LucideCheck />
+        Save Statement
+      </Button>
     </div>
   </div>
 </template>

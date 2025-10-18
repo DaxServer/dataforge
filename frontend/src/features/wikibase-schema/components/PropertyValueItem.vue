@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { LucidePencil, LucideX } from 'lucide-vue-next'
+
 // Props
 interface Props {
   item: PropertyValueMap
@@ -56,22 +58,22 @@ const { getPropertyDisplayText, getValueDisplayText } = usePropertyValueDisplay(
     <div class="flex items-center gap-1">
       <Button
         :v-tooltip="editTooltip"
-        icon="pi pi-pencil"
-        size="small"
-        severity="secondary"
-        text
+        size="sm"
+        variant="secondary"
         :data-testid="`edit-${testId}-button`"
         @click="$emit('edit')"
-      />
+      >
+        <LucidePencil />
+      </Button>
       <Button
         :v-tooltip="removeTooltip"
-        icon="pi pi-times"
-        size="small"
-        severity="danger"
-        text
+        size="sm"
+        variant="destructive"
         :data-testid="`remove-${testId}-button`"
         @click="$emit('remove')"
-      />
+      >
+        <LucideX />
+      </Button>
     </div>
   </div>
 </template>

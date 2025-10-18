@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { LucidePlus, LucideTrash } from 'lucide-vue-next'
+
 interface Props {
   onSchemaSelected: (schema: WikibaseSchemaMapping) => void
   onCreateNew: () => void
@@ -118,11 +120,12 @@ onMounted(async () => {
         <h2 class="text-2xl font-bold text-surface-900">Select Schema</h2>
         <Button
           data-testid="create-new-schema-btn"
-          label="Create New Schema"
-          icon="pi pi-plus"
           :disabled="isLoading"
           @click="handleCreateNew"
-        />
+        >
+          <LucidePlus />
+          Create New Schema
+        </Button>
       </div>
       <p class="text-surface-600">
         Choose an existing schema or create a new one to start mapping your data.
@@ -166,15 +169,15 @@ onMounted(async () => {
                   </h4>
                   <Button
                     data-testid="delete-schema-btn"
-                    icon="pi pi-trash"
-                    size="small"
-                    severity="danger"
-                    text
+                    size="sm"
+                    variant="destructive"
                     class="ml-2"
-                    label="Delete"
                     :title="`Delete schema: ${schema.name}`"
                     @click="handleDeleteClick($event, schema)"
-                  />
+                  >
+                    <LucideTrash />
+                    Delete
+                  </Button>
                 </div>
 
                 <!-- Wikibase URL -->

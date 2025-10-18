@@ -1,4 +1,17 @@
 <script setup lang="ts">
+import {
+  LucideArrowLeft,
+  LucideCheck,
+  LucideEye,
+  LucideHelpCircle,
+  LucideLoader2,
+  LucidePencil,
+  LucidePlus,
+  LucideSave,
+  LucideTrash,
+  LucideX,
+} from 'lucide-vue-next'
+
 interface WikibaseSchemaEditorEmits {
   'add-item': []
   preview: []
@@ -143,23 +156,15 @@ const getSaveButtonLabel = () => {
   return 'Save'
 }
 
-const getSaveButtonIcon = () => {
-  if (isSaving.value) return 'pi pi-spin pi-spinner'
-  if (saveStatus.value === 'success' && !schemaStore.isDirty) return 'pi pi-check'
-  if (saveStatus.value === 'error') return 'pi pi-times'
-  return 'pi pi-save'
-}
-
 const getSaveButtonSeverity = () => {
-  if (saveStatus.value === 'success' && !schemaStore.isDirty) return 'success'
-  if (saveStatus.value === 'error') return 'danger'
-  return undefined
+  if (saveStatus.value === 'success' && !schemaStore.isDirty) return 'default'
+  if (saveStatus.value === 'error') return 'destructive'
+  return 'outline'
 }
 
 // Cleanup
 onUnmounted(() => {
   dragDropStore.$reset()
-
   validationStore.$reset()
   isConfiguringItem.value = false
 })
@@ -190,12 +195,13 @@ onUnmounted(() => {
           <div class="flex items-center gap-4">
             <Button
               data-testid="back-to-selector-btn"
-              icon="pi pi-arrow-left"
-              text
-              size="small"
+              size="icon"
+              variant="ghost"
               aria-label="Back to schema selector"
               @click="backToSelector"
-            />
+            >
+              <LucideArrowLeft />
+            </Button>
             <h1 class="text-xl font-semibold">{{ schemaTitle }}</h1>
             <div
               v-if="schemaStore.isLoading"
@@ -233,41 +239,46 @@ onUnmounted(() => {
           <div class="flex gap-2">
             <Button
               data-testid="add-item-btn"
-              label="Add item"
-              icon="pi pi-plus"
-              outlined
-              size="small"
+              variant="outline"
+              size="sm"
               :disabled="schemaStore.isLoading"
               @click="handleAddItem"
-            />
+            >
+              <LucidePlus />
+              Add item
+            </Button>
             <Button
               data-testid="preview-btn"
-              label="Preview"
-              icon="pi pi-eye"
-              outlined
-              size="small"
+              variant="outline"
+              size="sm"
               :disabled="schemaStore.isLoading"
               @click="handlePreview"
-            />
+            >
+              <LucideEye />
+              Preview
+            </Button>
             <Button
               data-testid="save-btn"
-              :label="getSaveButtonLabel()"
-              :icon="getSaveButtonIcon()"
-              :severity="getSaveButtonSeverity()"
-              outlined
-              size="small"
+              :variant="getSaveButtonSeverity()"
               :disabled="!canSave || isSaving"
-              :loading="isSaving"
+              size="sm"
               @click="handleSave"
-            />
+            >
+              <LucideLoader2 v-if="isSaving" class="animate-spin" />
+              <LucideCheck v-else-if="saveStatus === 'success' && !schemaStore.isDirty" />
+              <LucideX v-else-if="saveStatus === 'error'" />
+              <LucideSave v-else />
+              {{ getSaveButtonLabel() }}
+            </Button>
             <Button
               data-testid="help-btn"
-              label="Help"
-              icon="pi pi-question-circle"
-              outlined
-              size="small"
+              variant="outline"
+              size="sm"
               @click="handleHelp"
-            />
+            >
+              <LucideHelpCircle />
+              Help
+            </Button>
           </div>
         </div>
 
@@ -292,11 +303,10 @@ onUnmounted(() => {
             <p class="text-gray-500 mb-4">
               Start by adding an item to define your Wikibase schema structure.
             </p>
-            <Button
-              label="Add your first item"
-              icon="pi pi-plus"
-              @click="handleAddItem"
-            />
+            <Button @click="handleAddItem">
+              <LucidePlus />
+              Add your first item
+            </Button>
           </div>
 
           <!-- Item Configuration (when item exists) -->
@@ -311,21 +321,17 @@ onUnmounted(() => {
                   }}
                 </span>
                 <div class="flex gap-2">
+                  <Button size="sm">
+                    <LucidePencil />
+                    Edit item
+                  </Button>
                   <Button
-                    icon="pi pi-pencil"
-                    rounded
-                    text
-                    size="small"
-                    aria-label="Edit item"
-                  />
-                  <Button
-                    icon="pi pi-trash"
-                    rounded
-                    text
-                    severity="danger"
-                    size="small"
-                    aria-label="Delete item"
-                  />
+                    variant="destructive"
+                    size="sm"
+                  >
+                    <LucideTrash />
+                    Delete item
+                  </Button>
                 </div>
               </div>
 

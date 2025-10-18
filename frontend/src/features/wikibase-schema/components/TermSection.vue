@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { LucideX } from 'lucide-vue-next'
+
 // Props
 const props = defineProps<{
   title: string
@@ -171,13 +173,12 @@ const handleColumnDrop = (columnInfo: ColumnInfo) => {
                 <span class="text-sm text-surface-600">({{ mapping.dataType }})</span>
                 <Button
                   :data-testid="`remove-${termType}-mapping-${displayItem.languageCode}-${index}`"
-                  icon="pi pi-times"
-                  rounded
-                  text
-                  severity="danger"
-                  size="small"
+                  variant="destructive"
+                  size="sm"
                   @click="removeMapping(displayItem.languageCode, mapping)"
-                />
+                >
+                  <LucideX />
+                </Button>
               </div>
             </div>
           </div>

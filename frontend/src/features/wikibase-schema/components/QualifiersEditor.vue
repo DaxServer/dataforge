@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { LucidePlus, LucideTrash } from 'lucide-vue-next'
+
 interface QualifiersEditorProps {
   statementId: UUID
   qualifiers?: PropertyValueMap[]
@@ -40,12 +42,13 @@ const handleValueChange = (qualifierId: string, value?: ValueMapping) => {
         </span>
       </div>
       <Button
-        label="Add Qualifier"
-        icon="pi pi-plus"
-        severity="secondary"
-        size="small"
+        variant="secondary"
+        size="sm"
         @click="addQualifier"
-      />
+      >
+        <LucidePlus />
+        Add Qualifier
+      </Button>
     </div>
 
     <div
@@ -60,12 +63,12 @@ const handleValueChange = (qualifierId: string, value?: ValueMapping) => {
         <div class="flex items-center justify-between mb-3">
           <h5 class="font-medium text-surface-900">Qualifier {{ index + 1 }}</h5>
           <Button
-            icon="pi pi-trash"
-            severity="danger"
-            size="small"
-            text
+            variant="destructive"
+            size="sm"
             @click="removeQualifier(qualifier.id)"
-          />
+          >
+            <LucideTrash />
+          </Button>
         </div>
         <PropertyValueMappingEditor
           :property-value-map="qualifier"

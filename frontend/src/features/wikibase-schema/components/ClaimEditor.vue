@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { LucideCircle, LucideCircleX, LucideStar } from 'lucide-vue-next'
+
 // Props
 interface Props {
   statement: StatementSchema
@@ -18,9 +20,9 @@ const schemaStore = useSchemaStore()
 
 // Rank options
 const rankOptions = [
-  { label: 'Preferred', value: 'preferred' as StatementRank, icon: 'pi pi-star-fill' },
-  { label: 'Normal', value: 'normal' as StatementRank, icon: 'pi pi-circle' },
-  { label: 'Deprecated', value: 'deprecated' as StatementRank, icon: 'pi pi-times-circle' },
+  { label: 'Preferred', value: 'preferred' as StatementRank, icon: LucideStar },
+  { label: 'Normal', value: 'normal' as StatementRank, icon: LucideCircle },
+  { label: 'Deprecated', value: 'deprecated' as StatementRank, icon: LucideCircleX },
 ]
 
 // Methods
@@ -50,13 +52,14 @@ const handleRankChanged = (newRank: StatementRank) => {
             <Button
               v-for="option in rankOptions"
               :key="option.value"
-              :label="option.label"
-              :icon="option.icon"
-              :severity="statement.rank === option.value ? 'primary' : 'secondary'"
-              size="small"
+              :variant="statement.rank === option.value ? 'default' : 'secondary'"
+              size="sm"
               :disabled="disabled"
               @click="handleRankChanged(option.value)"
-            />
+            >
+              <component :is="option.icon" />
+              {{ option.label }}
+            </Button>
           </div>
         </div>
 

@@ -2,8 +2,6 @@ import type { Router } from 'vue-router'
 import 'vue-router'
 import 'pinia'
 
-export {}
-
 declare module 'vue-router' {
   interface RouteMeta {
     title?: string

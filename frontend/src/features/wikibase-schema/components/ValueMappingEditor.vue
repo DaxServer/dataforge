@@ -137,13 +137,14 @@ const acceptedTypes = computed((): WikibaseDataType[] => {
         <Button
           v-for="option in valueTypes"
           :key="option.value"
-          :label="option.label"
-          :icon="option.icon"
-          :severity="valueMapping?.type === option.value ? 'primary' : 'secondary'"
+          :variant="valueMapping?.type === option.value ? 'default' : 'secondary'"
           :disabled="disabled"
-          size="small"
+          size="sm"
           @click="handleValueTypeChange(option.value as 'column' | 'constant' | 'expression')"
-        />
+        >
+          <component :is="option.icon" />
+          {{ option.label }}
+        </Button>
       </div>
     </div>
 
