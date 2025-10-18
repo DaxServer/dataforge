@@ -16,26 +16,8 @@ declare global {
   const BreadcrumbPage: typeof import('./src/components/ui/breadcrumb/index')['BreadcrumbPage']
   const BreadcrumbSeparator: typeof import('./src/components/ui/breadcrumb/index')['BreadcrumbSeparator']
   const Button: typeof import('./src/components/ui/button/index')['Button']
-  const DropdownMenu: typeof import('./src/components/ui/dropdown-menu/index')['DropdownMenu']
-  const DropdownMenuCheckboxItem: typeof import('./src/components/ui/dropdown-menu/index')['DropdownMenuCheckboxItem']
-  const DropdownMenuContent: typeof import('./src/components/ui/dropdown-menu/index')['DropdownMenuContent']
-  const DropdownMenuGroup: typeof import('./src/components/ui/dropdown-menu/index')['DropdownMenuGroup']
-  const DropdownMenuItem: typeof import('./src/components/ui/dropdown-menu/index')['DropdownMenuItem']
-  const DropdownMenuLabel: typeof import('./src/components/ui/dropdown-menu/index')['DropdownMenuLabel']
-  const DropdownMenuPortal: typeof import('./src/components/ui/dropdown-menu/index')['DropdownMenuPortal']
-  const DropdownMenuRadioGroup: typeof import('./src/components/ui/dropdown-menu/index')['DropdownMenuRadioGroup']
-  const DropdownMenuRadioItem: typeof import('./src/components/ui/dropdown-menu/index')['DropdownMenuRadioItem']
-  const DropdownMenuSeparator: typeof import('./src/components/ui/dropdown-menu/index')['DropdownMenuSeparator']
-  const DropdownMenuShortcut: typeof import('./src/components/ui/dropdown-menu/index')['DropdownMenuShortcut']
-  const DropdownMenuSub: typeof import('./src/components/ui/dropdown-menu/index')['DropdownMenuSub']
-  const DropdownMenuSubContent: typeof import('./src/components/ui/dropdown-menu/index')['DropdownMenuSubContent']
-  const DropdownMenuSubTrigger: typeof import('./src/components/ui/dropdown-menu/index')['DropdownMenuSubTrigger']
-  const DropdownMenuTrigger: typeof import('./src/components/ui/dropdown-menu/index')['DropdownMenuTrigger']
   const EffectScope: typeof import('vue')['EffectScope']
   const Input: typeof import('./src/components/ui/input/index')['Input']
-  const Label: typeof import('./src/components/ui/label/index')['Label']
-  const MenuItem: typeof import('primevue/menuitem')['MenuItem']
-  const RefreshCcw: typeof import('lucide-vue-next')['RefreshCcw']
   const SIDEBAR_COOKIE_MAX_AGE: typeof import('./src/components/ui/sidebar/utils')['SIDEBAR_COOKIE_MAX_AGE']
   const SIDEBAR_COOKIE_NAME: typeof import('./src/components/ui/sidebar/utils')['SIDEBAR_COOKIE_NAME']
   const SIDEBAR_KEYBOARD_SHORTCUT: typeof import('./src/components/ui/sidebar/utils')['SIDEBAR_KEYBOARD_SHORTCUT']
@@ -431,9 +413,6 @@ declare global {
   export type { Component, Slot, Slots, ComponentPublicInstance, ComputedRef, DirectiveBinding, ExtractDefaultPropTypes, ExtractPropTypes, ExtractPublicPropTypes, InjectionKey, PropType, Ref, ShallowRef, MaybeRef, MaybeRefOrGetter, VNode, WritableComputedRef } from 'vue'
   import('vue')
   // @ts-ignore
-  export type { FileUploadUploaderEvent } from 'primevue/fileupload'
-  import('primevue/fileupload')
-  // @ts-ignore
   export type { MenuItem } from 'primevue/menuitem'
   import('primevue/menuitem')
   // @ts-ignore
@@ -501,24 +480,8 @@ declare module 'vue' {
     readonly BreadcrumbPage: UnwrapRef<typeof import('./src/components/ui/breadcrumb/index')['BreadcrumbPage']>
     readonly BreadcrumbSeparator: UnwrapRef<typeof import('./src/components/ui/breadcrumb/index')['BreadcrumbSeparator']>
     readonly Button: UnwrapRef<typeof import('./src/components/ui/button/index')['Button']>
-    readonly DropdownMenu: UnwrapRef<typeof import('./src/components/ui/dropdown-menu/index')['DropdownMenu']>
-    readonly DropdownMenuCheckboxItem: UnwrapRef<typeof import('./src/components/ui/dropdown-menu/index')['DropdownMenuCheckboxItem']>
-    readonly DropdownMenuContent: UnwrapRef<typeof import('./src/components/ui/dropdown-menu/index')['DropdownMenuContent']>
-    readonly DropdownMenuGroup: UnwrapRef<typeof import('./src/components/ui/dropdown-menu/index')['DropdownMenuGroup']>
-    readonly DropdownMenuItem: UnwrapRef<typeof import('./src/components/ui/dropdown-menu/index')['DropdownMenuItem']>
-    readonly DropdownMenuLabel: UnwrapRef<typeof import('./src/components/ui/dropdown-menu/index')['DropdownMenuLabel']>
-    readonly DropdownMenuPortal: UnwrapRef<typeof import('./src/components/ui/dropdown-menu/index')['DropdownMenuPortal']>
-    readonly DropdownMenuRadioGroup: UnwrapRef<typeof import('./src/components/ui/dropdown-menu/index')['DropdownMenuRadioGroup']>
-    readonly DropdownMenuRadioItem: UnwrapRef<typeof import('./src/components/ui/dropdown-menu/index')['DropdownMenuRadioItem']>
-    readonly DropdownMenuSeparator: UnwrapRef<typeof import('./src/components/ui/dropdown-menu/index')['DropdownMenuSeparator']>
-    readonly DropdownMenuShortcut: UnwrapRef<typeof import('./src/components/ui/dropdown-menu/index')['DropdownMenuShortcut']>
-    readonly DropdownMenuSub: UnwrapRef<typeof import('./src/components/ui/dropdown-menu/index')['DropdownMenuSub']>
-    readonly DropdownMenuSubContent: UnwrapRef<typeof import('./src/components/ui/dropdown-menu/index')['DropdownMenuSubContent']>
-    readonly DropdownMenuSubTrigger: UnwrapRef<typeof import('./src/components/ui/dropdown-menu/index')['DropdownMenuSubTrigger']>
-    readonly DropdownMenuTrigger: UnwrapRef<typeof import('./src/components/ui/dropdown-menu/index')['DropdownMenuTrigger']>
     readonly EffectScope: UnwrapRef<typeof import('vue')['EffectScope']>
     readonly Input: UnwrapRef<typeof import('./src/components/ui/input/index')['Input']>
-    readonly Label: UnwrapRef<typeof import('./src/components/ui/label/index')['Label']>
     readonly SIDEBAR_COOKIE_MAX_AGE: UnwrapRef<typeof import('./src/components/ui/sidebar/utils')['SIDEBAR_COOKIE_MAX_AGE']>
     readonly SIDEBAR_COOKIE_NAME: UnwrapRef<typeof import('./src/components/ui/sidebar/utils')['SIDEBAR_COOKIE_NAME']>
     readonly SIDEBAR_KEYBOARD_SHORTCUT: UnwrapRef<typeof import('./src/components/ui/sidebar/utils')['SIDEBAR_KEYBOARD_SHORTCUT']>
