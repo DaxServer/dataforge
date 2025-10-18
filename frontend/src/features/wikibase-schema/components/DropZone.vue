@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { LucideTimer } from 'lucide-vue-next'
+import { LucideX } from 'lucide-vue-next'
 
 // Props
 const props = defineProps<{
@@ -152,7 +152,7 @@ const handleDrop = (event: DragEvent): void => {
         :disabled="disabled"
         @click="emit('clear-selection')"
       >
-        <LucideTimer />
+        <LucideX />
       </Button>
     </div>
 

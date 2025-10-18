@@ -174,7 +174,7 @@ const menuItems = ref<MenuItem[]>([
       :aria-controls="`column-menu-${columnField}`"
       aria-haspopup="true"
       :aria-expanded="isOpen"
-      @click="(event) => menu.toggle(event)"
+      @click="(event: Event) => menu.toggle(event)"
     >
       <LucideChevronDown  />
     </Button>

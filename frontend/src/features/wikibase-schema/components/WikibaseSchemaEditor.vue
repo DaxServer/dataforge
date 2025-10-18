@@ -1,12 +1,15 @@
 <script setup lang="ts">
 import {
   LucideArrowLeft,
+  LucideCheck,
   LucideEye,
   LucideHelpCircle,
+  LucideLoader2,
   LucidePencil,
   LucidePlus,
   LucideSave,
   LucideTrash,
+  LucideX,
 } from 'lucide-vue-next'
 
 interface WikibaseSchemaEditorEmits {
@@ -153,23 +156,15 @@ const getSaveButtonLabel = () => {
   return 'Save'
 }
 
-const getSaveButtonIcon = () => {
-  if (isSaving.value) return 'pi pi-spin pi-spinner'
-  if (saveStatus.value === 'success' && !schemaStore.isDirty) return 'pi pi-check'
-  if (saveStatus.value === 'error') return 'pi pi-times'
-  return 'pi pi-save'
-}
-
 const getSaveButtonSeverity = () => {
-  if (saveStatus.value === 'success' && !schemaStore.isDirty) return 'success'
-  if (saveStatus.value === 'error') return 'danger'
-  return undefined
+  if (saveStatus.value === 'success' && !schemaStore.isDirty) return 'default'
+  if (saveStatus.value === 'error') return 'destructive'
+  return 'outline'
 }
 
 // Cleanup
 onUnmounted(() => {
   dragDropStore.$reset()
-
   validationStore.$reset()
   isConfiguringItem.value = false
 })
@@ -264,15 +259,15 @@ onUnmounted(() => {
             </Button>
             <Button
               data-testid="save-btn"
-              :icon="getSaveButtonIcon()"
-              :severity="getSaveButtonSeverity()"
-              variant="outline"
-              size="sm"
+              :variant="getSaveButtonSeverity()"
               :disabled="!canSave || isSaving"
-              :loading="isSaving"
+              size="sm"
               @click="handleSave"
             >
-              <LucideSave />
+              <LucideLoader2 v-if="isSaving" class="animate-spin" />
+              <LucideCheck v-else-if="saveStatus === 'success' && !schemaStore.isDirty" />
+              <LucideX v-else-if="saveStatus === 'error'" />
+              <LucideSave v-else />
               {{ getSaveButtonLabel() }}
             </Button>
             <Button

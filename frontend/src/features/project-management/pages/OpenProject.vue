@@ -1,5 +1,11 @@
 <script setup lang="ts">
-import { LucideFolderOpen, LucidePlus, LucideRefreshCcw, LucideTrash } from 'lucide-vue-next'
+import {
+  LucideFolderOpen,
+  LucideLoader2,
+  LucidePlus,
+  LucideRefreshCcw,
+  LucideTrash,
+} from 'lucide-vue-next'
 
 const projectsListStore = useProjectListStore()
 const { deleteProject, formatDate } = useProjectListComposable()
@@ -32,11 +38,12 @@ onMounted(async () => {
         <div class="flex items-center space-x-3">
           <Button
             variant="outline"
-            :loading="isLoading"
+            :disabled="isLoading"
             @click="fetchProjects"
           >
-            <LucideRefreshCcw />
-            Refresh
+            <LucideLoader2 v-if="isLoading" class="animate-spin" />
+            <LucideRefreshCcw v-else />
+            Refresh<template v-if="isLoading">ing</template>
           </Button>
           <router-link :to="{ name: 'create' }">
             <Button>
@@ -135,7 +142,6 @@ onMounted(async () => {
           <template #body="{ data }">
             <div class="flex items-center justify-center">
               <Button
-                icon="pi pi-trash"
                 variant="destructive"
                 size="sm"
                 class="p-button-sm delete-button"
