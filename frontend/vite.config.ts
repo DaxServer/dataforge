@@ -30,11 +30,6 @@ export default defineConfig({
           imports: ['useRouteParams'],
         },
         {
-          from: 'primevue/fileupload',
-          imports: ['FileUploadUploaderEvent'],
-          type: true,
-        },
-        {
           from: 'primevue/menuitem',
           imports: ['MenuItem'],
           type: true,
