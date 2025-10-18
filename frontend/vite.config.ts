@@ -74,7 +74,6 @@ export default defineConfig({
             'ReferenceSchemaMapping',
             'StatementRank',
             'StatementSchemaMapping',
-            'Label',
             'Alias',
             'TermsSchemaMapping',
             'ItemSchema',
