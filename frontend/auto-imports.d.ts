@@ -428,25 +428,7 @@ declare global {
 // for type re-export
 declare global {
   // @ts-ignore
-  export type {
-    Component,
-    Slot,
-    Slots,
-    ComponentPublicInstance,
-    ComputedRef,
-    DirectiveBinding,
-    ExtractDefaultPropTypes,
-    ExtractPropTypes,
-    ExtractPublicPropTypes,
-    InjectionKey,
-    PropType,
-    Ref,
-    ShallowRef,
-    MaybeRef,
-    MaybeRefOrGetter,
-    VNode,
-    WritableComputedRef,
-  } from 'vue'
+  export type { Component, Slot, Slots, ComponentPublicInstance, ComputedRef, DirectiveBinding, ExtractDefaultPropTypes, ExtractPropTypes, ExtractPublicPropTypes, InjectionKey, PropType, Ref, ShallowRef, MaybeRef, MaybeRefOrGetter, VNode, WritableComputedRef } from 'vue'
   import('vue')
   // @ts-ignore
   export type { FileUploadUploaderEvent } from 'primevue/fileupload'
@@ -464,21 +446,7 @@ declare global {
   export type { UUID } from 'crypto'
   import('crypto')
   // @ts-ignore
-  export type {
-    TransformationRule,
-    ColumnMapping,
-    PropertyReference,
-    WikibaseDataType,
-    ValueMapping,
-    PropertyValueMap,
-    ReferenceSchemaMapping,
-    StatementRank,
-    StatementSchemaMapping,
-    Alias,
-    TermsSchemaMapping,
-    ItemSchema,
-    WikibaseSchemaResponse,
-  } from '@backend/api/project/project.wikibase'
+  export type { TransformationRule, ColumnMapping, PropertyReference, WikibaseDataType, ValueMapping, PropertyValueMap, ReferenceSchemaMapping, StatementRank, StatementSchemaMapping, Alias, TermsSchemaMapping, ItemSchema, WikibaseSchemaResponse } from '@backend/api/project/project.wikibase'
   import('@backend/api/project/project.wikibase')
   // @ts-ignore
   export type { ButtonVariants } from './src/components/ui/button/index'
@@ -493,68 +461,28 @@ declare global {
   export type { ProjectColumn } from './src/features/data-processing/composables/useColumnGeneration'
   import('./src/features/data-processing/composables/useColumnGeneration')
   // @ts-ignore
-  export type {
-    PropertyValueEditorState,
-    PropertyValueEditorActions,
-  } from './src/features/wikibase-schema/composables/usePropertyValueEditor'
+  export type { PropertyValueEditorState, PropertyValueEditorActions } from './src/features/wikibase-schema/composables/usePropertyValueEditor'
   import('./src/features/wikibase-schema/composables/usePropertyValueEditor')
   // @ts-ignore
   export type { SchemaRequest } from './src/features/wikibase-schema/composables/useSchemaApi'
   import('./src/features/wikibase-schema/composables/useSchemaApi')
   // @ts-ignore
-  export type {
-    SchemaCompletenessResult,
-    RequiredFieldHighlight,
-  } from './src/features/wikibase-schema/composables/useSchemaCompletenessValidation'
+  export type { SchemaCompletenessResult, RequiredFieldHighlight } from './src/features/wikibase-schema/composables/useSchemaCompletenessValidation'
   import('./src/features/wikibase-schema/composables/useSchemaCompletenessValidation')
   // @ts-ignore
   export type { ValidationRuleConfig } from './src/features/wikibase-schema/stores/validation.store'
   import('./src/features/wikibase-schema/stores/validation.store')
   // @ts-ignore
-  export type {
-    FrontendErrorCode,
-    ExtendedErrorCode,
-    ExtendedError,
-  } from './src/shared/types/client-errors'
+  export type { FrontendErrorCode, ExtendedErrorCode, ExtendedError } from './src/shared/types/client-errors'
   import('./src/shared/types/client-errors')
   // @ts-ignore
-  export type {
-    SchemaDragDropContext,
-    DropZoneConfig,
-    DropFeedback,
-    DragDropContext,
-    DropTarget,
-    DropTargetType,
-    DragState,
-    DropValidation,
-    DragEventData,
-    DropEventData,
-    DragVisualState,
-    DragDropConfig,
-  } from './src/shared/types/drag-drop'
+  export type { SchemaDragDropContext, DropZoneConfig, DropFeedback, DragDropContext, DropTarget, DropTargetType, DragState, DropValidation, DragEventData, DropEventData, DragVisualState, DragDropConfig } from './src/shared/types/drag-drop'
   import('./src/shared/types/drag-drop')
   // @ts-ignore
-  export type {
-    ProjectFile,
-    FileSelectEvent,
-    FileRemoveEvent,
-    ApiClient,
-  } from './src/shared/types/index'
+  export type { ProjectFile, FileSelectEvent, FileRemoveEvent, ApiClient } from './src/shared/types/index'
   import('./src/shared/types/index')
   // @ts-ignore
-  export type {
-    ValidationErrorType,
-    ValidationErrorCode,
-    ValidationError,
-    ValidationResult,
-    ValidationContext,
-    WikibaseSchemaMapping,
-    TransformationFunction,
-    TransformationParameter,
-    StatementSchema,
-    StatementSchema1,
-    ColumnInfo,
-  } from './src/shared/types/wikibase-schema'
+  export type { ValidationErrorType, ValidationErrorCode, ValidationError, ValidationResult, ValidationContext, WikibaseSchemaMapping, TransformationFunction, TransformationParameter, StatementSchema, StatementSchema1, ColumnInfo } from './src/shared/types/wikibase-schema'
   import('./src/shared/types/wikibase-schema')
 }
 
@@ -565,197 +493,81 @@ declare module 'vue' {
   interface ComponentCustomProperties {
     readonly ApiKey: UnwrapRef<typeof import('./src/core/plugins/api')['ApiKey']>
     readonly ApiPlugin: UnwrapRef<typeof import('./src/core/plugins/api')['ApiPlugin']>
-    readonly Breadcrumb: UnwrapRef<
-      typeof import('./src/components/ui/breadcrumb/index')['Breadcrumb']
-    >
-    readonly BreadcrumbEllipsis: UnwrapRef<
-      typeof import('./src/components/ui/breadcrumb/index')['BreadcrumbEllipsis']
-    >
-    readonly BreadcrumbItem: UnwrapRef<
-      typeof import('./src/components/ui/breadcrumb/index')['BreadcrumbItem']
-    >
-    readonly BreadcrumbLink: UnwrapRef<
-      typeof import('./src/components/ui/breadcrumb/index')['BreadcrumbLink']
-    >
-    readonly BreadcrumbList: UnwrapRef<
-      typeof import('./src/components/ui/breadcrumb/index')['BreadcrumbList']
-    >
-    readonly BreadcrumbPage: UnwrapRef<
-      typeof import('./src/components/ui/breadcrumb/index')['BreadcrumbPage']
-    >
-    readonly BreadcrumbSeparator: UnwrapRef<
-      typeof import('./src/components/ui/breadcrumb/index')['BreadcrumbSeparator']
-    >
+    readonly Breadcrumb: UnwrapRef<typeof import('./src/components/ui/breadcrumb/index')['Breadcrumb']>
+    readonly BreadcrumbEllipsis: UnwrapRef<typeof import('./src/components/ui/breadcrumb/index')['BreadcrumbEllipsis']>
+    readonly BreadcrumbItem: UnwrapRef<typeof import('./src/components/ui/breadcrumb/index')['BreadcrumbItem']>
+    readonly BreadcrumbLink: UnwrapRef<typeof import('./src/components/ui/breadcrumb/index')['BreadcrumbLink']>
+    readonly BreadcrumbList: UnwrapRef<typeof import('./src/components/ui/breadcrumb/index')['BreadcrumbList']>
+    readonly BreadcrumbPage: UnwrapRef<typeof import('./src/components/ui/breadcrumb/index')['BreadcrumbPage']>
+    readonly BreadcrumbSeparator: UnwrapRef<typeof import('./src/components/ui/breadcrumb/index')['BreadcrumbSeparator']>
     readonly Button: UnwrapRef<typeof import('./src/components/ui/button/index')['Button']>
-    readonly DropdownMenu: UnwrapRef<
-      typeof import('./src/components/ui/dropdown-menu/index')['DropdownMenu']
-    >
-    readonly DropdownMenuCheckboxItem: UnwrapRef<
-      typeof import('./src/components/ui/dropdown-menu/index')['DropdownMenuCheckboxItem']
-    >
-    readonly DropdownMenuContent: UnwrapRef<
-      typeof import('./src/components/ui/dropdown-menu/index')['DropdownMenuContent']
-    >
-    readonly DropdownMenuGroup: UnwrapRef<
-      typeof import('./src/components/ui/dropdown-menu/index')['DropdownMenuGroup']
-    >
-    readonly DropdownMenuItem: UnwrapRef<
-      typeof import('./src/components/ui/dropdown-menu/index')['DropdownMenuItem']
-    >
-    readonly DropdownMenuLabel: UnwrapRef<
-      typeof import('./src/components/ui/dropdown-menu/index')['DropdownMenuLabel']
-    >
-    readonly DropdownMenuPortal: UnwrapRef<
-      typeof import('./src/components/ui/dropdown-menu/index')['DropdownMenuPortal']
-    >
-    readonly DropdownMenuRadioGroup: UnwrapRef<
-      typeof import('./src/components/ui/dropdown-menu/index')['DropdownMenuRadioGroup']
-    >
-    readonly DropdownMenuRadioItem: UnwrapRef<
-      typeof import('./src/components/ui/dropdown-menu/index')['DropdownMenuRadioItem']
-    >
-    readonly DropdownMenuSeparator: UnwrapRef<
-      typeof import('./src/components/ui/dropdown-menu/index')['DropdownMenuSeparator']
-    >
-    readonly DropdownMenuShortcut: UnwrapRef<
-      typeof import('./src/components/ui/dropdown-menu/index')['DropdownMenuShortcut']
-    >
-    readonly DropdownMenuSub: UnwrapRef<
-      typeof import('./src/components/ui/dropdown-menu/index')['DropdownMenuSub']
-    >
-    readonly DropdownMenuSubContent: UnwrapRef<
-      typeof import('./src/components/ui/dropdown-menu/index')['DropdownMenuSubContent']
-    >
-    readonly DropdownMenuSubTrigger: UnwrapRef<
-      typeof import('./src/components/ui/dropdown-menu/index')['DropdownMenuSubTrigger']
-    >
-    readonly DropdownMenuTrigger: UnwrapRef<
-      typeof import('./src/components/ui/dropdown-menu/index')['DropdownMenuTrigger']
-    >
+    readonly DropdownMenu: UnwrapRef<typeof import('./src/components/ui/dropdown-menu/index')['DropdownMenu']>
+    readonly DropdownMenuCheckboxItem: UnwrapRef<typeof import('./src/components/ui/dropdown-menu/index')['DropdownMenuCheckboxItem']>
+    readonly DropdownMenuContent: UnwrapRef<typeof import('./src/components/ui/dropdown-menu/index')['DropdownMenuContent']>
+    readonly DropdownMenuGroup: UnwrapRef<typeof import('./src/components/ui/dropdown-menu/index')['DropdownMenuGroup']>
+    readonly DropdownMenuItem: UnwrapRef<typeof import('./src/components/ui/dropdown-menu/index')['DropdownMenuItem']>
+    readonly DropdownMenuLabel: UnwrapRef<typeof import('./src/components/ui/dropdown-menu/index')['DropdownMenuLabel']>
+    readonly DropdownMenuPortal: UnwrapRef<typeof import('./src/components/ui/dropdown-menu/index')['DropdownMenuPortal']>
+    readonly DropdownMenuRadioGroup: UnwrapRef<typeof import('./src/components/ui/dropdown-menu/index')['DropdownMenuRadioGroup']>
+    readonly DropdownMenuRadioItem: UnwrapRef<typeof import('./src/components/ui/dropdown-menu/index')['DropdownMenuRadioItem']>
+    readonly DropdownMenuSeparator: UnwrapRef<typeof import('./src/components/ui/dropdown-menu/index')['DropdownMenuSeparator']>
+    readonly DropdownMenuShortcut: UnwrapRef<typeof import('./src/components/ui/dropdown-menu/index')['DropdownMenuShortcut']>
+    readonly DropdownMenuSub: UnwrapRef<typeof import('./src/components/ui/dropdown-menu/index')['DropdownMenuSub']>
+    readonly DropdownMenuSubContent: UnwrapRef<typeof import('./src/components/ui/dropdown-menu/index')['DropdownMenuSubContent']>
+    readonly DropdownMenuSubTrigger: UnwrapRef<typeof import('./src/components/ui/dropdown-menu/index')['DropdownMenuSubTrigger']>
+    readonly DropdownMenuTrigger: UnwrapRef<typeof import('./src/components/ui/dropdown-menu/index')['DropdownMenuTrigger']>
     readonly EffectScope: UnwrapRef<typeof import('vue')['EffectScope']>
     readonly Input: UnwrapRef<typeof import('./src/components/ui/input/index')['Input']>
     readonly Label: UnwrapRef<typeof import('./src/components/ui/label/index')['Label']>
-    readonly SIDEBAR_COOKIE_MAX_AGE: UnwrapRef<
-      typeof import('./src/components/ui/sidebar/utils')['SIDEBAR_COOKIE_MAX_AGE']
-    >
-    readonly SIDEBAR_COOKIE_NAME: UnwrapRef<
-      typeof import('./src/components/ui/sidebar/utils')['SIDEBAR_COOKIE_NAME']
-    >
-    readonly SIDEBAR_KEYBOARD_SHORTCUT: UnwrapRef<
-      typeof import('./src/components/ui/sidebar/utils')['SIDEBAR_KEYBOARD_SHORTCUT']
-    >
-    readonly SIDEBAR_WIDTH: UnwrapRef<
-      typeof import('./src/components/ui/sidebar/utils')['SIDEBAR_WIDTH']
-    >
-    readonly SIDEBAR_WIDTH_ICON: UnwrapRef<
-      typeof import('./src/components/ui/sidebar/utils')['SIDEBAR_WIDTH_ICON']
-    >
-    readonly SIDEBAR_WIDTH_MOBILE: UnwrapRef<
-      typeof import('./src/components/ui/sidebar/utils')['SIDEBAR_WIDTH_MOBILE']
-    >
+    readonly SIDEBAR_COOKIE_MAX_AGE: UnwrapRef<typeof import('./src/components/ui/sidebar/utils')['SIDEBAR_COOKIE_MAX_AGE']>
+    readonly SIDEBAR_COOKIE_NAME: UnwrapRef<typeof import('./src/components/ui/sidebar/utils')['SIDEBAR_COOKIE_NAME']>
+    readonly SIDEBAR_KEYBOARD_SHORTCUT: UnwrapRef<typeof import('./src/components/ui/sidebar/utils')['SIDEBAR_KEYBOARD_SHORTCUT']>
+    readonly SIDEBAR_WIDTH: UnwrapRef<typeof import('./src/components/ui/sidebar/utils')['SIDEBAR_WIDTH']>
+    readonly SIDEBAR_WIDTH_ICON: UnwrapRef<typeof import('./src/components/ui/sidebar/utils')['SIDEBAR_WIDTH_ICON']>
+    readonly SIDEBAR_WIDTH_MOBILE: UnwrapRef<typeof import('./src/components/ui/sidebar/utils')['SIDEBAR_WIDTH_MOBILE']>
     readonly Separator: UnwrapRef<typeof import('./src/components/ui/separator/index')['Separator']>
     readonly Sheet: UnwrapRef<typeof import('./src/components/ui/sheet/index')['Sheet']>
     readonly SheetClose: UnwrapRef<typeof import('./src/components/ui/sheet/index')['SheetClose']>
-    readonly SheetContent: UnwrapRef<
-      typeof import('./src/components/ui/sheet/index')['SheetContent']
-    >
-    readonly SheetDescription: UnwrapRef<
-      typeof import('./src/components/ui/sheet/index')['SheetDescription']
-    >
+    readonly SheetContent: UnwrapRef<typeof import('./src/components/ui/sheet/index')['SheetContent']>
+    readonly SheetDescription: UnwrapRef<typeof import('./src/components/ui/sheet/index')['SheetDescription']>
     readonly SheetFooter: UnwrapRef<typeof import('./src/components/ui/sheet/index')['SheetFooter']>
     readonly SheetHeader: UnwrapRef<typeof import('./src/components/ui/sheet/index')['SheetHeader']>
     readonly SheetTitle: UnwrapRef<typeof import('./src/components/ui/sheet/index')['SheetTitle']>
-    readonly SheetTrigger: UnwrapRef<
-      typeof import('./src/components/ui/sheet/index')['SheetTrigger']
-    >
+    readonly SheetTrigger: UnwrapRef<typeof import('./src/components/ui/sheet/index')['SheetTrigger']>
     readonly Sidebar: UnwrapRef<typeof import('./src/components/ui/sidebar/index')['Sidebar']>
-    readonly SidebarContent: UnwrapRef<
-      typeof import('./src/components/ui/sidebar/index')['SidebarContent']
-    >
-    readonly SidebarFooter: UnwrapRef<
-      typeof import('./src/components/ui/sidebar/index')['SidebarFooter']
-    >
-    readonly SidebarGroup: UnwrapRef<
-      typeof import('./src/components/ui/sidebar/index')['SidebarGroup']
-    >
-    readonly SidebarGroupAction: UnwrapRef<
-      typeof import('./src/components/ui/sidebar/index')['SidebarGroupAction']
-    >
-    readonly SidebarGroupContent: UnwrapRef<
-      typeof import('./src/components/ui/sidebar/index')['SidebarGroupContent']
-    >
-    readonly SidebarGroupLabel: UnwrapRef<
-      typeof import('./src/components/ui/sidebar/index')['SidebarGroupLabel']
-    >
-    readonly SidebarHeader: UnwrapRef<
-      typeof import('./src/components/ui/sidebar/index')['SidebarHeader']
-    >
-    readonly SidebarInput: UnwrapRef<
-      typeof import('./src/components/ui/sidebar/index')['SidebarInput']
-    >
-    readonly SidebarInset: UnwrapRef<
-      typeof import('./src/components/ui/sidebar/index')['SidebarInset']
-    >
-    readonly SidebarMenu: UnwrapRef<
-      typeof import('./src/components/ui/sidebar/index')['SidebarMenu']
-    >
-    readonly SidebarMenuAction: UnwrapRef<
-      typeof import('./src/components/ui/sidebar/index')['SidebarMenuAction']
-    >
-    readonly SidebarMenuBadge: UnwrapRef<
-      typeof import('./src/components/ui/sidebar/index')['SidebarMenuBadge']
-    >
-    readonly SidebarMenuButton: UnwrapRef<
-      typeof import('./src/components/ui/sidebar/index')['SidebarMenuButton']
-    >
-    readonly SidebarMenuItem: UnwrapRef<
-      typeof import('./src/components/ui/sidebar/index')['SidebarMenuItem']
-    >
-    readonly SidebarMenuSkeleton: UnwrapRef<
-      typeof import('./src/components/ui/sidebar/index')['SidebarMenuSkeleton']
-    >
-    readonly SidebarMenuSub: UnwrapRef<
-      typeof import('./src/components/ui/sidebar/index')['SidebarMenuSub']
-    >
-    readonly SidebarMenuSubButton: UnwrapRef<
-      typeof import('./src/components/ui/sidebar/index')['SidebarMenuSubButton']
-    >
-    readonly SidebarMenuSubItem: UnwrapRef<
-      typeof import('./src/components/ui/sidebar/index')['SidebarMenuSubItem']
-    >
-    readonly SidebarProvider: UnwrapRef<
-      typeof import('./src/components/ui/sidebar/index')['SidebarProvider']
-    >
-    readonly SidebarRail: UnwrapRef<
-      typeof import('./src/components/ui/sidebar/index')['SidebarRail']
-    >
-    readonly SidebarSeparator: UnwrapRef<
-      typeof import('./src/components/ui/sidebar/index')['SidebarSeparator']
-    >
-    readonly SidebarTrigger: UnwrapRef<
-      typeof import('./src/components/ui/sidebar/index')['SidebarTrigger']
-    >
+    readonly SidebarContent: UnwrapRef<typeof import('./src/components/ui/sidebar/index')['SidebarContent']>
+    readonly SidebarFooter: UnwrapRef<typeof import('./src/components/ui/sidebar/index')['SidebarFooter']>
+    readonly SidebarGroup: UnwrapRef<typeof import('./src/components/ui/sidebar/index')['SidebarGroup']>
+    readonly SidebarGroupAction: UnwrapRef<typeof import('./src/components/ui/sidebar/index')['SidebarGroupAction']>
+    readonly SidebarGroupContent: UnwrapRef<typeof import('./src/components/ui/sidebar/index')['SidebarGroupContent']>
+    readonly SidebarGroupLabel: UnwrapRef<typeof import('./src/components/ui/sidebar/index')['SidebarGroupLabel']>
+    readonly SidebarHeader: UnwrapRef<typeof import('./src/components/ui/sidebar/index')['SidebarHeader']>
+    readonly SidebarInput: UnwrapRef<typeof import('./src/components/ui/sidebar/index')['SidebarInput']>
+    readonly SidebarInset: UnwrapRef<typeof import('./src/components/ui/sidebar/index')['SidebarInset']>
+    readonly SidebarMenu: UnwrapRef<typeof import('./src/components/ui/sidebar/index')['SidebarMenu']>
+    readonly SidebarMenuAction: UnwrapRef<typeof import('./src/components/ui/sidebar/index')['SidebarMenuAction']>
+    readonly SidebarMenuBadge: UnwrapRef<typeof import('./src/components/ui/sidebar/index')['SidebarMenuBadge']>
+    readonly SidebarMenuButton: UnwrapRef<typeof import('./src/components/ui/sidebar/index')['SidebarMenuButton']>
+    readonly SidebarMenuItem: UnwrapRef<typeof import('./src/components/ui/sidebar/index')['SidebarMenuItem']>
+    readonly SidebarMenuSkeleton: UnwrapRef<typeof import('./src/components/ui/sidebar/index')['SidebarMenuSkeleton']>
+    readonly SidebarMenuSub: UnwrapRef<typeof import('./src/components/ui/sidebar/index')['SidebarMenuSub']>
+    readonly SidebarMenuSubButton: UnwrapRef<typeof import('./src/components/ui/sidebar/index')['SidebarMenuSubButton']>
+    readonly SidebarMenuSubItem: UnwrapRef<typeof import('./src/components/ui/sidebar/index')['SidebarMenuSubItem']>
+    readonly SidebarProvider: UnwrapRef<typeof import('./src/components/ui/sidebar/index')['SidebarProvider']>
+    readonly SidebarRail: UnwrapRef<typeof import('./src/components/ui/sidebar/index')['SidebarRail']>
+    readonly SidebarSeparator: UnwrapRef<typeof import('./src/components/ui/sidebar/index')['SidebarSeparator']>
+    readonly SidebarTrigger: UnwrapRef<typeof import('./src/components/ui/sidebar/index')['SidebarTrigger']>
     readonly Skeleton: UnwrapRef<typeof import('./src/components/ui/skeleton/index')['Skeleton']>
     readonly Tooltip: UnwrapRef<typeof import('./src/components/ui/tooltip/index')['Tooltip']>
-    readonly TooltipContent: UnwrapRef<
-      typeof import('./src/components/ui/tooltip/index')['TooltipContent']
-    >
-    readonly TooltipProvider: UnwrapRef<
-      typeof import('./src/components/ui/tooltip/index')['TooltipProvider']
-    >
-    readonly TooltipTrigger: UnwrapRef<
-      typeof import('./src/components/ui/tooltip/index')['TooltipTrigger']
-    >
-    readonly ValidationMessages: UnwrapRef<
-      typeof import('./src/shared/types/wikibase-schema')['ValidationMessages']
-    >
+    readonly TooltipContent: UnwrapRef<typeof import('./src/components/ui/tooltip/index')['TooltipContent']>
+    readonly TooltipProvider: UnwrapRef<typeof import('./src/components/ui/tooltip/index')['TooltipProvider']>
+    readonly TooltipTrigger: UnwrapRef<typeof import('./src/components/ui/tooltip/index')['TooltipTrigger']>
+    readonly ValidationMessages: UnwrapRef<typeof import('./src/shared/types/wikibase-schema')['ValidationMessages']>
     readonly acceptHMRUpdate: UnwrapRef<typeof import('pinia')['acceptHMRUpdate']>
     readonly api: UnwrapRef<typeof import('./src/core/plugins/api')['api']>
     readonly asyncComputed: UnwrapRef<typeof import('@vueuse/core')['asyncComputed']>
     readonly autoResetRef: UnwrapRef<typeof import('@vueuse/core')['autoResetRef']>
-    readonly buttonVariants: UnwrapRef<
-      typeof import('./src/components/ui/button/index')['buttonVariants']
-    >
+    readonly buttonVariants: UnwrapRef<typeof import('./src/components/ui/button/index')['buttonVariants']>
     readonly cn: UnwrapRef<typeof import('./src/lib/utils')['cn']>
     readonly computed: UnwrapRef<typeof import('vue')['computed']>
     readonly computedAsync: UnwrapRef<typeof import('@vueuse/core')['computedAsync']>
@@ -766,23 +578,15 @@ declare module 'vue' {
     readonly controlledRef: UnwrapRef<typeof import('@vueuse/core')['controlledRef']>
     readonly createApp: UnwrapRef<typeof import('vue')['createApp']>
     readonly createEventHook: UnwrapRef<typeof import('@vueuse/core')['createEventHook']>
-    readonly createFrontendError: UnwrapRef<
-      typeof import('./src/shared/types/client-errors')['createFrontendError']
-    >
+    readonly createFrontendError: UnwrapRef<typeof import('./src/shared/types/client-errors')['createFrontendError']>
     readonly createGlobalState: UnwrapRef<typeof import('@vueuse/core')['createGlobalState']>
     readonly createInjectionState: UnwrapRef<typeof import('@vueuse/core')['createInjectionState']>
     readonly createPinia: UnwrapRef<typeof import('pinia')['createPinia']>
     readonly createReactiveFn: UnwrapRef<typeof import('@vueuse/core')['createReactiveFn']>
     readonly createRef: UnwrapRef<typeof import('@vueuse/core')['createRef']>
-    readonly createReusableTemplate: UnwrapRef<
-      typeof import('@vueuse/core')['createReusableTemplate']
-    >
-    readonly createSharedComposable: UnwrapRef<
-      typeof import('@vueuse/core')['createSharedComposable']
-    >
-    readonly createTemplatePromise: UnwrapRef<
-      typeof import('@vueuse/core')['createTemplatePromise']
-    >
+    readonly createReusableTemplate: UnwrapRef<typeof import('@vueuse/core')['createReusableTemplate']>
+    readonly createSharedComposable: UnwrapRef<typeof import('@vueuse/core')['createSharedComposable']>
+    readonly createTemplatePromise: UnwrapRef<typeof import('@vueuse/core')['createTemplatePromise']>
     readonly createUnrefFn: UnwrapRef<typeof import('@vueuse/core')['createUnrefFn']>
     readonly customRef: UnwrapRef<typeof import('vue')['customRef']>
     readonly debouncedRef: UnwrapRef<typeof import('@vueuse/core')['debouncedRef']>
@@ -839,9 +643,7 @@ declare module 'vue' {
     readonly pausableWatch: UnwrapRef<typeof import('@vueuse/core')['pausableWatch']>
     readonly provide: UnwrapRef<typeof import('vue')['provide']>
     readonly provideLocal: UnwrapRef<typeof import('@vueuse/core')['provideLocal']>
-    readonly provideSidebarContext: UnwrapRef<
-      typeof import('./src/components/ui/sidebar/utils')['provideSidebarContext']
-    >
+    readonly provideSidebarContext: UnwrapRef<typeof import('./src/components/ui/sidebar/utils')['provideSidebarContext']>
     readonly reactify: UnwrapRef<typeof import('@vueuse/core')['reactify']>
     readonly reactifyObject: UnwrapRef<typeof import('@vueuse/core')['reactifyObject']>
     readonly reactive: UnwrapRef<typeof import('vue')['reactive']>
@@ -864,9 +666,7 @@ declare module 'vue' {
     readonly shallowReactive: UnwrapRef<typeof import('vue')['shallowReactive']>
     readonly shallowReadonly: UnwrapRef<typeof import('vue')['shallowReadonly']>
     readonly shallowRef: UnwrapRef<typeof import('vue')['shallowRef']>
-    readonly sidebarMenuButtonVariants: UnwrapRef<
-      typeof import('./src/components/ui/sidebar/index')['sidebarMenuButtonVariants']
-    >
+    readonly sidebarMenuButtonVariants: UnwrapRef<typeof import('./src/components/ui/sidebar/index')['sidebarMenuButtonVariants']>
     readonly storeToRefs: UnwrapRef<typeof import('pinia')['storeToRefs']>
     readonly syncRef: UnwrapRef<typeof import('@vueuse/core')['syncRef']>
     readonly syncRefs: UnwrapRef<typeof import('@vueuse/core')['syncRefs']>
@@ -916,45 +716,31 @@ declare module 'vue' {
     readonly useClipboardItems: UnwrapRef<typeof import('@vueuse/core')['useClipboardItems']>
     readonly useCloned: UnwrapRef<typeof import('@vueuse/core')['useCloned']>
     readonly useColorMode: UnwrapRef<typeof import('@vueuse/core')['useColorMode']>
-    readonly useColumnDataTypeIndicators: UnwrapRef<
-      typeof import('./src/features/data-processing/composables/useColumnDataTypeIndicators')['useColumnDataTypeIndicators']
-    >
-    readonly useColumnGeneration: UnwrapRef<
-      typeof import('./src/features/data-processing/composables/useColumnGeneration')['useColumnGeneration']
-    >
+    readonly useColumnDataTypeIndicators: UnwrapRef<typeof import('./src/features/data-processing/composables/useColumnDataTypeIndicators')['useColumnDataTypeIndicators']>
+    readonly useColumnGeneration: UnwrapRef<typeof import('./src/features/data-processing/composables/useColumnGeneration')['useColumnGeneration']>
     readonly useConfirm: UnwrapRef<typeof import('primevue/useconfirm')['useConfirm']>
     readonly useConfirmDialog: UnwrapRef<typeof import('@vueuse/core')['useConfirmDialog']>
     readonly useCountdown: UnwrapRef<typeof import('@vueuse/core')['useCountdown']>
     readonly useCounter: UnwrapRef<typeof import('@vueuse/core')['useCounter']>
-    readonly useCreateProjectStore: UnwrapRef<
-      typeof import('./src/features/project-management/stores/create-project.store')['useCreateProjectStore']
-    >
+    readonly useCreateProjectStore: UnwrapRef<typeof import('./src/features/project-management/stores/create-project.store')['useCreateProjectStore']>
     readonly useCssModule: UnwrapRef<typeof import('vue')['useCssModule']>
     readonly useCssVar: UnwrapRef<typeof import('@vueuse/core')['useCssVar']>
     readonly useCssVars: UnwrapRef<typeof import('vue')['useCssVars']>
     readonly useCurrentElement: UnwrapRef<typeof import('@vueuse/core')['useCurrentElement']>
     readonly useCycleList: UnwrapRef<typeof import('@vueuse/core')['useCycleList']>
     readonly useDark: UnwrapRef<typeof import('@vueuse/core')['useDark']>
-    readonly useDataTypeCompatibility: UnwrapRef<
-      typeof import('./src/features/data-processing/composables/useDataTypeCompatibility')['useDataTypeCompatibility']
-    >
+    readonly useDataTypeCompatibility: UnwrapRef<typeof import('./src/features/data-processing/composables/useDataTypeCompatibility')['useDataTypeCompatibility']>
     readonly useDateFormat: UnwrapRef<typeof import('@vueuse/core')['useDateFormat']>
     readonly useDebounce: UnwrapRef<typeof import('@vueuse/core')['useDebounce']>
     readonly useDebounceFn: UnwrapRef<typeof import('@vueuse/core')['useDebounceFn']>
-    readonly useDebouncedRefHistory: UnwrapRef<
-      typeof import('@vueuse/core')['useDebouncedRefHistory']
-    >
+    readonly useDebouncedRefHistory: UnwrapRef<typeof import('@vueuse/core')['useDebouncedRefHistory']>
     readonly useDeviceMotion: UnwrapRef<typeof import('@vueuse/core')['useDeviceMotion']>
     readonly useDeviceOrientation: UnwrapRef<typeof import('@vueuse/core')['useDeviceOrientation']>
     readonly useDevicePixelRatio: UnwrapRef<typeof import('@vueuse/core')['useDevicePixelRatio']>
     readonly useDevicesList: UnwrapRef<typeof import('@vueuse/core')['useDevicesList']>
     readonly useDisplayMedia: UnwrapRef<typeof import('@vueuse/core')['useDisplayMedia']>
-    readonly useDocumentVisibility: UnwrapRef<
-      typeof import('@vueuse/core')['useDocumentVisibility']
-    >
-    readonly useDragDropStore: UnwrapRef<
-      typeof import('./src/features/data-processing/stores/drag-drop.store')['useDragDropStore']
-    >
+    readonly useDocumentVisibility: UnwrapRef<typeof import('@vueuse/core')['useDocumentVisibility']>
+    readonly useDragDropStore: UnwrapRef<typeof import('./src/features/data-processing/stores/drag-drop.store')['useDragDropStore']>
     readonly useDraggable: UnwrapRef<typeof import('@vueuse/core')['useDraggable']>
     readonly useDropZone: UnwrapRef<typeof import('@vueuse/core')['useDropZone']>
     readonly useElementBounding: UnwrapRef<typeof import('@vueuse/core')['useElementBounding']>
@@ -962,9 +748,7 @@ declare module 'vue' {
     readonly useElementHover: UnwrapRef<typeof import('@vueuse/core')['useElementHover']>
     readonly useElementSize: UnwrapRef<typeof import('@vueuse/core')['useElementSize']>
     readonly useElementVisibility: UnwrapRef<typeof import('@vueuse/core')['useElementVisibility']>
-    readonly useErrorHandling: UnwrapRef<
-      typeof import('./src/shared/composables/useErrorHandling')['useErrorHandling']
-    >
+    readonly useErrorHandling: UnwrapRef<typeof import('./src/shared/composables/useErrorHandling')['useErrorHandling']>
     readonly useEventBus: UnwrapRef<typeof import('@vueuse/core')['useEventBus']>
     readonly useEventListener: UnwrapRef<typeof import('@vueuse/core')['useEventListener']>
     readonly useEventSource: UnwrapRef<typeof import('@vueuse/core')['useEventSource']>
@@ -984,9 +768,7 @@ declare module 'vue' {
     readonly useIdle: UnwrapRef<typeof import('@vueuse/core')['useIdle']>
     readonly useImage: UnwrapRef<typeof import('@vueuse/core')['useImage']>
     readonly useInfiniteScroll: UnwrapRef<typeof import('@vueuse/core')['useInfiniteScroll']>
-    readonly useIntersectionObserver: UnwrapRef<
-      typeof import('@vueuse/core')['useIntersectionObserver']
-    >
+    readonly useIntersectionObserver: UnwrapRef<typeof import('@vueuse/core')['useIntersectionObserver']>
     readonly useInterval: UnwrapRef<typeof import('@vueuse/core')['useInterval']>
     readonly useIntervalFn: UnwrapRef<typeof import('@vueuse/core')['useIntervalFn']>
     readonly useKeyModifier: UnwrapRef<typeof import('@vueuse/core')['useKeyModifier']>
@@ -1014,77 +796,39 @@ declare module 'vue' {
     readonly usePageLeave: UnwrapRef<typeof import('@vueuse/core')['usePageLeave']>
     readonly useParallax: UnwrapRef<typeof import('@vueuse/core')['useParallax']>
     readonly useParentElement: UnwrapRef<typeof import('@vueuse/core')['useParentElement']>
-    readonly usePerformanceObserver: UnwrapRef<
-      typeof import('@vueuse/core')['usePerformanceObserver']
-    >
+    readonly usePerformanceObserver: UnwrapRef<typeof import('@vueuse/core')['usePerformanceObserver']>
     readonly usePermission: UnwrapRef<typeof import('@vueuse/core')['usePermission']>
     readonly usePointer: UnwrapRef<typeof import('@vueuse/core')['usePointer']>
     readonly usePointerLock: UnwrapRef<typeof import('@vueuse/core')['usePointerLock']>
     readonly usePointerSwipe: UnwrapRef<typeof import('@vueuse/core')['usePointerSwipe']>
-    readonly usePreferredColorScheme: UnwrapRef<
-      typeof import('@vueuse/core')['usePreferredColorScheme']
-    >
+    readonly usePreferredColorScheme: UnwrapRef<typeof import('@vueuse/core')['usePreferredColorScheme']>
     readonly usePreferredContrast: UnwrapRef<typeof import('@vueuse/core')['usePreferredContrast']>
     readonly usePreferredDark: UnwrapRef<typeof import('@vueuse/core')['usePreferredDark']>
-    readonly usePreferredLanguages: UnwrapRef<
-      typeof import('@vueuse/core')['usePreferredLanguages']
-    >
-    readonly usePreferredReducedMotion: UnwrapRef<
-      typeof import('@vueuse/core')['usePreferredReducedMotion']
-    >
-    readonly usePreferredReducedTransparency: UnwrapRef<
-      typeof import('@vueuse/core')['usePreferredReducedTransparency']
-    >
+    readonly usePreferredLanguages: UnwrapRef<typeof import('@vueuse/core')['usePreferredLanguages']>
+    readonly usePreferredReducedMotion: UnwrapRef<typeof import('@vueuse/core')['usePreferredReducedMotion']>
+    readonly usePreferredReducedTransparency: UnwrapRef<typeof import('@vueuse/core')['usePreferredReducedTransparency']>
     readonly usePrevious: UnwrapRef<typeof import('@vueuse/core')['usePrevious']>
-    readonly useProjectCreationComposable: UnwrapRef<
-      typeof import('./src/features/project-management/composables/useProjectCreationComposable')['useProjectCreationComposable']
-    >
-    readonly useProjectListComposable: UnwrapRef<
-      typeof import('./src/features/project-management/composables/useProjectListComposable')['useProjectListComposable']
-    >
-    readonly useProjectListStore: UnwrapRef<
-      typeof import('./src/features/project-management/stores/project-list.store')['useProjectListStore']
-    >
-    readonly useProjectStore: UnwrapRef<
-      typeof import('./src/features/project-management/stores/project.store')['useProjectStore']
-    >
-    readonly usePropertySelection: UnwrapRef<
-      typeof import('./src/features/wikibase-schema/composables/usePropertySelection')['usePropertySelection']
-    >
-    readonly usePropertyValueDisplay: UnwrapRef<
-      typeof import('./src/features/wikibase-schema/composables/usePropertyValueDisplay')['usePropertyValueDisplay']
-    >
-    readonly usePropertyValueEditor: UnwrapRef<
-      typeof import('./src/features/wikibase-schema/composables/usePropertyValueEditor')['usePropertyValueEditor']
-    >
+    readonly useProjectCreationComposable: UnwrapRef<typeof import('./src/features/project-management/composables/useProjectCreationComposable')['useProjectCreationComposable']>
+    readonly useProjectListComposable: UnwrapRef<typeof import('./src/features/project-management/composables/useProjectListComposable')['useProjectListComposable']>
+    readonly useProjectListStore: UnwrapRef<typeof import('./src/features/project-management/stores/project-list.store')['useProjectListStore']>
+    readonly useProjectStore: UnwrapRef<typeof import('./src/features/project-management/stores/project.store')['useProjectStore']>
+    readonly usePropertySelection: UnwrapRef<typeof import('./src/features/wikibase-schema/composables/usePropertySelection')['usePropertySelection']>
+    readonly usePropertyValueDisplay: UnwrapRef<typeof import('./src/features/wikibase-schema/composables/usePropertyValueDisplay')['usePropertyValueDisplay']>
+    readonly usePropertyValueEditor: UnwrapRef<typeof import('./src/features/wikibase-schema/composables/usePropertyValueEditor')['usePropertyValueEditor']>
     readonly useRafFn: UnwrapRef<typeof import('@vueuse/core')['useRafFn']>
     readonly useRefHistory: UnwrapRef<typeof import('@vueuse/core')['useRefHistory']>
-    readonly useReferenceValueMapping: UnwrapRef<
-      typeof import('./src/features/wikibase-schema/composables/useReferenceValueMapping')['useReferenceValueMapping']
-    >
+    readonly useReferenceValueMapping: UnwrapRef<typeof import('./src/features/wikibase-schema/composables/useReferenceValueMapping')['useReferenceValueMapping']>
     readonly useResizeObserver: UnwrapRef<typeof import('@vueuse/core')['useResizeObserver']>
     readonly useRoute: UnwrapRef<typeof import('vue-router')['useRoute']>
     readonly useRouteParams: UnwrapRef<typeof import('@vueuse/router')['useRouteParams']>
     readonly useRouter: UnwrapRef<typeof import('vue-router')['useRouter']>
     readonly useSSRWidth: UnwrapRef<typeof import('@vueuse/core')['useSSRWidth']>
-    readonly useSchemaApi: UnwrapRef<
-      typeof import('./src/features/wikibase-schema/composables/useSchemaApi')['useSchemaApi']
-    >
-    readonly useSchemaBuilder: UnwrapRef<
-      typeof import('./src/features/wikibase-schema/composables/useSchemaBuilder')['useSchemaBuilder']
-    >
-    readonly useSchemaCompletenessValidation: UnwrapRef<
-      typeof import('./src/features/wikibase-schema/composables/useSchemaCompletenessValidation')['useSchemaCompletenessValidation']
-    >
-    readonly useSchemaSelection: UnwrapRef<
-      typeof import('./src/features/wikibase-schema/composables/useSchemaSelection')['useSchemaSelection']
-    >
-    readonly useSchemaStore: UnwrapRef<
-      typeof import('./src/features/wikibase-schema/stores/schema.store')['useSchemaStore']
-    >
-    readonly useSchemaValidationUI: UnwrapRef<
-      typeof import('./src/features/wikibase-schema/composables/useSchemaValidationUI')['useSchemaValidationUI']
-    >
+    readonly useSchemaApi: UnwrapRef<typeof import('./src/features/wikibase-schema/composables/useSchemaApi')['useSchemaApi']>
+    readonly useSchemaBuilder: UnwrapRef<typeof import('./src/features/wikibase-schema/composables/useSchemaBuilder')['useSchemaBuilder']>
+    readonly useSchemaCompletenessValidation: UnwrapRef<typeof import('./src/features/wikibase-schema/composables/useSchemaCompletenessValidation')['useSchemaCompletenessValidation']>
+    readonly useSchemaSelection: UnwrapRef<typeof import('./src/features/wikibase-schema/composables/useSchemaSelection')['useSchemaSelection']>
+    readonly useSchemaStore: UnwrapRef<typeof import('./src/features/wikibase-schema/stores/schema.store')['useSchemaStore']>
+    readonly useSchemaValidationUI: UnwrapRef<typeof import('./src/features/wikibase-schema/composables/useSchemaValidationUI')['useSchemaValidationUI']>
     readonly useScreenOrientation: UnwrapRef<typeof import('@vueuse/core')['useScreenOrientation']>
     readonly useScreenSafeArea: UnwrapRef<typeof import('@vueuse/core')['useScreenSafeArea']>
     readonly useScriptTag: UnwrapRef<typeof import('@vueuse/core')['useScriptTag']>
@@ -1097,18 +841,10 @@ declare module 'vue' {
     readonly useSorted: UnwrapRef<typeof import('@vueuse/core')['useSorted']>
     readonly useSpeechRecognition: UnwrapRef<typeof import('@vueuse/core')['useSpeechRecognition']>
     readonly useSpeechSynthesis: UnwrapRef<typeof import('@vueuse/core')['useSpeechSynthesis']>
-    readonly useStatementConfig: UnwrapRef<
-      typeof import('./src/features/wikibase-schema/composables/useStatementConfig')['useStatementConfig']
-    >
-    readonly useStatementDataTypeValidation: UnwrapRef<
-      typeof import('./src/features/wikibase-schema/composables/useStatementDataTypeValidation')['useStatementDataTypeValidation']
-    >
-    readonly useStatementEditor: UnwrapRef<
-      typeof import('./src/features/wikibase-schema/composables/useStatementEditor')['useStatementEditor']
-    >
-    readonly useStatementValidationDisplay: UnwrapRef<
-      typeof import('./src/features/wikibase-schema/composables/useStatementValidationDisplay')['useStatementValidationDisplay']
-    >
+    readonly useStatementConfig: UnwrapRef<typeof import('./src/features/wikibase-schema/composables/useStatementConfig')['useStatementConfig']>
+    readonly useStatementDataTypeValidation: UnwrapRef<typeof import('./src/features/wikibase-schema/composables/useStatementDataTypeValidation')['useStatementDataTypeValidation']>
+    readonly useStatementEditor: UnwrapRef<typeof import('./src/features/wikibase-schema/composables/useStatementEditor')['useStatementEditor']>
+    readonly useStatementValidationDisplay: UnwrapRef<typeof import('./src/features/wikibase-schema/composables/useStatementValidationDisplay')['useStatementValidationDisplay']>
     readonly useStepper: UnwrapRef<typeof import('@vueuse/core')['useStepper']>
     readonly useStorage: UnwrapRef<typeof import('@vueuse/core')['useStorage']>
     readonly useStorageAsync: UnwrapRef<typeof import('@vueuse/core')['useStorageAsync']>
@@ -1117,17 +853,13 @@ declare module 'vue' {
     readonly useSwipe: UnwrapRef<typeof import('@vueuse/core')['useSwipe']>
     readonly useTemplateRef: UnwrapRef<typeof import('vue')['useTemplateRef']>
     readonly useTemplateRefsList: UnwrapRef<typeof import('@vueuse/core')['useTemplateRefsList']>
-    readonly useTermsEditor: UnwrapRef<
-      typeof import('./src/features/wikibase-schema/composables/useTermsEditor')['useTermsEditor']
-    >
+    readonly useTermsEditor: UnwrapRef<typeof import('./src/features/wikibase-schema/composables/useTermsEditor')['useTermsEditor']>
     readonly useTextDirection: UnwrapRef<typeof import('@vueuse/core')['useTextDirection']>
     readonly useTextSelection: UnwrapRef<typeof import('@vueuse/core')['useTextSelection']>
     readonly useTextareaAutosize: UnwrapRef<typeof import('@vueuse/core')['useTextareaAutosize']>
     readonly useThrottle: UnwrapRef<typeof import('@vueuse/core')['useThrottle']>
     readonly useThrottleFn: UnwrapRef<typeof import('@vueuse/core')['useThrottleFn']>
-    readonly useThrottledRefHistory: UnwrapRef<
-      typeof import('@vueuse/core')['useThrottledRefHistory']
-    >
+    readonly useThrottledRefHistory: UnwrapRef<typeof import('@vueuse/core')['useThrottledRefHistory']>
     readonly useTimeAgo: UnwrapRef<typeof import('@vueuse/core')['useTimeAgo']>
     readonly useTimeAgoIntl: UnwrapRef<typeof import('@vueuse/core')['useTimeAgoIntl']>
     readonly useTimeout: UnwrapRef<typeof import('@vueuse/core')['useTimeout']>
@@ -1144,21 +876,11 @@ declare module 'vue' {
     readonly useUserMedia: UnwrapRef<typeof import('@vueuse/core')['useUserMedia']>
     readonly useVModel: UnwrapRef<typeof import('@vueuse/core')['useVModel']>
     readonly useVModels: UnwrapRef<typeof import('@vueuse/core')['useVModels']>
-    readonly useValidation: UnwrapRef<
-      typeof import('./src/features/wikibase-schema/composables/useValidation')['useValidation']
-    >
-    readonly useValidationCore: UnwrapRef<
-      typeof import('./src/features/wikibase-schema/composables/useValidationCore')['useValidationCore']
-    >
-    readonly useValidationErrors: UnwrapRef<
-      typeof import('./src/features/wikibase-schema/composables/useValidationErrors')['useValidationErrors']
-    >
-    readonly useValidationStore: UnwrapRef<
-      typeof import('./src/features/wikibase-schema/stores/validation.store')['useValidationStore']
-    >
-    readonly useValueMapping: UnwrapRef<
-      typeof import('./src/features/wikibase-schema/composables/useValueMapping')['useValueMapping']
-    >
+    readonly useValidation: UnwrapRef<typeof import('./src/features/wikibase-schema/composables/useValidation')['useValidation']>
+    readonly useValidationCore: UnwrapRef<typeof import('./src/features/wikibase-schema/composables/useValidationCore')['useValidationCore']>
+    readonly useValidationErrors: UnwrapRef<typeof import('./src/features/wikibase-schema/composables/useValidationErrors')['useValidationErrors']>
+    readonly useValidationStore: UnwrapRef<typeof import('./src/features/wikibase-schema/stores/validation.store')['useValidationStore']>
+    readonly useValueMapping: UnwrapRef<typeof import('./src/features/wikibase-schema/composables/useValueMapping')['useValueMapping']>
     readonly useVibrate: UnwrapRef<typeof import('@vueuse/core')['useVibrate']>
     readonly useVirtualList: UnwrapRef<typeof import('@vueuse/core')['useVirtualList']>
     readonly useWakeLock: UnwrapRef<typeof import('@vueuse/core')['useWakeLock']>

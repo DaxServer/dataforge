@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { Label as WikibaseLabel } from '@backend/api/project/project.wikibase'
 import { LucideX } from 'lucide-vue-next'
 
 // Props
@@ -9,7 +10,7 @@ const props = defineProps<{
   placeholder: string
   testId: string
   validationPath: string
-  values: Label | Alias
+  values: WikibaseLabel | Alias
   sectionIndex: number
 }>()
 
