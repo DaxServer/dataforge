@@ -8,10 +8,77 @@ export {}
 declare global {
   const ApiKey: typeof import('./src/core/plugins/api')['ApiKey']
   const ApiPlugin: typeof import('./src/core/plugins/api')['ApiPlugin']
+  const Breadcrumb: typeof import('./src/components/ui/breadcrumb/index')['Breadcrumb']
+  const BreadcrumbEllipsis: typeof import('./src/components/ui/breadcrumb/index')['BreadcrumbEllipsis']
+  const BreadcrumbItem: typeof import('./src/components/ui/breadcrumb/index')['BreadcrumbItem']
+  const BreadcrumbLink: typeof import('./src/components/ui/breadcrumb/index')['BreadcrumbLink']
+  const BreadcrumbList: typeof import('./src/components/ui/breadcrumb/index')['BreadcrumbList']
+  const BreadcrumbPage: typeof import('./src/components/ui/breadcrumb/index')['BreadcrumbPage']
+  const BreadcrumbSeparator: typeof import('./src/components/ui/breadcrumb/index')['BreadcrumbSeparator']
   const Button: typeof import('./src/components/ui/button/index')['Button']
+  const DropdownMenu: typeof import('./src/components/ui/dropdown-menu/index')['DropdownMenu']
+  const DropdownMenuCheckboxItem: typeof import('./src/components/ui/dropdown-menu/index')['DropdownMenuCheckboxItem']
+  const DropdownMenuContent: typeof import('./src/components/ui/dropdown-menu/index')['DropdownMenuContent']
+  const DropdownMenuGroup: typeof import('./src/components/ui/dropdown-menu/index')['DropdownMenuGroup']
+  const DropdownMenuItem: typeof import('./src/components/ui/dropdown-menu/index')['DropdownMenuItem']
+  const DropdownMenuLabel: typeof import('./src/components/ui/dropdown-menu/index')['DropdownMenuLabel']
+  const DropdownMenuPortal: typeof import('./src/components/ui/dropdown-menu/index')['DropdownMenuPortal']
+  const DropdownMenuRadioGroup: typeof import('./src/components/ui/dropdown-menu/index')['DropdownMenuRadioGroup']
+  const DropdownMenuRadioItem: typeof import('./src/components/ui/dropdown-menu/index')['DropdownMenuRadioItem']
+  const DropdownMenuSeparator: typeof import('./src/components/ui/dropdown-menu/index')['DropdownMenuSeparator']
+  const DropdownMenuShortcut: typeof import('./src/components/ui/dropdown-menu/index')['DropdownMenuShortcut']
+  const DropdownMenuSub: typeof import('./src/components/ui/dropdown-menu/index')['DropdownMenuSub']
+  const DropdownMenuSubContent: typeof import('./src/components/ui/dropdown-menu/index')['DropdownMenuSubContent']
+  const DropdownMenuSubTrigger: typeof import('./src/components/ui/dropdown-menu/index')['DropdownMenuSubTrigger']
+  const DropdownMenuTrigger: typeof import('./src/components/ui/dropdown-menu/index')['DropdownMenuTrigger']
   const EffectScope: typeof import('vue')['EffectScope']
+  const Input: typeof import('./src/components/ui/input/index')['Input']
+  const Label: typeof import('./src/components/ui/label/index')['Label']
   const MenuItem: typeof import('primevue/menuitem')['MenuItem']
   const RefreshCcw: typeof import('lucide-vue-next')['RefreshCcw']
+  const SIDEBAR_COOKIE_MAX_AGE: typeof import('./src/components/ui/sidebar/utils')['SIDEBAR_COOKIE_MAX_AGE']
+  const SIDEBAR_COOKIE_NAME: typeof import('./src/components/ui/sidebar/utils')['SIDEBAR_COOKIE_NAME']
+  const SIDEBAR_KEYBOARD_SHORTCUT: typeof import('./src/components/ui/sidebar/utils')['SIDEBAR_KEYBOARD_SHORTCUT']
+  const SIDEBAR_WIDTH: typeof import('./src/components/ui/sidebar/utils')['SIDEBAR_WIDTH']
+  const SIDEBAR_WIDTH_ICON: typeof import('./src/components/ui/sidebar/utils')['SIDEBAR_WIDTH_ICON']
+  const SIDEBAR_WIDTH_MOBILE: typeof import('./src/components/ui/sidebar/utils')['SIDEBAR_WIDTH_MOBILE']
+  const Separator: typeof import('./src/components/ui/separator/index')['Separator']
+  const Sheet: typeof import('./src/components/ui/sheet/index')['Sheet']
+  const SheetClose: typeof import('./src/components/ui/sheet/index')['SheetClose']
+  const SheetContent: typeof import('./src/components/ui/sheet/index')['SheetContent']
+  const SheetDescription: typeof import('./src/components/ui/sheet/index')['SheetDescription']
+  const SheetFooter: typeof import('./src/components/ui/sheet/index')['SheetFooter']
+  const SheetHeader: typeof import('./src/components/ui/sheet/index')['SheetHeader']
+  const SheetTitle: typeof import('./src/components/ui/sheet/index')['SheetTitle']
+  const SheetTrigger: typeof import('./src/components/ui/sheet/index')['SheetTrigger']
+  const Sidebar: typeof import('./src/components/ui/sidebar/index')['Sidebar']
+  const SidebarContent: typeof import('./src/components/ui/sidebar/index')['SidebarContent']
+  const SidebarFooter: typeof import('./src/components/ui/sidebar/index')['SidebarFooter']
+  const SidebarGroup: typeof import('./src/components/ui/sidebar/index')['SidebarGroup']
+  const SidebarGroupAction: typeof import('./src/components/ui/sidebar/index')['SidebarGroupAction']
+  const SidebarGroupContent: typeof import('./src/components/ui/sidebar/index')['SidebarGroupContent']
+  const SidebarGroupLabel: typeof import('./src/components/ui/sidebar/index')['SidebarGroupLabel']
+  const SidebarHeader: typeof import('./src/components/ui/sidebar/index')['SidebarHeader']
+  const SidebarInput: typeof import('./src/components/ui/sidebar/index')['SidebarInput']
+  const SidebarInset: typeof import('./src/components/ui/sidebar/index')['SidebarInset']
+  const SidebarMenu: typeof import('./src/components/ui/sidebar/index')['SidebarMenu']
+  const SidebarMenuAction: typeof import('./src/components/ui/sidebar/index')['SidebarMenuAction']
+  const SidebarMenuBadge: typeof import('./src/components/ui/sidebar/index')['SidebarMenuBadge']
+  const SidebarMenuButton: typeof import('./src/components/ui/sidebar/index')['SidebarMenuButton']
+  const SidebarMenuItem: typeof import('./src/components/ui/sidebar/index')['SidebarMenuItem']
+  const SidebarMenuSkeleton: typeof import('./src/components/ui/sidebar/index')['SidebarMenuSkeleton']
+  const SidebarMenuSub: typeof import('./src/components/ui/sidebar/index')['SidebarMenuSub']
+  const SidebarMenuSubButton: typeof import('./src/components/ui/sidebar/index')['SidebarMenuSubButton']
+  const SidebarMenuSubItem: typeof import('./src/components/ui/sidebar/index')['SidebarMenuSubItem']
+  const SidebarProvider: typeof import('./src/components/ui/sidebar/index')['SidebarProvider']
+  const SidebarRail: typeof import('./src/components/ui/sidebar/index')['SidebarRail']
+  const SidebarSeparator: typeof import('./src/components/ui/sidebar/index')['SidebarSeparator']
+  const SidebarTrigger: typeof import('./src/components/ui/sidebar/index')['SidebarTrigger']
+  const Skeleton: typeof import('./src/components/ui/skeleton/index')['Skeleton']
+  const Tooltip: typeof import('./src/components/ui/tooltip/index')['Tooltip']
+  const TooltipContent: typeof import('./src/components/ui/tooltip/index')['TooltipContent']
+  const TooltipProvider: typeof import('./src/components/ui/tooltip/index')['TooltipProvider']
+  const TooltipTrigger: typeof import('./src/components/ui/tooltip/index')['TooltipTrigger']
   const ValidationMessages: typeof import('./src/shared/types/wikibase-schema')['ValidationMessages']
   const acceptHMRUpdate: typeof import('pinia')['acceptHMRUpdate']
   const api: typeof import('./src/core/plugins/api')['api']
@@ -93,6 +160,7 @@ declare global {
   const pausableWatch: typeof import('@vueuse/core')['pausableWatch']
   const provide: typeof import('vue')['provide']
   const provideLocal: typeof import('@vueuse/core')['provideLocal']
+  const provideSidebarContext: typeof import('./src/components/ui/sidebar/utils')['provideSidebarContext']
   const reactify: typeof import('@vueuse/core')['reactify']
   const reactifyObject: typeof import('@vueuse/core')['reactifyObject']
   const reactive: typeof import('vue')['reactive']
@@ -115,6 +183,7 @@ declare global {
   const shallowReactive: typeof import('vue')['shallowReactive']
   const shallowReadonly: typeof import('vue')['shallowReadonly']
   const shallowRef: typeof import('vue')['shallowRef']
+  const sidebarMenuButtonVariants: typeof import('./src/components/ui/sidebar/index')['sidebarMenuButtonVariants']
   const storeToRefs: typeof import('pinia')['storeToRefs']
   const syncRef: typeof import('@vueuse/core')['syncRef']
   const syncRefs: typeof import('@vueuse/core')['syncRefs']
@@ -284,6 +353,7 @@ declare global {
   const useScrollLock: typeof import('@vueuse/core')['useScrollLock']
   const useSessionStorage: typeof import('@vueuse/core')['useSessionStorage']
   const useShare: typeof import('@vueuse/core')['useShare']
+  const useSidebar: typeof import('./src/components/ui/sidebar/utils')['useSidebar']
   const useSlots: typeof import('vue')['useSlots']
   const useSorted: typeof import('@vueuse/core')['useSorted']
   const useSpeechRecognition: typeof import('@vueuse/core')['useSpeechRecognition']
@@ -404,7 +474,6 @@ declare global {
     ReferenceSchemaMapping,
     StatementRank,
     StatementSchemaMapping,
-    Label,
     Alias,
     TermsSchemaMapping,
     ItemSchema,
@@ -414,6 +483,12 @@ declare global {
   // @ts-ignore
   export type { ButtonVariants } from './src/components/ui/button/index'
   import('./src/components/ui/button/index')
+  // @ts-ignore
+  export type { SidebarMenuButtonProps } from './src/components/ui/sidebar/SidebarMenuButtonChild.vue'
+  import('./src/components/ui/sidebar/SidebarMenuButtonChild.vue')
+  // @ts-ignore
+  export type { SidebarProps, SidebarMenuButtonVariants } from './src/components/ui/sidebar/index'
+  import('./src/components/ui/sidebar/index')
   // @ts-ignore
   export type { ProjectColumn } from './src/features/data-processing/composables/useColumnGeneration'
   import('./src/features/data-processing/composables/useColumnGeneration')
@@ -490,8 +565,187 @@ declare module 'vue' {
   interface ComponentCustomProperties {
     readonly ApiKey: UnwrapRef<typeof import('./src/core/plugins/api')['ApiKey']>
     readonly ApiPlugin: UnwrapRef<typeof import('./src/core/plugins/api')['ApiPlugin']>
+    readonly Breadcrumb: UnwrapRef<
+      typeof import('./src/components/ui/breadcrumb/index')['Breadcrumb']
+    >
+    readonly BreadcrumbEllipsis: UnwrapRef<
+      typeof import('./src/components/ui/breadcrumb/index')['BreadcrumbEllipsis']
+    >
+    readonly BreadcrumbItem: UnwrapRef<
+      typeof import('./src/components/ui/breadcrumb/index')['BreadcrumbItem']
+    >
+    readonly BreadcrumbLink: UnwrapRef<
+      typeof import('./src/components/ui/breadcrumb/index')['BreadcrumbLink']
+    >
+    readonly BreadcrumbList: UnwrapRef<
+      typeof import('./src/components/ui/breadcrumb/index')['BreadcrumbList']
+    >
+    readonly BreadcrumbPage: UnwrapRef<
+      typeof import('./src/components/ui/breadcrumb/index')['BreadcrumbPage']
+    >
+    readonly BreadcrumbSeparator: UnwrapRef<
+      typeof import('./src/components/ui/breadcrumb/index')['BreadcrumbSeparator']
+    >
     readonly Button: UnwrapRef<typeof import('./src/components/ui/button/index')['Button']>
+    readonly DropdownMenu: UnwrapRef<
+      typeof import('./src/components/ui/dropdown-menu/index')['DropdownMenu']
+    >
+    readonly DropdownMenuCheckboxItem: UnwrapRef<
+      typeof import('./src/components/ui/dropdown-menu/index')['DropdownMenuCheckboxItem']
+    >
+    readonly DropdownMenuContent: UnwrapRef<
+      typeof import('./src/components/ui/dropdown-menu/index')['DropdownMenuContent']
+    >
+    readonly DropdownMenuGroup: UnwrapRef<
+      typeof import('./src/components/ui/dropdown-menu/index')['DropdownMenuGroup']
+    >
+    readonly DropdownMenuItem: UnwrapRef<
+      typeof import('./src/components/ui/dropdown-menu/index')['DropdownMenuItem']
+    >
+    readonly DropdownMenuLabel: UnwrapRef<
+      typeof import('./src/components/ui/dropdown-menu/index')['DropdownMenuLabel']
+    >
+    readonly DropdownMenuPortal: UnwrapRef<
+      typeof import('./src/components/ui/dropdown-menu/index')['DropdownMenuPortal']
+    >
+    readonly DropdownMenuRadioGroup: UnwrapRef<
+      typeof import('./src/components/ui/dropdown-menu/index')['DropdownMenuRadioGroup']
+    >
+    readonly DropdownMenuRadioItem: UnwrapRef<
+      typeof import('./src/components/ui/dropdown-menu/index')['DropdownMenuRadioItem']
+    >
+    readonly DropdownMenuSeparator: UnwrapRef<
+      typeof import('./src/components/ui/dropdown-menu/index')['DropdownMenuSeparator']
+    >
+    readonly DropdownMenuShortcut: UnwrapRef<
+      typeof import('./src/components/ui/dropdown-menu/index')['DropdownMenuShortcut']
+    >
+    readonly DropdownMenuSub: UnwrapRef<
+      typeof import('./src/components/ui/dropdown-menu/index')['DropdownMenuSub']
+    >
+    readonly DropdownMenuSubContent: UnwrapRef<
+      typeof import('./src/components/ui/dropdown-menu/index')['DropdownMenuSubContent']
+    >
+    readonly DropdownMenuSubTrigger: UnwrapRef<
+      typeof import('./src/components/ui/dropdown-menu/index')['DropdownMenuSubTrigger']
+    >
+    readonly DropdownMenuTrigger: UnwrapRef<
+      typeof import('./src/components/ui/dropdown-menu/index')['DropdownMenuTrigger']
+    >
     readonly EffectScope: UnwrapRef<typeof import('vue')['EffectScope']>
+    readonly Input: UnwrapRef<typeof import('./src/components/ui/input/index')['Input']>
+    readonly Label: UnwrapRef<typeof import('./src/components/ui/label/index')['Label']>
+    readonly SIDEBAR_COOKIE_MAX_AGE: UnwrapRef<
+      typeof import('./src/components/ui/sidebar/utils')['SIDEBAR_COOKIE_MAX_AGE']
+    >
+    readonly SIDEBAR_COOKIE_NAME: UnwrapRef<
+      typeof import('./src/components/ui/sidebar/utils')['SIDEBAR_COOKIE_NAME']
+    >
+    readonly SIDEBAR_KEYBOARD_SHORTCUT: UnwrapRef<
+      typeof import('./src/components/ui/sidebar/utils')['SIDEBAR_KEYBOARD_SHORTCUT']
+    >
+    readonly SIDEBAR_WIDTH: UnwrapRef<
+      typeof import('./src/components/ui/sidebar/utils')['SIDEBAR_WIDTH']
+    >
+    readonly SIDEBAR_WIDTH_ICON: UnwrapRef<
+      typeof import('./src/components/ui/sidebar/utils')['SIDEBAR_WIDTH_ICON']
+    >
+    readonly SIDEBAR_WIDTH_MOBILE: UnwrapRef<
+      typeof import('./src/components/ui/sidebar/utils')['SIDEBAR_WIDTH_MOBILE']
+    >
+    readonly Separator: UnwrapRef<typeof import('./src/components/ui/separator/index')['Separator']>
+    readonly Sheet: UnwrapRef<typeof import('./src/components/ui/sheet/index')['Sheet']>
+    readonly SheetClose: UnwrapRef<typeof import('./src/components/ui/sheet/index')['SheetClose']>
+    readonly SheetContent: UnwrapRef<
+      typeof import('./src/components/ui/sheet/index')['SheetContent']
+    >
+    readonly SheetDescription: UnwrapRef<
+      typeof import('./src/components/ui/sheet/index')['SheetDescription']
+    >
+    readonly SheetFooter: UnwrapRef<typeof import('./src/components/ui/sheet/index')['SheetFooter']>
+    readonly SheetHeader: UnwrapRef<typeof import('./src/components/ui/sheet/index')['SheetHeader']>
+    readonly SheetTitle: UnwrapRef<typeof import('./src/components/ui/sheet/index')['SheetTitle']>
+    readonly SheetTrigger: UnwrapRef<
+      typeof import('./src/components/ui/sheet/index')['SheetTrigger']
+    >
+    readonly Sidebar: UnwrapRef<typeof import('./src/components/ui/sidebar/index')['Sidebar']>
+    readonly SidebarContent: UnwrapRef<
+      typeof import('./src/components/ui/sidebar/index')['SidebarContent']
+    >
+    readonly SidebarFooter: UnwrapRef<
+      typeof import('./src/components/ui/sidebar/index')['SidebarFooter']
+    >
+    readonly SidebarGroup: UnwrapRef<
+      typeof import('./src/components/ui/sidebar/index')['SidebarGroup']
+    >
+    readonly SidebarGroupAction: UnwrapRef<
+      typeof import('./src/components/ui/sidebar/index')['SidebarGroupAction']
+    >
+    readonly SidebarGroupContent: UnwrapRef<
+      typeof import('./src/components/ui/sidebar/index')['SidebarGroupContent']
+    >
+    readonly SidebarGroupLabel: UnwrapRef<
+      typeof import('./src/components/ui/sidebar/index')['SidebarGroupLabel']
+    >
+    readonly SidebarHeader: UnwrapRef<
+      typeof import('./src/components/ui/sidebar/index')['SidebarHeader']
+    >
+    readonly SidebarInput: UnwrapRef<
+      typeof import('./src/components/ui/sidebar/index')['SidebarInput']
+    >
+    readonly SidebarInset: UnwrapRef<
+      typeof import('./src/components/ui/sidebar/index')['SidebarInset']
+    >
+    readonly SidebarMenu: UnwrapRef<
+      typeof import('./src/components/ui/sidebar/index')['SidebarMenu']
+    >
+    readonly SidebarMenuAction: UnwrapRef<
+      typeof import('./src/components/ui/sidebar/index')['SidebarMenuAction']
+    >
+    readonly SidebarMenuBadge: UnwrapRef<
+      typeof import('./src/components/ui/sidebar/index')['SidebarMenuBadge']
+    >
+    readonly SidebarMenuButton: UnwrapRef<
+      typeof import('./src/components/ui/sidebar/index')['SidebarMenuButton']
+    >
+    readonly SidebarMenuItem: UnwrapRef<
+      typeof import('./src/components/ui/sidebar/index')['SidebarMenuItem']
+    >
+    readonly SidebarMenuSkeleton: UnwrapRef<
+      typeof import('./src/components/ui/sidebar/index')['SidebarMenuSkeleton']
+    >
+    readonly SidebarMenuSub: UnwrapRef<
+      typeof import('./src/components/ui/sidebar/index')['SidebarMenuSub']
+    >
+    readonly SidebarMenuSubButton: UnwrapRef<
+      typeof import('./src/components/ui/sidebar/index')['SidebarMenuSubButton']
+    >
+    readonly SidebarMenuSubItem: UnwrapRef<
+      typeof import('./src/components/ui/sidebar/index')['SidebarMenuSubItem']
+    >
+    readonly SidebarProvider: UnwrapRef<
+      typeof import('./src/components/ui/sidebar/index')['SidebarProvider']
+    >
+    readonly SidebarRail: UnwrapRef<
+      typeof import('./src/components/ui/sidebar/index')['SidebarRail']
+    >
+    readonly SidebarSeparator: UnwrapRef<
+      typeof import('./src/components/ui/sidebar/index')['SidebarSeparator']
+    >
+    readonly SidebarTrigger: UnwrapRef<
+      typeof import('./src/components/ui/sidebar/index')['SidebarTrigger']
+    >
+    readonly Skeleton: UnwrapRef<typeof import('./src/components/ui/skeleton/index')['Skeleton']>
+    readonly Tooltip: UnwrapRef<typeof import('./src/components/ui/tooltip/index')['Tooltip']>
+    readonly TooltipContent: UnwrapRef<
+      typeof import('./src/components/ui/tooltip/index')['TooltipContent']
+    >
+    readonly TooltipProvider: UnwrapRef<
+      typeof import('./src/components/ui/tooltip/index')['TooltipProvider']
+    >
+    readonly TooltipTrigger: UnwrapRef<
+      typeof import('./src/components/ui/tooltip/index')['TooltipTrigger']
+    >
     readonly ValidationMessages: UnwrapRef<
       typeof import('./src/shared/types/wikibase-schema')['ValidationMessages']
     >
@@ -585,6 +839,9 @@ declare module 'vue' {
     readonly pausableWatch: UnwrapRef<typeof import('@vueuse/core')['pausableWatch']>
     readonly provide: UnwrapRef<typeof import('vue')['provide']>
     readonly provideLocal: UnwrapRef<typeof import('@vueuse/core')['provideLocal']>
+    readonly provideSidebarContext: UnwrapRef<
+      typeof import('./src/components/ui/sidebar/utils')['provideSidebarContext']
+    >
     readonly reactify: UnwrapRef<typeof import('@vueuse/core')['reactify']>
     readonly reactifyObject: UnwrapRef<typeof import('@vueuse/core')['reactifyObject']>
     readonly reactive: UnwrapRef<typeof import('vue')['reactive']>
@@ -607,6 +864,9 @@ declare module 'vue' {
     readonly shallowReactive: UnwrapRef<typeof import('vue')['shallowReactive']>
     readonly shallowReadonly: UnwrapRef<typeof import('vue')['shallowReadonly']>
     readonly shallowRef: UnwrapRef<typeof import('vue')['shallowRef']>
+    readonly sidebarMenuButtonVariants: UnwrapRef<
+      typeof import('./src/components/ui/sidebar/index')['sidebarMenuButtonVariants']
+    >
     readonly storeToRefs: UnwrapRef<typeof import('pinia')['storeToRefs']>
     readonly syncRef: UnwrapRef<typeof import('@vueuse/core')['syncRef']>
     readonly syncRefs: UnwrapRef<typeof import('@vueuse/core')['syncRefs']>
@@ -832,6 +1092,7 @@ declare module 'vue' {
     readonly useScrollLock: UnwrapRef<typeof import('@vueuse/core')['useScrollLock']>
     readonly useSessionStorage: UnwrapRef<typeof import('@vueuse/core')['useSessionStorage']>
     readonly useShare: UnwrapRef<typeof import('@vueuse/core')['useShare']>
+    readonly useSidebar: UnwrapRef<typeof import('./src/components/ui/sidebar/utils')['useSidebar']>
     readonly useSlots: UnwrapRef<typeof import('vue')['useSlots']>
     readonly useSorted: UnwrapRef<typeof import('@vueuse/core')['useSorted']>
     readonly useSpeechRecognition: UnwrapRef<typeof import('@vueuse/core')['useSpeechRecognition']>

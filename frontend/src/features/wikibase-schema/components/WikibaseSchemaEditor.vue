@@ -156,7 +156,7 @@ const getSaveButtonLabel = () => {
   return 'Save'
 }
 
-const getSaveButtonSeverity = () => {
+const getSaveButtonVariant = () => {
   if (saveStatus.value === 'success' && !schemaStore.isDirty) return 'default'
   if (saveStatus.value === 'error') return 'destructive'
   return 'outline'
@@ -259,7 +259,7 @@ onUnmounted(() => {
             </Button>
             <Button
               data-testid="save-btn"
-              :variant="getSaveButtonSeverity()"
+              :variant="getSaveButtonVariant()"
               :disabled="!canSave || isSaving"
               size="sm"
               @click="handleSave"
